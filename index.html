@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico Financiero Premium - 15 minutos, plan de 5 años</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            padding: 80px 20px;
+            text-align: center;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 16px 40px;
+            border-radius: 8px;
+            border: none;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+        }
+        .feature-box {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            padding: 40px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        .stat-box {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .stat-number {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+        .price-box {
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .price-number {
+            font-size: 64px;
+            font-weight: 700;
+            color: #667eea;
+            margin: 20px 0;
+        }
+        .container-wide {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .section {
+            padding: 80px 20px;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        .testimonial {
+            background: rgba(30, 41, 59, 0.5);
+            border-left: 4px solid #667eea;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .check-mark {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #667eea;
+            border-radius: 50%;
+            color: white;
+            text-align: center;
+            line-height: 24px;
+            font-weight: 700;
+            margin-right: 10px;
+        }
+        .footer {
+            background: rgba(15, 23, 42, 0.5);
+            border-top: 1px solid rgba(102, 126, 234, 0.2);
+            padding: 40px 20px;
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- HERO -->
+    <div class="hero">
+        <div class="container-wide">
+            <h1 style="font-size: 56px; font-weight: 700; margin-bottom: 20px;">
+                <span class="gradient-text">Tu Diagnóstico Financiero</span><br>
+                Plan Ejecutable en 15 Minutos
+            </h1>
+            <p style="font-size: 20px; color: #cbd5e1; margin-bottom: 40px; max-width: 700px; margin-left: auto; margin-right: auto;">
+                Responde preguntas adaptativas. Obtén un diagnóstico <strong>personalizado e inteligente</strong> de tu situación. Detecta tus 3 problemas críticos. Recibe un roadmap de 5 años cuantificado en euros.<br>
+                <strong>100% Gratis. Privado. Resultados al instante.</strong>
+            </p>
+            <button class="btn-primary" onclick="window.location.href='diagnostico-financiero-v4.html'">
+                Escanear Mi Situación →
+            </button>
+            <p style="font-size: 13px; color: #64748b; margin-top: 20px;">⏱️ 15 minutos | 🔒 Cero datos guardados | 📊 100% confidencial</p>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="section" style="background: rgba(30, 41, 59, 0.3); border-bottom: 1px solid rgba(102, 126, 234, 0.2);">
+        <div class="container-wide">
+            <div class="grid-3">
+                <div class="stat-box">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Pilares Financieros Analizados</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">100+</div>
+                    <div class="stat-label">Preguntas (Se adaptan a tu perfil)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Problemas Críticos Identificados</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUÉ OBTIENES -->
+    <div class="section">
+        <div class="container-wide">
+            <h2 style="font-size: 40px; font-weight: 700; text-align: center; margin-bottom: 60px;">
+                <span class="gradient-text">Lo Que Recibes</span>
+            </h2>
+            <div class="grid-2">
+                <div class="feature-box">
+                    <div style="font-size: 24px; margin-bottom: 20px;">📊 Health Score: 0-100</div>
+                    <p style="color: #cbd5e1; line-height: 1.6;">Tu índice de salud financiera actual, <strong>personalizado según tus respuestas</strong>. Rojo = crítico, Amarillo = preocupante, Verde = sano. No es una nota; es un diagnóstico.</p>
+                </div>
+                <div class="feature-box">
+                    <div style="font-size: 24px; margin-bottom: 20px;">🔗 Triadas (Raíz del Problema)</div>
+                    <p style="color: #cbd5e1; line-height: 1.6;">Los 3 problemas interconectados que se alimentan entre sí. No tratamos síntomas. Tratamos causa raíz.</p>
+                </div>
+                <div class="feature-box">
+                    <div style="font-size: 24px; margin-bottom: 20px;">✅ Plan Específico & Cuantificado</div>
+                    <p style="color: #cbd5e1; line-height: 1.6;">3-6 acciones concretas generadas <strong>inteligentemente desde tus respuestas</strong>. Impacto en €, %, y meses. Cada paso tiene nombre, banco, y timeline. Ejecutable esta semana.</p>
+                </div>
+                <div class="feature-box">
+                    <div style="font-size: 24px; margin-bottom: 20px;">📍 Roadmap Temporal (30d-5y)</div>
+                    <p style="color: #cbd5e1; line-height: 1.6;">Qué hacer en 30 días, 6 meses, 1 año, 5 años. Cada milestone es medible. Sabes exactamente dónde estás en el camino.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOS 8 PILARES -->
+    <div class="section" style="background: rgba(30, 41, 59, 0.3); border-top: 1px solid rgba(102, 126, 234, 0.2); border-bottom: 1px solid rgba(102, 126, 234, 0.2);">
+        <div class="container-wide">
+            <h2 style="font-size: 40px; font-weight: 700; text-align: center; margin-bottom: 60px;">
+                <span class="gradient-text">Los 8 Pilares de tu Salud Financiera</span>
+            </h2>
+            <div class="grid-2" style="margin: 40px 0;">
+                <div style="padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 8px; border-left: 4px solid #667eea;">
+                    <strong style="font-size: 18px;">💰 Ingresos</strong>
+                    <p style="color: #cbd5e1; margin-top: 8px; font-size: 14px;">¿Son sostenibles? ¿Crecen? ¿Hay ingresos pasivos?</p>
+                </div>
+                <div style="padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 8px; border-left: 4px solid #667eea;">
+                    <strong style="font-size: 18px;">💸 Gastos</strong>
+                    <p style="color: #cbd5e1; margin-top: 8px; font-size: 14px;">¿Los controlas? ¿Cuánto del ingreso gastan?</p>
+                </div>
+                <div style="padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 8px; border-left: 4px solid #667eea;">
+                    <strong style="font-size: 18px;">📉 Deuda</strong>
+                    <p style="color: #cbd5e1; margin-top: 8px; font-size: 14px;">¿Cuánto deben? ¿A qué tasa? ¿Cómo están?</p>
+                </div>
+                <div style="padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 8px; border-left: 4px solid #667eea;">
+                    <strong style="font-size: 18px;">🏦 Patrimonio</strong>
+                    <p style="color: #cbd5e1; margin-top: 8px; font-size: 14px;">¿Tienen fondo emergencia? ¿Inversiones? ¿Seguros?</p>
+                </div>
+                <div style="padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 8px; border-left: 4px solid #667eea;">
+                    <strong style="font-size: 18px;">🎯 Objetivos</strong>
+                    <p style="color: #cbd5e1; margin-top: 8px; font-size: 14px;">¿Tienen metas claras? ¿Miden progreso?</p>
+                </div>
+                <div style="padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 8px; border-left: 4px solid #667eea;">
+                    <strong style="font-size: 18px;">👨‍👩‍👧 Familia</strong>
+                    <p style="color: #cbd5e1; margin-top: 8px; font-size: 14px;">¿Están alineados? ¿Hablan de dinero?</p>
+                </div>
+                <div style="padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 8px; border-left: 4px solid #667eea;">
+                    <strong style="font-size: 18px;">⏰ Tiempo</strong>
+                    <p style="color: #cbd5e1; margin-top: 8px; font-size: 14px;">¿Tienen tiempo para gesionar finanzas?</p>
+                </div>
+                <div style="padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 8px; border-left: 4px solid #667eea;">
+                    <strong style="font-size: 18px;">🤝 Compromiso</strong>
+                    <p style="color: #cbd5e1; margin-top: 8px; font-size: 14px;">¿Consiguen cumplir? ¿Tienen resilencia?</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EJEMPLO -->
+    <div class="section">
+        <div class="container-wide">
+            <h2 style="font-size: 40px; font-weight: 700; text-align: center; margin-bottom: 60px;">
+                <span class="gradient-text">Ejemplo: Un Diagnóstico Real</span>
+            </h2>
+            <div class="feature-box" style="max-width: 800px; margin: 0 auto;">
+                <h3 style="font-size: 24px; margin-bottom: 20px;">Javier, 45 años | €3.500/mes | Casado</h3>
+                <p style="color: #cbd5e1; margin-bottom: 20px;"><strong>Health Score:</strong> 22/100 🔴 (Crítico — necesita acción)</p>
+
+                <p style="margin-top: 30px; margin-bottom: 10px;"><strong style="color: #667eea;">Problemas Detectados (Triadas):</strong></p>
+                <ul style="color: #cbd5e1; margin-left: 20px; line-height: 2;">
+                    <li>💥 <strong>DEUDA (ratio 1.9x)</strong> → consume 55h/semana → baja moral</li>
+                    <li>💔 <strong>PAREJA misalineada</strong> → ella no ve dinero como prioridad → sabotaje inconsciente</li>
+                    <li>📉 <strong>INGRESOS estancados</strong> → objetivo casa 300k = imposible sin +40% ingresos</li>
+                </ul>
+
+                <p style="margin-top: 30px; margin-bottom: 10px;"><strong style="color: #10b981;">Plan de Acción Recomendado:</strong></p>
+                <ul style="color: #cbd5e1; margin-left: 20px; line-height: 2;">
+                    <li>✅ <strong>30 días:</strong> Sesión pareja + refinanciar deuda (ahorro €450/mes)</li>
+                    <li>✅ <strong>6 meses:</strong> Fondo emergencia (1-3 meses ahorrados)</li>
+                    <li>✅ <strong>12 meses:</strong> Deuda -20%, ingresos +10% (freelance 10h/semana)</li>
+                    <li>✅ <strong>5 años:</strong> Deuda =0, fondo 6 meses, casa posible</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRICING -->
+    <div class="section" style="background: rgba(30, 41, 59, 0.3); border-top: 1px solid rgba(102, 126, 234, 0.2); border-bottom: 1px solid rgba(102, 126, 234, 0.2);">
+        <div class="container-wide">
+            <h2 style="font-size: 40px; font-weight: 700; text-align: center; margin-bottom: 60px;">
+                <span class="gradient-text">Dos Planes. Una Visión.</span>
+            </h2>
+            <div class="grid-2" style="max-width: 1000px; margin: 0 auto;">
+                <!-- FREEMIUM -->
+                <div class="price-box" style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(102, 126, 234, 0.2);">
+                    <h3 style="font-size: 24px; margin-bottom: 10px;">DIAGNÓSTICO</h3>
+                    <p style="color: #94a3b8; margin-bottom: 30px;">Escaneo completo de tu salud financiera</p>
+                    <div class="price-number" style="font-size: 36px; color: #10b981;">GRATIS</div>
+                    <ul style="text-align: left; color: #cbd5e1; margin: 40px 0; line-height: 2.5;">
+                        <li><span class="check-mark">✓</span> Health Score 0-100</li>
+                        <li><span class="check-mark">✓</span> 8 pilares analizados</li>
+                        <li><span class="check-mark">✓</span> Triadas detectadas</li>
+                        <li><span class="check-mark">✓</span> Plan 5 años en pantalla</li>
+                        <li style="color: #64748b;"><span style="display: inline-block; width: 24px; color: #64748b;">✗</span> PDF exportable</li>
+                        <li style="color: #64748b;"><span style="display: inline-block; width: 24px; color: #64748b;">✗</span> Simulador interactivo</li>
+                    </ul>
+                </div>
+
+                <!-- PREMIUM -->
+                <div class="price-box" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%); border: 2px solid #667eea;">
+                    <h3 style="font-size: 24px; margin-bottom: 10px; color: #667eea;">PREMIUM</h3>
+                    <p style="color: #94a3b8; margin-bottom: 30px;">Plan ejecutable + simulación 5 años</p>
+                    <div class="price-number">29€</div>
+                    <p style="color: #94a3b8; margin-bottom: 30px; font-size: 14px;">Por 1 diagnóstico</p>
+                    <ul style="text-align: left; color: #cbd5e1; margin: 40px 0; line-height: 2.5;">
+                        <li><span class="check-mark">✓</span> Todo de DIAGNÓSTICO</li>
+                        <li><span class="check-mark">✓</span> <strong>PDF ejecutivo profesional</strong></li>
+                        <li><span class="check-mark">✓</span> <strong>Simulador 5 años interactivo</strong></li>
+                        <li><span class="check-mark">✓</span> <strong>"¿Qué si...?" análisis</strong></li>
+                        <li><span class="check-mark">✓</span> <strong>Exportar plan (Word/PDF)</strong></li>
+                        <li><span class="check-mark">✓</span> <strong>Acceso 1 año</strong></li>
+                    </ul>
+                    <button class="btn-primary" style="width: 100%; margin-top: 20px;">
+                        Próximamente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA FINAL -->
+    <div class="section">
+        <div class="container-wide" style="text-align: center;">
+            <h2 style="font-size: 40px; font-weight: 700; margin-bottom: 40px;">
+                <span class="gradient-text">Empieza en 15 Minutos</span>
+            </h2>
+            <p style="font-size: 18px; color: #cbd5e1; margin-bottom: 40px; max-width: 700px; margin-left: auto; margin-right: auto;">
+                Tu situación financiera es compleja. Tu diagnóstico no debería serlo.
+            </p>
+            <button class="btn-primary" onclick="window.location.href='diagnostico-financiero-v4.html'" style="font-size: 18px; padding: 20px 50px;">
+                Escanear Mi Salud Financiera →
+            </button>
+            <p style="font-size: 13px; color: #64748b; margin-top: 30px;">
+                ⏱️ 15 minutos | 🔒 Privado | 📊 Inmediato
+            </p>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="container-wide">
+            <p>© 2026 Diagnóstico Financiero | Creado por Javier Méndez Consultoría</p>
+            <p style="margin-top: 10px;">⚠️ Herramienta educativa. No es asesoramiento financiero profesional. Úsalo como punto de partida, no como única referencia.</p>
+        </div>
+    </div>
+</body>
+</html>
