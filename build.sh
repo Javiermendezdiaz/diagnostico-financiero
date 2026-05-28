@@ -1,2 +1,2 @@
 #!/bin/bash
-pip install fastapi uvicorn python-multipart numpy
+pip install fastapi uvicorn python-multipart num reportlabpy
