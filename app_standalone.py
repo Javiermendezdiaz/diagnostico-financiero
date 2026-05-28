@@ -136,7 +136,34 @@ async def diagnose(request: Request):
 
 # Mount static files LAST to serve everything else (SPA fallback)
 # This serves index.html and all static assets from the current directory
-app.mount("/", StaticFiles(directory=app_dir, html=True), name="static")
+
+# Create a custom catch-all route that serves index.html for unmatched paths
+# This must come AFTER all API routes so they take precedence
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
+        """
+            Serve static files or fallback to index.html for single-page app routing.
+                This route is checked AFTER all other routes, so API endpoints take precedence.
+                    """
+        from fastapi.responses import FileResponse, HTMLResponse
+        import os as os_module
+
+    # Try to serve the actual file if it exists
+    file_path = app_dir / full_path
+    if file_path.exists() and file_path.is_file():
+                return FileResponse(str(file_path))
+
+    # For CSS, JS, and other assets, return 404 if they don't exist
+    if any(full_path.endswith(ext) for ext in ['.css', '.js', '.json', '.png', '.jpg', '.ico', '.svg', '.woff', '.woff2']):
+                return {"error": "Not found"}, 404
+
+    # For other requests, serve index.html (SPA fallback)
+    index_html = app_dir / "index.html"
+    if index_html.exists():
+                with open(str(index_html), 'r', encoding='utf-8') as f:
+                                return HTMLResponse(content=f.read())
+
+    return {"error": "Not found"}, 404
 
 # ============ MAIN ============
 
