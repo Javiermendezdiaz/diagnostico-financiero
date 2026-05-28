@@ -72,6 +72,12 @@ app.add_middleware(
       allow_headers=["*"],
 )
 
+# ============ STATIC FILES ============
+
+# Mount static files FIRST - before API endpoints
+# This serves index.html and all static assets from the current directory
+app.mount("/", StaticFiles(directory=app_dir, html=True), name="static")
+
 # ============ API ENDPOINTS ============
 
 @app.get("/health")
@@ -131,12 +137,6 @@ except Exception as e:
         import traceback
         traceback.print_exc()
         return {"success": False, "error": str(e)}
-
-# ============ STATIC FILES ============
-
-# Mount static files BEFORE the catch-all route
-# This serves index.html and all static assets from the current directory
-app.mount("/", StaticFiles(directory=app_dir, html=True), name="static")
 
 # ============ MAIN ============
 
