@@ -136,7 +136,6 @@ async def diagnose(request: Request):
 
 # Mount static files LAST to serve everything else (SPA fallback)
 # This serves index.html and all static assets from the current directory
-app.mount("/", StaticFiles(directory=app_dir, html=True), name="static")# ============ STATIC FILES ============
 
 # Create a custom catch-all route that serves index.html for unmatched paths
 # This must come AFTER all API routes so they take precedence
