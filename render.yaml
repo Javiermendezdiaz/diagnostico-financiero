@@ -1,0 +1,10 @@
+services:
+  - type: web
+      name: diagnostico-financiero
+          env: python
+              plan: free
+                  buildCommand: "./build.sh"
+                      startCommand: "python app_standalone.py"
+                          envVars:
+                                - key: PYTHON_VERSION
+                                        value: "3.11"
