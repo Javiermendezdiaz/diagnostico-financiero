@@ -243,6 +243,41 @@ class ObjectionRequest(Base):
 
 
 # ============================================================================
+# TASK #28: RETENTION POLICY (GDPR Art. 5.1.e Storage Limitation)
+# ============================================================================
+
+class RetentionPolicy(str, Enum):
+    """Retention policy classifications (Art. 5.1.e)"""
+    DIAGNOSIS_12M = "DIAGNOSIS_12M"
+    OPEN_ANSWERS_12M = "OPEN_ANSWERS_12M"
+    CONSENT_INDEFINITE = "CONSENT_INDEFINITE"
+    BREACH_3Y = "BREACH_3Y"
+    DELETION_REQUEST_30D = "DELETION_REQUEST_30D"
+
+
+class RetentionSchedule(Base):
+    """
+    GDPR Art. 5.1.e — Data retention schedule with automatic cleanup
+    Soft delete (7d grace) then hard delete
+    """
+    __tablename__ = "retention_schedules"
+    __table_args__ = (
+        Index("idx_entity_expires", "entity_type", "expires_at"),
+        Index("idx_deletion_executed", "deletion_executed_at"),
+    )
+
+    id = Column(String(36), primary_key=True)
+    entity_type = Column(String(50), nullable=False)  # diagnosis, consent_record, breach_incident
+    entity_id = Column(String(36), nullable=False, index=True)
+    retention_policy = Column(SQLEnum(RetentionPolicy), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    expires_at = Column(DateTime, nullable=False, index=True)
+    soft_deleted_at = Column(DateTime, nullable=True)
+    deletion_executed_at = Column(DateTime, nullable=True)
+    audit_log = Column(JSON, default=list)
+
+
+# ============================================================================
 # TASK #26: BREACH NOTIFICATION (GDPR Art. 33-34)
 # ============================================================================
 
@@ -389,6 +424,17 @@ class BreachReportRequest(BaseModel):
 
 class NotifyAuthorityRequest(BaseModel):
     incident_id: str
+
+
+class RetentionScheduleRequest(BaseModel):
+    entity_type: str
+    entity_id: str
+    retention_policy: str
+
+
+class RetentionExtendRequest(BaseModel):
+    entity_id: str
+    new_policy: str
 
 
 # ============================================================================
@@ -1073,48 +1119,7 @@ async def breach_history(limit: int = 100, severity: Optional[str] = None, db: S
 
 
 # ============================================================================
-# BACKGROUND CRON (OPTIONAL)
+# TASK #28: RETENTION POLICY (GDPR Art. 5.1.e)
 # ============================================================================
 
-def detect_suspicious_activity_cron():
-    """Background breach detection (hourly)"""
-    try:
-        db = SessionLocal()
-        logger.debug("[CRON] Breach detection scan completed")
-        db.close()
-    except Exception as e:
-        logger.error(f"[CRON] Error: {e}")
-
-
-try:
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(detect_suspicious_activity_cron, 'interval', hours=1)
-    scheduler.start()
-    logger.info("[CRON] Initialized (hourly)")
-except Exception as e:
-    logger.warning(f"[CRON] Not initialized: {e}")
-
-
-# ============================================================================
-# STATIC FILES
-# ============================================================================
-
-if (app_dir / "dist").exists():
-    app.mount("/", StaticFiles(directory=str(app_dir / "dist"), html=True), name="static")
-
-if output_dir.exists():
-    app.mount("/reports", StaticFiles(directory=str(output_dir)), name="reports")
-
-
-# ============================================================================
-# ENTRY POINT
-# ============================================================================
-
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))
-    logger.info(f"Starting Diagnóstico Financiero API v4.0 on port {port}")
-    logger.info("Endpoints: /health, /api/v1/schema, /api/v1/diagnose")
-    logger.info("  Consent: /api/v1/consent/init, /verify, /withdraw, /status/{user_id}")
-    logger.info("  User Rights: /api/v1/users/{user_id}/data, /rectify, /export, /delete-request, /objection, /rights-status")
-    logger.info("  Breach: /api/v1/breach/report, /notify-authority, /history")
-    uvicorn.run(app, host="0.0.0.0", port=port)
+@app.post("/api/
