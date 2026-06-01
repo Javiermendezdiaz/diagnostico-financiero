@@ -256,10 +256,8 @@ async def get_couple_result(couple_id: str):
 # STRIPE INITIALIZATION
 # ============================================================================
 
-stripe.api_key = os.getenv("STRIPE_API_KEY")
-STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+stripe.api_key = os.getenv("STRIPE_API_KEY", os.getenv("STRIPE_API_KEY_PROD", "sk_live_test_placeholder"))
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "whsec_test_placeholder")
 
 
-# ============================================================================
-# STRIPE PAYMENT ENDPOINTS (SPRINT 8)
-# ===========================================
+# ========================================================================
