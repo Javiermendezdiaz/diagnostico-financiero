@@ -19,7 +19,39 @@ import os
 import hmac
 import hashlib
 
+# SPRINT 7 + SPRINT 9 + SPRINT 11 imports
+from psychology_backend_service import PsychologyBackendService
+from analytics_events_service import AnalyticsEventsService
+from sprint9_ab_testing_adapter import ABTestingAdapter
+from couple_management import CoupleService, get_db_session
+
 logger = logging.getLogger(__name__)
+
+# ============================================================================
+# GLOBAL INSTANCES — DB SESSION + COUPLE SERVICE
+# ============================================================================
+# CRITICAL: Inicializar en startup para inyección de dependencias
+_db_session = None
+_couple_service = None
+
+@app.on_event("startup")
+async def startup_services():
+    """Inicializa servicios globales al arrancar FastAPI"""
+    global _db_session, _couple_service
+    try:
+        _db_session = get_db_session()
+        _couple_service = CoupleService(session=_db_session)
+        logger.info("✅ DB Session + CoupleService inicializados correctamente")
+    except Exception as e:
+        logger.error(f"❌ Error al inicializar servicios: {e}")
+
+def get_couple_service():
+    """Dependency injection para endpoints"""
+    return _couple_service
+
+def get_db():
+    """Dependency injection para BD"""
+    return _db_session
 
 # ============================================================================
 # SCHEMAS
@@ -182,6 +214,242 @@ async def extract_key_insight(payload: ScoringPayload):
         "severity": "low",
         "cta_text": "✨ Desbloquear Informe y Agendar Validación"
     }
+
+
+# ============================================================================
+# SPRINT 7: PSYCHOLOGY ENDPOINTS
+# ============================================================================
+
+@app.get("/api/v1/sessions/{session_id}/urgency", tags=["Psychology"])
+async def get_urgency_state(session_id: str, couple_service: CoupleService = Depends(get_couple_service), db_session = Depends(get_db)):
+    """
+    Retorna estado actual del timer urgency (SPRINT 7 + SPRINT 9).
+    Frontend llama cada segundo para actualizar countdown.
+    """
+    try:
+        session = couple_service.get_session(session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+
+        # Obtener estado del timer
+        urgency_state = PsychologyBackendService.get_urgency_state(session)
+
+        # Log event
+        ab_cohort = getattr(session, 'ab_cohort', 'unknown')
+        AnalyticsEventsService.log_timer_viewed(
+            db_session,
+            session_id,
+            int(urgency_state["remaining_seconds"]),
+            ab_cohort
+        )
+
+        return urgency_state
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+@app.get("/api/v1/sessions/{session_id}/social-proof", tags=["Psychology"])
+async def get_social_proof(session_id: str, couple_service: CoupleService = Depends(get_couple_service), db_session = Depends(get_db)):
+    """
+    Retorna ciudad asignada para este session (SPRINT 7 + SPRINT 9).
+    Social proof: "X usuarios en [Ciudad] completaron el análisis esta semana".
+    """
+    try:
+        session = couple_service.get_session(session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+
+        # Obtener city
+        proof_data = PsychologyBackendService.get_social_proof_data(session)
+
+        # Log event
+        ab_cohort = getattr(session, 'ab_cohort', 'unknown')
+        AnalyticsEventsService.log_city_viewed(
+            db_session,
+            session_id,
+            proof_data["city"],
+            ab_cohort
+        )
+
+        return proof_data
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+@app.get("/api/v1/sessions/{session_id}/fomo-badges", tags=["Psychology"])
+async def get_fomo_badges(session_id: str, couple_service: CoupleService = Depends(get_couple_service), db_session = Depends(get_db)):
+    """
+    Retorna spots disponibles por tier (SPRINT 7 + SPRINT 9).
+    FOMO badge: "Solo 2 spots disponibles en el plan Básico".
+    """
+    try:
+        session = couple_service.get_session(session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+
+        # Obtener badges
+        badges = PsychologyBackendService.get_fomo_badges(session)
+
+        # Log each visible badge
+        ab_cohort = getattr(session, 'ab_cohort', 'unknown')
+        for tier in ["basic", "professional", "pareja"]:
+            key = f"{tier}_spots"
+            if key in badges and badges[key] > 0:
+                AnalyticsEventsService.log_badge_viewed(
+                    db_session,
+                    session_id,
+                    tier,
+                    badges[key],
+                    ab_cohort
+                )
+
+        return badges
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+@app.post("/api/v1/tiers/{tier}/click", tags=["Psychology"])
+async def on_tier_clicked(tier: str, session_id: str, couple_service: CoupleService = Depends(get_couple_service), db_session = Depends(get_db)):
+    """
+    Cuando usuario hace click en tier (SPRINT 7 + SPRINT 9).
+    Decrementa FOMO spot + log event para analytics.
+    """
+    try:
+        session = couple_service.get_session(session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+
+        # Decrementa spot
+        success = PsychologyBackendService.decrement_fomo_spot(session, tier, db_session)
+
+        if not success:
+            raise HTTPException(status_code=400, detail=f"No spots available for {tier}")
+
+        # Log event
+        ab_cohort = getattr(session, 'ab_cohort', 'unknown')
+        AnalyticsEventsService.log_tier_clicked(db_session, session_id, tier, ab_cohort)
+
+        # Retornar estado actualizado
+        badges = PsychologyBackendService.get_fomo_badges(session)
+        return {
+            "status": "recorded",
+            "tier": tier,
+            "spots_remaining": badges.get(f"{tier}_spots", 0)
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+@app.post("/api/v1/sessions/create", tags=["Sessions"])
+async def create_session_with_psychology(couple_id: str, user_a_id: str, user_b_id: str, couple_service: CoupleService = Depends(get_couple_service), db_session = Depends(get_db)):
+    """
+    SPRINT 7 + SPRINT 9 + SPRINT 11 versión completa (FASE 2).
+    Crea sesión + inicia psychology mechanics + asigna A/B cohort (50/50).
+
+    INTEGRACIÓN CRÍTICA:
+    1. Crear sesión en BD
+    2. Asignar cohort A/B (50/50)
+    3. Inicializar psychology (timer, social proof, FOMO)
+    4. Retornar config combinada con feature flags
+    """
+    try:
+        # 1. Crear sesión en BD
+        session = couple_service.create_session(couple_id, user_a_id, user_b_id)
+        if not session:
+            raise HTTPException(status_code=500, detail="Failed to create session")
+
+        # 2. SPRINT 9: Asignar cohort (50/50)
+        cohort = ABTestingAdapter.assign_cohort(couple_id)
+        session.ab_cohort = cohort
+        session.ab_assigned_at = datetime.utcnow()
+        db_session.commit()
+
+        # 3. SPRINT 7: Inicializar psychology (funciona igual para ambos cohorts)
+        psychology = PsychologyBackendService.initialize_session_psychology(session, db_session)
+
+        # 4. Obtener feature flags para frontend
+        ab_flags = ABTestingAdapter.get_frontend_flags(couple_id)
+
+        # Log session_started event
+        AnalyticsEventsService.log_session_started(db_session, couple_id, cohort)
+
+        # 5. Retornar config combinada
+        return {
+            "session_id": session.id,
+            "status": "initialized",
+            "ab_cohort": cohort,
+            "ab_flags": ab_flags,
+            "psychology": psychology,
+            "created_at": session.created_at.isoformat(),
+            "expires_at": session.expires_at.isoformat()
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+# ============================================================================
+# SPRINT 9: A/B TESTING ENDPOINTS
+# ============================================================================
+
+@app.get("/api/v1/ab-test/cohort/{session_id}", tags=["A/B Testing"])
+async def get_ab_cohort_config(session_id: str, couple_service: CoupleService = Depends(get_couple_service)):
+    """
+    GET /api/v1/ab-test/cohort/{session_id}
+    Retorna configuración A/B para este session (feature flags, pricing, etc.)
+    """
+    try:
+        session = couple_service.get_session(session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+
+        ab_cohort = getattr(session, 'ab_cohort', 'control')
+        flags = ABTestingAdapter.get_frontend_flags(session_id)
+
+        return flags
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+@app.post("/api/v1/ab-test/log-payment", tags=["A/B Testing"])
+async def log_payment_metric(session_id: str, plan: str, success: bool, time_seconds: float, couple_service: CoupleService = Depends(get_couple_service), db_session = Depends(get_db)):
+    """
+    POST /api/v1/ab-test/log-payment
+    Registra métrica de pago para A/B testing.
+    """
+    try:
+        session = couple_service.get_session(session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+
+        ab_cohort = getattr(session, 'ab_cohort', 'unknown')
+
+        # Log payment event
+        AnalyticsEventsService.log_payment_attempt(
+            db_session, session_id, plan, success, time_seconds, ab_cohort
+        )
+
+        return {"status": "logged", "session_id": session_id}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 
 # ============================================================================

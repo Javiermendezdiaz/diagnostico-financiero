@@ -26,8 +26,28 @@ class CoupleSession(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     expires_at = Column(DateTime, default=lambda: datetime.utcnow() + timedelta(hours=72))
 
+    # SPRINT 7 — Timer urgency fields
+    session_urgency_started_at = Column(DateTime, nullable=True)
+    session_urgency_expires_at = Column(DateTime, nullable=True)
+    urgency_status = Column(String(20), default="inactive")  # inactive, active, expired, completed
+
+    # SPRINT 7 — Social proof fields
+    social_proof_city = Column(String(50), nullable=True)
+    social_proof_generated_at = Column(DateTime, nullable=True)
+
+    # SPRINT 7 — FOMO fields (decremental spots)
+    tier_spots_available_basic = Column(Integer, default=2)
+    tier_spots_available_professional = Column(Integer, default=1)
+    tier_spots_available_pareja = Column(Integer, default=3)
+    fomo_last_update_at = Column(DateTime, nullable=True)
+
+    # SPRINT 9 — A/B Testing fields
+    ab_cohort = Column(String(20), default="unknown")  # "supremo", "control", "unknown"
+    ab_assigned_at = Column(DateTime, nullable=True)
+    ab_variant_active = Column(Boolean, default=True)
+
     def __repr__(self):
-        return f"<CoupleSession {self.id} ({self.status})>"
+        return f"<CoupleSession {self.id} ({self.status}) [cohort:{self.ab_cohort}]>"
 
 
 class CoupleAnswers(Base):
@@ -60,6 +80,21 @@ class CoupleReport(Base):
 
     def __repr__(self):
         return f"<CoupleReport {self.couple_session_id} (friction:{self.friction_score})>"
+
+
+class AnalyticsEvent(Base):
+    """Registra eventos granulares de interacción (agnóstico de variant)"""
+    __tablename__ = "analytics_events"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    couple_session_id = Column(String(255), nullable=False, index=True)
+    event_type = Column(String(100), nullable=False)  # timer_viewed, badge_viewed, tier_clicked, etc.
+    ab_cohort = Column(String(20), nullable=False, default="unknown")  # "supremo", "control"
+    event_data = Column(Text, nullable=False)  # JSON payload
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    def __repr__(self):
+        return f"<AnalyticsEvent {self.event_type} @ {self.created_at} ({self.ab_cohort})>"
 
 
 class CoupleService:
