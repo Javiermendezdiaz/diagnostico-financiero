@@ -1,0 +1,28 @@
+{
+  "name": "gdpr-data-request-ui",
+  "version": "1.0.0",
+  "description": "Frontend React/Next.js para GDPR Data Request Application",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "next lint",
+    "export": "next export"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "axios": "^1.6.0",
+    "swr": "^2.2.0",
+    "typescript": "^5.1.3",
+    "clsx": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/node": "^20.3.1",
+    "eslint": "^8.45.0",
+    "eslint-config-next": "^14.0.0"
+  }
+}

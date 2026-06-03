@@ -1,0 +1,342 @@
+#!/usr/bin/env python3
+"""
+Couple Mirror PDF Chapter 9 Generator
+Generates "Mapa de Fricción Conyugal" chapter for diagnostic reports
+when couple mirror session is completed.
+"""
+
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.platypus import (
+    Paragraph, Spacer, Table, TableStyle, PageBreak, KeepTogether
+)
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
+from reportlab.lib import colors
+from typing import List, Dict, Optional
+from datetime import datetime
+
+
+class CoupleChapterGenerator:
+    """
+    Generates Chapter 9: Mapa de Fricción Conyugal for couple mirror sessions
+    """
+
+    # Colors
+    COLOR_YELLOW = colors.HexColor("#FDD731")
+    COLOR_BLACK = colors.HexColor("#020203")
+    COLOR_GRAY = colors.HexColor("#343434")
+    COLOR_LIGHT = colors.HexColor("#FAF8F3")
+
+    # Severity color mapping (as hex strings for Paragraph color attributes)
+    SEVERITY_COLORS = {
+        'low': "#4caf50",      # Green
+        'medium': "#ffa726",   # Orange
+        'high': "#ef5350",     # Red
+    }
+
+    @classmethod
+    def generate_chapter(cls, couple_data: Dict) -> List:
+        """
+        Generate complete Chapter 9 content
+        Returns list of Platypus elements
+        """
+        elements = []
+        styles = getSampleStyleSheet()
+
+        # Custom styles
+        chapter_title_style = ParagraphStyle(
+            'ChapterTitle',
+            parent=styles['Heading1'],
+            fontSize=28,
+            textColor=cls.COLOR_BLACK,
+            spaceAfter=6,
+            fontName='Helvetica-Bold',
+            letterSpacing=0.5,
+        )
+
+        chapter_num_style = ParagraphStyle(
+            'ChapterNum',
+            parent=styles['Normal'],
+            fontSize=12,
+            textColor=cls.COLOR_YELLOW,
+            spaceAfter=12,
+            fontName='Helvetica-Bold',
+            textTransform='uppercase',
+            letterSpacing=1,
+        )
+
+        section_title_style = ParagraphStyle(
+            'SectionTitle',
+            parent=styles['Heading2'],
+            fontSize=14,
+            textColor=cls.COLOR_BLACK,
+            spaceAfter=12,
+            spaceBefore=16,
+            fontName='Helvetica-Bold',
+            letterSpacing=0.3,
+        )
+
+        body_style = ParagraphStyle(
+            'BodyJustify',
+            parent=styles['Normal'],
+            fontSize=10,
+            textColor=cls.COLOR_GRAY,
+            alignment=TA_JUSTIFY,
+            spaceAfter=12,
+            leading=14,
+        )
+
+        # CHAPTER HEADER
+        elements.append(Spacer(1, 0.3*inch))
+        elements.append(Paragraph("CAPÍTULO 9", chapter_num_style))
+        elements.append(Paragraph("Mapa de Fricción Conyugal", chapter_title_style))
+        elements.append(Spacer(1, 0.2*inch))
+
+        # INTRODUCTION
+        intro_text = (
+            "El dinero es una fuente silenciosa de fricción conyugal. Esta sección presenta "
+            "un análisis de alineación financiera entre vos y tu pareja, basado en respuestas "
+            "independientes a preguntas clave sobre ahorro, riesgo, gasto presente y planes generacionales."
+        )
+        elements.append(Paragraph(intro_text, body_style))
+        elements.append(Spacer(1, 0.15*inch))
+
+        # ALIGNMENT SCORE SECTION
+        alignment_score = couple_data.get('alignment_score', 0)
+        elements.append(Paragraph("Puntuación de Alineación", section_title_style))
+
+        # Score visualization and interpretation
+        score_content = cls._generate_score_section(
+            alignment_score, body_style, chapter_title_style
+        )
+        elements.extend(score_content)
+        elements.append(Spacer(1, 0.2*inch))
+
+        # FRICTION ZONES SECTION
+        friction_zones = couple_data.get('friction_zones', [])
+        if friction_zones:
+            elements.append(Paragraph("Zonas de Fricción Identificadas", section_title_style))
+            friction_content = cls._generate_friction_zones(
+                friction_zones, body_style, section_title_style
+            )
+            elements.extend(friction_content)
+            elements.append(Spacer(1, 0.2*inch))
+
+        # GENERAL NARRATIVE
+        general_narrative = couple_data.get('general_narrative', '')
+        if general_narrative:
+            elements.append(Paragraph("Interpretación General", section_title_style))
+            elements.append(Paragraph(general_narrative, body_style))
+            elements.append(Spacer(1, 0.2*inch))
+
+        # RECOMMENDATION
+        recommendation = couple_data.get('recommendation', '')
+        if recommendation:
+            elements.append(Paragraph("Recomendación", section_title_style))
+            elements.append(Paragraph(recommendation, body_style))
+            elements.append(Spacer(1, 0.2*inch))
+
+        # ACTION ITEMS
+        action_items = cls._generate_action_items(couple_data)
+        if action_items:
+            elements.extend(action_items)
+
+        # METHODOLOGY NOTE
+        elements.append(Spacer(1, 0.2*inch))
+        methodology_style = ParagraphStyle(
+            'Methodology',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=colors.HexColor("#999999"),
+            alignment=TA_LEFT,
+            italic=True,
+        )
+        methodology = (
+            "<i>Este análisis utiliza un modelo ponderado de 5 dimensiones financieras. "
+            "Las diferencias se presentan como 'visiones distintas', no como conflictos. "
+            "El objetivo es fortalecer el diálogo conyugal.</i>"
+        )
+        elements.append(Paragraph(methodology, methodology_style))
+
+        return elements
+
+    @classmethod
+    def _generate_score_section(cls, score: float, body_style, title_style) -> List:
+        """Generate alignment score visualization section"""
+        elements = []
+
+        # Score box
+        score_color = cls.COLOR_YELLOW if score >= 70 else colors.HexColor("#ffa726") if score >= 50 else colors.HexColor("#ef5350")
+
+        score_text = f"{score:.0f}/100"
+        if score >= 85:
+            interpretation = "Alineación Excelente"
+            detail = "Vuestros perfiles financieros son coherentes. El dinero probablemente NO es fuente de fricción."
+        elif score >= 70:
+            interpretation = "Alineación Buena"
+            detail = "Hay convergencia en lo fundamental, aunque algunos puntos merecen atención."
+        elif score >= 50:
+            interpretation = "Alineación Moderada"
+            detail = "Existen diferencias notables que pueden generar tensión si no se gestionan."
+        else:
+            interpretation = "Alineación Baja"
+            detail = "Vuestras visiones financieras están significativamente desalineadas."
+
+        # Create score table
+        score_table_data = [
+            [
+                Paragraph(f"<b>{score_text}</b><br/><font size=8>{interpretation}</font>", title_style),
+                Paragraph(detail, body_style),
+            ]
+        ]
+
+        score_table = Table(
+            score_table_data,
+            colWidths=[1.5*inch, 4*inch],
+        )
+        score_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, 0), colors.HexColor("#FAF8F3")),
+            ('TEXTCOLOR', (0, 0), (-1, -1), cls.COLOR_BLACK),
+            ('ALIGN', (0, 0), (0, 0), 'CENTER'),
+            ('ALIGN', (1, 0), (1, 0), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (0, 0), 20),
+            ('BORDER', (0, 0), (-1, -1), 0.5, score_color),
+            ('LEFTPADDING', (0, 0), (-1, -1), 12),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+            ('TOPPADDING', (0, 0), (-1, -1), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ]))
+        elements.append(score_table)
+        elements.append(Spacer(1, 0.15*inch))
+
+        return elements
+
+    @classmethod
+    def _generate_friction_zones(cls, friction_zones: List[Dict], body_style, section_title_style) -> List:
+        """Generate detailed friction zones section"""
+        elements = []
+
+        for i, zone in enumerate(friction_zones, 1):
+            dimension = zone.get('dimension', 'unknown')
+            severity = zone.get('severity', 'medium')
+            narrative = zone.get('narrative', '')
+            gap = zone.get('gap', 0)
+
+            # Dimension title with severity indicator
+            dim_display = dimension.replace('_', ' ').title()
+            severity_icon = cls._get_severity_icon(severity)
+            severity_color = cls.SEVERITY_COLORS.get(severity, "#999999")
+
+            # Create friction zone box
+            zone_data = [
+                [
+                    Paragraph(
+                        f"<font color='{severity_color}'><b>{severity_icon} {dim_display}</b></font>",
+                        section_title_style
+                    ),
+                ],
+                [
+                    Paragraph(narrative, body_style),
+                ],
+            ]
+
+            zone_table = Table(zone_data, colWidths=[5.5*inch])
+            zone_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#FAF8F3")),
+                ('BORDER', (0, 0), (-1, -1), 1, colors.HexColor("#CCCCCC")),
+                ('LEFTPADDING', (0, 0), (-1, -1), 12),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+                ('TOPPADDING', (0, 0), (-1, -1), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+                ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),
+            ]))
+
+            elements.append(zone_table)
+            if i < len(friction_zones):
+                elements.append(Spacer(1, 0.1*inch))
+
+        return elements
+
+    @classmethod
+    def _generate_action_items(cls, couple_data: Dict) -> List:
+        """Generate actionable next steps"""
+        elements = []
+
+        action_style = ParagraphStyle(
+            'ActionItem',
+            parent=ParagraphStyle('temp', fontSize=10, textColor=cls.COLOR_BLACK),
+            fontSize=10,
+            textColor=cls.COLOR_BLACK,
+            leftIndent=20,
+            spaceAfter=8,
+        )
+
+        elements.append(
+            Paragraph("Próximos Pasos", ParagraphStyle(
+                'ActionTitle',
+                fontSize=14,
+                textColor=cls.COLOR_BLACK,
+                fontName='Helvetica-Bold',
+                spaceAfter=12,
+            ))
+        )
+
+        high_friction = [z for z in couple_data.get('friction_zones', []) if z.get('severity') == 'high']
+        score = couple_data.get('alignment_score', 50)
+
+        if high_friction:
+            elements.append(Paragraph(
+                "1. Priorizar conversación sobre: " + ", ".join([z['dimension'].replace('_', ' ') for z in high_friction]),
+                action_style
+            ))
+
+        if score < 70:
+            elements.append(Paragraph(
+                f"2. Programar sesión de planificación conjunta (3h auditoría + 3h plan + 3h follow-up anual)",
+                action_style
+            ))
+
+        elements.append(Paragraph(
+            f"{3 if score < 70 else 2}. Realizar diálogo sin presión, enfocado en entender (no juzgar) las diferencias",
+            action_style
+        ))
+
+        elements.append(Paragraph(
+            f"{4 if score < 70 else 3}. Revisar este análisis en 3-6 meses para medir progreso",
+            action_style
+        ))
+
+        return elements
+
+    @staticmethod
+    def _get_severity_icon(severity: str) -> str:
+        """Get emoji icon for severity level"""
+        icons = {
+            'low': '🟢',
+            'medium': '🟡',
+            'high': '🔴',
+        }
+        return icons.get(severity, '○')
+
+
+# Integration function for existing PDF generator
+def inject_couple_chapter(elements_list: List, couple_session_data: Optional[Dict]) -> List:
+    """
+    Inject Couple Mirror chapter into existing PDF elements
+    Call this before calling doc.build(elements_list)
+    """
+    if not couple_session_data or couple_session_data.get('status') != 'completed':
+        return elements_list
+
+    # Add page break before couple chapter
+    elements_list.append(PageBreak())
+
+    # Generate couple chapter
+    couple_chapter = CoupleChapterGenerator.generate_chapter(couple_session_data)
+    elements_list.extend(couple_chapter)
+
+    return elements_list
+                                

@@ -1,0 +1,48 @@
+{
+  "name": "gdpr-data-request-app",
+  "version": "1.0.0",
+  "description": "Standalone GDPR Data Request Application with full-stack authentication and data download",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "ts-node backend/server.ts",
+    "dev:frontend": "cd frontend && next dev",
+    "build": "cd frontend && next build",
+    "start": "node backend/server.js",
+    "db:seed": "ts-node backend/seed.ts",
+    "db:migrate": "ts-node backend/seed.ts",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "jsonwebtoken": "^9.0.0",
+    "archiver": "^6.0.1",
+    "pg": "^8.11.3",
+    "express-rate-limit": "^7.1.5",
+    "dotenv": "^16.3.1",
+    "nodemailer": "^6.9.7",
+    "next": "^14.2.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/nodemailer": "^6.4.14",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

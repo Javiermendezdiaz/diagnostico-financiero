@@ -1,0 +1,650 @@
+openapi: 3.1.0
+info:
+  title: GDPR Data Requests API
+  version: 1.0.0
+  description: >
+    Production-ready API for GDPR compliance (Articles 15, 17, 20).
+    Handles data access requests, deletion requests, and portability exports.
+  contact:
+    name: Adapta Family Office
+    email: compliance@adapta.es
+  license:
+    name: Proprietary
+    url: https://adapta.es
+
+servers:
+  - url: https://api.adapta.es/v1
+    description: Production
+  - url: https://staging-api.adapta.es/v1
+    description: Staging
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >
+        Bearer token with 15-minute expiration.
+        Use /auth/refresh to obtain new token when 401 Unauthorized received.
+
+  schemas:
+    DataRequest:
+      type: object
+      required:
+        - id
+        - request_type
+        - status
+        - created_at
+        - expires_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique request identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        request_type:
+          type: string
+          enum: [access, deletion, portability]
+          description: |
+            - `access`: Article 15 - Right of access to personal data
+            - `deletion`: Article 17 - Right to be forgotten
+            - `portability`: Article 20 - Right to data portability
+        status:
+          type: string
+          enum: [pending, processing, completed, rejected]
+          description: |
+            - `pending`: Awaiting processing
+            - `processing`: Currently being processed
+            - `completed`: Ready for download (access/portability) or executed (deletion)
+            - `rejected`: Request denied (e.g., cannot verify identity)
+        created_at:
+          type: string
+          format: date-time
+          description: Request creation timestamp
+          example: "2025-01-15T14:30:00Z"
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Completion timestamp (null if not yet completed)
+          example: "2025-01-16T10:15:00Z"
+        expires_at:
+          type: string
+          format: date-time
+          description: Data export expiration (status=completed only). 30 days from completion.
+          example: "2025-02-15T10:15:00Z"
+        result_url:
+          type: string
+          format: uri
+          nullable: true
+          description: |
+            Download URL for completed access/portability requests.
+            Null for deletion requests or non-completed status.
+            URL valid until `expires_at`. Requires bearer token.
+          example: "https://api.adapta.es/v1/data-requests/550e8400-e29b-41d4-a716-446655440000/download"
+        error_message:
+          type: string
+          nullable: true
+          description: Error details if status=rejected
+          example: "Identity verification failed"
+
+    CreateDataRequestPayload:
+      type: object
+      required:
+        - request_type
+      properties:
+        request_type:
+          type: string
+          enum: [access, deletion, portability]
+          description: Type of GDPR request
+        email:
+          type: string
+          format: email
+          description: Data subject email (optional; defaults to authenticated user)
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          enum:
+            - INVALID_REQUEST
+            - UNAUTHORIZED
+            - FORBIDDEN
+            - NOT_FOUND
+            - CONFLICT
+            - RATE_LIMITED
+            - SERVER_ERROR
+          description: Machine-readable error code
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Request status is 'completed'; cannot cancel"
+        details:
+          type: object
+          nullable: true
+          description: Additional error context
+          example: { request_id: "550e8400-e29b-41d4-a716-446655440000", status: "completed" }
+
+    PaginatedDataRequests:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataRequest"
+        pagination:
+          type: object
+          required:
+            - page
+            - page_size
+            - total
+            - has_next
+          properties:
+            page:
+              type: integer
+              example: 1
+            page_size:
+              type: integer
+              example: 20
+            total:
+              type: integer
+              example: 47
+            has_next:
+              type: boolean
+              example: true
+
+  responses:
+    UnauthorizedError:
+      description: Missing or invalid bearer token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            code: UNAUTHORIZED
+            message: "Invalid or expired token"
+
+    NotFoundError:
+      description: Request not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            code: NOT_FOUND
+            message: "Data request not found"
+
+    ConflictError:
+      description: Operation not allowed in current state
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            code: CONFLICT
+            message: "Request status is 'completed'; cannot cancel"
+
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            code: SERVER_ERROR
+            message: "Internal server error"
+
+security:
+  - bearerAuth: []
+
+paths:
+  /data-requests:
+    post:
+      summary: Create a new GDPR data request
+      tags:
+        - Data Requests
+      description: >
+        Initiates a new GDPR request (access, deletion, or portability).
+        
+        **Processing Timeline:**
+        - Status `pending` (0-5 min): awaiting processing queue
+        - Status `processing` (5 min - 24h): background job executing
+        - Status `completed`: ready for download or deletion confirmed
+        
+        **Polling Strategy:**
+        Client should poll GET /data-requests/{id} at 5s intervals until status
+        reaches `completed` or `rejected`. Maximum polling duration: 24 hours.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDataRequestPayload"
+            examples:
+              access:
+                value:
+                  request_type: access
+              deletion:
+                value:
+                  request_type: deletion
+              portability:
+                value:
+                  request_type: portability
+      responses:
+        "201":
+          description: Request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataRequest"
+              example:
+                id: "550e8400-e29b-41d4-a716-446655440000"
+                request_type: access
+                status: pending
+                created_at: "2025-01-15T14:30:00Z"
+                completed_at: null
+                expires_at: null
+                result_url: null
+                error_message: null
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "429":
+          description: Rate limited (max 1 request per second per user)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+    get:
+      summary: List user's data requests
+      tags:
+        - Data Requests
+      description: >
+        Retrieves all data requests for authenticated user.
+        Paginated, most recent first.
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number (1-indexed)
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Results per page
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, processing, completed, rejected]
+          description: Filter by status (optional)
+      responses:
+        "200":
+          description: List of data requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedDataRequests"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /data-requests/{id}:
+    get:
+      summary: Get data request status
+      tags:
+        - Data Requests
+      description: >
+        Retrieves current status of a data request.
+        
+        **For status=completed with access/portability:**
+        - `result_url` contains download link (valid 30 days from completion)
+        - URL requires bearer token
+        - File format: JSON (access/portability) or XLSX (large portability datasets)
+        - Filename pattern: `data_export_YYYY-MM-DD_HHMMSS.json`
+        
+        **For status=completed with deletion:**
+        - `result_url` is null (deletion is irreversible; no export)
+        - `completed_at` confirms execution time
+        
+        **Polling Pattern (Fase 3 Frontend):**
+        ```
+        while (status !== 'completed' && status !== 'rejected') {
+          await sleep(5000);  // 5-second interval
+          request = GET /data-requests/{id}
+          totalTime += 5000;
+          if (totalTime > 86400000) break;  // 24-hour max
+        }
+        ```
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Data request ID
+      responses:
+        "200":
+          description: Request status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataRequest"
+              example:
+                id: "550e8400-e29b-41d4-a716-446655440000"
+                request_type: access
+                status: processing
+                created_at: "2025-01-15T14:30:00Z"
+                completed_at: null
+                expires_at: null
+                result_url: null
+                error_message: null
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /data-requests/{id}/cancel:
+    post:
+      summary: Cancel a pending or processing request
+      tags:
+        - Data Requests
+      description: >
+        Cancels a GDPR request if status is `pending` or `processing`.
+        
+        **Cannot cancel if:**
+        - status=completed (for deletion: already executed; for access/portability: already available)
+        - status=rejected (already rejected)
+        
+        **Idempotency:**
+        Calling cancel on already-cancelled request returns 200 (safe retry).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Data request ID
+      responses:
+        "200":
+          description: Request cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataRequest"
+              example:
+                id: "550e8400-e29b-41d4-a716-446655440000"
+                request_type: deletion
+                status: rejected
+                created_at: "2025-01-15T14:30:00Z"
+                completed_at: "2025-01-15T14:35:00Z"
+                expires_at: null
+                result_url: null
+                error_message: "Request cancelled by user"
+        "400":
+          description: Invalid request (e.g., cannot cancel completed request)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "409":
+          $ref: "#/components/responses/ConflictError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /data-requests/{id}/download:
+    get:
+      summary: Download data export
+      tags:
+        - Data Requests
+      description: >
+        Downloads the data export for a completed access or portability request.
+        
+        **Requirements:**
+        - Request must have status=completed
+        - Current time must be before `expires_at` (30 days from completion)
+        - Bearer token required
+        
+        **Response:**
+        - Content-Type: application/json or application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+        - Content-Disposition: attachment; filename="data_export_YYYY-MM-DD_HHMMSS.json"
+        - Body: User's personal data in structured JSON format
+        
+        **File Structure (JSON):**
+        ```json
+        {
+          "export_date": "2025-01-16T10:15:00Z",
+          "data_subject": {
+            "name": "John Doe",
+            "email": "john@example.com"
+          },
+          "personal_data": {
+            "profile": {...},
+            "transactions": [...],
+            "communications": [...]
+          }
+        }
+        ```
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Data request ID
+      responses:
+        "200":
+          description: Data export file
+          content:
+            application/json:
+              schema:
+                type: object
+                description: User's personal data in JSON format
+        "400":
+          description: Export not yet available or expired
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /auth/refresh:
+    post:
+      summary: Refresh authentication token
+      tags:
+        - Authentication
+      description: >
+        Obtains a new bearer token when current token is expired or expiring.
+        
+        **Token Lifecycle:**
+        - Bearer token valid for 15 minutes
+        - When 401 Unauthorized received, call this endpoint immediately
+        - New token takes effect instantly
+        
+        **Implementation (Frontend):**
+        ```typescript
+        if (error.status === 401) {
+          const newToken = await POST /auth/refresh with refresh_token
+          localStorage.setItem('auth_token', newToken)
+          retry(originalRequest)
+        }
+        ```
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh_token
+              properties:
+                refresh_token:
+                  type: string
+                  description: Refresh token from login response
+      responses:
+        "200":
+          description: New token issued
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - access_token
+                  - expires_in
+                properties:
+                  access_token:
+                    type: string
+                    description: New bearer token (valid 15 minutes)
+                  expires_in:
+                    type: integer
+                    description: Token validity in seconds
+                    example: 900
+        "401":
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /analytics/events:
+    post:
+      summary: Track analytics events
+      tags:
+        - Analytics
+      description: >
+        Records user interactions and system events for compliance tracking.
+        
+        **Event Types:**
+        - `request_created`: User initiated a new GDPR request
+        - `request_completed`: Request reached completed status (auto-triggered)
+        - `export_downloaded`: User downloaded data export (auto-triggered)
+        - `request_cancelled`: User cancelled a pending/processing request
+        - `request_failed`: Request reached rejected status (auto-triggered)
+        - `error_occurred`: Client-side error or exception
+        
+        **Batching Strategy (Fase 3):**
+        - Client batches events (queue up to 10 events OR auto-flush every 30s)
+        - Single POST request with array of events
+        - Backend de-duplicates by event_id if retried
+        
+        **Implementation:**
+        ```typescript
+        const service = new AnalyticsService()
+        service.trackRequestCreated(requestId)
+        service.trackExportDownloaded(requestId, filename)
+        // Auto-flushes after 10 events or 30s, whichever comes first
+        ```
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - events
+              properties:
+                events:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - event_id
+                      - event_type
+                      - timestamp
+                    properties:
+                      event_id:
+                        type: string
+                        format: uuid
+                        description: Unique event identifier (for deduplication)
+                      event_type:
+                        type: string
+                        enum:
+                          - request_created
+                          - request_completed
+                          - export_downloaded
+                          - request_cancelled
+                          - request_failed
+                          - error_occurred
+                      timestamp:
+                        type: string
+                        format: date-time
+                      request_id:
+                        type: string
+                        format: uuid
+                        nullable: true
+                      data:
+                        type: object
+                        nullable: true
+                        description: Event-specific data
+                        example:
+                          filename: "data_export_2025-01-16_101500.json"
+                          request_type: "access"
+      responses:
+        "202":
+          description: Events queued for processing
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - accepted
+                properties:
+                  accepted:
+                    type: integer
+                    example: 10
+        "400":
+          description: Invalid event format
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+tags:
+  - name: Data Requests
+    description: GDPR data request lifecycle (Articles 15, 17, 20)
+  - name: Authentication
+    description: Token management and refresh
+  - name: Analytics
+    description: Event tracking for compliance audit trail

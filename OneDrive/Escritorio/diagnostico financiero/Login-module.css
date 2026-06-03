@@ -1,0 +1,270 @@
+/* styles/pages/Login.module.css */
+
+.container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-background);
+}
+
+.formWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.formContent {
+  width: 100%;
+  max-width: 400px;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: var(--color-heading);
+  margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 2rem 0;
+}
+
+.form {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.errorMessage {
+  background-color: #fee;
+  border: 1px solid #fcc;
+  color: var(--color-heading);
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  font-weight: 500;
+  color: var(--color-heading);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.input:hover,
+.input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(74, 144, 226, 0.2);
+}
+
+.submitButton:hover {
+  background-color: #3a7bc8;
+  box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+  transform: translateY(-2px);
+}
+
+.submitButton:active {
+  transform: translateY(0);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.demoInfo {
+  background-color: #f8f9fa;
+  border: 1px solid var(--color-border);
+  padding: 1.5rem;
+  border-radius: 4px;
+  margin-top: 1.5rem;
+}
+
+.demoLabel {
+  font-weight: 600;
+  color: var(--color-heading);
+  font-size: 0.9rem;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.demoList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.demoList li {
+  padding: 0.5rem 0;
+  color: var(--color-text);
+  font-size: 0.85rem;
+}
+
+.demoList strong {
+  color: var(--color-heading);
+  font-weight: 600;
+}
+
+.infoPanel {
+  flex: 1;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #3a7bc8 100%);
+  color: white;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.infoPanelTitle {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+}
+
+.infoPanelText {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+  opacity: 0.95;
+}
+
+.infoPanelList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.infoPanelList li {
+  padding: 0.75rem 0 0.75rem 1.75rem;
+  position: relative;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.infoPanelList li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .infoPanel {
+    min-height: auto;
+    padding: 2rem;
+  }
+
+  .infoPanelTitle {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .formWrapper {
+    padding: 1rem;
+  }
+
+  .formContent {
+    max-width: 100%;
+  }
+
+  .form {
+    padding: 1.5rem;
+  }
+
+  .infoPanel {
+    padding: 1.5rem;
+  }
+
+  .infoPanelTitle {
+    font-size: 1.25rem;
+  }
+
+  .infoPanelText {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .formWrapper {
+    padding: 0.75rem;
+  }
+
+  .form {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+  }
+
+  .demoInfo {
+    padding: 1rem;
+  }
+
+  .infoPanel {
+    padding: 1rem;
+  }
+
+  .infoPanelTitle {
+    font-size: 1.1rem;
+  }
+
+  .infoPanelText {
+    font-size: 0.85rem;
+  }
+
+  .infoPanelList li {
+    font-size: 0.8rem;
+    padding: 0.5rem 0 0.5rem 1.5rem;
+  }
+}

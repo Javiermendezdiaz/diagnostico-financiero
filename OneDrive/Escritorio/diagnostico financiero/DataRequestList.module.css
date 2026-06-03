@@ -1,0 +1,701 @@
+/* DataRequestList.module.css — Styling for GDPR Data Requests UI Components */
+
+/* ============================================================================
+   CONTAINER & LAYOUT
+   ============================================================================ */
+
+.dataRequestList {
+  padding: 40px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #ffffff;
+}
+
+.header {
+  margin-bottom: 32px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 24px;
+}
+
+.header h2 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #020203;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.2;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* ============================================================================
+   ACTIONS BAR
+   ============================================================================ */
+
+.actionsBar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .actionsBar {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+/* ============================================================================
+   BUTTONS
+   ============================================================================ */
+
+.buttonRequest {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #FDD731;
+  border: 1px solid #FDD731;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.buttonRequest:hover:not(:disabled) {
+  background: #F4CB2E;
+  border-color: #F4CB2E;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(253, 215, 49, 0.3);
+}
+
+.buttonRequest:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(253, 215, 49, 0.2);
+}
+
+.buttonRequest:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.buttonRequest:focus-visible {
+  outline: 2px solid #FDD731;
+  outline-offset: 2px;
+}
+
+.buttonDownload {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #16a34a;
+  border: 1px solid #16a34a;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.buttonDownload:hover {
+  background: #15803d;
+  border-color: #15803d;
+}
+
+.buttonDownload:active {
+  transform: scale(0.98);
+}
+
+.buttonDownload:focus-visible {
+  outline: 2px solid #16a34a;
+  outline-offset: 2px;
+}
+
+.buttonCancel {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #dc2626;
+  border: 1px solid #dc2626;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.buttonCancel:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.buttonCancel:active {
+  transform: scale(0.98);
+}
+
+.buttonCancel:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   SPINNERS
+   ============================================================================ */
+
+.spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px 24px;
+}
+
+.spinnerInner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #FDD731;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.spinnerSmall {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================================
+   MESSAGES & BANNERS
+   ============================================================================ */
+
+.successBanner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  background: #d1fae5;
+  border: 1px solid #6ee7b7;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #065f46;
+  font-weight: 500;
+  animation: slideInDown 0.3s ease;
+}
+
+.successIcon {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.errorBanner {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+}
+
+.errorIcon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.errorBanner > div {
+  flex: 1;
+}
+
+.errorTitle {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #7f1d1d;
+}
+
+.errorMessage {
+  margin: 0;
+  font-size: 13px;
+  color: #991b1b;
+  line-height: 1.5;
+}
+
+.errorSmall {
+  margin: 8px 0 0 0;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #dc2626;
+  background: #fee2e2;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================================
+   TABLE
+   ============================================================================ */
+
+.tableWrapper {
+  overflow-x: auto;
+  margin-bottom: 32px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table thead {
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background 0.15s ease;
+}
+
+.table tbody tr:hover {
+  background: #fafafa;
+}
+
+.table td {
+  padding: 14px 16px;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.tableRow {
+  /* Base styling handled by <tr> above */
+}
+
+.cellType {
+  font-weight: 500;
+  color: #1f2937;
+  max-width: 200px;
+}
+
+.cellDate {
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.cellExpiration {
+  white-space: nowrap;
+}
+
+.cellActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.actionNone {
+  color: #d1d5db;
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .table {
+    font-size: 12px;
+  }
+
+  .table th,
+  .table td {
+    padding: 10px 12px;
+  }
+
+  .cellType {
+    max-width: 120px;
+    word-break: break-word;
+  }
+
+  .cellActions {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .buttonDownload,
+  .buttonCancel {
+    width: 100%;
+  }
+}
+
+/* ============================================================================
+   STATUS BADGES
+   ============================================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statusPending {
+  background: #fef08a;
+  color: #92400e;
+  border: 1px solid #fde047;
+}
+
+.statusProcessing {
+  background: #fef08a;
+  color: #92400e;
+  border: 1px solid #fde047;
+}
+
+.statusCompleted {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.statusRejected {
+  background: #fee2e2;
+  color: #7f1d1d;
+  border: 1px solid #fecaca;
+}
+
+/* ============================================================================
+   EXPIRATION COUNTDOWN
+   ============================================================================ */
+
+.expirationNormal {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.expirationUrgent {
+  font-size: 13px;
+  color: #ea580c;
+  font-weight: 600;
+  padding: 2px 6px;
+  background: #fef3c7;
+  border-radius: 3px;
+}
+
+.expirationExpired {
+  font-size: 13px;
+  color: #dc2626;
+  font-weight: 600;
+  padding: 2px 6px;
+  background: #fee2e2;
+  border-radius: 3px;
+}
+
+/* ============================================================================
+   EMPTY STATE
+   ============================================================================ */
+
+.empty {
+  text-align: center;
+  padding: 60px 24px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px dashed #e5e7eb;
+  margin-bottom: 32px;
+}
+
+.empty p {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.empty p:last-child {
+  margin-bottom: 0;
+}
+
+.emptyHint {
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+/* ============================================================================
+   COMPLIANCE NOTICE
+   ============================================================================ */
+
+.complianceNotice {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  margin-top: 32px;
+}
+
+.noticeIcon {
+  font-size: 18px;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.noticeContent {
+  flex: 1;
+}
+
+.noticeTitle {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.noticeBody {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #1e3a8a;
+  line-height: 1.6;
+}
+
+.noticeArticle {
+  margin: 0;
+  font-size: 12px;
+  color: #3730a3;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 640px) {
+  .dataRequestList {
+    padding: 24px 16px;
+  }
+
+  .header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+  }
+
+  .header h2 {
+    font-size: 22px;
+  }
+
+  .actionsBar {
+    margin-bottom: 24px;
+  }
+
+  .complianceNotice {
+    margin-top: 24px;
+  }
+}
+
+/* ============================================================================
+   FOCUS & ACCESSIBILITY
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .successBanner,
+  .spinnerInner,
+  .spinnerSmall,
+  .buttonRequest,
+  .buttonDownload,
+  .buttonCancel,
+  .table tbody tr {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: more) {
+  .buttonRequest {
+    border-width: 2px;
+  }
+
+  .badge {
+    border-width: 2px;
+  }
+
+  .table {
+    border-width: 2px;
+  }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  .dataRequestList {
+    background: #1f2937;
+    color: #f3f4f6;
+  }
+
+  .header {
+    border-bottom-color: #374151;
+  }
+
+  .header h2 {
+    color: #f9fafb;
+  }
+
+  .subtitle {
+    color: #d1d5db;
+  }
+
+  .buttonRequest {
+    background: #FDD731;
+    border-color: #FDD731;
+    color: #1f2937;
+  }
+
+  .buttonRequest:hover:not(:disabled) {
+    background: #F4CB2E;
+    border-color: #F4CB2E;
+  }
+
+  .tableWrapper {
+    border-color: #374151;
+  }
+
+  .table thead {
+    background: #111827;
+    border-bottom-color: #374151;
+  }
+
+  .table th {
+    color: #d1d5db;
+  }
+
+  .table tbody tr {
+    border-bottom-color: #374151;
+  }
+
+  .table tbody tr:hover {
+    background: #262d38;
+  }
+
+  .table td {
+    color: #e5e7eb;
+  }
+
+  .tableRow {
+    color: #e5e7eb;
+  }
+
+  .cellDate,
+  .expirationNormal {
+    color: #9ca3af;
+  }
+
+  .cellType {
+    color: #f3f4f6;
+  }
+
+  .empty {
+    background: #111827;
+    border-color: #374151;
+  }
+
+  .empty p {
+    color: #e5e7eb;
+  }
+
+  .emptyHint {
+    color: #9ca3af;
+  }
+
+  .complianceNotice {
+    background: #0f172a;
+    border-color: #1e3a8a;
+  }
+
+  .noticeTitle {
+    color: #93c5fd;
+  }
+
+  .noticeBody {
+    color: #bfdbfe;
+  }
+
+  .noticeArticle {
+    color: #a5b4fc;
+  }
+
+  .spinner p {
+    color: #d1d5db;
+  }
+
+  .successBanner {
+    background: #064e3b;
+    border-color: #047857;
+    color: #d1fae5;
+  }
+
+  .errorBanner {
+    background: #7f1d1d;
+    border-color: #991b1b;
+  }
+
+  .errorTitle {
+    color: #fecaca;
+  }
+
+  .errorMessage {
+    color: #fee2e2;
+  }
+
+  .errorSmall {
+    background: #7f1d1d;
+    color: #fecaca;
+  }
+}

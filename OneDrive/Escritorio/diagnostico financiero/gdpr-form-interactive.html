@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GDPR Data Request - Formulario Interactivo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #020203 0%, #343434 100%);
+      color: #FDD731;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .header p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      padding: 40px;
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .section h2 {
+      font-size: 20px;
+      color: #020203;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #FDD731;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #343434;
+    }
+
+    input[type='text'],
+    input[type='email'],
+    select,
+    textarea {
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    input[type='text']:focus,
+    input[type='email']:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #FDD731;
+      box-shadow: 0 0 0 3px rgba(253, 215, 49, 0.1);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #FDD731;
+      color: #020203;
+    }
+
+    .btn-primary:hover {
+      background: #f4cb2e;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(253, 215, 49, 0.3);
+    }
+
+    .btn-secondary {
+      background: #343434;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #505050;
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+
+    .response-box {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      font-size: 13px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      max-height: 400px;
+      overflow-y: auto;
+      color: #020203;
+    }
+
+    .response-box.success {
+      background: #d4edda;
+      border-color: #c3e6cb;
+      color: #155724;
+    }
+
+    .response-box.error {
+      background: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .metric-card {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 6px;
+      border-left: 4px solid #FDD731;
+    }
+
+    .metric-card strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #343434;
+    }
+
+    .metric-card .value {
+      font-size: 24px;
+      color: #020203;
+      font-weight: bold;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      border-bottom: 2px solid #ddd;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-weight: 600;
+      color: #343434;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      border-bottom-color: #FDD731;
+      color: #020203;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 24px;
+      }
+
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin: 5px 0;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-processing {
+      background: #cfe2ff;
+      color: #084298;
+    }
+
+    .status-completed {
+      background: #d1e7dd;
+      color: #0f5132;
+    }
+
+    .status-cancelled {
+      background: #f8d7da;
+      color: #842029;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📋 GDPR Data Request API</h1>
+      <p>Formulario interactivo para probar los 7 endpoints del backend</p>
+    </div>
+
+    <div class="content">
+      <!-- PANEL IZQUIERDO: FORMULARIOS -->
+      <div class="section">
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('create')">Crear</button>
+          <button class="tab" onclick="switchTab('list')">Listar</button>
+          <button class="tab" onclick="switchTab('detail')">Detalle</button>
+          <button class="tab" onclick="switchTab('cancel')">Cancelar</button>
+          <button class="tab" onclick="switchTab('download')">Descargar</button>
+          <button class="tab" onclick="switchTab('token')">Token</button>
+          <button class="tab" onclick="switchTab('analytics')">Métricas</button>
+        </div>
+
+        <!-- TAB 1: CREAR SOLICITUD -->
+        <div id="create" class="tab-content active">
+          <h2>1️⃣ Crear Nueva Solicitud</h2>
+
+          <div class="form-group">
+            <label>Tipo de Requester</label>
+            <select id="requesterType">
+              <option value="individual">Persona física</option>
+              <option value="proxy">Representante</option>
+              <option value="legal_representative">Representante legal</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Nombre del Requester *</label>
+            <input type="text" id="requesterName" placeholder="Juan García López" />
+          </div>
+
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="requesterEmail" placeholder="juan@example.com" />
+          </div>
+
+          <div class="form-group">
+            <label>Nombre del Sujeto de Datos (opcional)</label>
+            <input type="text" id="dataSubjectName" placeholder="Si es diferente al requester" />
+          </div>
+
+          <div class="form-group">
+            <label>Categorías de Datos (separadas por comas)</label>
+            <textarea id="dataCategories" placeholder="personal_data, financial_data, health_data"></textarea>
+          </div>
+
+          <div class="button-group">
+            <button class="btn-primary" onclick="testCreateRequest()">Enviar POST /create</button>
+            <button class="btn-secondary" onclick="clearForm('create')">Limpiar</button>
+          </div>
+        </div>
+
+        <!-- TAB 2: LISTAR SOLICITUDES -->
+        <div id="list" class="tab-content">
+          <h2>2️⃣ Listar Solicitudes</h2>
+
+          <div class="form-group">
+            <label>Página</label>
+            <input type="text" id="listPage" value="1" />
+          </div>
+
+          <div class="form-group">
+            <label>Tamaño de página</label>
+            <input type="text" id="listPageSize" value="10" />
+          </div>
+
+          <div class="form-group">
+            <label>Filtrar por estado (opcional)</label>
+            <select id="listStatus">
+              <option value="">Todos</option>
+              <option value="pending">Pendiente</option>
+              <option value="processing">Procesando</option>
+              <option value="completed">Completado</option>
+              <option value="cancelled">Cancelado</option>
+              <option value="failed">Fallido</option>
+            </select>
+          </div>
+
+          <div class="button-group">
+            <button class="btn-primary" onclick="testListRequests()">Enviar GET /list</button>
+          </div>
+        </div>
+
+        <!-- TAB 3: DETALLE -->
+        <div id="detail" class="tab-content">
+          <h2>3️⃣ Ver Detalle de Solicitud</h2>
+
+          <div class="form-group">
+            <label>Request ID (UUID) *</label>
+            <input type="text" id="detailId" placeholder="ej: 550e8400-e29b-41d4-a716-446655440000" />
+          </div>
+
+          <div class="button-group">
+            <button class="btn-primary" onclick="testGetDetail()">Enviar GET /:id</button>
+          </div>
+
+          <p style="margin-top: 15px; font-size: 12px; color: #666;">
+            💡 Primero crea una solicitud para obtener el ID
+          </p>
+        </div>
+
+        <!-- TAB 4: CANCELAR -->
+        <div id="cancel" class="tab-content">
+          <h2>4️⃣ Cancelar Solicitud</h2>
+
+          <div class="form-group">
+            <label>Request ID *</label>
+            <input type="text" id="cancelId" placeholder="UUID de la solicitud" />
+          </div>
+
+          <div class="form-group">
+            <label>Razón de cancelación</label>
+            <textarea id="cancellationReason" placeholder="Motivo de la cancelación"></textarea>
+          </div>
+
+          <div class="button-group">
+            <button class="btn-danger" onclick="testCancelRequest()">Enviar POST /:id/cancel</button>
+          </div>
+        </div>
+
+        <!-- TAB 5: DESCARGAR -->
+        <div id="download" class="tab-content">
+          <h2>5️⃣ Descargar Datos</h2>
+
+          <div class="form-group">
+            <label>Request ID *</label>
+            <input type="text" id="downloadId" placeholder="UUID de la solicitud" />
+          </div>
+
+          <div class="button-group">
+            <button class="btn-primary" onclick="testDownload()">Enviar GET /:id/download</button>
+          </div>
+
+          <p style="margin-top: 15px; font-size: 12px; color: #666;">
+            📦 La solicitud debe estar en estado "completed"
+          </p>
+        </div>
+
+        <!-- TAB 6: TOKEN -->
+        <div id="token" class="tab-content">
+          <h2>6️⃣ Refrescar Token</h2>
+
+          <div class="form-group">
+            <label>Refresh Token</label>
+            <input type="text" id="refreshToken" value="refresh_token_test_12345" />
+          </div>
+
+          <div class="button-group">
+            <button class="btn-primary" onclick="testRefreshToken()">Enviar POST /auth/refresh</button>
+          </div>
+        </div>
+
+        <!-- TAB 7: MÉTRICAS -->
+        <div id="analytics" class="tab-content">
+          <h2>7️⃣ Dashboard de Métricas</h2>
+
+          <p style="margin-bottom: 15px; font-size: 14px; color: #666;">
+            Ver todas las métricas agregadas, SLA, y estadísticas de rendimiento
+          </p>
+
+          <div class="button-group">
+            <button class="btn-primary" onclick="testAnalytics()">Enviar GET /analytics/dashboard</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL DERECHO: RESPUESTAS -->
+      <div class="section">
+        <h2>📤 Respuesta del servidor</h2>
+
+        <div id="responseContainer" class="response-box">
+          <p style="color: #999;">Las respuestas aparecerán aquí...</p>
+        </div>
+
+        <h2 style="margin-top: 30px;">📊 Solicitudes registradas</h2>
+        <div id="requestsList" class="response-box" style="max-height: 300px;">
+          <p style="color: #999;">Ninguna solicitud creada aún</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mock database
+    const mockData = {
+      requests: [],
+      metrics: {
+        totalRequests: 0,
+        byStatus: { pending: 0, processing: 0, completed: 0, cancelled: 0, failed: 0 },
+      },
+    };
+
+    // FUNCIÓN: Cambiar pestaña
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach((el) => el.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach((el) => el.classList.remove('active'));
+
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // FUNCIÓN: Mostrar respuesta
+    function displayResponse(data, isError = false) {
+      const container = document.getElementById('responseContainer');
+      container.className = `response-box ${isError ? 'error' : 'success'}`;
+      container.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+    }
+
+    // FUNCIÓN: Actualizar lista de solicitudes
+    function updateRequestsList() {
+      const container = document.getElementById('requestsList');
+      if (mockData.requests.length === 0) {
+        container.innerHTML = '<p style="color: #999;">Ninguna solicitud creada aún</p>';
+        return;
+      }
+
+      let html = '<div style="font-size: 12px;">';
+      mockData.requests.forEach((req) => {
+        html += `
+          <div style="margin-bottom: 15px; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+            <strong>${req.requesterName}</strong>
+            <br />
+            <small style="color: #666;">ID: ${req.requestId.substring(0, 8)}...</small>
+            <br />
+            <span class="status-badge status-${req.status.toLowerCase()}">${req.status}</span>
+            <br />
+            <small style="color: #999;">${new Date(req.requestDate).toLocaleString()}</small>
+          </div>
+        `;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    // ENDPOINT 1: POST /api/requests/create
+    function testCreateRequest() {
+      const data = {
+        requesterType: document.getElementById('requesterType').value,
+        requesterName: document.getElementById('requesterName').value,
+        requesterEmail: document.getElementById('requesterEmail').value,
+        dataSubjectName: document.getElementById('dataSubjectName').value || undefined,
+        dataCategories: document
+          .getElementById('dataCategories')
+          .value.split(',')
+          .map((cat) => cat.trim())
+          .filter((cat) => cat),
+      };
+
+      if (!data.requesterName || !data.requesterEmail) {
+        displayResponse({ error: 'Falta nombre o email' }, true);
+        return;
+      }
+
+      // Simular respuesta
+      const request = {
+        requestId: generateUUID(),
+        status: 'pending',
+        ...data,
+        requestDate: Date.now(),
+        estimatedCompletionDate: Date.now() + 30 * 24 * 60 * 60 * 1000,
+      };
+
+      mockData.requests.push(request);
+      mockData.metrics.totalRequests++;
+      mockData.metrics.byStatus.pending++;
+
+      displayResponse(request);
+      updateRequestsList();
+
+      // Pre-rellenar en otras pestañas
+      document.getElementById('detailId').value = request.requestId;
+      document.getElementById('cancelId').value = request.requestId;
+      document.getElementById('downloadId').value = request.requestId;
+    }
+
+    // ENDPOINT 2: GET /api/requests/list
+    function testListRequests() {
+      const page = parseInt(document.getElementById('listPage').value) || 1;
+      const pageSize = parseInt(document.getElementById('listPageSize').value) || 10;
+      const status = document.getElementById('listStatus').value;
+
+      let filtered = mockData.requests;
+      if (status) {
+        filtered = filtered.filter((r) => r.status === status);
+      }
+
+      const total = filtered.length;
+      const startIdx = (page - 1) * pageSize;
+      const paginatedRequests = filtered.slice(startIdx, startIdx + pageSize);
+
+      const response = {
+        requests: paginatedRequests,
+        total,
+        page,
+        pageSize,
+        hasMore: startIdx + pageSize < total,
+      };
+
+      displayResponse(response);
+    }
+
+    // ENDPOINT 3: GET /api/requests/:id
+    function testGetDetail() {
+      const id = document.getElementById('detailId').value;
+      const request = mockData.requests.find((r) => r.requestId === id);
+
+      if (!request) {
+        displayResponse({ error: `Request ${id} not found`, statusCode: 404 }, true);
+        return;
+      }
+
+      displayResponse(request);
+    }
+
+    // ENDPOINT 4: POST /api/requests/:id/cancel
+    function testCancelRequest() {
+      const id = document.getElementById('cancelId').value;
+      const reason = document.getElementById('cancellationReason').value || 'No especificada';
+
+      const request = mockData.requests.find((r) => r.requestId === id);
+
+      if (!request) {
+        displayResponse({ error: `Request ${id} not found`, statusCode: 404 }, true);
+        return;
+      }
+
+      if (request.status === 'completed' || request.status === 'cancelled') {
+        displayResponse(
+          { error: `Cannot cancel request in status: ${request.status}`, statusCode: 409 },
+          true
+        );
+        return;
+      }
+
+      request.status = 'cancelled';
+      request.cancellationReason = reason;
+      request.cancellationDate = Date.now();
+
+      mockData.metrics.byStatus[request.status]--;
+      mockData.metrics.byStatus.cancelled++;
+
+      const response = {
+        success: true,
+        updatedRequest: request,
+      };
+
+      displayResponse(response);
+      updateRequestsList();
+    }
+
+    // ENDPOINT 5: GET /api/requests/:id/download
+    function testDownload() {
+      const id = document.getElementById('downloadId').value;
+      const request = mockData.requests.find((r) => r.requestId === id);
+
+      if (!request) {
+        displayResponse({ error: `Request ${id} not found`, statusCode: 404 }, true);
+        return;
+      }
+
+      if (request.status !== 'completed') {
+        displayResponse(
+          {
+            error: `Request must be completed. Current status: ${request.status}`,
+            statusCode: 409,
+          },
+          true
+        );
+        return;
+      }
+
+      const response = {
+        success: true,
+        downloadUrl: `https://api.example.com/downloads/${id}.zip`,
+        expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
+      };
+
+      displayResponse(response);
+    }
+
+    // ENDPOINT 6: POST /api/auth/refresh
+    function testRefreshToken() {
+      const token = document.getElementById('refreshToken').value;
+
+      if (!token) {
+        displayResponse({ error: 'Missing refreshToken', statusCode: 400 }, true);
+        return;
+      }
+
+      const response = {
+        accessToken: `access_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        expiresIn: 3600,
+      };
+
+      displayResponse(response);
+    }
+
+    // ENDPOINT 7: GET /api/analytics/dashboard
+    function testAnalytics() {
+      const completed = mockData.requests.filter((r) => r.status === 'completed');
+
+      const response = {
+        requests: {
+          count: mockData.requests.length,
+          byStatus: mockData.metrics.byStatus,
+          avgProcessingTime: completed.length > 0 ? 24 : 0,
+          completionRate: mockData.requests.length > 0 ? (completed.length / mockData.requests.length) * 100 : 0,
+        },
+        performance: {
+          pageLoad: { p50: 1200, p95: 2800, p99: 4200 },
+          requests: { p50: 450, p95: 1800, p99: 3200 },
+          downloads: { successRate: 95.2, avgSize: 524288 },
+          errors: { rate: 1.5, topErrors: ['404 Not Found', '401 Unauthorized'] },
+          tokenRefresh: { uptime: 99.8, p95: 450 },
+        },
+        sla: {
+          complianceScore: 92.5,
+          uptime: 99.8,
+          violationCount: 0,
+        },
+      };
+
+      displayResponse(response);
+    }
+
+    // FUNCIÓN: Limpiar formulario
+    function clearForm(tabName) {
+      document.querySelectorAll('input, textarea, select').forEach((el) => {
+        if (el.type === 'email' || el.type === 'text' || el.tagName === 'TEXTAREA') {
+          el.value = '';
+        } else if (el.tagName === 'SELECT') {
+          el.value = el.options[0].value;
+        }
+      });
+    }
+
+    // FUNCIÓN: Generar UUID
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = (Math.random() * 16) | 0,
+          v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
+    }
+
+    // INICIALIZACIÓN
+    window.addEventListener('DOMContentLoaded', () => {
+      console.log('✅ Formulario GDPR Data Request listo para probar');
+      console.log('📊 7 endpoints simulados y funcionales');
+    });
+  </script>
+</body>
+</html>
