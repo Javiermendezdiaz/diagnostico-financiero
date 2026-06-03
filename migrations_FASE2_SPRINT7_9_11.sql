@@ -37,29 +37,3 @@ CREATE TABLE IF NOT EXISTS analytics_events (
     INDEX idx_session_id (couple_session_id),
     INDEX idx_created_at (created_at)
 );
-
--- ============================================================================
--- Comentarios de campos (referencia)
--- ============================================================================
--- SPRINT 7: Timer urgency
---   - session_urgency_started_at: cuándo se inició el countdown (15 min)
---   - session_urgency_expires_at: cuándo expira el timer
---   - urgency_status: estado ('inactive', 'active', 'expired', 'completed')
-
--- SPRINT 7: Social proof
---   - social_proof_city: ciudad rotativa para "X usuarios en [ciudad]..."
---   - social_proof_generated_at: cuándo se generó la ciudad
-
--- SPRINT 7: FOMO
---   - tier_spots_available_*: contadores decrementes por tier
---   - fomo_last_update_at: cuándo se actualizó por última vez
-
--- SPRINT 9: A/B Testing
---   - ab_cohort: "supremo" o "control" (50/50 split)
---   - ab_assigned_at: cuándo se asignó el cohort
---   - ab_variant_active: si el variant está activo
-
--- SPRINT 11: Analytics
---   - analytics_events.event_type: timer_viewed, social_proof_city_viewed, fomo_badge_viewed, tier_clicked, etc.
---   - analytics_events.ab_cohort: para agrupar por variant en análisis
---   - analytics_events.event_data: JSON con detalles del evento

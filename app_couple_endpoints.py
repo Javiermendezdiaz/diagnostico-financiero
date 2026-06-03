@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-APP COUPLE ENDPOINTS — FASE 2 Sprint 3
+APP COUPLE ENDPOINTS — FASE 2 Sprint 3 + INYECCIÓN FASE 2
 FastAPI endpoint orquestador para Espejo Fantasma.
 TOP 1% MUNDIAL — INSTITUTIONAL GRADE
 """
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
@@ -217,7 +217,7 @@ async def extract_key_insight(payload: ScoringPayload):
 
 
 # ============================================================================
-# SPRINT 7: PSYCHOLOGY ENDPOINTS
+# SPRINT 7: PSYCHOLOGY ENDPOINTS — FASE 2 INYECTADO
 # ============================================================================
 
 @app.get("/api/v1/sessions/{session_id}/urgency", tags=["Psychology"])
