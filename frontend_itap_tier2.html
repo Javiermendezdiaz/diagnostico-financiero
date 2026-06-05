@@ -2,118 +2,27 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITAP Tier 2 - Control de Flujo Estable</title>
+    <title>ITAP Tier 2 - Integración Real con Textos</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        :root {
-            --bg-main: #0f0f1a;
-            --bg-card: #16162a;
-            --accent: #e94560;
-            --accent-success: #4e9f3d;
-            --text-main: #ffffff;
-            --text-muted: #888888;
-            --border: #33334d;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .container {
-            background-color: var(--bg-card);
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
-            width: 100%;
-            max-width: 650px;
-            border: 1px solid var(--border);
-        }
-        .header-meta {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-muted);
-            font-size: 13px;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .question-text {
-            font-size: 22px;
-            line-height: 1.5;
-            margin-bottom: 30px;
-            font-weight: 600;
-        }
-        .likert-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-        .likert-btn {
-            flex: 1;
-            padding: 16px;
-            border: 1px solid var(--border);
-            background-color: #1f1f3a;
-            color: var(--text-main);
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .likert-btn:hover {
-            background-color: var(--accent);
-            border-color: var(--accent);
-            transform: translateY(-2px);
-        }
-        .center-state { text-align: center; }
-        .error-title { color: var(--accent); font-weight: bold; margin-bottom: 15px; font-size: 18px; }
-        .inspector-box {
-            background-color: #05050a;
-            border: 1px solid #22223b;
-            padding: 15px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 11px;
-            color: #00ff66;
-            text-align: left;
-            margin-top: 25px;
-            white-space: pre-wrap;
-            word-break: break-all;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .nav-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-        .btn-nav {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            background-color: #4a4e69;
-            color: white;
-        }
+        body { background-color: #0f0f1a; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background-color: #16162a; padding: 40px; border-radius: 12px; width: 100%; max-width: 600px; text-align: center; border: 1px solid #33334d; }
+        .meta { color: #888; font-size: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; }
+        .question { font-size: 20px; margin-bottom: 30px; font-weight: bold; line-height: 1.4; }
+        .options { display: flex; gap: 10px; justify-content: center; }
+        .btn { flex: 1; padding: 15px; background-color: #1f1f3a; color: white; border: 1px solid #33334d; border-radius: 8px; font-size: 18px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        .btn:hover { background-color: #e94560; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .log-box { margin-top: 30px; background: #000; color: #00ff66; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 11px; text-align: left; max-height: 150px; overflow-y: auto; }
     </style>
 </head>
 <body>
-
     <div id="root"></div>
 
     <script type="text/babel">
-        function ITAPApp() {
+        function App() {
             const API_BASE = "https://espejo-fantasma-adapta.onrender.com/api/draft";
 
             const [draftId, setDraftId] = React.useState(null);
@@ -121,195 +30,154 @@
             const [currentQuestion, setCurrentQuestion] = React.useState(null);
             const [isComplete, setIsComplete] = React.useState(false);
             const [loading, setLoading] = React.useState(true);
-            const [error, setError] = React.useState(null);
-            const [lastPayload, setLastPayload] = React.useState(null);
+            const [log, setLog] = React.useState("Conectando con el backend en Render...");
 
             React.useEffect(() => {
-                initPipeline();
+                initQuiz();
             }, []);
 
-            // 1. Inicialización limpia del flujo
-            const initPipeline = async () => {
-                setLoading(true);
-                setError(null);
+            // Paso 1: Crear borrador y traer la primera pregunta legítima
+            const initQuiz = async () => {
                 try {
+                    setLog("Creando sesión de borrador (/create)...");
                     const resDraft = await fetch(`${API_BASE}/create`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ user_email: "javier@test.com", plan: 1 })
                     });
-                    if (!resDraft.ok) throw new Error(`Fallo /create: ${resDraft.status}`);
                     const dataDraft = await resDraft.json();
                     setDraftId(dataDraft.draft_id);
 
+                    setLog("Descargando la primera pregunta del Plan...");
                     const resFirst = await fetch(`${API_BASE}/${dataDraft.draft_id}/question/first`, { method: "GET" });
-                    if (!resFirst.ok) throw new Error(`Fallo /question/first: ${resFirst.status}`);
                     const dataFirst = await resFirst.json();
-
-                    setLastPayload(dataFirst);
 
                     if (dataFirst && dataFirst.question) {
                         setSessionToken(dataFirst.session_token);
                         setCurrentQuestion(dataFirst.question);
+                        setLog("Pregunta 1 cargada con éxito.");
                     } else {
-                        throw new Error("Estructura de respuesta inicial inválida.");
+                        setLog("Error: El servidor no entregó la primera pregunta.");
                     }
                 } catch (err) {
-                    setError(err.message);
+                    setLog(`Error de conexión inicial: ${err.message}`);
                 } finally {
                     setLoading(false);
                 }
             };
 
-            // 2. Procesamiento de respuestas con control secuencial explícito
-            const handleAnswer = async (valueToSend) => {
-                if (!currentQuestion) return;
+            // Paso 2: Guardar respuesta y pedir dinámicamente el siguiente enunciado real
+            const handleSelect = async (nota) => {
+                if (!currentQuestion || !draftId) return;
                 setLoading(true);
-                setError(null);
-                try {
-                    const currentOrder = parseInt(currentQuestion.order || 1);
-                    const payload = {
-                        question_id: currentQuestion.id,
-                        answer: valueToSend.toString(),
-                        order: currentOrder,
-                        type: currentQuestion.type,
-                        open_text: ""
-                    };
 
-                    // Paso A: Guardar la respuesta actual en el servidor
+                const currentOrder = parseInt(currentQuestion.order || 1);
+                const nextOrderTarget = currentOrder + 1;
+
+                setLog(`1. Guardando respuesta (${nota}) para Q${currentQuestion.id}...`);
+
+                try {
+                    // A. Guardamos la respuesta en el servidor
                     const resAnswer = await fetch(`${API_BASE}/${draftId}/answer`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
                             "Authorization": sessionToken
                         },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify({
+                            question_id: currentQuestion.id,
+                            answer: nota.toString(),
+                            order: currentOrder,
+                            type: currentQuestion.type,
+                            open_text: ""
+                        })
                     });
 
-                    if (!resAnswer.ok) {
-                        throw new Error(`Error al guardar respuesta: Código ${resAnswer.status}`);
-                    }
-
                     const answerData = await resAnswer.json();
-
-                    // Si el backend devuelve un token rotado en el answer, lo actualizamos
-                    let activeToken = sessionToken;
-                    if (answerData && answerData.session_token) {
-                        activeToken = answerData.session_token;
-                        setSessionToken(answerData.session_token);
-                    }
 
                     if (answerData.isComplete || currentOrder >= 520) {
                         setIsComplete(true);
                         return;
                     }
 
-                    // Paso B: Solicitar la pregunta específica mediante POST directo (Evitamos el bucle de /first)
-                    const nextOrderTarget = currentOrder + 1;
+                    setLog(`2. Buscando enunciado real de la pregunta de orden ${nextOrderTarget}...`);
 
+                    // B. Solicitamos explícitamente el siguiente enunciado al backend usando /question
                     const resNext = await fetch(`${API_BASE}/${draftId}/question`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": activeToken
+                            "Authorization": sessionToken
                         },
                         body: JSON.stringify({ target_order: nextOrderTarget })
                     });
 
-                    // Mecanismo de contingencia (Fallback): Si /question falla o no responde lo esperado,
-                    // incrementamos el puntero visual para que la experiencia de usuario sea fluida.
-                    if (!resNext.ok) {
-                        setLastPayload({ status: "Simulated Paging due to API limitations" });
-                        setCurrentQuestion(prev => ({
-                            ...prev,
-                            id: `Q${String(nextOrderTarget).padStart(3, '0')}`,
-                            order: nextOrderTarget,
-                            text: `Pregunta ${nextOrderTarget} del Plan 1 — Analizando el siguiente tramo de su patrimonio.`
-                        }));
-                        return;
-                    }
-
                     const nextQuestionData = await resNext.json();
-                    setLastPayload(nextQuestionData);
 
                     if (nextQuestionData && nextQuestionData.question) {
+                        // ¡ÉXITO! Cambiamos el estado con la pregunta y el texto real del backend
+                        setCurrentQuestion(nextQuestionData.question);
                         if (nextQuestionData.session_token) {
                             setSessionToken(nextQuestionData.session_token);
                         }
-                        setCurrentQuestion(nextQuestionData.question);
+                        setLog(`Pregunta ${nextOrderTarget} sincronizada correctamente.`);
                     } else {
-                        // Incremento asistido si el JSON viene limpio de nodo
-                        setCurrentQuestion(prev => ({
-                            ...prev,
-                            id: `Q${String(nextOrderTarget).padStart(3, '0')}`,
-                            order: nextOrderTarget,
-                            text: `Pregunta ${nextOrderTarget} del Plan 1 — Analizando el siguiente tramo de su patrimonio.`
-                        }));
+                        setLog(`Aviso: La API guardó la respuesta pero no devolvió el texto de la siguiente pregunta.`);
                     }
 
                 } catch (err) {
-                    console.error("Excepción en pipeline:", err);
-                    setError(err.message);
+                    setLog(`Error en el proceso de avance: ${err.message}`);
                 } finally {
                     setLoading(false);
                 }
             };
 
-            if (error) {
-                return (
-                    <div className="container center-state">
-                        <div className="error-title">⚠️ PIPELINE INTERRUMPIDO</div>
-                        <p style={{color: '#ccc', marginBottom: '20px'}}>{error}</p>
-                        <button className="btn-nav" onClick={initPipeline} style={{backgroundColor: 'var(--accent)', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '6px', cursor: 'pointer'}}>Reiniciar Flujo</button>
-                    </div>
-                );
-            }
-
-            if (loading) {
-                return (
-                    <div className="container center-state">
-                        <h2>Sincronizando con Render...</h2>
-                        <p style={{color: 'var(--text-muted)', marginTop: '10px'}}>Consolidando estado de sesión e índice de preguntas</p>
-                    </div>
-                );
-            }
-
             if (isComplete) {
                 return (
-                    <div className="container center-state">
-                        <h2 style={{color: 'var(--accent-success)'}}>🏆 CUESTIONARIO COMPLETO</h2>
-                        <p style={{color: 'var(--text-muted)', marginTop: '10px'}}>Todas las respuestas se han enviado correctamente.</p>
+                    <div className="card">
+                        <h2 style={{color: '#4e9f3d'}}>🏆 ¡CUESTIONARIO FINALIZADO!</h2>
+                        <p>Todas tus respuestas se guardaron de forma definitiva en Render.</p>
+                    </div>
+                );
+            }
+
+            if (loading && !currentQuestion) {
+                return (
+                    <div className="card">
+                        <h2>Sincronizando con la API...</h2>
+                        <div className="log-box">{log}</div>
                     </div>
                 );
             }
 
             return (
-                <div className="container">
-                    <div className="header-meta">
-                        <span>PREGUNTA: <strong>{currentQuestion.id}</strong></span>
-                        <span>ORDEN: <strong>{currentQuestion.order}/520</strong></span>
+                <div className="card">
+                    <div className="meta">
+                        <span>ID: {currentQuestion?.id || "Cargando..."}</span>
+                        <span>Progreso: {currentQuestion?.order || 1}/520</span>
                     </div>
 
-                    <div className="question-text">{currentQuestion.text}</div>
+                    <div className="question">
+                        {currentQuestion?.text || "Cargando enunciado..."}
+                    </div>
 
-                    <div className="likert-container">
-                        {[1, 2, 3, 4, 5].map((num) => (
-                            <button key={num} className="likert-btn" onClick={() => handleAnswer(num)}>
+                    <div className="options">
+                        {[1,2,3,4,5].map(num => (
+                            <button key={num} className="btn" disabled={loading} onClick={() => handleSelect(num)}>
                                 {num}
                             </button>
                         ))}
                     </div>
 
-                    <div className="inspector-box">
-                        📌 INSPECTOR DE PAYLOAD (LOG EN VIVO):<br/>
-                        {JSON.stringify(lastPayload, null, 2)}
+                    <div className="log-box">
+                        <strong>Consola de Red Real:</strong><br/>
+                        {log}
                     </div>
                 </div>
             );
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<ITAPApp />);
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
-</html>
+</html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
