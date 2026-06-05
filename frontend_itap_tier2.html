@@ -2,152 +2,472 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ITAP Tier 2 - Sistema de Diagnóstico Definitivo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITAP Tier 2 - Segmentación de Planes Blindada</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        body { background-color: #0f0f1a; color: white; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background-color: #16162a; padding: 40px; border-radius: 12px; width: 100%; max-width: 650px; text-align: center; border: 1px solid #33334d; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-        .meta { color: #888; font-size: 14px; margin-bottom: 25px; display: flex; justify-content: space-between; text-transform: uppercase; letter-spacing: 1px; }
-        .question { font-size: 22px; margin-bottom: 35px; font-weight: bold; line-height: 1.5; color: #ffffff; min-height: 80px; display: flex; align-items: center; justify-content: center; }
-        .options { display: flex; gap: 12px; justify-content: center; margin-bottom: 25px; }
-        .btn { flex: 1; padding: 18px; background-color: #1f1f3a; color: white; border: 1px solid #33334d; border-radius: 8px; font-size: 18px; cursor: pointer; font-weight: bold; transition: all 0.2s ease; }
-        .btn:hover { background-color: #e94560; border-color: #e94560; transform: translateY(-2px); }
-        .btn-back { background-color: #2b2b4d; color: #ccc; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-        .btn-back:hover { background-color: #3b3b6d; color: white; }
-        .footer-nav { display: flex; justify-content: flex-start; margin-top: 15px; }
-        .status-box { background: #05050a; color: #00ff66; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 11px; text-align: left; border: 1px solid #22223b; }
+        :root {
+            --bg-main: #0f0f1a;
+            --bg-card: #16162a;
+            --accent: #e94560;
+            --accent-success: #4e9f3d;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border: #33334d;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 650px;
+            border: 1px solid var(--border);
+        }
+        .header-meta {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .progress-bar {
+            background-color: #1f1f3a;
+            border-radius: 8px;
+            height: 6px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background-color: var(--accent);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        .question-text {
+            font-size: 22px;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            font-weight: 600;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+        }
+        .likert-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        .likert-btn {
+            flex: 1;
+            padding: 16px;
+            border: 1px solid var(--border);
+            background-color: #1f1f3a;
+            color: var(--text-main);
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .likert-btn:hover:not(:disabled) {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        .likert-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .open-textarea {
+            width: 100%;
+            padding: 16px;
+            background-color: #1f1f3a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 120px;
+            margin-bottom: 15px;
+            transition: border-color 0.2s ease;
+        }
+        .open-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 8px rgba(233, 69, 96, 0.2);
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
+        .submit-btn:hover:not(:disabled) {
+            background-color: #ff5f76;
+            transform: translateY(-2px);
+        }
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .error-state {
+            background-color: rgba(233, 69, 96, 0.1);
+            border: 1px solid var(--accent);
+            padding: 15px;
+            border-radius: 8px;
+            color: #ff6b81;
+            font-family: monospace;
+            font-size: 13px;
+            text-align: left;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+        .success-state {
+            background-color: rgba(78, 159, 61, 0.1);
+            border: 1px solid var(--accent-success);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            color: var(--accent-success);
+        }
+        .transition-message {
+            background-color: #2b2b4d;
+            border: 1px solid var(--accent);
+            padding: 15px;
+            border-radius: 8px;
+            color: var(--accent);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            animation: slideDown 0.4s ease;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
+
     <div id="root"></div>
 
     <script type="text/babel">
-        // BANCO DE PREGUNTAS REALES - 520 preguntas del Plan 1
-        const BANCO_PREGUNTAS = {
-            1: "¿Cómo calificas la diversificación actual de tus activos financieros?",
-            2: "Evalúa el nivel de liquidez disponible para cubrir imprevistos a corto plazo.",
-            3: "Optimización fiscal: ¿Consideras que tu estructura patrimonial actual reduce eficientemente el impacto impositivo?",
-            4: "Nivel de riesgo aceptado: ¿La volatilidad de tus inversiones se alinea con tu perfil financiero actual?",
-            5: "Planificación sucesoria: ¿Están definidos los mecanismos de transmisión de tu patrimonio?",
-            6: "Rentabilidad neta: ¿Tus inversiones actuales logran superar la tasa de inflación anual?",
-            7: "Protección aseguradora: ¿Consideras cubiertos los riesgos críticos de tus propiedades y negocio?",
-            8: "Endeudamiento: ¿El peso de tus deudas actuales está bajo un ratio de control saludable?",
-            9: "Costes de gestión: ¿Estás conforme con las comisiones que pagas por la administración de tus activos?",
-            10: "Análisis de tramo inmobiliario: ¿La valoración comercial de tus inmuebles se monitoriza periódicamente?",
-            11: "Flujo de caja: ¿Tus ingresos pasivos cubren actualmente más del 25% de tus costes fijos?",
-            12: "Actualización legal: ¿Tu estructura societaria o civil está adaptada a las normativas del año en curso?",
-            13: "Sostenibilidad patrimonial: ¿Cuentas con un plan de contingencia financiero familiar formalizado?",
-            14: "Control digital: ¿Dispones de un cuadro de mando unificado para ver el saldo en tiempo real de todas tus cuentas?",
-            15: "Planificación de jubilación: ¿Tu ritmo de acumulación actual garantiza la preservación de tu estilo de vida futuro?"
-        };
+        function ITAPApp() {
+            const API_BASE = "https://espejo-fantasma-adapta.onrender.com/api/draft";
 
-        // Generar las 520 preguntas dinámicamente si no están en el banco
-        function getTexto(order) {
-            if (BANCO_PREGUNTAS[order]) {
-                return BANCO_PREGUNTAS[order];
-            }
+            const [draftId, setDraftId] = React.useState(null);
+            const [sessionToken, setSessionToken] = React.useState(null);
+            const [currentQuestion, setCurrentQuestion] = React.useState(null);
+            const [isComplete, setIsComplete] = React.useState(false);
+            const [loading, setLoading] = React.useState(true);
+            const [error, setError] = React.useState(null);
+            const [openAnswer, setOpenAnswer] = React.useState("");
 
-            // Textos dinámicos para preguntas no definidas explícitamente
-            const templates = [
-                "¿Cómo calificas esta dimensión de tu gestión patrimonial?",
-                "Evalúa el nivel de control en este aspecto específico.",
-                "¿Consideras optimizada esta variable en tu estructura?",
-                "¿Alineado con tus objetivos este componente?",
-                "Valoración general del desempeño en esta área.",
-                "¿Suficiencia de recursos en este segmento?",
-                "Nivel de riesgo operativo aceptable.",
-                "¿Rentabilidad esperada vs. real?",
-                "Análisis crítico de este factor.",
-                "¿Mejora continua implementada?"
-            ];
+            // Estado de límites dinámicos del servidor
+            const [quotas, setQuotas] = React.useState({
+                max_closed: 100,
+                max_open: 20,
+                closed_answered: 0,
+                open_answered: 0
+            });
 
-            return templates[(order - 1) % templates.length] + ` (Pregunta ${order})`;
-        }
+            const [transitionMessage, setTransitionMessage] = React.useState("");
 
-        function App() {
-            const [order, setOrder] = React.useState(1);
-            const [respuestas, setRespuestas] = React.useState({});
-            const [apiStatus, setApiStatus] = React.useState("✅ Conectado localmente. Listo para registrar.");
+            React.useEffect(() => {
+                initPipeline();
+            }, []);
 
-            // Al pulsar una opción (1-5)
-            const handleSelect = async (nota) => {
-                // Guardamos la respuesta en el estado local inmediatamente
-                const nuevasRespuestas = { ...respuestas, [order]: nota };
-                setRespuestas(nuevasRespuestas);
+            // Inicialización limpia con handshake al servidor
+            const initPipeline = async () => {
+                setLoading(true);
+                setError(null);
+                try {
+                    // Crear borrador con plan (asumimos plan 1 por defecto)
+                    const resDraft = await fetch(`${API_BASE}/create`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ user_email: "test@adapta.com", plan: 1 })
+                    });
 
-                const currentQuestionId = `Q${String(order).padStart(3, '0')}`;
-                setApiStatus(`[${currentQuestionId}] Guardando nota ${nota}...`);
+                    if (!resDraft.ok) throw new Error(`POST /create falló: HTTP ${resDraft.status}`);
+                    const dataDraft = await resDraft.json();
 
-                // Lanzamos la petición a Render de fondo (fire-and-forget)
-                // Si falla, a nosotros nos da igual: ya está guardada en localStorage
-                fetch(`https://espejo-fantasma-adapta.onrender.com/api/draft/create`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        user_email: "javier@test.com",
-                        plan: 1
-                    })
-                }).then(() => {
-                    setApiStatus(`[${currentQuestionId}] ✅ Sincronizado con Render.`);
-                }).catch(() => {
-                    setApiStatus(`[${currentQuestionId}] ✅ Guardado localmente (Servidor offline/CORS).`);
-                });
+                    setDraftId(dataDraft.draft_id);
+                    setSessionToken(dataDraft.session_token);
 
-                // Avanzamos al siguiente número de forma inmediata SIN ESPERAR
-                if (order < 520) {
-                    setOrder(order + 1);
-                } else {
-                    setApiStatus("🏆 Cuestionario completado con éxito. 520/520 respondidas.");
+                    // Inyectar límites dinámicos desde el servidor
+                    setQuotas({
+                        max_closed: dataDraft.max_closed || 100,
+                        max_open: dataDraft.max_open || 20,
+                        closed_answered: 0,
+                        open_answered: 0
+                    });
+
+                    // Solicitar la primera pregunta
+                    const resFirst = await fetch(`${API_BASE}/${dataDraft.draft_id}/question/first`, {
+                        method: "GET"
+                    });
+
+                    if (!resFirst.ok) throw new Error(`GET /question/first falló: HTTP ${resFirst.status}`);
+                    const dataFirst = await resFirst.json();
+
+                    if (dataFirst && dataFirst.question) {
+                        setCurrentQuestion(dataFirst.question);
+                    } else {
+                        throw new Error("Respuesta inválida del servidor");
+                    }
+                } catch (err) {
+                    setError(`Error en inicialización: ${err.message}`);
+                } finally {
+                    setLoading(false);
                 }
             };
 
-            // Volver a la pregunta anterior
-            const handleBack = () => {
-                if (order > 1) {
-                    setOrder(order - 1);
-                    setApiStatus(`Volviendo a Q${String(order - 1).padStart(3, '0')}`);
+            // Manejador para respuestas tipo Likert (1-5)
+            const handleLikertSelect = async (nota) => {
+                if (!currentQuestion || !draftId) return;
+                setLoading(true);
+                setError(null);
+                setTransitionMessage("");
+
+                try {
+                    const payload = {
+                        question_id: currentQuestion.id,
+                        answer: nota.toString(),
+                        order: currentQuestion.order,
+                        type: currentQuestion.type,
+                        open_text: ""
+                    };
+
+                    const resAnswer = await fetch(`${API_BASE}/${draftId}/answer`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!resAnswer.ok) {
+                        const errText = await resAnswer.text();
+                        throw new Error(`HTTP ${resAnswer.status}: ${errText}`);
+                    }
+
+                    const responseData = await resAnswer.json();
+
+                    // Actualizar progreso desde el servidor
+                    if (responseData.progress) {
+                        setQuotas(responseData.progress);
+                    }
+
+                    if (responseData.isComplete) {
+                        setIsComplete(true);
+                        return;
+                    }
+
+                    // Detectar transición de cerradas a abiertas
+                    if (
+                        currentQuestion.type === "likert" &&
+                        responseData.question &&
+                        responseData.question.type === "open"
+                    ) {
+                        setTransitionMessage("✨ Bloque de preguntas cerradas completado. Iniciando bloque de respuestas abiertas.");
+                    }
+
+                    if (responseData.question) {
+                        setCurrentQuestion(responseData.question);
+                    }
+                } catch (err) {
+                    setError(`Error: ${err.message}`);
+                } finally {
+                    setLoading(false);
                 }
             };
 
-            const textoPregunta = getTexto(order);
+            // Manejador para respuestas abiertas (textarea)
+            const handleOpenSubmit = async () => {
+                if (!currentQuestion || !draftId || !openAnswer.trim()) {
+                    setError("Por favor, escribe una respuesta antes de enviar.");
+                    return;
+                }
 
-            return (
-                <div className="card">
-                    <div className="meta">
-                        <span>ID: Q{String(order).padStart(3, '0')}</span>
-                        <span>Progreso: {order}/520</span>
-                    </div>
+                setLoading(true);
+                setError(null);
 
-                    <div className="question">
-                        {textoPregunta}
-                    </div>
+                try {
+                    const payload = {
+                        question_id: currentQuestion.id,
+                        answer: openAnswer,
+                        order: currentQuestion.order,
+                        type: currentQuestion.type,
+                        open_text: openAnswer
+                    };
 
-                    <div className="options">
-                        {[1, 2, 3, 4, 5].map(num => (
-                            <button key={num} className="btn" onClick={() => handleSelect(num)}>
-                                {num}
-                            </button>
-                        ))}
-                    </div>
+                    const resAnswer = await fetch(`${API_BASE}/${draftId}/answer`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
 
-                    <div className="footer-nav">
-                        {order > 1 && (
-                            <button className="btn-back" onClick={handleBack}>← Atrás</button>
-                        )}
-                    </div>
+                    if (!resAnswer.ok) {
+                        const errText = await resAnswer.text();
+                        throw new Error(`HTTP ${resAnswer.status}: ${errText}`);
+                    }
 
-                    <div style={{marginTop: '25px'}}>
-                        <div className="status-box">
-                            <strong>Monitor de Red:</strong> {apiStatus}
+                    const responseData = await resAnswer.json();
+
+                    // Actualizar progreso
+                    if (responseData.progress) {
+                        setQuotas(responseData.progress);
+                    }
+
+                    if (responseData.isComplete) {
+                        setIsComplete(true);
+                        return;
+                    }
+
+                    if (responseData.question) {
+                        setCurrentQuestion(responseData.question);
+                        setOpenAnswer(""); // Limpiar textarea
+                    }
+                } catch (err) {
+                    setError(`Error: ${err.message}`);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            // Pantalla de finalización
+            if (isComplete) {
+                return (
+                    <div className="container">
+                        <div className="success-state">
+                            <h2>🏆 ¡Cuestionario Completado!</h2>
+                            <p style={{ marginTop: "15px" }}>
+                                Has respondido todas las preguntas del plan seleccionado.
+                                Tus datos han sido guardados de forma segura en PostgreSQL.
+                            </p>
                         </div>
                     </div>
+                );
+            }
+
+            // Cálculo de progreso visual
+            let currentProgress = 0;
+            let maxProgress = quotas.max_closed;
+            let progressLabel = "";
+
+            if (currentQuestion && currentQuestion.type === "likert") {
+                currentProgress = quotas.closed_answered;
+                maxProgress = quotas.max_closed;
+                progressLabel = `Cerradas: ${currentProgress} / ${maxProgress}`;
+            } else if (currentQuestion && currentQuestion.type === "open") {
+                currentProgress = quotas.open_answered;
+                maxProgress = quotas.max_open;
+                progressLabel = `Abiertas: ${currentProgress} / ${maxProgress}`;
+            }
+
+            const progressPercent = maxProgress > 0 ? (currentProgress / maxProgress) * 100 : 0;
+
+            return (
+                <div className="container">
+                    {/* Header con metadatos */}
+                    <div className="header-meta">
+                        <span>ID: <strong>{currentQuestion?.id || "---"}</strong></span>
+                        <span><strong>{progressLabel}</strong></span>
+                    </div>
+
+                    {/* Barra de progreso visual */}
+                    <div className="progress-bar">
+                        <div className="progress-fill" style={{ width: `${Math.min(progressPercent, 100)}%` }}></div>
+                    </div>
+
+                    {/* Texto de la pregunta */}
+                    <div className="question-text">
+                        {loading ? "Sincronizando con el servidor..." : currentQuestion?.text}
+                    </div>
+
+                    {/* Mensaje de transición (si aplica) */}
+                    {transitionMessage && (
+                        <div className="transition-message">
+                            {transitionMessage}
+                        </div>
+                    )}
+
+                    {/* Renderizado Condicional: Likert vs Open */}
+                    {currentQuestion && currentQuestion.type === "likert" ? (
+                        // Bloque de preguntas cerradas (Likert 1-5)
+                        <div className="likert-container">
+                            {[1, 2, 3, 4, 5].map((num) => (
+                                <button
+                                    key={num}
+                                    className="likert-btn"
+                                    disabled={loading}
+                                    onClick={() => handleLikertSelect(num)}
+                                >
+                                    {num}
+                                </button>
+                            ))}
+                        </div>
+                    ) : currentQuestion && currentQuestion.type === "open" ? (
+                        // Bloque de preguntas abiertas (textarea)
+                        <>
+                            <textarea
+                                className="open-textarea"
+                                placeholder="Escribe tu respuesta aquí (mínimo 10 caracteres)..."
+                                value={openAnswer}
+                                onChange={(e) => setOpenAnswer(e.target.value)}
+                                disabled={loading}
+                            ></textarea>
+                            <button
+                                className="submit-btn"
+                                disabled={loading || !openAnswer.trim()}
+                                onClick={handleOpenSubmit}
+                            >
+                                {loading ? "Enviando..." : "Enviar Respuesta"}
+                            </button>
+                        </>
+                    ) : null}
+
+                    {/* Área de errores */}
+                    {error && (
+                        <div className="error-state">
+                            <strong>⚠️ Error:</strong><br/>
+                            {error}
+                        </div>
+                    )}
                 </div>
             );
         }
 
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<ITAPApp />);
     </script>
 </body>
-</html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+</html>
