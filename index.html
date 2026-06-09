@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITAP Financial Strategy - Evaluación Patrimonial</title>
-    <script src="https://js.stripe.com/v3/"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; max-width: 500px; margin: 60px auto; padding: 20px; }
         .card { background: #1e293b; padding: 30px; border: 1px solid #334155; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
@@ -16,7 +15,6 @@
         .hidden { display: none; }
         .progress-bar { background: #334155; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
         .progress { background: #38bdf8; height: 100%; width: 0%; transition: width 0.3s; }
-        #card-element { background: #0f172a; padding: 12px; border: 1px solid #475569; border-radius: 6px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -48,54 +46,39 @@
 
         <div id="step-pago" class="hidden">
             <h2 style="font-size: 18px; color: #38bdf8; text-align: center; margin-bottom: 10px;">¡Cuestionario Completado!</h2>
-            <p style="font-size: 14px; color: #94a3b8; text-align: center; margin-bottom: 20px;">Para desbloquear y descargar tu informe PDF instantáneo, procesa el pago seguro:</p>
-            <div id="card-element"></div>
+            <p style="font-size: 14px; color: #94a3b8; text-align: center; margin-bottom: 20px;">Procesa el pago seguro con Stripe:</p>
             <button id="btn-pagar" onclick="ejecutarPago()">Pagar y Descargar PDF</button>
             <div id="pago-error" style="color: #f87171; font-size: 14px; margin-top: 10px; text-align: center;"></div>
         </div>
     </div>
 
     <script>
-        let stripe = null;
-        let cardElement = null;
-        
-        try {
-            stripe = Stripe('pk_live_51TbTGpBDtRZ8i5kusESZ1RXd3b0Mf01DBMem0XNoNkxu08Rp1lKV9jmV3hGRkaSAJaPaWaHk99q8nCZZ6Fjpy001ZvB7PaR');
-            let elements = stripe.elements();
-            cardElement = elements.create('card', { style: { base: { color: '#ffffff', '::placeholder': { color: '#94a3b8' } } } });
-        } catch (e) {
-            console.error("Stripe error:", e);
-        }
-
-        const API_URL = "https://espejo-fantasma-adapta.onrender.com";
-        let draftId = 'DRAFT_' + Date.now();
+        let currentTier = 1;
         let currentQuestion = 1;
         const totalQuestions = 2;
+
+        // Payment Links de Stripe por tier
+        const stripeLinks = {
+            1: "https://buy.stripe.com/6oUbJ0dyd38Tgyw7ndfAc01",
+            2: "https://buy.stripe.com/eVqfZg79P6l55TS9vlfAc02",
+            3: "https://buy.stripe.com/eVq8wO9hXaBl2HGePFfAc00"
+        };
 
         async function iniciarCuestionario() {
             const email = document.getElementById('email').value;
             const tier = document.getElementById('tier').value;
             if(!email) return alert('Por favor introduce tu email');
 
+            currentTier = parseInt(tier);
             const btn = document.getElementById('btn-inicio');
             btn.innerText = "Cargando...";
             btn.disabled = true;
 
-            try {
-                const res = await fetch(`${API_URL}/api/draft/create`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_email: email, plan_tier: parseInt(tier) })
-                });
-                const data = await res.json();
-                if(data.draft_id) draftId = data.draft_id;
-            } catch (err) {
-                console.warn("API offline - continuando en modo local");
-            }
-
-            document.getElementById('step-registro').classList.add('hidden');
-            document.getElementById('step-cuestionario').classList.remove('hidden');
-            mostrarPregunta();
+            setTimeout(() => {
+                document.getElementById('step-registro').classList.add('hidden');
+                document.getElementById('step-cuestionario').classList.remove('hidden');
+                mostrarPregunta();
+            }, 600);
         }
 
         function mostrarPregunta() {
@@ -105,61 +88,23 @@
                 "¿Dispone de una estructura fiscal optimizada para la transmisión de patrimonio?";
         }
 
-        async function responderPregunta(valor) {
-            try {
-                await fetch(`${API_URL}/api/draft/${draftId}/answer`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question_id: `Q_${currentQuestion}`, answer_value: String(valor) })
-                });
-            } catch (e) {
-                console.error("Error guardando respuesta");
-            }
-
+        function responderPregunta(valor) {
             if(currentQuestion < totalQuestions) {
                 currentQuestion++;
                 mostrarPregunta();
             } else {
                 document.getElementById('step-cuestionario').classList.add('hidden');
                 document.getElementById('step-pago').classList.remove('hidden');
-                if (cardElement) {
-                    cardElement.mount('#card-element');
-                }
             }
         }
 
-        async function ejecutarPago() {
-            if (!stripe) return alert("Error de Stripe");
-            
+        function ejecutarPago() {
             const btn = document.getElementById('btn-pagar');
             btn.disabled = true;
-            btn.innerText = "Procesando pago seguro...";
-            const tier = document.getElementById('tier').value;
+            btn.innerText = "Redirigiendo al pago...";
 
-            try {
-                const res = await fetch(`${API_URL}/api/payment/intent`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ draft_id: draftId, tier: parseInt(tier) })
-                });
-                const { clientSecret } = await res.json();
-
-                const result = await stripe.confirmCardPayment(clientSecret, {
-                    payment_method: { card: cardElement }
-                });
-
-                if (result.error) {
-                    document.getElementById('pago-error').innerText = result.error.message;
-                    btn.disabled = false;
-                    btn.innerText = "Pagar y Descargar PDF";
-                } else if (result.paymentIntent.status === 'succeeded') {
-                    window.location.href = `${API_URL}/api/draft/${draftId}/pdf`;
-                }
-            } catch (err) {
-                btn.disabled = false;
-                btn.innerText = "Pagar y Descargar PDF";
-                document.getElementById('pago-error').innerText = "Error de conexión con Stripe";
-            }
+            // Redirige al link de Stripe según el tier seleccionado
+            window.location.href = stripeLinks[currentTier];
         }
     </script>
 </body>
