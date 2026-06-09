@@ -20,19 +20,24 @@
     </style>
 </head>
 <body>
+
     <div class="card">
         <h1>Evaluación Patrimonial Pro</h1>
+        
         <div id="step-registro">
             <label>Correo Electrónico</label>
             <input type="email" id="email" placeholder="tu@email.com" required>
+            
             <label>Profundidad del Informe</label>
             <select id="tier">
                 <option value="1">Diagnóstico Rápido (€19)</option>
                 <option value="2">Informe Avanzado Tier 2 (€39)</option>
                 <option value="3">Análisis Supremo VIP (€54)</option>
             </select>
-            <button onclick="iniciarCuestionario()">Comenzar Auditoría →</button>
+            
+            <button id="btn-inicio" onclick="iniciarCuestionario()">Comenzar Auditoría →</button>
         </div>
+
         <div id="step-cuestionario" class="hidden">
             <div class="progress-bar"><div id="progress" class="progress"></div></div>
             <p id="pregunta-texto" style="font-size: 16px; margin-bottom: 20px; font-weight: 500;"></p>
@@ -40,84 +45,121 @@
             <button onclick="responderPregunta(3)">3. Estable / Conservador</button>
             <button onclick="responderPregunta(1)">1. Exposición Total al Riesgo</button>
         </div>
+
         <div id="step-pago" class="hidden">
             <h2 style="font-size: 18px; color: #38bdf8; text-align: center; margin-bottom: 10px;">¡Cuestionario Completado!</h2>
-            <p style="font-size: 14px; color: #94a3b8; text-align: center; margin-bottom: 20px;">Para desbloquear y descargar tu informe PDF instantáneo, procesa el pago seguro:</p>
             <div id="card-element"></div>
             <button id="btn-pagar" onclick="ejecutarPago()">Pagar y Descargar PDF</button>
             <div id="pago-error" style="color: #f87171; font-size: 14px; margin-top: 10px; text-align: center;"></div>
         </div>
     </div>
+
     <script>
-        const stripe = Stripe('pk_live_51TbTGpBDtRZ8i5kusESZ1RXd3b0Mf01DBMem0XNoNkxu08Rp1lKV9jmV3hGRkaSAJaPaWaHk99q8nCZZ6Fjpy001ZvB7PaR');
-        let elements = stripe.elements();
-        let cardElement = elements.create('card', { style: { base: { color: '#ffffff', '::placeholder': { color: '#94a3b8' } } } });
-        let draftId = '';
+        let stripe = null;
+        let cardElement = null;
+        
+        // Inicialización segura con try/catch para que NADA congele el botón principal
+        try {
+            // 🚨 CAMBIA ESTO POR TU TOKEN DE STRIPE REAL
+            stripe = Stripe('// ====> AQUÍ TU CLAVE REAL DE STRIPE <===='); 
+            let elements = stripe.elements();
+            cardElement = elements.create('card', { style: { base: { color: '#ffffff', '::placeholder': { color: '#94a3b8' } } } });
+        } catch (e) {
+            console.error("Stripe no se pudo inicializar en el arranque.", e);
+        }
+
+        const API_URL = "https://espejo-fantasma-adapta.onrender.com";
+        let draftId = 'EMERGENCIA_' + Date.now();
         let currentQuestion = 1;
         const totalQuestions = 2;
+
         async function iniciarCuestionario() {
             const email = document.getElementById('email').value;
             const tier = document.getElementById('tier').value;
-            if(!email) return alert('Introduce tu email');
-            const res = await fetch('/api/draft/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_email: email, plan_tier: parseInt(tier) })
-            });
-            const data = await res.json();
-            draftId = data.draft_id;
+            if(!email) return alert('Por favor, introduce tu email.');
+
+            const btn = document.getElementById('btn-inicio');
+            btn.innerText = "Cargando...";
+            btn.disabled = true;
+
+            // Bloque de contingencia total: si el API da timeout, entramos al cuestionario igual
+            try {
+                const res = await fetch(`${API_URL}/api/draft/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_email: email, plan_tier: parseInt(tier) })
+                });
+                const data = await res.json();
+                if(data.draft_id) draftId = data.draft_id;
+            } catch (err) {
+                console.warn("API offline o lenta. Saltando a modo cuestionario offline.");
+            }
+
             document.getElementById('step-registro').classList.add('hidden');
             document.getElementById('step-cuestionario').classList.remove('hidden');
             mostrarPregunta();
         }
+
         function mostrarPregunta() {
             document.getElementById('progress').style.width = `${(currentQuestion / totalQuestions) * 100}%`;
-            if(currentQuestion === 1) {
-                document.getElementById('pregunta-texto').innerText = "¿Cómo califica la diversificación actual de sus activos frente a la inflación?";
-            } else {
-                document.getElementById('pregunta-texto').innerText = "¿Dispone de una estructura fiscal optimizada para la transmisión de patrimonio?";
-            }
+            document.getElementById('pregunta-texto').innerText = currentQuestion === 1 ? 
+                "¿Cómo califica la diversificación actual de sus activos patrimoniales?" : 
+                "¿Dispone de una estructura fiscal de control optimizada?";
         }
+
         async function responderPregunta(valor) {
-            await fetch(`/api/draft/${draftId}/answer`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question_id: `Q_${currentQuestion}`, answer_value: String(valor) })
-            });
+            // Guarda la respuesta en segundo plano de forma silenciosa
+            try {
+                await fetch(`${API_URL}/api/draft/${draftId}/answer`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question_id: `Q_${currentQuestion}`, answer_value: String(valor) })
+                });
+            } catch (e) {
+                console.error("Error al guardar respuesta en base de datos remota.");
+            }
+
             if(currentQuestion < totalQuestions) {
                 currentQuestion++;
                 mostrarPregunta();
             } else {
                 document.getElementById('step-cuestionario').classList.add('hidden');
                 document.getElementById('step-pago').classList.remove('hidden');
-                cardElement.mount('#card-element');
+                if (cardElement) {
+                    cardElement.mount('#card-element');
+                } else {
+                    document.getElementById('card-element').innerHTML = "<p style='color: #f87171;'>Error: Añade tu clave pública real de Stripe en el código.</p>";
+                }
             }
         }
+
         async function ejecutarPago() {
+            if (!stripe) return alert("Error de configuración de Stripe.");
+            
             const btn = document.getElementById('btn-pagar');
             btn.disabled = true;
             btn.innerText = "Procesando pago seguro...";
             const tier = document.getElementById('tier').value;
+
             try {
-                const res = await fetch(`/api/payment/intent`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ draft_id: draftId, tier: parseInt(tier) })
-                });
+                const res = await fetch(`${API_URL}/api/payment/intent?draft_id=${draftId}&tier=${tier}`, { method: 'POST' });
                 const { clientSecret } = await res.json();
+
                 const result = await stripe.confirmCardPayment(clientSecret, {
                     payment_method: { card: cardElement }
                 });
+
                 if (result.error) {
                     document.getElementById('pago-error').innerText = result.error.message;
                     btn.disabled = false;
                     btn.innerText = "Pagar y Descargar PDF";
                 } else if (result.paymentIntent.status === 'succeeded') {
-                    window.location.href = `/api/draft/${draftId}/pdf`;
+                    window.location.href = `${API_URL}/api/draft/${draftId}/pdf`;
                 }
             } catch (err) {
-                document.getElementById('pago-error').innerText = "Error en la pasarela. Inténtalo de nuevo.";
                 btn.disabled = false;
+                btn.innerText = "Pagar y Descargar PDF";
+                document.getElementById('pago-error').innerText = "Imposible conectar con el servidor de pagos de Stripe.";
             }
         }
     </script>
