@@ -223,7 +223,7 @@ cap_kicker=St("ck",fontSize=8.5,leading=11,textColor=GREY,fontName="Helvetica-Bo
 
 def deco(cv,doc):
     cv.saveState(); cv.setFillColor(GREY); cv.setFont("Helvetica",7)
-    cv.drawCentredString(A4[0]/2,12*mm,f"Tu Libro Financiero · ITAP — Méndez Consultoría   ·   {doc.page}")
+    cv.drawCentredString(A4[0]/2,12*mm,f"Tu Libro Financiero · Adapta Family Office   ·   {doc.page}")
     cv.setStrokeColor(LINE); cv.setLineWidth(0.5); cv.line(22*mm,16*mm,A4[0]-22*mm,16*mm); cv.restoreState()
 
 def faceta_table(code, pc):
@@ -238,6 +238,40 @@ def faceta_table(code, pc):
         ("BOTTOMPADDING",(0,0),(-1,-1),6),("TOPPADDING",(0,0),(-1,-1),2),
         ("LEFTPADDING",(0,0),(0,-1),0),("LEFTPADDING",(1,0),(1,-1),6)]))
     return t
+
+ADAPTA={
+ "C1":("Una conversaci\u00f3n, sin protocolo","Cuando el dinero pesa por dentro, el primer paso no es un producto: es que alguien te escuche y ordene el cuadro completo.","https://www.adaptafamilyoffice.com/informe"),
+ "C2":("Gesti\u00f3n integral del patrimonio","Dise\u00f1amos tu camino a la libertad financiera dentro del cuadro completo, a\u00f1o tras a\u00f1o, sin productos propios ni conflictos de inter\u00e9s.","https://www.adaptafamilyoffice.com/casos/banca-privada"),
+ "C3":("Plan de resiliencia patrimonial","Estructuramos tu colch\u00f3n y tus coberturas para que un imprevisto no se convierta en una crisis.","https://www.adaptafamilyoffice.com/servicios"),
+ "C4":("Orden y eficiencia financiera","Ponemos tu estilo de vida y tu ahorro en su sitio, para que cada euro trabaje hacia tu objetivo.","https://www.adaptafamilyoffice.com/servicios"),
+ "C5":("Herencia y blindaje legal","Sucesiones, protecci\u00f3n patrimonial y decisiones que se toman una sola vez \u2014 con criterio, antes de que sea tarde.","https://www.adaptafamilyoffice.com/casos/herencia"),
+ "C6":("Una conversaci\u00f3n honesta sobre tu gasto","Te decimos la verdad, aunque duela: d\u00f3nde tu dinero financia una imagen en lugar de tu vida.","https://www.adaptafamilyoffice.com/informe"),
+ "C7":("Diversificaci\u00f3n y banca privada","Reducimos tu dependencia de una sola fuente y estructuramos tu patrimonio para que no se sostenga sobre una sola pata.","https://www.adaptafamilyoffice.com/casos/banca-privada"),
+ "C8":("Estrategia patrimonial antifr\u00e1gil","Estructuramos tu patrimonio para que las crisis dejen de ser una amenaza y empiecen a ser una oportunidad.","https://www.adaptafamilyoffice.com/casos/banca-privada"),
+ "C9":("Control de tu flujo de caja","Montamos contigo el sistema para que sepas a d\u00f3nde va cada euro y decidas t\u00fa, no las circunstancias.","https://www.adaptafamilyoffice.com/servicios"),
+ "C10":("Planificaci\u00f3n y reestructuraci\u00f3n de hipoteca","Renegociaci\u00f3n, subrogaci\u00f3n y las mejores condiciones que tu perfil permite \u2014 para que la deuda deje de pesar.","https://www.adaptafamilyoffice.com/casos/planificacion-hipoteca")}
+
+def seccion_adapta(p):
+    out=[PageBreak(), Paragraph("El siguiente paso con Adapta",h_sec),
+         Paragraph("Este libro es un mapa. <b>Adapta Family Office</b> es quien lo recorre contigo: 25 a\u00f1os "
+                   "cuidando patrimonios familiares, con visi\u00f3n integral y sin productos propios ni conflictos de inter\u00e9s.",body),
+         Paragraph("Por lo que dice tu diagn\u00f3stico, esto es lo que m\u00e1s te conviene ahora mismo:",body)]
+    peores=sorted(CAPAS,key=lambda c:p[c]["score"],reverse=True)[:2]
+    for code in peores:
+        ti,de,url=ADAPTA[code]
+        out.append(Paragraph(f"<font color='#0284C7'><b>&#9656; #8226; {ti}</b></font>",St("ad1",fontSize=11,leading=14,spaceBefore=6,spaceAfter=2)))
+        out.append(Paragraph(de,St("ad2",fontSize=10,leading=14,leftIndent=8,spaceAfter=2)))
+        out.append(Paragraph(f"<a href='{url}'><font color='#075985'>Ver c\u00f3mo lo trabajamos &#8594;</font></a>",St("ad3",fontSize=9.5,leading=13,leftIndent=8,spaceAfter=8)))
+    out+=[Spacer(1,3*mm),
+          Paragraph("Por d\u00f3nde empezamos",h_sub),
+          Paragraph("Como en todo lo que hacemos en Adapta: una conversaci\u00f3n inicial, sin compromiso. Te escuchamos "
+                    "primero, te proponemos despu\u00e9s. Como debe ser.",
+                    St("cta",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=2)),
+          Spacer(1,2*mm),
+          Paragraph("<b>Reserva tu conversaci\u00f3n:</b> <a href='https://www.adaptafamilyoffice.com/informe'><font color='#0284C7'>adaptafamilyoffice.com</font></a>  &#183;  "
+                    "<b>WhatsApp:</b> <a href='https://wa.me/34683343531'><font color='#0284C7'>+34 683 34 35 31</font></a>  &#183;  info@adaptafamilyoffice.com",
+                    St("cta2",fontSize=9.5,leading=14))]
+    return out
 
 def build(cli,resp,datos,out,depth="completo"):
     p,tr,salud=perfil(resp); fi=fi_metrics(datos); radar_png(p,"_radar.png")
@@ -442,6 +476,7 @@ def build(cli,resp,datos,out,depth="completo"):
         Paragraph("Instrumento de 10 capas con dimensiones psicométricas de polaridad consistente. Los percentiles "
                   "son provisionales y se afinan con datos reales conforme crece la base de respondentes. Herramienta "
                   "de autoconocimiento; no sustituye asesoramiento profesional individualizado.",small)]
+    S+=seccion_adapta(p)
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
     S+=[PageBreak(), Paragraph("Anexo \u2014 Tus respuestas",h_sec),

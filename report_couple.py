@@ -153,6 +153,29 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path):
     out.append(PageBreak())
     return out
 
+def seccion_adapta_pareja(pA,pB,nA,nB):
+    comb={c:(pA[c]["score"]+pB[c]["score"])/2 for c in CAPAS}
+    peores=sorted(comb,key=lambda c:comb[c],reverse=True)[:2]
+    out=[PageBreak(), Paragraph("El siguiente paso con Adapta",h_sec),
+         Paragraph("Este libro es vuestro mapa. <b>Adapta Family Office</b> es quien lo recorre con vosotros: 25 a\u00f1os "
+                   "cuidando patrimonios familiares, con visi\u00f3n integral y sin productos propios ni conflictos de inter\u00e9s. "
+                   "Y con experiencia espec\u00edfica acompa\u00f1ando a parejas \u2014 juntas o por separado \u2014 en sus decisiones de dinero.",body),
+         Paragraph("Por vuestro diagn\u00f3stico conjunto, esto es lo que m\u00e1s os conviene:",body)]
+    for code in peores:
+        ti,de,url=rb.ADAPTA[code]
+        out.append(Paragraph(f"<font color='{A_COL}'><b>&#8226; {ti}</b></font>",St("pad1",fontSize=11,leading=14,spaceBefore=6,spaceAfter=2)))
+        out.append(Paragraph(de,St("pad2",fontSize=10,leading=14,leftIndent=8,spaceAfter=2)))
+        out.append(Paragraph(f"<a href='{url}'><font color='#075985'>Ver c\u00f3mo lo trabajamos &#8594;</font></a>",St("pad3",fontSize=9.5,leading=13,leftIndent=8,spaceAfter=8)))
+    out+=[Spacer(1,3*mm),
+          Paragraph("Por d\u00f3nde empezamos",h_sub),
+          Paragraph("Una conversaci\u00f3n inicial, sin compromiso, los dos. Os escuchamos primero, os proponemos despu\u00e9s.",
+                    St("pcta",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=2)),
+          Spacer(1,2*mm),
+          Paragraph("<b>Reserva vuestra conversaci\u00f3n:</b> <a href='https://www.adaptafamilyoffice.com/informe'><font color='#0284C7'>adaptafamilyoffice.com</font></a>  &#183;  "
+                    "<b>WhatsApp:</b> <a href='https://wa.me/34683343531'><font color='#0284C7'>+34 683 34 35 31</font></a>  &#183;  info@adaptafamilyoffice.com",
+                    St("pcta2",fontSize=9.5,leading=14))]
+    return out
+
 def build_couple(rA,dA,cliA,rB,dB,cliB,out):
     pA,trA,saludA=rb.perfil(rA); pB,trB,saludB=rb.perfil(rB)
     nA,nB=cliA["nombre"].split()[0], cliB["nombre"].split()[0]
@@ -294,6 +317,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                   "acortan a medida que habláis. Eso es, exactamente, construir patrimonio en pareja.",body),
         Paragraph("Este libro es una herramienta de autoconocimiento; no sustituye asesoramiento profesional ni "
                   "terapia de pareja.",small)]
+    S+=seccion_adapta_pareja(pA,pB,nA,nB)
     # ANEXO: respuestas de ambos (sin scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
     S+=[PageBreak(), Paragraph("Anexo \u2014 Vuestras respuestas",h_sec),
