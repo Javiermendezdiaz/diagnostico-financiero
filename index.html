@@ -18,7 +18,6 @@ input,select { width:100%; padding:12px; margin-bottom:20px; border-radius:8px; 
 input:focus,select:focus { outline:none; border-color:#0284c7; box-shadow:0 0 0 3px rgba(2,132,199,.12); }
 button { width:100%; padding:14px; margin-bottom:12px; border-radius:8px; border:none; background:#0284c7; color:#fff; font-weight:600; font-size:15px; cursor:pointer; transition:all .2s; }
 button:hover { background:#0369a1; transform:translateY(-2px); }
-button:disabled { background:#64748b; cursor:not-allowed; transform:none; }
 .progress-bar { background:#334155; height:6px; border-radius:3px; overflow:hidden; margin-bottom:26px; }
 .progress { background:linear-gradient(90deg,#0284c7,#38bdf8); height:100%; width:0; transition:width .3s; }
 .qnum { font-size:12px; color:#64748b; margin-bottom:10px; }
@@ -34,7 +33,9 @@ button:disabled { background:#64748b; cursor:not-allowed; transform:none; }
 @keyframes spin { to { transform:rotate(360deg);} }
 .unidad { font-size:12px; color:#64748b; margin:-12px 0 18px; }
 .dl { background:#16a34a; } .dl:hover { background:#15803d; }
-.err { color:#fca5a5; font-size:14px; margin-top:8px; text-align:center; }
+.banner { background:#0c4a6e; border:1px solid #0284c7; border-radius:8px; padding:12px 14px; font-size:13px; color:#e0f2fe; margin-bottom:20px; }
+.codebox { background:#0f172a; border:1px dashed #0284c7; border-radius:8px; padding:16px; font-size:13px; color:#e0f2fe; word-break:break-all; margin-bottom:16px; }
+.copy { background:#334155; } .copy:hover { background:#475569; }
 </style>
 </head>
 <body>
@@ -42,15 +43,18 @@ button:disabled { background:#64748b; cursor:not-allowed; transform:none; }
   <div class="header"><h1>🎯 Diagnóstico Patrimonial</h1><p>Tu libro financiero personalizado, capa por capa.</p></div>
   <div class="content">
     <div id="step-registro" class="step active">
+      <div id="banner-pareja" class="banner" style="display:none;">💑 Estás completando la parte de tu pareja. Al terminar, se generará vuestro libro conjunto.</div>
       <h2 style="font-size:20px;margin-bottom:22px;">Comencemos</h2>
       <label>Tu correo electrónico</label>
       <input type="email" id="email" placeholder="tu@email.com" required>
-      <label>Elige la profundidad del análisis</label>
-      <select id="tier">
-        <option value="1">Diagnóstico Rápido — 19 €</option>
-        <option value="2" selected>Informe Avanzado — 39 €</option>
-        <option value="3">Análisis de Pareja — 54 €</option>
-      </select>
+      <div id="tier-wrap">
+        <label>Elige la profundidad del análisis</label>
+        <select id="tier">
+          <option value="1">Diagnóstico Rápido — 19 €</option>
+          <option value="2" selected>Informe Avanzado — 39 €</option>
+          <option value="3">Análisis de Pareja — 54 €</option>
+        </select>
+      </div>
       <button onclick="iniciar()">Comenzar Diagnóstico →</button>
     </div>
     <div id="step-cargando" class="step"><div class="loading"><div class="spinner"></div><p style="margin-top:18px;color:#94a3b8;">Preparando tu cuestionario…</p></div></div>
@@ -61,20 +65,27 @@ button:disabled { background:#64748b; cursor:not-allowed; transform:none; }
       <div class="options" id="opts"></div>
       <button id="btn-num" style="display:none;margin-top:8px;" onclick="siguiente()">Siguiente →</button>
     </div>
-    <div id="step-generando" class="step"><div class="loading"><div class="spinner"></div><p style="margin-top:18px;color:#94a3b8;">Escribiendo tu libro financiero…</p></div></div>
+    <div id="step-generando" class="step"><div class="loading"><div class="spinner"></div><p style="margin-top:18px;color:#94a3b8;">Procesando tus respuestas…</p></div></div>
+    <div id="step-codigo" class="step">
+      <div class="completion">
+        <h2>✅ Tu parte está lista</h2>
+        <p>Comparte este enlace con tu pareja. Cuando complete su cuestionario, se generará vuestro libro conjunto.</p>
+        <div class="codebox" id="share-link"></div>
+        <button class="copy" onclick="copiar()">Copiar enlace</button>
+      </div>
+    </div>
     <div id="step-pago" class="step">
       <div class="completion">
         <h2>✅ Tu libro está listo</h2>
-        <p>Hemos analizado tus respuestas y redactado tu diagnóstico completo. Accede a él con el pago seguro vía Stripe.</p>
+        <p>Hemos analizado las respuestas y redactado el diagnóstico completo. Accede a él con el pago seguro vía Stripe.</p>
         <button id="btn-pagar" onclick="pagar()">Pagar y recibir mi libro</button>
-        <div id="pago-error" class="err"></div>
       </div>
     </div>
     <div id="step-descarga" class="step">
       <div class="completion">
         <h2>🎉 ¡Gracias!</h2>
         <p>Tu libro financiero está listo para descargar.</p>
-        <button class="dl" onclick="descargar()">Descargar mi Libro Financiero (PDF)</button>
+        <button class="dl" onclick="descargar()">Descargar mi Libro (PDF)</button>
       </div>
     </div>
   </div>
@@ -86,17 +97,24 @@ const STRIPE_LINKS = {
   2:"https://buy.stripe.com/eVqfZg79P6l55TS9vlfAc02",
   3:"https://buy.stripe.com/eVq8wO9hXaBl2HGePFfAc00"
 };
-// Mapa de los 5 datos numéricos (Capa 2) -> claves que usa el motor
 const NUM_MAP = { "C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad" };
+const params = new URLSearchParams(location.search);
+const PAREJA_DE = params.get('pareja');   // si soy la 2a persona
+let st = { email:"", tier:2, sessionId:null, preguntas:[], respuestas:{}, datos:{}, i:0, reportUrl:null, codigo:null };
 
-let st = { email:"", tier:2, sessionId:null, preguntas:[], respuestas:{}, datos:{}, i:0, reportUrl:null };
+// Si vengo por un enlace de pareja, forzar Tier 3 y avisar
+if (PAREJA_DE) {
+  document.getElementById('banner-pareja').style.display='block';
+  document.getElementById('tier-wrap').style.display='none';
+}
 
 function paso(id){ document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 
 async function iniciar(){
   const email = document.getElementById('email').value.trim();
   if(!email){ alert('Introduce tu email'); return; }
-  st.email = email; st.tier = parseInt(document.getElementById('tier').value);
+  st.email = email;
+  st.tier = PAREJA_DE ? 3 : parseInt(document.getElementById('tier').value);
   paso('step-cargando');
   try{
     const r = await fetch(`${API_URL}/api/start`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:st.email,tier:st.tier})});
@@ -104,7 +122,6 @@ async function iniciar(){
     const q = await (await fetch(`${API_URL}/api/questions/${st.tier}`)).json();
     st.preguntas = q.questions || [];
     if(!st.preguntas.length) throw new Error('sin preguntas');
-    // guardamos sesión por si el pago recarga la página
     localStorage.setItem('itap', JSON.stringify({sessionId:st.sessionId,email:st.email,tier:st.tier}));
     st.i = 0; paso('step-cuestionario'); pintar();
   }catch(e){ console.error(e); alert('No se pudo cargar. Reintenta.'); paso('step-registro'); }
@@ -115,7 +132,7 @@ function pintar(){
   document.getElementById('progress').style.width = ((st.i+1)/tot*100)+'%';
   document.getElementById('qnum').textContent = `Pregunta ${st.i+1} de ${tot}`;
   document.getElementById('qtext').textContent = p.pregunta;
-  const cont = document.getElementById('opts'); cont.innerHTML=''; 
+  const cont = document.getElementById('opts'); cont.innerHTML='';
   const btnNum = document.getElementById('btn-num');
   if(p.tipo === 'numerica'){
     btnNum.style.display='block';
@@ -147,21 +164,29 @@ function siguiente(){
 async function finalizar(){
   paso('step-generando');
   try{
-    const r = await fetch(`${API_URL}/api/complete`,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({session_id:st.sessionId,email:st.email,respuestas:st.respuestas,datos:st.datos})});
+    const body = {session_id:st.sessionId,email:st.email,respuestas:st.respuestas,datos:st.datos};
+    if(PAREJA_DE) body.pareja_de = PAREJA_DE;
+    const r = await fetch(`${API_URL}/api/complete`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(r.status===409){ alert('Tu pareja todavía no ha terminado su cuestionario. Inténtalo cuando haya acabado.'); paso('step-registro'); return; }
     const d = await r.json();
+    if(d.needs_partner){
+      st.codigo = d.codigo;
+      const link = location.origin + location.pathname + '?pareja=' + d.codigo;
+      document.getElementById('share-link').textContent = link;
+      st._link = link;
+      paso('step-codigo'); return;
+    }
     st.reportUrl = d.report_url;
     const saved = JSON.parse(localStorage.getItem('itap')||'{}'); saved.reportUrl = d.report_url; localStorage.setItem('itap',JSON.stringify(saved));
     paso('step-pago');
-  }catch(e){ console.error(e); alert('Error generando el libro. Reintenta.'); paso('step-registro'); }
+  }catch(e){ console.error(e); alert('Error al procesar. Reintenta.'); paso('step-registro'); }
 }
 
+function copiar(){ navigator.clipboard.writeText(st._link||document.getElementById('share-link').textContent).then(()=>alert('Enlace copiado')); }
 function pagar(){ window.location.href = STRIPE_LINKS[st.tier]; }
 function descargar(){ const s = JSON.parse(localStorage.getItem('itap')||'{}'); const u = st.reportUrl||s.reportUrl; if(u) window.location.href = API_URL+u; }
 
-// Al volver del pago (success_url debe llevar ?paid=1) revelamos la descarga
 (function(){
-  const params = new URLSearchParams(location.search);
   if(params.get('paid')==='1'){
     const s = JSON.parse(localStorage.getItem('itap')||'{}');
     if(s.reportUrl){ st.reportUrl=s.reportUrl; paso('step-descarga'); }

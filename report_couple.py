@@ -106,6 +106,53 @@ def paso_pareja(code):
      "C9":"montad un presupuesto de hogar de tres cajas y revisadlo una vez al mes, los dos.",
      "C10":"poned toda la deuda de ambos sobre la mesa, sin secretos, y haced un único plan."}.get(code,"")
 
+def _fill(d):
+    d=dict(d or {}); d.setdefault("gasto_mensual",2000); d.setdefault("ingreso_mensual",3000)
+    d.setdefault("ahorro_mensual",300); d.setdefault("patrimonio",30000); d.setdefault("edad",40); return d
+
+def seccion_individual(nombre, prof, trans, salud, datos, radar_path):
+    fi=rb.fi_metrics(_fill(datos)); pn=nombre.split()[0]
+    bi_g,bl_g=rb.banda(rb.CAPAS["C1"],salud)
+    out=[PageBreak(), Paragraph("PERFIL INDIVIDUAL",kick), Paragraph(nombre,h_sec),
+         Paragraph(f"Antes de cruzaros, esta es la foto de {pn} por separado. Para entender a una pareja, primero hay que entender a cada uno.",body),
+         Image(radar_path,width=112*mm,height=112*mm,hAlign="CENTER"),
+         Paragraph(f"<b>{salud:.0f}</b>/100 \u2014 salud psicofinanciera global de {pn} (mejor que el {rb.pctil(salud):.0f}% de la cohorte).",body),
+         PageBreak(), Paragraph(f"{pn}: fortalezas y focos",h_sub)]
+    orden=sorted(rb.CAPAS,key=lambda c:prof[c]["score"])
+    out.append(Paragraph("<b>Sus tres fortalezas</b>",small))
+    for c in orden[:3]:
+        out.append(Paragraph(f"&#8226;  <b>{rb.CAPAS[c]['nombre']}</b> ({prof[c]['score']:.0f}). {rb.OPORTUNIDAD[c]}",St("if1",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
+    out.append(Paragraph("<b>Sus tres focos</b>",small))
+    for c in orden[-3:][::-1]:
+        out.append(Paragraph(f"&#8226;  <b>{rb.CAPAS[c]['nombre']}</b> ({prof[c]['score']:.0f}). {rb.RIESGO[c]}",St("if2",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
+    out.append(Paragraph(f"{pn}: patrones transversales",h_sub))
+    for t in ("PSIQUE","LIQUIDEZ","VINCULO"):
+        v=trans[t]; vt=("%s"%v) if v is not None else "\u2014"
+        out.append(Table([[Paragraph(f"<b>{t.capitalize()}</b>  {vt}/100",small),rb.Bar(v or 0,w=110*mm)]],
+                         colWidths=[42*mm,114*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
+    out.append(Paragraph(f"{pn}: n\u00fameros de libertad",h_sub))
+    out.append(Table([["N\u00famero de libertad (regla 25\u00d7)",("%s \u20ac"%format(fi[0],",.0f")).replace(",",".")],
+                      ["Progreso hacia la libertad","%s %%"%fi[1]],["Tasa de ahorro","%s %%"%fi[2]],
+                      ["A\u00f1os a la libertad","m\u00e1s de 100" if fi[3] is None else "%s a\u00f1os"%fi[3]]],
+                     colWidths=[100*mm,56*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
+                     ("FONTNAME",(1,0),(1,-1),"Helvetica-Bold"),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
+                     ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)])))
+    out.append(Paragraph(f"{pn}: lo que revelan sus respuestas",h_sub))
+    for ti,tx in rb.insights(prof,trans,fi):
+        out.append(Paragraph(f"<font color='#0284C7'>&#8226;</font>  <b>{ti}</b>",small))
+        out.append(Paragraph(tx,St("ii",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=6)))
+    out.append(PageBreak())
+    out.append(Paragraph(f"{pn}: resumen capa por capa",h_sub))
+    rows=[[Paragraph("<b>Capa</b>",small),Paragraph("<b>Score</b>",small),Paragraph("<b>Banda</b>",small)]]
+    for c in rb.CAPAS:
+        rows.append([Paragraph(rb.CAPAS[c]["nombre"],small),Paragraph("%.0f"%prof[c]["score"],small),
+                     rb.Chip(prof[c]["banda"],BANDC[prof[c]["bi"]],w=84,h=13)])
+    out.append(Table(rows,colWidths=[96*mm,20*mm,40*mm],style=TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),
+               ("LINEBELOW",(0,0),(-1,-1),0.3,LINE),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+               ("TOPPADDING",(0,0),(-1,-1),4),("BOTTOMPADDING",(0,0),(-1,-1),4),("LEFTPADDING",(0,0),(-1,-1),6)])))
+    out.append(PageBreak())
+    return out
+
 def build_couple(rA,dA,cliA,rB,dB,cliB,out):
     pA,trA,saludA=rb.perfil(rA); pB,trB,saludB=rb.perfil(rB)
     nA,nB=cliA["nombre"].split()[0], cliB["nombre"].split()[0]
@@ -164,6 +211,9 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                      Paragraph(f"{b:.0f}",small),Paragraph(f"{g:.0f}",small),
                      rb.Chip(zona,zc,w=64,h=13)])
     S+=[tbl(rows,[78*mm,15*mm,15*mm,20*mm,32*mm]),PageBreak()]
+    rb.radar_png(pA,"_radarA.png"); rb.radar_png(pB,"_radarB.png")
+    S+=seccion_individual(cliA["nombre"],pA,trA,saludA,dA,"_radarA.png")
+    S+=seccion_individual(cliB["nombre"],pB,trB,saludB,dB,"_radarB.png")
     # capitulos comparativos por capa
     S+=[Paragraph("Capa por capa, los dos",h_sec),
         Paragraph("El corazon de vuestro libro: las diez dimensiones, leidas en pareja. La barra azul es "
