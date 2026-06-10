@@ -182,12 +182,31 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                        [Bar2(a,b,w=150*mm),""]],
                       colWidths=[80*mm,80*mm],style=[("SPAN",(0,1),(1,1)),("LEFTPADDING",(0,0),(-1,-1),0),("TOPPADDING",(0,1),(0,1),4)]),
                 Spacer(1,2*mm),
+                Paragraph("Faceta por faceta",h_sub)]
+        facs=CAPAS[code]["facetas"]
+        for f in pA[code]["facetas"]:
+            fa=pA[code]["facetas"].get(f,0); fb=pB[code]["facetas"].get(f,0)
+            bloque.append(Table([[Paragraph("<b>%s</b>"%facs.get(f,f),small),Bar2(fa,fb,w=92),
+                                  Paragraph(f"<font color='{A_COL}'>{fa:.0f}</font> / <font color='{B_COL}'>{fb:.0f}</font>",small)]],
+                                 colWidths=[70*mm,40*mm,46*mm],
+                                 style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),
+                                        ("LEFTPADDING",(1,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
+        bloque+=[Spacer(1,2*mm),
                 Paragraph("Qué significa para vosotros",h_sub),
                 Paragraph(comparar_capa(code,a,b,nA,nB),body),
+                Paragraph("El riesgo para vuestra econom\u00eda",h_sub),
+                Paragraph(rb.RIESGO[code],body),
+                Paragraph("La oportunidad si lo trabaj\u00e1is juntos",h_sub),
+                Paragraph(rb.OPORTUNIDAD[code],body),
                 Paragraph("Vuestro siguiente paso",h_sub),
                 Paragraph(f"<font color='{A_COL}'><b>&bull;</b></font>  "+paso_pareja(code),
-                          St("pp",fontSize=10,leading=14,leftIndent=4,backColor=LIGHT,borderPadding=6))]
-        S.append(KeepTogether(bloque)); S.append(PageBreak())
+                          St("pp",fontSize=10,leading=14,leftIndent=4,backColor=LIGHT,borderPadding=6)),
+                Spacer(1,2*mm),
+                Paragraph(f"\u201c{rb.PRINCIPIO[code]}\u201d",St("pr2",fontSize=10.5,leading=14,textColor=ACCDK,
+                          fontName="Helvetica-Oblique")),
+                Paragraph("Para hablar entre vosotros: "+rb.REFLEX[code],St("rf2",fontSize=10,leading=14,
+                          textColor=INK,fontName="Helvetica-Oblique",spaceBefore=3))]
+        S.extend(bloque); S.append(PageBreak())
     # focos de friccion (item-level)
     S+=[Paragraph("Vuestros focos de fricción",h_sec),
         Paragraph("Las preguntas concretas donde respondisteis casi en extremos opuestos. Aquí es donde el dinero "

@@ -81,6 +81,77 @@ PASO={
  "C8":"aparta una reserva líquida que solo se usaría para aprovechar una oportunidad.",
  "C9":"monta un presupuesto simple de tres cajas: fijos, variables y ahorro.",
  "C10":"ordena tus deudas por tipo de interés y ataca primero la más cara."}
+
+RIESGO={
+ "C1":"Ignorarlo no lo apaga: el estrés financiero sostenido erosiona el sueño, la salud y el juicio. Lo que hoy es incomodidad, mañana es una decisión tomada desde el miedo.",
+ "C2":"Sin un número y un plan, los años pasan y el interés compuesto juega en tu contra. Cada año sin rumbo es un año que tendrás que recuperar con el doble de esfuerzo.",
+ "C3":"Un solo imprevisto —una baja, una avería, un mes sin ingresos— puede convertir una vida estable en una espiral de deuda. La fragilidad no se nota hasta que llega el golpe.",
+ "C4":"La deriva del estilo de vida es silenciosa: cada subida de ingreso que se vuelve gasto te ata un poco más a tu trabajo y aleja tu libertad sin que lo notes.",
+ "C5":"Sin blindaje, un imprevisto legal o tu ausencia dejarían a los tuyos en un laberinto de trámites y exposición. Es el riesgo que nadie quiere mirar hasta que es tarde.",
+ "C6":"El gasto de estatus es una rueda: cuanto más alimentas la imagen, más necesitas para sostenerla. Es dinero que se va sin construir nada que sea tuyo.",
+ "C7":"Depender de una sola fuente es vivir sobre una sola pata: el día que falla, falla todo a la vez. Es el riesgo más subestimado de cualquier economía.",
+ "C8":"Sin reservas ni opciones, una crisis solo puede hacerte daño. Quien no puede aprovechar el caos, únicamente lo sufre.",
+ "C9":"Sin control del flujo, el dinero entra y sale sin rumbo: se ahorra lo que sobra (casi nada) y los imprevistos siempre pillan por sorpresa.",
+ "C10":"La deuda mal gestionada crece en silencio con cada subida de tipos. Lo que hoy pagas con holgura, mañana puede asfixiarte."}
+OPORTUNIDAD={
+ "C1":"Trabajar esto te devuelve algo más valioso que dinero: dormir tranquilo y decidir con cabeza, no con ansiedad.",
+ "C2":"Tener tu número claro convierte la libertad de un sueño difuso en un objetivo con fecha. Y lo que se mide, se alcanza.",
+ "C3":"Un colchón sólido cambia tu relación con el riesgo: puedes decir que no, esperar la buena oportunidad y dormir aunque el mundo tiemble.",
+ "C4":"Domar la deriva es la palanca más rápida hacia la libertad: cada euro que no se infla es un euro que trabaja para ti.",
+ "C5":"Blindar tu patrimonio es el mayor acto de cuidado hacia los tuyos: les ahorras, en el peor momento, el peor de los problemas.",
+ "C6":"Soltar el gasto de imagen libera dinero y cabeza a la vez: gastar en lo que de verdad te importa, no en lo que crees que se espera de ti.",
+ "C7":"Diversificar tus ingresos es construir cimientos: cada nueva fuente te hace más libre y más difícil de tumbar.",
+ "C8":"Volverte antifrágil hace que las crisis dejen de darte miedo y empiecen a darte oportunidades. Es el salto de la defensa al ataque.",
+ "C9":"Gobernar tu flujo es tomar el mando: sabes a dónde va cada euro y decides tú, no las circunstancias.",
+ "C10":"Una deuda sana libera flujo y tranquilidad. Pagar lo caro primero es la inversión con mejor rentabilidad garantizada que existe."}
+ACCIONES={
+ "C1":[PASO["C1"],"Pon una hora fija a la semana para mirar tus números; fuera de esa hora, no les des vueltas.","Si el malestar es alto, háblalo con alguien de confianza o un profesional: el dinero también es salud."],
+ "C2":[PASO["C2"],"Automatiza una transferencia a inversión el día que cobras, antes de gastar.","Fija una fecha objetivo de libertad y revísala una vez al año."],
+ "C3":[PASO["C3"],"Calcula tu presupuesto de supervivencia: lo mínimo para vivir un mes.","Identifica una segunda fuente de ingreso que podrías activar en una crisis."],
+ "C4":[PASO["C4"],"Cancela hoy una suscripción que no uses; repite el ejercicio cada mes.","Cuando suba tu ingreso, sube primero el ahorro y solo después el gasto."],
+ "C5":[PASO["C5"],"Haz o actualiza tu testamento y designa beneficiarios en seguros y cuentas.","Crea un inventario de activos con accesos y compártelo con quien confíes."],
+ "C6":[PASO["C6"],"Antes de una compra de estatus, espera 72 horas: la mayor parte del impulso se evapora.","Redirige lo que ahorres de imagen a algo que de verdad te importe."],
+ "C7":[PASO["C7"],"Invierte en una habilidad que aumente tu valor fuera de tu empleo actual.","Calcula qué % de tus ingresos depende de una sola fuente y ponte el objetivo de bajarlo."],
+ "C8":[PASO["C8"],"Asegúrate de que parte de tu deuda esté a tipo fijo.","Haz una pequeña apuesta de bajo coste y alto potencial cada trimestre."],
+ "C9":[PASO["C9"],"Separa tus cuentas: operativa, contingencia e inversión.","Revisa tu flujo una vez al mes, el mismo día, veinte minutos."],
+ "C10":[PASO["C10"],"Renegocia o refinancia tu deuda más cara este mes.","Ponle fecha a tu día sin deuda mala y calcula cuánto pagar al mes para llegar."]}
+
+PRINCIPIO={
+ "C1":"La paz financiera no es tener mucho, es no tener miedo.",
+ "C2":"Lo que no se mide, no se alcanza. Tu número es tu brújula.",
+ "C3":"No se trata de evitar la tormenta, sino de tener un barco que aguante.",
+ "C4":"Cada euro que no se infla es un euro que trabaja para tu libertad.",
+ "C5":"El verdadero patrimonio es el que sigue protegiendo cuando tú ya no estás.",
+ "C6":"Nadie recuerda la marca de tu reloj; recuerdan si estabas tranquilo.",
+ "C7":"Una sola fuente de ingresos es una sola forma de quedarte sin nada.",
+ "C8":"El fuerte resiste la crisis; el antifrágil la aprovecha.",
+ "C9":"El dinero que no controlas, te controla.",
+ "C10":"La deuda barata es una herramienta; la cara, una trampa."}
+
+REFLEX={
+ "C1":"\u00bfCu\u00e1l es el pensamiento sobre dinero que m\u00e1s se repite en tu cabeza, y es realmente cierto?",
+ "C2":"Si hoy tuvieras tu n\u00famero, \u00bfqu\u00e9 cambiar\u00edas ma\u00f1ana en tu vida?",
+ "C3":"\u00bfCu\u00e1nto aguantar\u00edas sin ingresos antes de entrar en p\u00e1nico, y te parece suficiente?",
+ "C4":"\u00bfQu\u00e9 gasto de tu vida actual no exist\u00eda hace tres a\u00f1os y ya das por imprescindible?",
+ "C5":"Si faltaras ma\u00f1ana, \u00bfqu\u00e9 es lo primero que se complicar\u00eda para los tuyos?",
+ "C6":"\u00bfQu\u00e9 comprar\u00edas distinto si nadie pudiera verlo?",
+ "C7":"Si tu fuente principal de ingresos desapareciera hoy, \u00bfcu\u00e1l es tu plan B real?",
+ "C8":"\u00bfLa \u00faltima crisis que viviste te hundi\u00f3 o te ense\u00f1\u00f3 algo que hoy usas?",
+ "C9":"\u00bfSabr\u00edas decir, ahora mismo, cu\u00e1nto gastaste el mes pasado?",
+ "C10":"\u00bfQu\u00e9 deuda llevas arrastrando que, en el fondo, sabes que deber\u00edas atacar ya?"}
+
+def faceta_lectura(score):
+    if score<30: return "es una base firme."
+    if score<51: return "va bien, con recorrido de mejora."
+    if score<76: return "empieza a pesar; conviene atenderla."
+    return "es un punto crítico de esta área."
+def segundo_parrafo(bi):
+    return {0:"Mantén lo que funciona: revisa esta área de vez en cuando para que no se deteriore sin avisar. La fortaleza descuidada se oxida.",
+            1:"Tienes una base buena. Un pequeño ajuste sostenido aquí te lleva al nivel más alto sin grandes sacrificios: es de las mejoras más rentables que puedes hacer.",
+            2:"No hace falta una revolución, sino constancia: un hábito bien elegido, repetido tres meses, mueve esta cifra de forma visible. Empieza pequeño, pero empieza.",
+            3:"Esta es de las áreas a las que dar prioridad. El coste de no actuar crece con el tiempo; el de actuar, se paga una vez. Conviértelo en tu primer frente."}[bi]
+
+
 def interpretar(nombre,s,bl,bi,peor):
     nl=nombre.lower()
     if bi==0: return (f"En {nl} estás en terreno sólido (score {s:.0f}, «{bl}»). Es una de tus fortalezas. "
@@ -168,7 +239,7 @@ def faceta_table(code, pc):
         ("LEFTPADDING",(0,0),(0,-1),0),("LEFTPADDING",(1,0),(1,-1),6)]))
     return t
 
-def build(cli,resp,datos,out):
+def build(cli,resp,datos,out,depth="completo"):
     p,tr,salud=perfil(resp); fi=fi_metrics(datos); radar_png(p,"_radar.png")
     bi,bl=banda(CAPAS["C1"],salud); S=[]
     # cover
@@ -213,30 +284,73 @@ def build(cli,resp,datos,out):
                   "territorio saludable. Antes de entrar capítulo a capítulo, esta es tu silueta completa:",body),
         Image("_radar.png",width=122*mm,height=122*mm,hAlign="CENTER"),
         PageBreak()]
+    if depth!="esencial":
+        orden=sorted(CAPAS,key=lambda c:p[c]["score"])
+        fort=orden[:3]; foco=orden[-3:][::-1]
+        S+=[Paragraph("Tu lectura de un vistazo",h_sec),
+            Paragraph("Antes del detalle capa por capa, esto es lo esencial: d\u00f3nde te apoyas y d\u00f3nde conviene "
+                      "poner el foco. El resto del libro desarrolla cada punto.",body),
+            Paragraph("Tus tres fortalezas",h_sub)]
+        for c in fort:
+            S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({p[c]['score']:.0f}/100). {OPORTUNIDAD[c]}",
+                     St("ef",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
+        S.append(Paragraph("Tus tres focos",h_sub))
+        for c in foco:
+            S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({p[c]['score']:.0f}/100). {RIESGO[c]}",
+                     St("ec",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
+        S+=[Spacer(1,3*mm),
+            Paragraph(f"En una frase: tu salud psicofinanciera global es de <b>{salud:.0f}/100</b> ("
+                      f"mejor que el {pctil(salud):.0f}% de la cohorte). No es una condena ni un trofeo: es tu punto "
+                      "de partida, y se mueve.",body),
+            PageBreak()]
     # capítulos por capa
     for n,code in enumerate(CAPAS,1):
         pc=p[code]
-        bloque=[Paragraph(f"CAPÍTULO {n}",cap_kicker),
-                Paragraph(pc["nombre"],h_book),
-                Table([[""]],colWidths=[40*mm],style=[("LINEBELOW",(0,0),(-1,-1),1.5,ACC)]),
-                Spacer(1,3*mm),
-                Paragraph("Qué mide",h_sub),
-                Paragraph(f"Este capítulo mide {QMIDE[code]}",body),
-                Paragraph("Tu resultado",h_sub),
-                Table([[Paragraph(f"<b>{pc['score']:.0f}</b>/100  ·  percentil {pc['pct']:.0f}",body),
-                        Chip(pc["banda"],BANDC[pc["bi"]],w=96,h=14)]],
-                      colWidths=[60*mm,40*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),
-                Bar(pc["score"],w=160*mm/1),
-                Spacer(1,3*mm),
-                Paragraph("Qué significa para ti",h_sub),
-                Paragraph(interpretar(pc["nombre"],pc["score"],pc["banda"],pc["bi"],pc["peor"]),body),
-                Paragraph("Desglose por faceta",h_sub),
-                faceta_table(code,pc),
-                Spacer(1,2*mm),
-                Paragraph("Tu siguiente paso",h_sub),
-                Paragraph(f"&#8226;  {PASO[code]}",St("ps",fontSize=10,leading=14,textColor=INK,leftIndent=4,backColor=LIGHT,
-                          borderPadding=6,spaceBefore=2))]
-        S.append(KeepTogether(bloque)); S.append(PageBreak())
+        cab=[Paragraph(f"CAP\u00cdTULO {n}",cap_kicker),
+             Paragraph(pc["nombre"],h_book),
+             Table([[""]],colWidths=[40*mm],style=[("LINEBELOW",(0,0),(-1,-1),1.5,ACC)]),
+             Spacer(1,3*mm),
+             Paragraph("Qu\u00e9 mide",h_sub),
+             Paragraph(f"Este cap\u00edtulo mide {QMIDE[code]}",body),
+             Paragraph("Tu resultado",h_sub),
+             Table([[Paragraph(f"<b>{pc['score']:.0f}</b>/100  \u00b7  percentil {pc['pct']:.0f}",body),
+                     Chip(pc["banda"],BANDC[pc["bi"]],w=96,h=14)]],
+                   colWidths=[60*mm,40*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),
+             Bar(pc["score"],w=160*mm/1),
+             Spacer(1,3*mm),
+             Paragraph("Qu\u00e9 significa para ti",h_sub),
+             Paragraph(interpretar(pc["nombre"],pc["score"],pc["banda"],pc["bi"],pc["peor"]),body)]
+        if depth=="esencial":
+            cab+=[Paragraph("Tu siguiente paso",h_sub),
+                  Paragraph(f"&#8226;  {ACCIONES[code][0]}",St("ps",fontSize=10,leading=14,textColor=INK,leftIndent=4,backColor=LIGHT,borderPadding=6,spaceBefore=2)),
+                  Spacer(1,6*mm)]
+            S.append(KeepTogether(cab))
+        else:
+            cab+=[Paragraph("Desglose por faceta",h_sub)]
+            facs=CAPAS[code]["facetas"]
+            for f,sc in pc["facetas"].items():
+                cab.append(Table([[Paragraph(f"<b>{facs.get(f,f)}</b>",small),Bar(sc,w=46*mm),
+                                    Paragraph(f"<font color='#6B7280'>{sc:.0f} \u00b7 {faceta_lectura(sc)}</font>",small)]],
+                                 colWidths=[66*mm,48*mm,42*mm],
+                                 style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),
+                                        ("LEFTPADDING",(1,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
+            cab+=[Spacer(1,2*mm),
+                  Paragraph(segundo_parrafo(pc["bi"]),body),
+                  Paragraph("El riesgo si no act\u00faas",h_sub),
+                  Paragraph(RIESGO[code],body),
+                  Paragraph("La oportunidad",h_sub),
+                  Paragraph(OPORTUNIDAD[code],body),
+                  Paragraph("Tu plan de acci\u00f3n",h_sub),
+                  Paragraph("Tres pasos, en orden. Empieza por el primero y no pases al siguiente hasta tenerlo en marcha:",small)]
+            for a in ACCIONES[code]:
+                cab.append(Paragraph(f"&#8226;  {a}",St("pa",fontSize=10,leading=14,textColor=INK,leftIndent=6,spaceAfter=4)))
+            cab+=[Spacer(1,2*mm),
+                  Paragraph(f"\u201c{PRINCIPIO[code]}\u201d",St("pr",fontSize=10.5,leading=14,textColor=ACCDK,
+                            fontName="Helvetica-Oblique",backColor=LIGHT,borderPadding=8,spaceBefore=2)),
+                  Spacer(1,2*mm),
+                  Paragraph("Para reflexionar",h_sub),
+                  Paragraph(REFLEX[code],St("rf",fontSize=10,leading=14,textColor=INK,fontName="Helvetica-Oblique"))]
+            S.extend(cab); S.append(PageBreak())
     # transversales
     S+=[Paragraph("Lo que cruza todas las capas",h_sec),
         Paragraph("Hay tres corrientes que no viven en un solo capítulo: recorren todo tu perfil. Verlas juntas "
@@ -244,12 +358,23 @@ def build(cli,resp,datos,out):
     desc={"PSIQUE":("Carga psicológica","el peso emocional del dinero: negación, identidad, rumiación."),
           "LIQUIDEZ":("Liquidez","la holgura de colchón disponible en el conjunto de tu vida."),
           "VINCULO":("Vínculo","la tensión y la transparencia con tu pareja o tu familia.")}
+    qhacer={"PSIQUE":"Trabajar la cabeza \u2014tus creencias y tu relaci\u00f3n emocional con el dinero\u2014 multiplica el efecto de cualquier cambio pr\u00e1ctico que hagas.",
+            "LIQUIDEZ":"Reforzar tu colch\u00f3n l\u00edquido es la mejora m\u00e1s transversal de todas: da aire, a la vez, a casi todas las dem\u00e1s \u00e1reas de tu vida.",
+            "VINCULO":"Hablar el dinero con quien compartes tu vida desactiva conflictos antes de que existan. El silencio es lo \u00fanico que de verdad cuesta caro."}
+    def _lect(v):
+        if v is None: return "no tenemos datos suficientes para puntuarlo."
+        if v<30: return "es un punto fuerte: no te est\u00e1 pasando factura."
+        if v<51: return "est\u00e1 en zona razonable, con margen de mejora."
+        if v<76: return "empieza a pesar y conviene atenderlo pronto."
+        return "es un foco importante que cruza varias \u00e1reas a la vez."
     for t in ("PSIQUE","LIQUIDEZ","VINCULO"):
         val=tr[t]; tt,dd=desc[t]
+        vtxt=("%s"%val) if val is not None else "\u2014"
         S+=[Paragraph(tt,h_sub),
-            Table([[Paragraph(f"<b>{val if val is not None else '—'}</b>/100",body),Bar(val or 0,w=120*mm)]],
+            Table([[Paragraph(f"<b>{vtxt}</b>/100",body),Bar(val or 0,w=120*mm)]],
                   colWidths=[28*mm,124*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),
-            Paragraph(f"Mide {dd}",small)]
+            Paragraph(f"Mide {dd} En tu caso, {_lect(val)}",body),
+            Paragraph(qhacer[t],St("qh",fontSize=9.6,leading=13,textColor=INK,leftIndent=4,backColor=LIGHT,borderPadding=6,spaceAfter=8))]
     S+=[PageBreak()]
     # insights
     S+=[Paragraph("Lo que tus respuestas revelan",h_sec),
@@ -278,6 +403,33 @@ def build(cli,resp,datos,out):
               ("FONTNAME",(1,0),(1,-1),"Helvetica-Bold"),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
               ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)])),
         PageBreak()]
+    if depth!="esencial":
+        top=plan(p)
+        def _acc(i):
+            return ACCIONES[top[i][1]][0] if i<len(top) else None
+        S+=[Paragraph("Tu hoja de ruta a 90 d\u00edas",h_sec),
+            Paragraph("Los planes que funcionan no son largos, son ordenados. Esto es lo que te toca, por fases. "
+                      "No corras: una cosa bien hecha vale por diez a medias.",body)]
+        fases=[("Primeros 30 d\u00edas \u00b7 Parar la sangr\u00eda",[_acc(0),_acc(1)]),
+               ("D\u00edas 30-60 \u00b7 Construir base",[_acc(2),_acc(3)]),
+               ("D\u00edas 60-90 \u00b7 Ganar tracci\u00f3n",[_acc(4),"Repite el diagn\u00f3stico y compara: ver\u00e1s el movimiento."])]
+        for tit,accs in fases:
+            S.append(Paragraph(tit,h_sub))
+            for a in accs:
+                if a: S.append(Paragraph(f"&#8226;  {a}",St("rm",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
+        S+=[PageBreak(),
+            Paragraph("Conceptos clave",h_sec),
+            Paragraph("El vocabulario que de verdad necesitas para gobernar tu dinero, sin jerga:",body)]
+        glos=[("N\u00famero de libertad financiera","El patrimonio que, invertido, cubre tus gastos para siempre. Regla pr\u00e1ctica: gasto anual \u00d7 25."),
+              ("Tasa de ahorro","Qu\u00e9 porcentaje de lo que ingresas consigues guardar. Es la palanca m\u00e1s potente hacia la libertad."),
+              ("Fondo de emergencia","Dinero l\u00edquido, intocable, para imprevistos. Tu primer escudo: idealmente 3-6 meses de gastos."),
+              ("Lifestyle creep (deriva)","La tendencia a gastar m\u00e1s cuando ingresas m\u00e1s, sin notarlo. El enemigo silencioso del ahorro."),
+              ("Antifragilidad","La capacidad no solo de resistir una crisis, sino de salir reforzado de ella."),
+              ("Concentraci\u00f3n de ingresos","Cu\u00e1nto dependes de una sola fuente. A m\u00e1s concentraci\u00f3n, m\u00e1s riesgo oculto."),
+              ("Blindaje patrimonial","El conjunto de medidas legales (testamento, seguros, poderes) que protegen lo tuyo y a los tuyos.")]
+        for t,d2 in glos:
+            S.append(Paragraph(f"<b>{t}.</b> {d2}",St("gl",fontSize=10,leading=14,spaceAfter=5)))
+        S+=[PageBreak()]
     # cierre
     S+=[Paragraph("Cómo seguir",h_sec),
         Paragraph("Este libro es una foto de hoy, no una condena. La mayoría de las cifras que más te incomodan "
@@ -312,7 +464,7 @@ def build(cli,resp,datos,out):
                           title="Tu Libro Financiero — ITAP")
     doc.build(S,onFirstPage=deco,onLaterPages=deco); print("PDF OK ->",out)
 
-def build_book(resp, datos, cli, outpath):
+def build_book(resp, datos, cli, outpath, depth="completo"):
     """API entrypoint: genera el libro PDF en outpath."""
-    build(cli, resp, datos, outpath)
+    build(cli, resp, datos, outpath, depth)
     return outpath
