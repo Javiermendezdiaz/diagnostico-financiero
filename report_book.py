@@ -155,6 +155,19 @@ def deco(cv,doc):
     cv.drawCentredString(A4[0]/2,12*mm,f"Tu Libro Financiero · ITAP — Méndez Consultoría   ·   {doc.page}")
     cv.setStrokeColor(LINE); cv.setLineWidth(0.5); cv.line(22*mm,16*mm,A4[0]-22*mm,16*mm); cv.restoreState()
 
+def faceta_table(code, pc):
+    facs = CAPAS[code]["facetas"]
+    rows=[]
+    for f,score in pc["facetas"].items():
+        rows.append([Paragraph(facs.get(f,f), small), Bar(score, w=66*mm)])
+    if not rows:
+        return Spacer(1,1)
+    t=Table(rows, colWidths=[84*mm,72*mm])
+    t.setStyle(TableStyle([("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+        ("BOTTOMPADDING",(0,0),(-1,-1),6),("TOPPADDING",(0,0),(-1,-1),2),
+        ("LEFTPADDING",(0,0),(0,-1),0),("LEFTPADDING",(1,0),(1,-1),6)]))
+    return t
+
 def build(cli,resp,datos,out):
     p,tr,salud=perfil(resp); fi=fi_metrics(datos); radar_png(p,"_radar.png")
     bi,bl=banda(CAPAS["C1"],salud); S=[]
@@ -217,6 +230,9 @@ def build(cli,resp,datos,out):
                 Spacer(1,3*mm),
                 Paragraph("Qué significa para ti",h_sub),
                 Paragraph(interpretar(pc["nombre"],pc["score"],pc["banda"],pc["bi"],pc["peor"]),body),
+                Paragraph("Desglose por faceta",h_sub),
+                faceta_table(code,pc),
+                Spacer(1,2*mm),
                 Paragraph("Tu siguiente paso",h_sub),
                 Paragraph(f"&#8226;  {PASO[code]}",St("ps",fontSize=10,leading=14,textColor=INK,leftIndent=4,backColor=LIGHT,
                           borderPadding=6,spaceBefore=2))]
