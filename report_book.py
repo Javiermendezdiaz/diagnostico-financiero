@@ -537,6 +537,61 @@ def laboratorio_individual(p, datos, fi, salud, resp):
           PageBreak()]
     return out
 
+def glosario(p, datos, fi):
+    """Glosario dinamico: solo terminos activados por las respuestas del usuario."""
+    g=[]
+    # Nucleo siempre presente
+    g.append(("Número de libertad financiera",
+        "El patrimonio que, invertido, cubre tus gastos para siempre (regla práctica: gasto anual × 25).",
+        f"El tuyo ronda los {_eur(fi[0])}; hoy lo tienes cubierto en torno a un {fi[1]:.0f}%.",
+        "Es tu meta-marco: cada decisión acerca o aleja esa cifra. Tenerla puesta cambia cómo priorizas."))
+    g.append(("Tasa de ahorro",
+        "El porcentaje de lo que ingresas que consigues retener cada mes.",
+        f"La tuya es de un {fi[2]:.0f}%. Es, con diferencia, la palanca que más mueve tu libertad.",
+        "Subirla cinco puntos pesa más en tu futuro que casi cualquier decisión de inversión."))
+    # Coste de oportunidad / tapon
+    tap=tapon_coste(datos)
+    if tap:
+        g.append(("Coste de oportunidad de la liquidez",
+            "El rendimiento que dejas de ganar por tener dinero parado en lugar de trabajando.",
+            f"Tienes ~{_eur(tap[0])} por encima de un colchón sano; parado, deja de ganar unos {_eur(tap[1])} al año.",
+            "No es prudencia: es un peaje silencioso. Mover una parte a algo que preserve valor es de lo más rentable y seguro que tienes."))
+        g.append(("Arbitraje de pasivos",
+            "Usar el excedente parado para amortizar deuda en lugar de dejarlo al 0%.",
+            "Aplicado a tu deuda más cara, equivale a una rentabilidad garantizada y libre de impuestos igual a ese interés.",
+            "Es el movimiento que une cabeza y tranquilidad: rentas tu dinero y bajas el estrés a la vez."))
+    # Deuda
+    if p["C10"]["score"]>=45:
+        g.append(("Deuda de alto interés (deuda mala)",
+            "Financiación al consumo —tarjetas revolving, microcréditos— a tasas de doble dígito.",
+            "Tu capa de deuda puntuó alto: si arrastras alguna de este tipo, es tu prioridad absoluta.",
+            "El interés compuesto jugando en tu contra. Atacar la más cara primero es la mejor inversión que existe."))
+    # Resiliencia / emergencia
+    if p["C3"]["score"]>=45:
+        g.append(("Fondo de resiliencia",
+            "Dinero líquido e intocable para imprevistos; idealmente 3-6 meses de gastos.",
+            "Tu capa de resiliencia muestra holgura escasa: reforzar este colchón va antes que invertir.",
+            "No se mide en euros, sino en meses de libertad: es lo que te deja decir «no» sin miedo."))
+    # Lifestyle creep
+    if p["C4"]["score"]>=50:
+        g.append(("Deriva del nivel de vida",
+            "La tendencia a gastar más cuando ingresas más, sin apenas notarlo.",
+            "Tu índice de eficiencia del estilo de vida sugiere que parte de tu subida de ingresos se evapora.",
+            "Es el enemigo silencioso del ahorro: cada mejora de sueldo se diluye si no la fijas antes de gastar."))
+    # Concentracion de ingresos
+    if p["C7"]["score"]>=50:
+        g.append(("Concentración de ingresos",
+            "Cuánto depende tu economía de una sola fuente de ingresos.",
+            "Tu capa de concentración está elevada: una parte grande de tu seguridad cuelga de un hilo.",
+            "A más concentración, más riesgo oculto. Diversificar ingresos es blindaje, no lujo."))
+    # Blindaje legal
+    if p["C5"]["score"]>=50:
+        g.append(("Blindaje patrimonial",
+            "El conjunto de medidas legales —testamento, seguros, poderes— que protegen lo tuyo y a los tuyos.",
+            "Tu checklist de herencia y blindaje tiene huecos: es de lo que más tranquilidad da cerrar.",
+            "Barato de resolver, caragísimo de ignorar. El día que hace falta, ya no hay margen."))
+    return g[:8]
+
 def build(cli,resp,datos,out,depth="completo"):
     p,tr,salud=perfil(resp); fi=fi_metrics(datos); radar_png(p,"_radar.png")
     bi,bl=banda(CAPAS["C1"],salud); S=[]
@@ -757,17 +812,15 @@ def build(cli,resp,datos,out,depth="completo"):
                 f"primero; crecer puede esperar unas semanas.</font>",St("kc",fontSize=10.5,leading=15))],
                 "#FBF3E8","#B45309",ancho=160*mm)]
         S+=[PageBreak(),
-            Paragraph("Conceptos clave",h_sec),
-            Paragraph("El vocabulario que de verdad necesitas para gobernar tu dinero, sin jerga:",body)]
-        glos=[("N\u00famero de libertad financiera","El patrimonio que, invertido, cubre tus gastos para siempre. Regla pr\u00e1ctica: gasto anual \u00d7 25."),
-              ("Tasa de ahorro","Qu\u00e9 porcentaje de lo que ingresas consigues guardar. Es la palanca m\u00e1s potente hacia la libertad."),
-              ("Fondo de emergencia","Dinero l\u00edquido, intocable, para imprevistos. Tu primer escudo: idealmente 3-6 meses de gastos."),
-              ("Lifestyle creep (deriva)","La tendencia a gastar m\u00e1s cuando ingresas m\u00e1s, sin notarlo. El enemigo silencioso del ahorro."),
-              ("Antifragilidad","La capacidad no solo de resistir una crisis, sino de salir reforzado de ella."),
-              ("Concentraci\u00f3n de ingresos","Cu\u00e1nto dependes de una sola fuente. A m\u00e1s concentraci\u00f3n, m\u00e1s riesgo oculto."),
-              ("Blindaje patrimonial","El conjunto de medidas legales (testamento, seguros, poderes) que protegen lo tuyo y a los tuyos.")]
-        for t,d2 in glos:
-            S.append(Paragraph(f"<b>{t}.</b> {d2}",St("gl",fontSize=10,leading=14,spaceAfter=5)))
+            Paragraph("Tu glosario, a tu medida",h_sec),
+            Paragraph("No es un diccionario gen\u00e9rico: hemos incluido solo los conceptos que tus respuestas han activado. "
+                      "Cada uno en tres capas \u2014 qu\u00e9 es, qu\u00e9 significa en tu caso y por qu\u00e9 te importa.",body)]
+        for t,defn,prati,impacto in glosario(p,datos,fi):
+            S.append(KeepTogether([
+                Paragraph(f"<b>{t}</b>",St("gt",fontSize=11,leading=14,textColor=ACC,spaceBefore=4)),
+                Paragraph(f"<font color='#6B7280'>{defn}</font>",St("gd",fontSize=9.4,leading=13)),
+                Paragraph(f"<b>En tu caso:</b> {prati}",St("gp",fontSize=9.6,leading=13)),
+                Paragraph(f"<b>Por qu\u00e9 importa:</b> {impacto}",St("gi",fontSize=9.6,leading=13,textColor=colors.HexColor("#9A3412"),spaceAfter=7))]))
         S+=[PageBreak()]
     if depth!="esencial":
         S+=laboratorio_individual(p,datos,fi,salud,resp)
