@@ -715,19 +715,47 @@ def build(cli,resp,datos,out,depth="completo"):
         PageBreak()]
     S+=cuadro_financiero(p,datos,fi)
     if depth!="esencial":
-        top=plan(p)
+        _seen=[]
+        for _v,_c,_d in plan(p):
+            if _c not in _seen: _seen.append(_c)
+        for _c in sorted(CAPAS,key=lambda c:p[c]["score"],reverse=True):
+            if _c not in _seen: _seen.append(_c)
         def _acc(i):
-            return ACCIONES[top[i][1]][0] if i<len(top) else None
+            return ACCIONES[_seen[i]][0] if i<len(_seen) else None
         S+=[Paragraph("Tu hoja de ruta a 90 d\u00edas",h_sec),
-            Paragraph("Los planes que funcionan no son largos, son ordenados. Esto es lo que te toca, por fases. "
-                      "No corras: una cosa bien hecha vale por diez a medias.",body)]
-        fases=[("Primeros 30 d\u00edas \u00b7 Parar la sangr\u00eda",[_acc(0),_acc(1)]),
-               ("D\u00edas 30-60 \u00b7 Construir base",[_acc(2),_acc(3)]),
-               ("D\u00edas 60-90 \u00b7 Ganar tracci\u00f3n",[_acc(4),"Repite el diagn\u00f3stico y compara: ver\u00e1s el movimiento."])]
-        for tit,accs in fases:
-            S.append(Paragraph(tit,h_sub))
+            Paragraph("No es una lista de buenos prop\u00f3sitos: es un tablero de operaciones por fases de urgencia. "
+                      "Marca cada casilla cuando lo hagas. Empieza por arriba \u2014 el orden importa.",body)]
+        fases=[("#0F766E","Fase 1 \u00b7 Pr\u00f3ximas 72 horas","Cortafuegos: frenar el estr\u00e9s y las fugas",[_acc(0),_acc(1)]),
+               ("#B45309","Fase 2 \u00b7 D\u00edas 4-30","Estructura: automatizar y ordenar",[_acc(2),_acc(3)]),
+               ("#0284C7","Fase 3 \u00b7 D\u00edas 31-90","Expansi\u00f3n: construir patrimonio",[_acc(4),"Repite el diagn\u00f3stico y compara: ver\u00e1s el movimiento."])]
+        rt=[]
+        for col,fase,lema,accs in fases:
+            rt.append([Paragraph(f"<font color='white'><b>{fase}</b>  \u00b7  {lema}</font>",
+                       St("rf",fontSize=9.5,leading=12,textColor=colors.white)),""])
             for a in accs:
-                if a: S.append(Paragraph(f"&#8226;  {a}",St("rm",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
+                if a: rt.append([Paragraph(a,St("ra",fontSize=9.6,leading=13)),""])
+        rtab=Table(rt,colWidths=[148*mm,12*mm])
+        sty=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6),
+             ("LEFTPADDING",(0,0),(-1,-1),9),("LINEBELOW",(0,0),(-1,-1),0.4,LINE)]
+        ri=0
+        for col,fase,lema,accs in fases:
+            sty.append(("BACKGROUND",(0,ri),(-1,ri),colors.HexColor(col)))
+            sty.append(("SPAN",(0,ri),(0,ri)))
+            for a in accs:
+                if a:
+                    ri+=1
+                    sty.append(("BOX",(1,ri),(1,ri),0.8,colors.HexColor("#9CA3AF")))
+            ri+=1
+        rtab.setStyle(TableStyle(sty))
+        S+=[rtab, Spacer(1,5*mm)]
+        # Regla de contingencia (kill-switch sano)
+        col6=datos.get("gasto_mensual",0)*6
+        S+=[_box([Paragraph("<font color='#B45309'><b>Tu regla de contingencia</b></font><br/>"
+                f"<font size=9.5>Todo plan necesita un freno de emergencia. El tuyo: si tu fondo l\u00edquido baja de "
+                f"<b>{_eur(col6)}</b> (seis meses de gastos) o llega un imprevisto grande, <b>pausa las fases 2 y 3</b> "
+                f"y vuelca todo el excedente a reconstruir ese col\u00f3n antes de seguir. Proteger la base va siempre "
+                f"primero; crecer puede esperar unas semanas.</font>",St("kc",fontSize=10.5,leading=15))],
+                "#FBF3E8","#B45309",ancho=160*mm)]
         S+=[PageBreak(),
             Paragraph("Conceptos clave",h_sec),
             Paragraph("El vocabulario que de verdad necesitas para gobernar tu dinero, sin jerga:",body)]

@@ -342,6 +342,17 @@ def laboratorio_pareja(rA,rB,pA,pB,nA,nB,dA,dB,hogar,divs):
               Paragraph("Si a más de una respondéis «no sé», vuestro paso de esta semana no es un presupuesto: es una "
                         "llamada a la notaría. Apuntad aquí el día que la haréis: ______________.",small),
               Spacer(1,4*mm)]
+    # Reparto de roles asimetrico (responsable claro, nada de "ambos")
+    ejec, guard = (nA, nB) if pA["C9"]["score"]<=pB["C9"]["score"] else (nB, nA)
+    out+=[Paragraph("Vuestro reparto de roles",h_sub),
+          Paragraph("«Ambos» es la palabra que mata los planes: si es de los dos, no es de nadie. Por eso cada tarea "
+                    "tiene un dueño. No es jerarquía, es eficacia:",body),
+          Paragraph(f"&#8226; <b>{ejec} \u2014 Ejecución.</b> Por tu mayor control del flujo de caja, te encargas de montar "
+                    f"las transferencias automáticas, abrir las cuentas y llamar a la notaría. Tú mueves las piezas.",small),
+          Paragraph(f"&#8226; <b>{guard} \u2014 Guardián del colchón.</b> Por tu instinto de protección, velas por que el "
+                    f"fondo de seguridad no se toque y das el visto bueno antes de cualquier inversión. {ejec} ejecuta, "
+                    f"pero {guard} firma la conformidad.",small),
+          Spacer(1,3*mm)]
     return out
 
 def build_couple(rA,dA,cliA,rB,dB,cliB,out):
