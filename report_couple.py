@@ -130,14 +130,53 @@ def _fill(d):
     d=dict(d or {}); d.setdefault("gasto_mensual",2000); d.setdefault("ingreso_mensual",3000)
     d.setdefault("ahorro_mensual",300); d.setdefault("patrimonio",30000); d.setdefault("edad",40); return d
 
-def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar):
+def _callout(titulo, texto, barra, fondo):
+    return KeepTogether([Table([[Paragraph(
+        f"<font color='{barra}'><b>{titulo}</b></font><br/>"
+        f"<font size=9.5>{texto}</font>",
+        St("co",fontSize=10.5,leading=15))]], colWidths=[156*mm],
+        style=TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.HexColor(fondo)),
+          ("LEFTPADDING",(0,0),(-1,-1),11),("RIGHTPADDING",(0,0),(-1,-1),11),
+          ("TOPPADDING",(0,0),(-1,-1),9),("BOTTOMPADDING",(0,0),(-1,-1),9),
+          ("LINEBEFORE",(0,0),(0,-1),3,colors.HexColor(barra))]))])
+
+def _opt_score(resp, iid):
+    for capa in INST["capas"]:
+        for it in capa["items"]:
+            if it["id"]==iid and it["tipo"]=="escala":
+                idx=resp.get(iid)
+                if idx is None: return None
+                try: return it["opciones"][idx]["score"]
+                except (IndexError,TypeError): return None
+    return None
+
+def _compartimento(prof, resp):
+    """Compartimento estanco: opacidad de deuda + deuda familiar con tension."""
+    transp=_opt_score(resp,"C10-9")   # >=66: solo en parte / la oculto
+    famil=_opt_score(resp,"C10-10")   # >=66: deuda familiar con tension
+    if transp is not None and famil is not None and transp>=66 and famil>=66:
+        return ("Un compartimento estanco en la pareja",
+                "Hay aquí un patrón que conviene mirar de frente: parte de la deuda no es del todo transparente "
+                "y, a la vez, existe un vínculo financiero con la familia de origen que genera tensión. Cuando esas dos "
+                "cosas coinciden, no suele ser un olvido: es un mecanismo de protección. El problema es que un anclaje "
+                "que se vive como secreto frena, de forma inconsciente, cualquier plan a largo plazo — porque destaparlo "
+                "deja las cartas al descubierto. El patrimonio no se desbloquea con técnica, sino poniendo esto sobre la mesa.")
+    return None
+
+def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, resp=None):
     pn=nombre.split()[0]
     bi_g,bl_g=rb.banda(rb.CAPAS["C1"],salud)
     out=[Paragraph("PERFIL INDIVIDUAL",kick), Paragraph(nombre,h_sec),
          Paragraph(f"Antes de cruzaros, esta es la foto psicol\u00f3gica de {pn}: c\u00f3mo vive el dinero por dentro. Las cifras del hogar son comunes (las ver\u00e9is juntas); lo que cambia de uno a otro es la percepci\u00f3n, el miedo y la prioridad.",body),
          Image(radar_path,width=112*mm,height=112*mm,hAlign="CENTER"),
-         Paragraph(f"<b>{salud:.0f}</b>/100 \u2014 salud psicofinanciera global de {pn} (mejor que el {rb.pctil(salud):.0f}% de la cohorte).",body),
-         PageBreak(), Paragraph(f"{pn}: fortalezas y focos",h_sub)]
+         Paragraph(f"<b>{salud:.0f}</b>/100 \u2014 salud psicofinanciera global de {pn} (mejor que el {rb.pctil(salud):.0f}% de la cohorte).",body)]
+    coh=rb.coherencia(salud, rb.fi_metrics(_fill(datos)), _fill(datos))
+    if coh:
+        out+=[Spacer(1,3*mm), _callout(coh[0], coh[1], "#0284C7", "#F0F7FC")]
+    est=_compartimento(prof, resp or {})
+    if est:
+        out+=[Spacer(1,3*mm), _callout(est[0], est[1], "#B45309", "#FBF3E8")]
+    out+=[PageBreak(), Paragraph(f"{pn}: fortalezas y focos",h_sub)]
     orden=sorted(rb.CAPAS,key=lambda c:prof[c]["score"])
     out.append(Paragraph("<b>Sus tres fortalezas</b>",small))
     for c in orden[:3]:
@@ -189,6 +228,74 @@ def seccion_adapta_pareja(pA,pB,nA,nB):
                     St("pcta2",fontSize=9.5,leading=14))]
     return out
 
+CHOQUE_ARQ = {
+ ("EST","EST"):("Los dos vivís el dinero en presente: disfrutáis hoy y os cuesta aplazar. Es una pareja que sabe gozar lo que gana —y eso une—, pero sin un guardián en casa el nivel de vida se come el futuro sin que nadie dé la alarma.",
+   "Poneos juntos un límite de gasto y automatizad el ahorro ANTES de disfrutar: que el sistema haga de guardián por vosotros."),
+ ("EST","LIB"):("Uno quiere vivir bien hoy; el otro, comprar libertad para mañana. No es el mismo dinero gastado de forma distinta: son dos relojes distintos. El Vividor mira el presente, el Explorador el futuro abierto.",
+   "Repartid el excedente en dos sobres explícitos: uno para disfrute ahora, otro para libertad futura. Así ninguno siente que el otro le roba su sentido del dinero."),
+ ("EST","MUL"):("El Constructor quiere reinvertir y multiplicar; el Vividor quiere cosechar y disfrutar. La tensión clásica: '¿para qué tanto crecer si no vivimos?' frente a '¿cómo gastas lo que aún no hemos hecho crecer?'.",
+   "Fijad un porcentaje fijo que SIEMPRE se reinvierte y otro que SIEMPRE se disfruta. Sin ese pacto, cada euro es una pequeña negociación que desgasta."),
+ ("EST","SEG"):("El Guardián protege; el Vividor disfruta. Para uno, gastar es vivir; para el otro, una grieta en el muro. Cada compra puede sentirse como un pequeño abandono del pacto de seguridad, aunque nadie lo diga en voz alta.",
+   "Acordad un 'presupuesto de disfrute' intocable: el Vividor gasta sin culpa dentro de él, y el Guardián no vigila por debajo de esa línea."),
+ ("LIB","LIB"):("Los dos buscáis autonomía y odiáis sentiros atados. Gran sintonía de valores —el dinero es tiempo, no estatus—, pero con un riesgo: si ninguno quiere ocuparse de la 'fontanería' (presupuesto, planes), la libertad se queda en deseo sin estructura.",
+   "Turnaos la gestión por trimestres: la libertad necesita un sistema detrás, y compartir el trabajo aburrido evita que recaiga en uno solo."),
+ ("LIB","MUL"):("Sois una pareja de crecimiento: uno construye patrimonio, el otro persigue autonomía. Os entendéis en el riesgo, pero podéis chocar en el destino: el Constructor quiere más capital; el Explorador, salir antes a vivir.",
+   "Definid juntos vuestro 'número de libertad' y la fecha. Le da al Constructor una meta concreta y al Explorador la certeza de que crecer tiene un final."),
+ ("LIB","SEG"):("El Explorador quiere soltar amarras; el Guardián, asegurarlas. Lo que para uno es 'por fin libre', para el otro es 'expuesto'. Esta es de las combinaciones que más fricción genera ante decisiones grandes (dejar un empleo, mudarse, emprender).",
+   "Antes de cada salto, acordad de antemano el colchón mínimo que tranquiliza al Guardián. Con esa red puesta, el Explorador puede volar sin pelea."),
+ ("MUL","MUL"):("Los dos pensáis en sistemas y multiplicación: ambiciosos, cómodos con el riesgo. Es un motor potente, pero con dos aceleradores y ningún freno la casa puede quedar sobreexpuesta —todo invertido, poca liquidez— justo cuando más se necesita.",
+   "Nombrad por escrito vuestro colchón de seguridad intocable. Dos constructores necesitan, a propósito, fabricarse un guardián."),
+ ("MUL","SEG"):("El Constructor quiere mover el dinero; el Guardián, protegerlo. Es la pareja clásica del 'invirtámoslo' contra el 'dejémoslo seguro'. Bien resuelta, es oro: uno empuja, otro frena en el momento justo. Mal resuelta, cada propuesta de inversión es una discusión.",
+   "Dividid el patrimonio en dos cubos: uno blindado (manda el Guardián) y otro de crecimiento (manda el Constructor). Cada uno reina en el suyo y la guerra se acaba."),
+ ("SEG","SEG"):("Los dos buscáis seguridad por encima de todo. Hay una paz enorme en eso —os entendéis sin explicaros—, pero también un riesgo silencioso: con dos guardianes y ningún constructor, el patrimonio puede quedarse dormido, perdiendo valor frente a la inflación por exceso de prudencia.",
+   "Acordad una pequeña parte —aunque sea el 10%— que os deis permiso para hacer crecer. Dos guardianes necesitan, juntos, atreverse un poco."),
+}
+
+def seccion_arquetipos(rA,rB,nA,nB):
+    aA,_,_=rb.arquetipo(rA); aB,_,_=rb.arquetipo(rB)
+    if not aA and not aB: return []
+    out=[PageBreak(), Paragraph("Vuestros arquetipos del dinero",h_sec),
+         Paragraph("Antes que los números está el significado: qué <b>es</b> el dinero para cada uno. "
+                   "No hay arquetipos mejores ni peores —cada uno aporta algo—, pero cuando dos personas "
+                   "operan desde significados distintos, el mismo euro puede querer decir cosas opuestas. Aquí está "
+                   "el código de fondo de vuestras decisiones.",body)]
+    def tarjeta(nombre,code):
+        if not code:
+            return Paragraph(f"<b>{nombre}</b> no completó las preguntas de arquetipo.",small)
+        m=rb.ARQ_META[code]
+        return KeepTogether([
+            Table([[Paragraph(f"<font color='{m['color']}'><b>{nombre} — {m['nombre']}</b></font><br/>"
+                              f"<font color='#6B7280'>{m['lema']}</font>",
+                    St("at",fontSize=11,leading=15))]],
+                  colWidths=[156*mm],
+                  style=TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.HexColor("#F4F7FA")),
+                    ("LEFTPADDING",(0,0),(-1,-1),10),("RIGHTPADDING",(0,0),(-1,-1),10),
+                    ("TOPPADDING",(0,0),(-1,-1),8),("BOTTOMPADDING",(0,0),(-1,-1),8),
+                    ("LINEBEFORE",(0,0),(0,-1),3,colors.HexColor(m['color']))])),
+            Spacer(1,2*mm),
+            Paragraph(m['desc'],body),
+            Paragraph(f"<font color='#1D6F42'><b>Lo que aporta:</b></font> {m['luz']}",small),
+            Paragraph(f"<font color='#B91C1C'><b>Su punto ciego:</b></font> {m['sombra']}",small),
+            Spacer(1,4*mm)])
+    out.append(tarjeta(nA,aA)); out.append(tarjeta(nB,aB))
+    if aA and aB:
+        key=tuple(sorted([aA,aB])); texto,regla=CHOQUE_ARQ[key]
+        if aA==aB:
+            titulo=f"Los dos sois <b>{rb.ARQ_META[aA]['nombre']}</b>"
+        else:
+            titulo=f"<b>{rb.ARQ_META[aA]['nombre']}</b> + <b>{rb.ARQ_META[aB]['nombre']}</b>"
+        out+=[Paragraph("Vuestra combinación",h_sub),
+              Paragraph(titulo,St("ac",fontSize=11,leading=14,textColor=ACCDK,fontName="Helvetica-Bold",spaceAfter=4)),
+              Paragraph(texto,body),
+              KeepTogether([Table([[Paragraph(f"<b>Vuestra regla de oro:</b> {regla}",
+                    St("rg",fontSize=10,leading=14,textColor=colors.HexColor("#7A5C00")))]],
+                  colWidths=[156*mm],
+                  style=TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.HexColor("#FEF9E7")),
+                    ("LEFTPADDING",(0,0),(-1,-1),10),("RIGHTPADDING",(0,0),(-1,-1),10),
+                    ("TOPPADDING",(0,0),(-1,-1),8),("BOTTOMPADDING",(0,0),(-1,-1),8),
+                    ("BOX",(0,0),(-1,-1),0.6,colors.HexColor("#E9C46A"))]))])]
+    return out
+
 def build_couple(rA,dA,cliA,rB,dB,cliB,out):
     pA,trA,saludA=rb.perfil(rA); pB,trB,saludB=rb.perfil(rB)
     nA,nB=cliA["nombre"].split()[0], cliB["nombre"].split()[0]
@@ -220,6 +327,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                   "divergís (vuestros focos de fricción). Al final encontraréis un guion para hablarlo.",body),
         Paragraph("Leedlo juntos. Esa es la mitad del valor.",body),
         PageBreak()]
+    S+=seccion_arquetipos(rA,rB,nA,nB)
     # compatibilidad + radar
     dAf=_fill(dA); dBf=_fill(dB)
     hogar={"gasto_mensual":dAf["gasto_mensual"]+dBf["gasto_mensual"],
@@ -266,8 +374,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                      rb.Chip(zona,zc,w=64,h=13)])
     S+=[tbl(rows,[78*mm,15*mm,15*mm,20*mm,32*mm]),PageBreak()]
     rb.radar_png(pA,"_radarA.png"); rb.radar_png(pB,"_radarB.png")
-    S+=seccion_individual(cliA["nombre"],pA,trA,saludA,dA,"_radarA.png",fi_h)
-    S+=seccion_individual(cliB["nombre"],pB,trB,saludB,dB,"_radarB.png",fi_h)
+    S+=seccion_individual(cliA["nombre"],pA,trA,saludA,dA,"_radarA.png",fi_h,rA)
+    S+=seccion_individual(cliB["nombre"],pB,trB,saludB,dB,"_radarB.png",fi_h,rB)
     # capitulos comparativos por capa
     S+=[Paragraph("Capa por capa, los dos",h_sec),
         Paragraph("El corazon de vuestro libro: las diez dimensiones, leidas en pareja. La barra azul es "
@@ -353,12 +461,12 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
     S+=[PageBreak(), Paragraph("Anexo \u2014 Vuestras respuestas",h_sec),
         Paragraph("Para total transparencia: lo que respondi\u00f3 cada uno, una al lado de la otra. "
-                  "Leer esta tabla juntos ya abre conversaciones.",body)]
+                  "Leer esta tabla juntos ya abre conversaciones. <font color=\'#B91C1C\'><b>En rojo</b></font>, "
+                  "donde respondisteis en extremos opuestos (vuestros campos de minas); "
+                  "<font color=\'#B45309\'>en \u00e1mbar</font>, divergencias moderadas; en blanco, donde est\u00e1is alineados.",body)]
     for capa in INST["capas"]:
         rows=[[Paragraph("<b>Pregunta</b>",small),Paragraph("<b>%s</b>"%nA,small),Paragraph("<b>%s</b>"%nB,small)]]
         bgs=[]; ri=1
-        def _col(sc):
-            return "#E7F6EC" if sc<=25 else ("#FEF9E7" if sc<=50 else ("#FDEBD0" if sc<=75 else "#FAE3E3"))
         for it in capa["items"]:
             sa=sb=None
             if it["tipo"]=="escala":
@@ -370,8 +478,11 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
             else:
                 va=str(dA.get(NUM_MAP.get(it["id"],""),"\u2014")); vb=str(dB.get(NUM_MAP.get(it["id"],""),"\u2014"))
             rows.append([Paragraph(it["texto"],small),Paragraph(va,small),Paragraph(vb,small)])
-            if sa is not None: bgs.append(("BACKGROUND",(1,ri),(1,ri),colors.HexColor(_col(sa))))
-            if sb is not None: bgs.append(("BACKGROUND",(2,ri),(2,ri),colors.HexColor(_col(sb))))
+            if sa is not None and sb is not None:
+                gap=abs(sa-sb)
+                fill="#F6D7D7" if gap>=66 else ("#FBEEDB" if gap>=33 else None)
+                if fill: bgs.append(("BACKGROUND",(0,ri),(-1,ri),colors.HexColor(fill)))
+                if gap>=66: bgs.append(("FONTNAME",(0,ri),(0,ri),"Helvetica-Bold"))
             ri+=1
         t=Table(rows,colWidths=[86*mm,35*mm,35*mm])
         t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,-1),0.3,LINE),

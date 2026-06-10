@@ -1,3795 +1,3869 @@
 {
-  "meta": {
-    "producto": "ITAP — Diagnóstico Psicofinanciero",
-    "version": "1.0 (10 capas completas)",
-    "fecha": "2026-06-10",
-    "polaridad": "0 = saludable · 100 = máxima disfunción",
-    "capas_totales": 10,
-    "capas_incluidas": 10,
-    "tiers": {
-      "1": {
-        "precio": 19,
-        "cerradas": 100,
-        "condicionales": 20,
-        "pdf": "esencial"
+ "meta": {
+  "producto": "ITAP — Diagnóstico Psicofinanciero",
+  "version": "1.0 (10 capas completas)",
+  "fecha": "2026-06-10",
+  "polaridad": "0 = saludable · 100 = máxima disfunción",
+  "capas_totales": 10,
+  "capas_incluidas": 10,
+  "tiers": {
+   "1": {
+    "precio": 19,
+    "cerradas": 100,
+    "condicionales": 20,
+    "pdf": "esencial"
+   },
+   "2": {
+    "precio": 39,
+    "cerradas": 200,
+    "condicionales": 20,
+    "pdf": "completo"
+   },
+   "3": {
+    "precio": 54,
+    "cerradas": 200,
+    "condicionales": 20,
+    "pdf": "pareja",
+    "cruce": true
+   }
+  }
+ },
+ "dimensiones": {
+  "primarias": {
+   "BURNOUT": "Estrés y salud psicofinanciera",
+   "LIBERTAD": "Libertad financiera real (FI)",
+   "RESILIENCIA": "Capacidad de absorber shocks familiares",
+   "EFICIENCIA": "Relación gasto/valor del estilo de vida",
+   "BLINDAJE": "Protección legal, herencia y sucesión",
+   "ESTATUS": "Gasto de estatus / lifestyle creep",
+   "CONCENTRACION": "Riesgo de concentración de ingresos (HHI)",
+   "ANTIFRAGILIDAD": "Beneficiarse del caos (Taleb)",
+   "FLUJO_CAJA": "Control y gestión del flujo de caja",
+   "DEUDA": "Carga y resiliencia ante la deuda"
+  },
+  "transversales": {
+   "PSIQUE": "Patrones psicológicos",
+   "LIQUIDEZ": "Colchón disponible",
+   "VINCULO": "Dinámica de pareja/familia (Tier 3)"
+  }
+ },
+ "adaptatividad": {
+  "areas_debiles": "tras el núcleo, profundizar en las facetas peor puntuadas",
+  "ramificacion": "respuestas ≥66 abren seguimientos y notas específicas"
+ },
+ "capas": [
+  {
+   "code": "C1",
+   "orden": 1,
+   "nombre": "Termómetro del Burnout Financiero",
+   "dimension_primaria": "BURNOUT",
+   "facetas": {
+    "B1": "Somática · cuerpo, sueño, salud",
+    "B2": "Cognitiva · rumiación y parálisis",
+    "B3": "Evitación · negación y ocultación",
+    "B4": "Identidad · culpa, vergüenza, autoestima",
+    "B5": "Relacional · vínculo y aislamiento",
+    "B6": "Agencia · control y esperanza"
+   },
+   "bandas": [
+    {
+     "min": 0,
+     "max": 25,
+     "etiqueta": "Saludable"
+    },
+    {
+     "min": 26,
+     "max": 50,
+     "etiqueta": "Tensión gestionable"
+    },
+    {
+     "min": 51,
+     "max": 75,
+     "etiqueta": "Sobrecarga"
+    },
+    {
+     "min": 76,
+     "max": 100,
+     "etiqueta": "Burnout crítico"
+    }
+   ],
+   "metricas_calculadas": [],
+   "items": [
+    {
+     "id": "C1-1",
+     "faceta": "B1",
+     "tipo": "escala",
+     "texto": "¿Con qué frecuencia el dinero te quita el sueño?",
+     "opciones": [
+      {
+       "texto": "Nunca o casi nunca",
+       "score": 0
       },
-      "2": {
-        "precio": 39,
-        "cerradas": 200,
-        "condicionales": 20,
-        "pdf": "completo"
+      {
+       "texto": "Alguna noche en un mes difícil",
+       "score": 33
       },
-      "3": {
-        "precio": 54,
-        "cerradas": 200,
-        "condicionales": 20,
-        "pdf": "pareja",
-        "cruce": true
+      {
+       "texto": "Varias noches al mes, recurrente",
+       "score": 66
+      },
+      {
+       "texto": "Casi cada noche",
+       "score": 100
       }
+     ],
+     "dimensiones": "BURNOUT·PSIQUE",
+     "disparador": "≥66 → bloque somático + nota de bienestar"
+    },
+    {
+     "id": "C1-2",
+     "faceta": "B1",
+     "tipo": "escala",
+     "texto": "Al revisar tu cuenta o una factura, ¿qué nota tu cuerpo?",
+     "opciones": [
+      {
+       "texto": "Nada, es neutro",
+       "score": 0
+      },
+      {
+       "texto": "Ligera tensión que se pasa",
+       "score": 33
+      },
+      {
+       "texto": "Tensión clara (pecho, estómago)",
+       "score": 66
+      },
+      {
+       "texto": "Reacción intensa que evito",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT",
+     "disparador": "100 → faceta Evitación"
+    },
+    {
+     "id": "C1-3",
+     "faceta": "B1",
+     "tipo": "escala",
+     "texto": "¿El estrés por dinero ha afectado tu salud física en 6 meses?",
+     "opciones": [
+      {
+       "texto": "Sin relación",
+       "score": 0
+      },
+      {
+       "texto": "Episodio puntual",
+       "score": 33
+      },
+      {
+       "texto": "Impacto notable",
+       "score": 66
+      },
+      {
+       "texto": "Problema de salud atribuible",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT",
+     "disparador": "≥66 → nota de bienestar"
+    },
+    {
+     "id": "C1-4",
+     "faceta": "B2",
+     "tipo": "escala",
+     "texto": "¿Cuánto tiempo/semana le das vueltas al dinero sin decidir?",
+     "opciones": [
+      {
+       "texto": "<1 h",
+       "score": 0
+      },
+      {
+       "texto": "1–3 h",
+       "score": 33
+      },
+      {
+       "texto": "4–10 h",
+       "score": 66
+      },
+      {
+       "texto": ">10 h / casi constante",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT·PSIQUE",
+     "disparador": "≥66 → rumiación"
+    },
+    {
+     "id": "C1-5",
+     "faceta": "B2",
+     "tipo": "escala",
+     "texto": "¿Tu relación con el dinero es reactiva o proactiva?",
+     "opciones": [
+      {
+       "texto": "Proactiva, con plan",
+       "score": 0
+      },
+      {
+       "texto": "Mayormente proactiva",
+       "score": 33
+      },
+      {
+       "texto": "Mitad y mitad",
+       "score": 66
+      },
+      {
+       "texto": "Puramente reactiva",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT",
+     "disparador": "cruza Flujo de Caja"
+    },
+    {
+     "id": "C1-6",
+     "faceta": "B2",
+     "tipo": "escala",
+     "texto": "Ante una decisión financiera importante, ¿qué haces?",
+     "opciones": [
+      {
+       "texto": "Decido en plazo",
+       "score": 0
+      },
+      {
+       "texto": "Pospongo pero resuelvo",
+       "score": 33
+      },
+      {
+       "texto": "Pospongo recurrente",
+       "score": 66
+      },
+      {
+       "texto": "Me bloqueo y evito",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT",
+     "disparador": "≥66 → parálisis decisional"
+    },
+    {
+     "id": "C1-7",
+     "faceta": "B3",
+     "tipo": "escala",
+     "texto": "¿Abres y revisas facturas, extractos y correos bancarios?",
+     "opciones": [
+      {
+       "texto": "Siempre",
+       "score": 0
+      },
+      {
+       "texto": "Casi siempre",
+       "score": 33
+      },
+      {
+       "texto": "A menudo los dejo",
+       "score": 66
+      },
+      {
+       "texto": "Los evito",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT",
+     "disparador": "≥66 → evitación activa"
+    },
+    {
+     "id": "C1-8",
+     "faceta": "B3",
+     "tipo": "escala",
+     "texto": "¿Cuándo revisaste tus gastos por última vez, completo?",
+     "opciones": [
+      {
+       "texto": "Última semana",
+       "score": 0
+      },
+      {
+       "texto": "Último mes",
+       "score": 33
+      },
+      {
+       "texto": "Hace 3–6 meses",
+       "score": 66
+      },
+      {
+       "texto": "Más de un año / nunca",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT",
+     "disparador": "cruza Eficiencia"
+    },
+    {
+     "id": "C1-9",
+     "faceta": "B3",
+     "tipo": "escala",
+     "texto": "¿Has ocultado tu situación financiera real a cercanos?",
+     "opciones": [
+      {
+       "texto": "No, transparente",
+       "score": 0
+      },
+      {
+       "texto": "Alguna vez, menor",
+       "score": 33
+      },
+      {
+       "texto": "Con frecuencia",
+       "score": 66
+      },
+      {
+       "texto": "Patrón: nadie lo sabe",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT·VINCULO",
+     "disparador": "≥66 → informe de pareja"
+    },
+    {
+     "id": "C1-10",
+     "faceta": "B4",
+     "tipo": "escala",
+     "texto": "¿Tu valor como persona está ligado a tu dinero?",
+     "opciones": [
+      {
+       "texto": "Nada, independientes",
+       "score": 0
+      },
+      {
+       "texto": "Un poco",
+       "score": 33
+      },
+      {
+       "texto": "Bastante",
+       "score": 66
+      },
+      {
+       "texto": "Mucho, sube y baja con mi saldo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT·PSIQUE",
+     "disparador": "≥66 → identidad financiera"
+    },
+    {
+     "id": "C1-11",
+     "faceta": "B4",
+     "tipo": "escala",
+     "texto": "Al gastar en ti algo que puedes permitirte, ¿aparece culpa?",
+     "opciones": [
+      {
+       "texto": "No, lo disfruto",
+       "score": 0
+      },
+      {
+       "texto": "A veces leve",
+       "score": 33
+      },
+      {
+       "texto": "Con frecuencia",
+       "score": 66
+      },
+      {
+       "texto": "Casi siempre",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT",
+     "disparador": "contrasta con Estatus"
+    },
+    {
+     "id": "C1-12",
+     "faceta": "B4",
+     "tipo": "escala",
+     "texto": "¿Te avergüenza tu situación financiera actual?",
+     "opciones": [
+      {
+       "texto": "No, la acepto",
+       "score": 0
+      },
+      {
+       "texto": "Un poco",
+       "score": 33
+      },
+      {
+       "texto": "Bastante",
+       "score": 66
+      },
+      {
+       "texto": "Profundamente",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT",
+     "disparador": "≥66 → marco de seguridad"
+    },
+    {
+     "id": "C1-13",
+     "faceta": "B5",
+     "tipo": "escala",
+     "texto": "¿El dinero genera tensión con tu pareja/familia?",
+     "opciones": [
+      {
+       "texto": "Rara vez, lo hablamos",
+       "score": 0
+      },
+      {
+       "texto": "Tensión ocasional",
+       "score": 33
+      },
+      {
+       "texto": "Conflicto frecuente",
+       "score": 66
+      },
+      {
+       "texto": "Foco constante",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT·VINCULO",
+     "disparador": "eje del Tier 3"
+    },
+    {
+     "id": "C1-14",
+     "faceta": "B5",
+     "tipo": "escala",
+     "texto": "¿Quienes comparten tu economía conocen tu situación real?",
+     "opciones": [
+      {
+       "texto": "Plena transparencia",
+       "score": 0
+      },
+      {
+       "texto": "En su mayoría",
+       "score": 33
+      },
+      {
+       "texto": "Solo en parte",
+       "score": 66
+      },
+      {
+       "texto": "No, en soledad",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT·VINCULO",
+     "disparador": "≥66 → divergencia en pareja"
+    },
+    {
+     "id": "C1-15",
+     "faceta": "B5",
+     "tipo": "escala",
+     "texto": "¿Evitas planes o eventos sociales por dinero?",
+     "opciones": [
+      {
+       "texto": "No, con libertad",
+       "score": 0
+      },
+      {
+       "texto": "Alguna vez",
+       "score": 33
+      },
+      {
+       "texto": "Con frecuencia",
+       "score": 66
+      },
+      {
+       "texto": "Evito la mayoría",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT",
+     "disparador": "≥66 → aislamiento"
+    },
+    {
+     "id": "C1-16",
+     "faceta": "B6",
+     "tipo": "escala",
+     "texto": "¿Sientes que tu situación financiera puede mejorar?",
+     "opciones": [
+      {
+       "texto": "Sí, tengo camino",
+       "score": 0
+      },
+      {
+       "texto": "Mayormente sí",
+       "score": 33
+      },
+      {
+       "texto": "Lo dudo a menudo",
+       "score": 66
+      },
+      {
+       "texto": "Creo que no mejorará",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT·PSIQUE",
+     "disparador": "≥66 → desesperanza, prioriza tono"
+    },
+    {
+     "id": "C1-17",
+     "faceta": "B6",
+     "tipo": "escala",
+     "texto": "¿Cuánto controla el dinero tus decisiones de vida?",
+     "opciones": [
+      {
+       "texto": "Decido libre",
+       "score": 0
+      },
+      {
+       "texto": "Influye algo",
+       "score": 33
+      },
+      {
+       "texto": "Influye bastante",
+       "score": 66
+      },
+      {
+       "texto": "Lo controla todo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT·LIBERTAD",
+     "disparador": "cruza Libertad Financiera"
+    },
+    {
+     "id": "C1-18",
+     "faceta": "B6",
+     "tipo": "escala",
+     "texto": "Del 1 al 10, ¿tu salud mental respecto al dinero hoy?",
+     "opciones": [
+      {
+       "texto": "8–10 sólida",
+       "score": 0
+      },
+      {
+       "texto": "6–7 aceptable",
+       "score": 33
+      },
+      {
+       "texto": "4–5 frágil",
+       "score": 66
+      },
+      {
+       "texto": "1–3 mala",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BURNOUT·metacognición",
+     "disparador": "ancla de autoevaluación"
     }
+   ]
   },
-  "dimensiones": {
-    "primarias": {
-      "BURNOUT": "Estrés y salud psicofinanciera",
-      "LIBERTAD": "Libertad financiera real (FI)",
-      "RESILIENCIA": "Capacidad de absorber shocks familiares",
-      "EFICIENCIA": "Relación gasto/valor del estilo de vida",
-      "BLINDAJE": "Protección legal, herencia y sucesión",
-      "ESTATUS": "Gasto de estatus / lifestyle creep",
-      "CONCENTRACION": "Riesgo de concentración de ingresos (HHI)",
-      "ANTIFRAGILIDAD": "Beneficiarse del caos (Taleb)",
-      "FLUJO_CAJA": "Control y gestión del flujo de caja",
-      "DEUDA": "Carga y resiliencia ante la deuda"
+  {
+   "code": "C2",
+   "orden": 2,
+   "nombre": "Número de Libertad Financiera Real",
+   "dimension_primaria": "LIBERTAD",
+   "facetas": {
+    "N": "Datos · entradas que el motor calcula",
+    "L1": "Claridad · conoces tus números",
+    "L2": "Objetivo · tienes un destino y un plan",
+    "L3": "Resiliencia · el plan aguanta golpes",
+    "L4": "Diversificación · no dependes de una sola fuente"
+   },
+   "bandas": [
+    {
+     "min": 0,
+     "max": 25,
+     "etiqueta": "Libertad en marcha"
     },
-    "transversales": {
-      "PSIQUE": "Patrones psicológicos",
-      "LIQUIDEZ": "Colchón disponible",
-      "VINCULO": "Dinámica de pareja/familia (Tier 3)"
+    {
+     "min": 26,
+     "max": 50,
+     "etiqueta": "Encaminado, con brechas"
+    },
+    {
+     "min": 51,
+     "max": 75,
+     "etiqueta": "Lejos del objetivo"
+    },
+    {
+     "min": 76,
+     "max": 100,
+     "etiqueta": "Sin rumbo financiero"
     }
-  },
-  "adaptatividad": {
-    "areas_debiles": "tras el núcleo, profundizar en las facetas peor puntuadas",
-    "ramificacion": "respuestas ≥66 abren seguimientos y notas específicas"
-  },
-  "capas": [
+   ],
+   "metricas_calculadas": [
+    "FI number = gasto_mensual_minimo × 12 × 25  (regla del 4% / 25×)",
+    "FI% = patrimonio_neto / FI number  → cuánto del camino llevas",
+    "Tasa de ahorro = ahorro_mensual / ingreso_neto",
+    "Años a la libertad = proyección con tasa de ahorro y rentabilidad esperada"
+   ],
+   "items": [
     {
-      "code": "C1",
-      "orden": 1,
-      "nombre": "Termómetro del Burnout Financiero",
-      "dimension_primaria": "BURNOUT",
-      "facetas": {
-        "B1": "Somática · cuerpo, sueño, salud",
-        "B2": "Cognitiva · rumiación y parálisis",
-        "B3": "Evitación · negación y ocultación",
-        "B4": "Identidad · culpa, vergüenza, autoestima",
-        "B5": "Relacional · vínculo y aislamiento",
-        "B6": "Agencia · control y esperanza"
-      },
-      "bandas": [
-        {
-          "min": 0,
-          "max": 25,
-          "etiqueta": "Saludable"
-        },
-        {
-          "min": 26,
-          "max": 50,
-          "etiqueta": "Tensión gestionable"
-        },
-        {
-          "min": 51,
-          "max": 75,
-          "etiqueta": "Sobrecarga"
-        },
-        {
-          "min": 76,
-          "max": 100,
-          "etiqueta": "Burnout crítico"
-        }
-      ],
-      "metricas_calculadas": [],
-      "items": [
-        {
-          "id": "C1-1",
-          "faceta": "B1",
-          "tipo": "escala",
-          "texto": "¿Con qué frecuencia el dinero te quita el sueño?",
-          "opciones": [
-            {
-              "texto": "Nunca o casi nunca",
-              "score": 0
-            },
-            {
-              "texto": "Alguna noche en un mes difícil",
-              "score": 33
-            },
-            {
-              "texto": "Varias noches al mes, recurrente",
-              "score": 66
-            },
-            {
-              "texto": "Casi cada noche",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT·PSIQUE",
-          "disparador": "≥66 → bloque somático + nota de bienestar"
-        },
-        {
-          "id": "C1-2",
-          "faceta": "B1",
-          "tipo": "escala",
-          "texto": "Al revisar tu cuenta o una factura, ¿qué nota tu cuerpo?",
-          "opciones": [
-            {
-              "texto": "Nada, es neutro",
-              "score": 0
-            },
-            {
-              "texto": "Ligera tensión que se pasa",
-              "score": 33
-            },
-            {
-              "texto": "Tensión clara (pecho, estómago)",
-              "score": 66
-            },
-            {
-              "texto": "Reacción intensa que evito",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT",
-          "disparador": "100 → faceta Evitación"
-        },
-        {
-          "id": "C1-3",
-          "faceta": "B1",
-          "tipo": "escala",
-          "texto": "¿El estrés por dinero ha afectado tu salud física en 6 meses?",
-          "opciones": [
-            {
-              "texto": "Sin relación",
-              "score": 0
-            },
-            {
-              "texto": "Episodio puntual",
-              "score": 33
-            },
-            {
-              "texto": "Impacto notable",
-              "score": 66
-            },
-            {
-              "texto": "Problema de salud atribuible",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT",
-          "disparador": "≥66 → nota de bienestar"
-        },
-        {
-          "id": "C1-4",
-          "faceta": "B2",
-          "tipo": "escala",
-          "texto": "¿Cuánto tiempo/semana le das vueltas al dinero sin decidir?",
-          "opciones": [
-            {
-              "texto": "<1 h",
-              "score": 0
-            },
-            {
-              "texto": "1–3 h",
-              "score": 33
-            },
-            {
-              "texto": "4–10 h",
-              "score": 66
-            },
-            {
-              "texto": ">10 h / casi constante",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT·PSIQUE",
-          "disparador": "≥66 → rumiación"
-        },
-        {
-          "id": "C1-5",
-          "faceta": "B2",
-          "tipo": "escala",
-          "texto": "¿Tu relación con el dinero es reactiva o proactiva?",
-          "opciones": [
-            {
-              "texto": "Proactiva, con plan",
-              "score": 0
-            },
-            {
-              "texto": "Mayormente proactiva",
-              "score": 33
-            },
-            {
-              "texto": "Mitad y mitad",
-              "score": 66
-            },
-            {
-              "texto": "Puramente reactiva",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT",
-          "disparador": "cruza Flujo de Caja"
-        },
-        {
-          "id": "C1-6",
-          "faceta": "B2",
-          "tipo": "escala",
-          "texto": "Ante una decisión financiera importante, ¿qué haces?",
-          "opciones": [
-            {
-              "texto": "Decido en plazo",
-              "score": 0
-            },
-            {
-              "texto": "Pospongo pero resuelvo",
-              "score": 33
-            },
-            {
-              "texto": "Pospongo recurrente",
-              "score": 66
-            },
-            {
-              "texto": "Me bloqueo y evito",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT",
-          "disparador": "≥66 → parálisis decisional"
-        },
-        {
-          "id": "C1-7",
-          "faceta": "B3",
-          "tipo": "escala",
-          "texto": "¿Abres y revisas facturas, extractos y correos bancarios?",
-          "opciones": [
-            {
-              "texto": "Siempre",
-              "score": 0
-            },
-            {
-              "texto": "Casi siempre",
-              "score": 33
-            },
-            {
-              "texto": "A menudo los dejo",
-              "score": 66
-            },
-            {
-              "texto": "Los evito",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT",
-          "disparador": "≥66 → evitación activa"
-        },
-        {
-          "id": "C1-8",
-          "faceta": "B3",
-          "tipo": "escala",
-          "texto": "¿Cuándo revisaste tus gastos por última vez, completo?",
-          "opciones": [
-            {
-              "texto": "Última semana",
-              "score": 0
-            },
-            {
-              "texto": "Último mes",
-              "score": 33
-            },
-            {
-              "texto": "Hace 3–6 meses",
-              "score": 66
-            },
-            {
-              "texto": "Más de un año / nunca",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT",
-          "disparador": "cruza Eficiencia"
-        },
-        {
-          "id": "C1-9",
-          "faceta": "B3",
-          "tipo": "escala",
-          "texto": "¿Has ocultado tu situación financiera real a cercanos?",
-          "opciones": [
-            {
-              "texto": "No, transparente",
-              "score": 0
-            },
-            {
-              "texto": "Alguna vez, menor",
-              "score": 33
-            },
-            {
-              "texto": "Con frecuencia",
-              "score": 66
-            },
-            {
-              "texto": "Patrón: nadie lo sabe",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT·VINCULO",
-          "disparador": "≥66 → informe de pareja"
-        },
-        {
-          "id": "C1-10",
-          "faceta": "B4",
-          "tipo": "escala",
-          "texto": "¿Tu valor como persona está ligado a tu dinero?",
-          "opciones": [
-            {
-              "texto": "Nada, independientes",
-              "score": 0
-            },
-            {
-              "texto": "Un poco",
-              "score": 33
-            },
-            {
-              "texto": "Bastante",
-              "score": 66
-            },
-            {
-              "texto": "Mucho, sube y baja con mi saldo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT·PSIQUE",
-          "disparador": "≥66 → identidad financiera"
-        },
-        {
-          "id": "C1-11",
-          "faceta": "B4",
-          "tipo": "escala",
-          "texto": "Al gastar en ti algo que puedes permitirte, ¿aparece culpa?",
-          "opciones": [
-            {
-              "texto": "No, lo disfruto",
-              "score": 0
-            },
-            {
-              "texto": "A veces leve",
-              "score": 33
-            },
-            {
-              "texto": "Con frecuencia",
-              "score": 66
-            },
-            {
-              "texto": "Casi siempre",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT",
-          "disparador": "contrasta con Estatus"
-        },
-        {
-          "id": "C1-12",
-          "faceta": "B4",
-          "tipo": "escala",
-          "texto": "¿Te avergüenza tu situación financiera actual?",
-          "opciones": [
-            {
-              "texto": "No, la acepto",
-              "score": 0
-            },
-            {
-              "texto": "Un poco",
-              "score": 33
-            },
-            {
-              "texto": "Bastante",
-              "score": 66
-            },
-            {
-              "texto": "Profundamente",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT",
-          "disparador": "≥66 → marco de seguridad"
-        },
-        {
-          "id": "C1-13",
-          "faceta": "B5",
-          "tipo": "escala",
-          "texto": "¿El dinero genera tensión con tu pareja/familia?",
-          "opciones": [
-            {
-              "texto": "Rara vez, lo hablamos",
-              "score": 0
-            },
-            {
-              "texto": "Tensión ocasional",
-              "score": 33
-            },
-            {
-              "texto": "Conflicto frecuente",
-              "score": 66
-            },
-            {
-              "texto": "Foco constante",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT·VINCULO",
-          "disparador": "eje del Tier 3"
-        },
-        {
-          "id": "C1-14",
-          "faceta": "B5",
-          "tipo": "escala",
-          "texto": "¿Quienes comparten tu economía conocen tu situación real?",
-          "opciones": [
-            {
-              "texto": "Plena transparencia",
-              "score": 0
-            },
-            {
-              "texto": "En su mayoría",
-              "score": 33
-            },
-            {
-              "texto": "Solo en parte",
-              "score": 66
-            },
-            {
-              "texto": "No, en soledad",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT·VINCULO",
-          "disparador": "≥66 → divergencia en pareja"
-        },
-        {
-          "id": "C1-15",
-          "faceta": "B5",
-          "tipo": "escala",
-          "texto": "¿Evitas planes o eventos sociales por dinero?",
-          "opciones": [
-            {
-              "texto": "No, con libertad",
-              "score": 0
-            },
-            {
-              "texto": "Alguna vez",
-              "score": 33
-            },
-            {
-              "texto": "Con frecuencia",
-              "score": 66
-            },
-            {
-              "texto": "Evito la mayoría",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT",
-          "disparador": "≥66 → aislamiento"
-        },
-        {
-          "id": "C1-16",
-          "faceta": "B6",
-          "tipo": "escala",
-          "texto": "¿Sientes que tu situación financiera puede mejorar?",
-          "opciones": [
-            {
-              "texto": "Sí, tengo camino",
-              "score": 0
-            },
-            {
-              "texto": "Mayormente sí",
-              "score": 33
-            },
-            {
-              "texto": "Lo dudo a menudo",
-              "score": 66
-            },
-            {
-              "texto": "Creo que no mejorará",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT·PSIQUE",
-          "disparador": "≥66 → desesperanza, prioriza tono"
-        },
-        {
-          "id": "C1-17",
-          "faceta": "B6",
-          "tipo": "escala",
-          "texto": "¿Cuánto controla el dinero tus decisiones de vida?",
-          "opciones": [
-            {
-              "texto": "Decido libre",
-              "score": 0
-            },
-            {
-              "texto": "Influye algo",
-              "score": 33
-            },
-            {
-              "texto": "Influye bastante",
-              "score": 66
-            },
-            {
-              "texto": "Lo controla todo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT·LIBERTAD",
-          "disparador": "cruza Libertad Financiera"
-        },
-        {
-          "id": "C1-18",
-          "faceta": "B6",
-          "tipo": "escala",
-          "texto": "Del 1 al 10, ¿tu salud mental respecto al dinero hoy?",
-          "opciones": [
-            {
-              "texto": "8–10 sólida",
-              "score": 0
-            },
-            {
-              "texto": "6–7 aceptable",
-              "score": 33
-            },
-            {
-              "texto": "4–5 frágil",
-              "score": 66
-            },
-            {
-              "texto": "1–3 mala",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BURNOUT·metacognición",
-          "disparador": "ancla de autoevaluación"
-        }
-      ]
+     "id": "C2-1",
+     "faceta": "N",
+     "tipo": "numerica",
+     "texto": "Gasto mensual mínimo para vivir con dignidad (sin lujos), en €",
+     "unidad": "€/mes",
+     "nota": "Base del FI number",
+     "dimensiones": "LIBERTAD·FLUJO_CAJA",
+     "disparador": null
     },
     {
-      "code": "C2",
-      "orden": 2,
-      "nombre": "Número de Libertad Financiera Real",
-      "dimension_primaria": "LIBERTAD",
-      "facetas": {
-        "N": "Datos · entradas que el motor calcula",
-        "L1": "Claridad · conoces tus números",
-        "L2": "Objetivo · tienes un destino y un plan",
-        "L3": "Resiliencia · el plan aguanta golpes",
-        "L4": "Diversificación · no dependes de una sola fuente"
-      },
-      "bandas": [
-        {
-          "min": 0,
-          "max": 25,
-          "etiqueta": "Libertad en marcha"
-        },
-        {
-          "min": 26,
-          "max": 50,
-          "etiqueta": "Encaminado, con brechas"
-        },
-        {
-          "min": 51,
-          "max": 75,
-          "etiqueta": "Lejos del objetivo"
-        },
-        {
-          "min": 76,
-          "max": 100,
-          "etiqueta": "Sin rumbo financiero"
-        }
-      ],
-      "metricas_calculadas": [
-        "FI number = gasto_mensual_minimo × 12 × 25  (regla del 4% / 25×)",
-        "FI% = patrimonio_neto / FI number  → cuánto del camino llevas",
-        "Tasa de ahorro = ahorro_mensual / ingreso_neto",
-        "Años a la libertad = proyección con tasa de ahorro y rentabilidad esperada"
-      ],
-      "items": [
-        {
-          "id": "C2-1",
-          "faceta": "N",
-          "tipo": "numerica",
-          "texto": "Gasto mensual mínimo para vivir con dignidad (sin lujos), en €",
-          "unidad": "€/mes",
-          "nota": "Base del FI number",
-          "dimensiones": "LIBERTAD·FLUJO_CAJA",
-          "disparador": null
-        },
-        {
-          "id": "C2-2",
-          "faceta": "N",
-          "tipo": "numerica",
-          "texto": "Ingreso neto mensual actual (tras impuestos), en €",
-          "unidad": "€/mes",
-          "nota": "Base de la tasa de ahorro",
-          "dimensiones": "LIBERTAD",
-          "disparador": null
-        },
-        {
-          "id": "C2-3",
-          "faceta": "N",
-          "tipo": "numerica",
-          "texto": "Ahorro/inversión mensual real, en €",
-          "unidad": "€/mes",
-          "nota": "Motor de la velocidad a FI",
-          "dimensiones": "LIBERTAD",
-          "disparador": null
-        },
-        {
-          "id": "C2-4",
-          "faceta": "N",
-          "tipo": "numerica",
-          "texto": "Patrimonio neto actual (activos − deudas), en €",
-          "unidad": "€",
-          "nota": "Numerador del FI%",
-          "dimensiones": "LIBERTAD·LIQUIDEZ",
-          "disparador": null
-        },
-        {
-          "id": "C2-5",
-          "faceta": "N",
-          "tipo": "numerica",
-          "texto": "Edad",
-          "unidad": "años",
-          "nota": "Fija el horizonte",
-          "dimensiones": "LIBERTAD",
-          "disparador": null
-        },
-        {
-          "id": "C2-6",
-          "faceta": "L1",
-          "tipo": "escala",
-          "texto": "¿Conoces con precisión tu patrimonio neto?",
-          "opciones": [
-            {
-              "texto": "Sí, actualizado al euro",
-              "score": 0
-            },
-            {
-              "texto": "Aproximado",
-              "score": 33
-            },
-            {
-              "texto": "Vagamente",
-              "score": 66
-            },
-            {
-              "texto": "No tengo idea",
-              "score": 100
-            }
-          ],
-          "dimensiones": "LIBERTAD·claridad",
-          "disparador": "≥66 → empezar por inventario patrimonial"
-        },
-        {
-          "id": "C2-7",
-          "faceta": "L2",
-          "tipo": "escala",
-          "texto": "¿Tienes un objetivo numérico concreto de libertad financiera?",
-          "opciones": [
-            {
-              "texto": "Sí, calculado y con plazo",
-              "score": 0
-            },
-            {
-              "texto": "Cifra orientativa",
-              "score": 33
-            },
-            {
-              "texto": "Idea difusa",
-              "score": 66
-            },
-            {
-              "texto": "Nunca lo pensé",
-              "score": 100
-            }
-          ],
-          "dimensiones": "LIBERTAD·objetivo",
-          "disparador": "compara con FI number calculado"
-        },
-        {
-          "id": "C2-8",
-          "faceta": "L3",
-          "tipo": "escala",
-          "texto": "Si tu ingreso principal cayera un 50%, ¿sostendrías tu vida?",
-          "opciones": [
-            {
-              "texto": "Sí, con holgura",
-              "score": 0
-            },
-            {
-              "texto": "Sí, ajustando",
-              "score": 33
-            },
-            {
-              "texto": "Solo unos meses",
-              "score": 66
-            },
-            {
-              "texto": "No, colapsaría",
-              "score": 100
-            }
-          ],
-          "dimensiones": "LIBERTAD·RESILIENCIA",
-          "disparador": "cruza con Capa 3"
-        },
-        {
-          "id": "C2-9",
-          "faceta": "L4",
-          "tipo": "escala",
-          "texto": "¿Qué parte de tus ingresos NO depende de tu trabajo principal?",
-          "opciones": [
-            {
-              "texto": "Una parte significativa",
-              "score": 0
-            },
-            {
-              "texto": "Algo",
-              "score": 33
-            },
-            {
-              "texto": "Casi nada",
-              "score": 66
-            },
-            {
-              "texto": "Nada, todo depende de mi trabajo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "LIBERTAD·CONCENTRACION",
-          "disparador": "cruza con HHI de ingresos"
-        },
-        {
-          "id": "C2-10",
-          "faceta": "L2",
-          "tipo": "escala",
-          "texto": "Tu plan para llegar a FI, ¿es realista y revisado o un deseo?",
-          "opciones": [
-            {
-              "texto": "Realista, revisado, cuadra",
-              "score": 0
-            },
-            {
-              "texto": "Razonable sin revisar",
-              "score": 33
-            },
-            {
-              "texto": "Optimista sin comprobar",
-              "score": 66
-            },
-            {
-              "texto": "No tengo plan",
-              "score": 100
-            }
-          ],
-          "dimensiones": "LIBERTAD·realismo",
-          "disparador": "≥66 → modelar números reales"
-        },
-        {
-          "id": "C2-11",
-          "faceta": "L1",
-          "tipo": "escala",
-          "texto": "¿Con qué frecuencia revisas tu patrimonio y tu progreso?",
-          "opciones": [
-            {
-              "texto": "Trimestral, con método",
-              "score": 0
-            },
-            {
-              "texto": "Un par de veces al año",
-              "score": 33
-            },
-            {
-              "texto": "Rara vez",
-              "score": 66
-            },
-            {
-              "texto": "Nunca",
-              "score": 100
-            }
-          ],
-          "dimensiones": "LIBERTAD·seguimiento",
-          "disparador": "hábito de revisión"
-        },
-        {
-          "id": "C2-12",
-          "faceta": "L4",
-          "tipo": "escala",
-          "texto": "¿Tu dinero está invertido y alineado con el objetivo, o parado?",
-          "opciones": [
-            {
-              "texto": "Invertido y alineado",
-              "score": 0
-            },
-            {
-              "texto": "Mayormente",
-              "score": 33
-            },
-            {
-              "texto": "Parte parado",
-              "score": 66
-            },
-            {
-              "texto": "Parado o disperso",
-              "score": 100
-            }
-          ],
-          "dimensiones": "LIBERTAD·coherencia",
-          "disparador": "≥66 → coste de oportunidad"
-        }
-      ]
+     "id": "C2-2",
+     "faceta": "N",
+     "tipo": "numerica",
+     "texto": "Ingreso neto mensual actual (tras impuestos), en €",
+     "unidad": "€/mes",
+     "nota": "Base de la tasa de ahorro",
+     "dimensiones": "LIBERTAD",
+     "disparador": null
     },
     {
-      "code": "C3",
-      "orden": 3,
-      "nombre": "Stress-Testing Familiar",
-      "dimension_primaria": "RESILIENCIA",
-      "facetas": {
-        "S0": "Reserva · meses de supervivencia",
-        "S1": "Flexibilidad · capacidad de recorte",
-        "S2": "Alternativas · ingresos sustitutos",
-        "S3": "Multiplicador · dependientes y protección",
-        "S4": "Red · seguros y apoyo",
-        "S5": "Psicológica · experiencia y temple"
-      },
-      "bandas": [
-        {
-          "min": 0,
-          "max": 25,
-          "etiqueta": "Antifrágil"
-        },
-        {
-          "min": 26,
-          "max": 50,
-          "etiqueta": "Resistente"
-        },
-        {
-          "min": 51,
-          "max": 75,
-          "etiqueta": "Vulnerable"
-        },
-        {
-          "min": 76,
-          "max": 100,
-          "etiqueta": "Frágil crítico"
-        }
-      ],
-      "metricas_calculadas": [
-        "Runway = meses que cubre el colchón líquido sin ingresos",
-        "Carga fija = obligaciones fijas / ingreso neto (rigidez)",
-        "Índice de resiliencia = media ponderada de las 6 facetas"
-      ],
-      "items": [
-        {
-          "id": "C3-1",
-          "faceta": "S0",
-          "tipo": "escala",
-          "texto": "¿Cuántos meses cubrirías tus gastos esenciales solo con tu colchón, sin ingresos?",
-          "opciones": [
-            {
-              "texto": "12+ meses",
-              "score": 0
-            },
-            {
-              "texto": "6–11 meses",
-              "score": 33
-            },
-            {
-              "texto": "3–5 meses",
-              "score": 66
-            },
-            {
-              "texto": "Menos de 3 / ninguno",
-              "score": 100
-            }
-          ],
-          "dimensiones": "RESILIENCIA·LIQUIDEZ",
-          "disparador": "<3 → prioridad absoluta: fondo de emergencia"
-        },
-        {
-          "id": "C3-2",
-          "faceta": "S0",
-          "tipo": "escala",
-          "texto": "¿Tienes un fondo de emergencia separado y solo para eso?",
-          "opciones": [
-            {
-              "texto": "Sí, 6+ meses intocable",
-              "score": 0
-            },
-            {
-              "texto": "Sí, parcial",
-              "score": 33
-            },
-            {
-              "texto": "Algo, pero lo uso",
-              "score": 66
-            },
-            {
-              "texto": "No tengo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "RESILIENCIA",
-          "disparador": "≥66 → construir reserva"
-        },
-        {
-          "id": "C3-3",
-          "faceta": "S0",
-          "tipo": "escala",
-          "texto": "Imprevisto de 5.000 € mañana: ¿de dónde sale?",
-          "opciones": [
-            {
-              "texto": "De mi fondo, sin despeinarme",
-              "score": 0
-            },
-            {
-              "texto": "Ahorros, con ajuste",
-              "score": 33
-            },
-            {
-              "texto": "Tendría que financiarlo",
-              "score": 66
-            },
-            {
-              "texto": "No sabría de dónde",
-              "score": 100
-            }
-          ],
-          "dimensiones": "RESILIENCIA",
-          "disparador": "escenario concreto"
-        },
-        {
-          "id": "C3-4",
-          "faceta": "S1",
-          "tipo": "escala",
-          "texto": "Si hiciera falta, ¿cuánto podrías recortar tu gasto rápido?",
-          "opciones": [
-            {
-              "texto": "50%+ sin drama",
-              "score": 0
-            },
-            {
-              "texto": "~30%",
-              "score": 33
-            },
-            {
-              "texto": "Poco, ~15%",
-              "score": 66
-            },
-            {
-              "texto": "Casi nada, todo fijo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "RESILIENCIA·flexibilidad",
-          "disparador": "baja flexibilidad → revisar gasto fijo"
-        },
-        {
-          "id": "C3-5",
-          "faceta": "S1",
-          "tipo": "escala",
-          "texto": "¿Qué peso tienen tus obligaciones fijas sobre tu ingreso?",
-          "opciones": [
-            {
-              "texto": "Bajo (<30%)",
-              "score": 0
-            },
-            {
-              "texto": "Moderado (30–45%)",
-              "score": 33
-            },
-            {
-              "texto": "Alto (45–60%)",
-              "score": 66
-            },
-            {
-              "texto": "Asfixiante (>60%)",
-              "score": 100
-            }
-          ],
-          "dimensiones": "RESILIENCIA·DEUDA",
-          "disparador": "cruza con Capa Deuda"
-        },
-        {
-          "id": "C3-6",
-          "faceta": "S2",
-          "tipo": "escala",
-          "texto": "Si perdieras tu fuente principal, ¿qué alternativas reales tienes?",
-          "opciones": [
-            {
-              "texto": "Varias (skills, red, rentas)",
-              "score": 0
-            },
-            {
-              "texto": "Alguna",
-              "score": 33
-            },
-            {
-              "texto": "Pocas y lentas",
-              "score": 66
-            },
-            {
-              "texto": "Ninguna clara",
-              "score": 100
-            }
-          ],
-          "dimensiones": "RESILIENCIA·CONCENTRACION",
-          "disparador": "cruza con HHI"
-        },
-        {
-          "id": "C3-7",
-          "faceta": "S2",
-          "tipo": "escala",
-          "texto": "¿Conseguirías un ingreso digno en pocas semanas si lo necesitaras?",
-          "opciones": [
-            {
-              "texto": "Sí, con facilidad",
-              "score": 0
-            },
-            {
-              "texto": "Probablemente",
-              "score": 33
-            },
-            {
-              "texto": "Difícil",
-              "score": 66
-            },
-            {
-              "texto": "No",
-              "score": 100
-            }
-          ],
-          "dimensiones": "RESILIENCIA·empleabilidad",
-          "disparador": "empleabilidad"
-        },
-        {
-          "id": "C3-8",
-          "faceta": "S3",
-          "tipo": "escala",
-          "texto": "¿Cuántas personas dependen económicamente de ti?",
-          "opciones": [
-            {
-              "texto": "Solo yo",
-              "score": 0
-            },
-            {
-              "texto": "Una, con colchón",
-              "score": 33
-            },
-            {
-              "texto": "Varias",
-              "score": 66
-            },
-            {
-              "texto": "Varias y sin red",
-              "score": 100
-            }
-          ],
-          "dimensiones": "RESILIENCIA·multiplicador",
-          "disparador": "multiplica el riesgo de todo lo demás"
-        },
-        {
-          "id": "C3-9",
-          "faceta": "S3",
-          "tipo": "escala",
-          "texto": "Si tú faltaras económicamente, ¿tu familia conservaría vivienda y estudios?",
-          "opciones": [
-            {
-              "texto": "Sí, protegido",
-              "score": 0
-            },
-            {
-              "texto": "Un tiempo",
-              "score": 33
-            },
-            {
-              "texto": "Poco",
-              "score": 66
-            },
-            {
-              "texto": "No, expuestos",
-              "score": 100
-            }
-          ],
-          "dimensiones": "RESILIENCIA·BLINDAJE",
-          "disparador": "cruza con Herencia/Blindaje"
-        },
-        {
-          "id": "C3-10",
-          "faceta": "S4",
-          "tipo": "escala",
-          "texto": "¿Tienes seguros que cubran invalidez, desempleo o pérdida de ingresos?",
-          "opciones": [
-            {
-              "texto": "Cobertura sólida",
-              "score": 0
-            },
-            {
-              "texto": "Parcial",
-              "score": 33
-            },
-            {
-              "texto": "Mínima",
-              "score": 66
-            },
-            {
-              "texto": "Ninguna",
-              "score": 100
-            }
-          ],
-          "dimensiones": "RESILIENCIA·protección",
-          "disparador": "≥66 → revisar coberturas"
-        },
-        {
-          "id": "C3-11",
-          "faceta": "S4",
-          "tipo": "escala",
-          "texto": "En una crisis, ¿tienes una red (familia, contactos) que te apoye?",
-          "opciones": [
-            {
-              "texto": "Sólida",
-              "score": 0
-            },
-            {
-              "texto": "Alguna",
-              "score": 33
-            },
-            {
-              "texto": "Escasa",
-              "score": 66
-            },
-            {
-              "texto": "Estaría solo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "RESILIENCIA·red",
-          "disparador": "capital social"
-        },
-        {
-          "id": "C3-12",
-          "faceta": "S5",
-          "tipo": "escala",
-          "texto": "¿Has atravesado antes una crisis económica seria y saliste?",
-          "opciones": [
-            {
-              "texto": "Sí, y aprendí",
-              "score": 0
-            },
-            {
-              "texto": "Algo parecido",
-              "score": 33
-            },
-            {
-              "texto": "No, me asusta",
-              "score": 66
-            },
-            {
-              "texto": "No, me paralizaría",
-              "score": 100
-            }
-          ],
-          "dimensiones": "RESILIENCIA·PSIQUE",
-          "disparador": "cruza con Burnout"
-        },
-        {
-          "id": "C3-13",
-          "faceta": "S5",
-          "tipo": "escala",
-          "texto": "Del 1 al 10, ¿cómo de preparado te sientes para un golpe inesperado?",
-          "opciones": [
-            {
-              "texto": "8–10",
-              "score": 0
-            },
-            {
-              "texto": "6–7",
-              "score": 33
-            },
-            {
-              "texto": "4–5",
-              "score": 66
-            },
-            {
-              "texto": "1–3",
-              "score": 100
-            }
-          ],
-          "dimensiones": "RESILIENCIA·metacognición",
-          "disparador": "autoevaluación"
-        }
-      ]
+     "id": "C2-3",
+     "faceta": "N",
+     "tipo": "numerica",
+     "texto": "Ahorro/inversión mensual real, en €",
+     "unidad": "€/mes",
+     "nota": "Motor de la velocidad a FI",
+     "dimensiones": "LIBERTAD",
+     "disparador": null
     },
     {
-      "code": "C4",
-      "orden": 4,
-      "nombre": "Índice de Eficiencia del Estilo de Vida",
-      "dimension_primaria": "EFICIENCIA",
-      "facetas": {
-        "E1": "Deriva · el gasto se come las subidas",
-        "E2": "Conciencia · sabes a dónde va el dinero",
-        "E3": "Sostenibilidad · aguanta una caída de ingresos",
-        "E4": "Emocional · compras para sentirte mejor",
-        "E5": "Social · el entorno marca tu gasto"
-      },
-      "bandas": [
-        {
-          "min": 0,
-          "max": 25,
-          "etiqueta": "Estilo de vida eficiente"
-        },
-        {
-          "min": 26,
-          "max": 50,
-          "etiqueta": "Algo de deriva"
-        },
-        {
-          "min": 51,
-          "max": 75,
-          "etiqueta": "Lifestyle creep activo"
-        },
-        {
-          "min": 76,
-          "max": 100,
-          "etiqueta": "Inflado e insostenible"
-        }
-      ],
-      "metricas_calculadas": [
-        "Deriva = variación de la tasa de ahorro frente a la subida de ingresos",
-        "Ratio de gasto visible vs privado (enlaza con Capa Estatus)"
-      ],
-      "items": [
-        {
-          "id": "C4-1",
-          "faceta": "E1",
-          "tipo": "escala",
-          "texto": "Cuando han subido tus ingresos, ¿qué pasó con tu ahorro?",
-          "opciones": [
-            {
-              "texto": "Subió igual o más que el gasto",
-              "score": 0
-            },
-            {
-              "texto": "Subió algo",
-              "score": 33
-            },
-            {
-              "texto": "Se quedó igual",
-              "score": 66
-            },
-            {
-              "texto": "Bajó: el gasto se comió la subida",
-              "score": 100
-            }
-          ],
-          "dimensiones": "EFICIENCIA·deriva",
-          "disparador": "100 → núcleo del lifestyle creep"
-        },
-        {
-          "id": "C4-2",
-          "faceta": "E1",
-          "tipo": "escala",
-          "texto": "¿Qué parte de tus ingresos va a cosas que no existían en tu vida hace 3 años?",
-          "opciones": [
-            {
-              "texto": "Casi nada",
-              "score": 0
-            },
-            {
-              "texto": "Poco",
-              "score": 33
-            },
-            {
-              "texto": "Bastante",
-              "score": 66
-            },
-            {
-              "texto": "Una parte grande",
-              "score": 100
-            }
-          ],
-          "dimensiones": "EFICIENCIA",
-          "disparador": "mide la deriva acumulada"
-        },
-        {
-          "id": "C4-3",
-          "faceta": "E1",
-          "tipo": "escala",
-          "texto": "¿Tus gastos fijos (vivienda, coche, cuotas) son mayores que hace 3 años?",
-          "opciones": [
-            {
-              "texto": "No, iguales o menores",
-              "score": 0
-            },
-            {
-              "texto": "Algo más",
-              "score": 33
-            },
-            {
-              "texto": "Bastante más",
-              "score": 66
-            },
-            {
-              "texto": "Mucho más, sin quererlo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "EFICIENCIA·gastos_fijos",
-          "disparador": "cruza con rigidez (Capa 3)"
-        },
-        {
-          "id": "C4-4",
-          "faceta": "E2",
-          "tipo": "escala",
-          "texto": "¿Puedes nombrar sin mirar tus 5 mayores gastos del mes?",
-          "opciones": [
-            {
-              "texto": "Sí, al detalle",
-              "score": 0
-            },
-            {
-              "texto": "Casi todos",
-              "score": 33
-            },
-            {
-              "texto": "Solo algunos",
-              "score": 66
-            },
-            {
-              "texto": "Ni idea",
-              "score": 100
-            }
-          ],
-          "dimensiones": "EFICIENCIA·conciencia",
-          "disparador": "≥66 → empezar por radiografía de gasto"
-        },
-        {
-          "id": "C4-5",
-          "faceta": "E2",
-          "tipo": "escala",
-          "texto": "¿Cuántas suscripciones o servicios pagas que apenas usas?",
-          "opciones": [
-            {
-              "texto": "Ninguna, las reviso",
-              "score": 0
-            },
-            {
-              "texto": "Una o dos",
-              "score": 33
-            },
-            {
-              "texto": "Varias",
-              "score": 66
-            },
-            {
-              "texto": "Muchas, ni las controlo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "EFICIENCIA·fugas",
-          "disparador": "fugas de dinero recuperables"
-        },
-        {
-          "id": "C4-6",
-          "faceta": "E2",
-          "tipo": "escala",
-          "texto": "¿Cuándo recortaste un gasto de forma deliberada por última vez?",
-          "opciones": [
-            {
-              "texto": "En el último mes",
-              "score": 0
-            },
-            {
-              "texto": "Hace 3–6 meses",
-              "score": 33
-            },
-            {
-              "texto": "Hace más de un año",
-              "score": 66
-            },
-            {
-              "texto": "Nunca",
-              "score": 100
-            }
-          ],
-          "dimensiones": "EFICIENCIA",
-          "disparador": "hábito de poda"
-        },
-        {
-          "id": "C4-7",
-          "faceta": "E3",
-          "tipo": "escala",
-          "texto": "¿Podrías vivir con comodidad con el 50% de tus ingresos actuales?",
-          "opciones": [
-            {
-              "texto": "Sí, sin drama",
-              "score": 0
-            },
-            {
-              "texto": "Sí, ajustando",
-              "score": 33
-            },
-            {
-              "texto": "Con mucho esfuerzo",
-              "score": 66
-            },
-            {
-              "texto": "No",
-              "score": 100
-            }
-          ],
-          "dimensiones": "EFICIENCIA·sostenibilidad",
-          "disparador": "cruza con Resiliencia y Libertad"
-        },
-        {
-          "id": "C4-8",
-          "faceta": "E3",
-          "tipo": "escala",
-          "texto": "Si tu sueldo bajara mañana, ¿cuánto tardarías en adaptar tu gasto?",
-          "opciones": [
-            {
-              "texto": "Inmediato, tengo margen",
-              "score": 0
-            },
-            {
-              "texto": "Pocas semanas",
-              "score": 33
-            },
-            {
-              "texto": "Meses, con dolor",
-              "score": 66
-            },
-            {
-              "texto": "No sabría hacerlo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "EFICIENCIA",
-          "disparador": "velocidad de adaptación"
-        },
-        {
-          "id": "C4-9",
-          "faceta": "E4",
-          "tipo": "escala",
-          "texto": "¿Compras para sentirte mejor emocionalmente?",
-          "opciones": [
-            {
-              "texto": "Rara vez",
-              "score": 0
-            },
-            {
-              "texto": "A veces",
-              "score": 33
-            },
-            {
-              "texto": "Con frecuencia",
-              "score": 66
-            },
-            {
-              "texto": "Es mi válvula de escape",
-              "score": 100
-            }
-          ],
-          "dimensiones": "EFICIENCIA·PSIQUE",
-          "disparador": "≥66 → gasto emocional (cruza Burnout)"
-        },
-        {
-          "id": "C4-10",
-          "faceta": "E4",
-          "tipo": "escala",
-          "texto": "¿Con qué frecuencia te dices «me lo merezco» para justificar un gasto?",
-          "opciones": [
-            {
-              "texto": "Casi nunca",
-              "score": 0
-            },
-            {
-              "texto": "A veces",
-              "score": 33
-            },
-            {
-              "texto": "A menudo",
-              "score": 66
-            },
-            {
-              "texto": "Es mi norma",
-              "score": 100
-            }
-          ],
-          "dimensiones": "EFICIENCIA·merecimiento",
-          "disparador": "patrón de auto-justificación"
-        },
-        {
-          "id": "C4-11",
-          "faceta": "E4",
-          "tipo": "escala",
-          "texto": "¿Tu estilo de vida actual lo elegiste tú o «pasó a serlo»?",
-          "opciones": [
-            {
-              "texto": "Lo elegí conscientemente",
-              "score": 0
-            },
-            {
-              "texto": "Mayormente",
-              "score": 33
-            },
-            {
-              "texto": "En parte pasó solo",
-              "score": 66
-            },
-            {
-              "texto": "Me arrastró sin decidir",
-              "score": 100
-            }
-          ],
-          "dimensiones": "EFICIENCIA·conciencia",
-          "disparador": "agencia sobre el gasto"
-        },
-        {
-          "id": "C4-12",
-          "faceta": "E5",
-          "tipo": "escala",
-          "texto": "Si no tuvieras que impresionar a nadie, ¿cuánto reducirías tu gasto?",
-          "opciones": [
-            {
-              "texto": "Casi nada",
-              "score": 0
-            },
-            {
-              "texto": "Algo",
-              "score": 33
-            },
-            {
-              "texto": "Bastante",
-              "score": 66
-            },
-            {
-              "texto": "Una parte importante",
-              "score": 100
-            }
-          ],
-          "dimensiones": "EFICIENCIA·ESTATUS",
-          "disparador": "puente con Capa Estatus"
-        },
-        {
-          "id": "C4-13",
-          "faceta": "E5",
-          "tipo": "escala",
-          "texto": "¿El gasto de tu entorno influye en el tuyo?",
-          "opciones": [
-            {
-              "texto": "No, decido por mis valores",
-              "score": 0
-            },
-            {
-              "texto": "Un poco",
-              "score": 33
-            },
-            {
-              "texto": "Bastante",
-              "score": 66
-            },
-            {
-              "texto": "Mucho, sigo el ritmo del grupo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "EFICIENCIA·social",
-          "disparador": "presión de comparación"
-        }
-      ]
+     "id": "C2-4",
+     "faceta": "N",
+     "tipo": "numerica",
+     "texto": "Patrimonio neto actual (activos − deudas), en €",
+     "unidad": "€",
+     "nota": "Numerador del FI%",
+     "dimensiones": "LIBERTAD·LIQUIDEZ",
+     "disparador": null
     },
     {
-      "code": "C5",
-      "orden": 5,
-      "nombre": "Checklist de Herencia y Blindaje Legal",
-      "dimension_primaria": "BLINDAJE",
-      "facetas": {
-        "P1": "Documentos · testamento, poder, beneficiarios",
-        "P2": "Acceso · inventario y herencia digital",
-        "P3": "Protección · seguros adecuados",
-        "P4": "Fiscal · optimización y sucesión",
-        "P5": "Estructura · pareja y exposición legal"
-      },
-      "bandas": [
-        {
-          "min": 0,
-          "max": 25,
-          "etiqueta": "Patrimonio blindado"
-        },
-        {
-          "min": 26,
-          "max": 50,
-          "etiqueta": "Cubierto con huecos"
-        },
-        {
-          "min": 51,
-          "max": 75,
-          "etiqueta": "Expuesto"
-        },
-        {
-          "min": 76,
-          "max": 100,
-          "etiqueta": "Desprotección crítica"
-        }
-      ],
-      "metricas_calculadas": [
-        "Índice de blindaje = % de la checklist legal cubierta",
-        "Brecha de seguro = cobertura vs necesidad estimada de la familia"
-      ],
-      "items": [
-        {
-          "id": "C5-1",
-          "faceta": "P1",
-          "tipo": "escala",
-          "texto": "¿Tienes testamento actualizado?",
-          "opciones": [
-            {
-              "texto": "Sí, revisado recientemente",
-              "score": 0
-            },
-            {
-              "texto": "Sí, pero antiguo",
-              "score": 33
-            },
-            {
-              "texto": "Empezado o pensado",
-              "score": 66
-            },
-            {
-              "texto": "No tengo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BLINDAJE·sucesión",
-          "disparador": "base de la planificación sucesoria"
-        },
-        {
-          "id": "C5-2",
-          "faceta": "P1",
-          "tipo": "escala",
-          "texto": "¿Tienes poder notarial preventivo (quién decide si pierdes capacidad)?",
-          "opciones": [
-            {
-              "texto": "Sí",
-              "score": 0
-            },
-            {
-              "texto": "En trámite",
-              "score": 33
-            },
-            {
-              "texto": "Lo conozco, no lo tengo",
-              "score": 66
-            },
-            {
-              "texto": "No sé qué es",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BLINDAJE·incapacidad",
-          "disparador": "≥66 → riesgo en caso de incapacidad"
-        },
-        {
-          "id": "C5-3",
-          "faceta": "P1",
-          "tipo": "escala",
-          "texto": "¿Has designado beneficiarios explícitos en seguros y cuentas?",
-          "opciones": [
-            {
-              "texto": "Sí, todos y revisados",
-              "score": 0
-            },
-            {
-              "texto": "Algunos",
-              "score": 33
-            },
-            {
-              "texto": "No estoy seguro",
-              "score": 66
-            },
-            {
-              "texto": "No",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BLINDAJE·beneficiarios",
-          "disparador": "evita conflictos sucesorios"
-        },
-        {
-          "id": "C5-4",
-          "faceta": "P2",
-          "tipo": "escala",
-          "texto": "Si faltaras hoy, ¿tu familia sabría acceder a tus activos y cuentas?",
-          "opciones": [
-            {
-              "texto": "Sí, todo documentado",
-              "score": 0
-            },
-            {
-              "texto": "En su mayoría",
-              "score": 33
-            },
-            {
-              "texto": "Con dificultad",
-              "score": 66
-            },
-            {
-              "texto": "No, sería un caos",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BLINDAJE·VINCULO",
-          "disparador": "acceso de los herederos"
-        },
-        {
-          "id": "C5-5",
-          "faceta": "P2",
-          "tipo": "escala",
-          "texto": "¿Tienes un inventario de activos (qué tienes, dónde, cómo se accede)?",
-          "opciones": [
-            {
-              "texto": "Sí, actualizado",
-              "score": 0
-            },
-            {
-              "texto": "Parcial",
-              "score": 33
-            },
-            {
-              "texto": "Solo en mi cabeza",
-              "score": 66
-            },
-            {
-              "texto": "No existe",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BLINDAJE·organización",
-          "disparador": "≥66 → crear inventario patrimonial"
-        },
-        {
-          "id": "C5-6",
-          "faceta": "P2",
-          "tipo": "escala",
-          "texto": "¿Tus accesos digitales tienen un plan de herencia digital?",
-          "opciones": [
-            {
-              "texto": "Sí",
-              "score": 0
-            },
-            {
-              "texto": "Parcial",
-              "score": 33
-            },
-            {
-              "texto": "No lo había pensado",
-              "score": 66
-            },
-            {
-              "texto": "Nada, todo se perdería",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BLINDAJE·privacidad",
-          "disparador": "activos digitales olvidados"
-        },
-        {
-          "id": "C5-7",
-          "faceta": "P3",
-          "tipo": "escala",
-          "texto": "¿Tu seguro de vida cubriría lo que tu familia necesitaría?",
-          "opciones": [
-            {
-              "texto": "Sí, calculado",
-              "score": 0
-            },
-            {
-              "texto": "Tengo, sin saber si basta",
-              "score": 33
-            },
-            {
-              "texto": "Mínimo",
-              "score": 66
-            },
-            {
-              "texto": "Ninguno",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BLINDAJE·protección",
-          "disparador": "brecha de seguro"
-        },
-        {
-          "id": "C5-8",
-          "faceta": "P3",
-          "tipo": "escala",
-          "texto": "¿Tienes seguro de invalidez ante incapacidad para generar ingresos?",
-          "opciones": [
-            {
-              "texto": "Sí, sólido",
-              "score": 0
-            },
-            {
-              "texto": "Parcial",
-              "score": 33
-            },
-            {
-              "texto": "Mínimo",
-              "score": 66
-            },
-            {
-              "texto": "Ninguno",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BLINDAJE·RESILIENCIA",
-          "disparador": "cruza con Stress-test"
-        },
-        {
-          "id": "C5-9",
-          "faceta": "P4",
-          "tipo": "escala",
-          "texto": "¿Optimizas fiscalmente tu situación (desgravaciones, estructura, inversiones)?",
-          "opciones": [
-            {
-              "texto": "Sí, con asesor",
-              "score": 0
-            },
-            {
-              "texto": "Algo",
-              "score": 33
-            },
-            {
-              "texto": "Poco",
-              "score": 66
-            },
-            {
-              "texto": "Nada",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BLINDAJE·fiscal",
-          "disparador": "dinero que se fuga en impuestos"
-        },
-        {
-          "id": "C5-10",
-          "faceta": "P4",
-          "tipo": "escala",
-          "texto": "¿Conoces las implicaciones fiscales de tu herencia para tus herederos?",
-          "opciones": [
-            {
-              "texto": "Sí, planificado",
-              "score": 0
-            },
-            {
-              "texto": "A grandes rasgos",
-              "score": 33
-            },
-            {
-              "texto": "Vagamente",
-              "score": 66
-            },
-            {
-              "texto": "No",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BLINDAJE·sucesión",
-          "disparador": "impacto fiscal sucesorio"
-        },
-        {
-          "id": "C5-11",
-          "faceta": "P5",
-          "tipo": "escala",
-          "texto": "¿Tu situación de pareja está protegida legalmente (matrimonio/pareja de hecho, bienes)?",
-          "opciones": [
-            {
-              "texto": "Sí, definida y protegida",
-              "score": 0
-            },
-            {
-              "texto": "Mayormente",
-              "score": 33
-            },
-            {
-              "texto": "Ambigua",
-              "score": 66
-            },
-            {
-              "texto": "Desprotegida (p. ej. pareja de hecho sin nada)",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BLINDAJE·VINCULO",
-          "disparador": "riesgo de pareja: clave Tier 3"
-        },
-        {
-          "id": "C5-12",
-          "faceta": "P5",
-          "tipo": "escala",
-          "texto": "Si te demandaran mañana, ¿tu patrimonio personal estaría expuesto?",
-          "opciones": [
-            {
-              "texto": "Protegido/estructurado",
-              "score": 0
-            },
-            {
-              "texto": "Parcialmente",
-              "score": 33
-            },
-            {
-              "texto": "Expuesto",
-              "score": 66
-            },
-            {
-              "texto": "Totalmente expuesto",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BLINDAJE·riesgo",
-          "disparador": "exposición ante litigios"
-        },
-        {
-          "id": "C5-13",
-          "faceta": "P5",
-          "tipo": "escala",
-          "texto": "¿Has consultado con un asesor legal/fiscal en los últimos 2 años?",
-          "opciones": [
-            {
-              "texto": "Sí",
-              "score": 0
-            },
-            {
-              "texto": "Hace tiempo",
-              "score": 33
-            },
-            {
-              "texto": "Nunca, pero quiero",
-              "score": 66
-            },
-            {
-              "texto": "Nunca",
-              "score": 100
-            }
-          ],
-          "dimensiones": "BLINDAJE·asesoría",
-          "disparador": "oportunidad de servicio Méndez"
-        }
-      ]
+     "id": "C2-5",
+     "faceta": "N",
+     "tipo": "numerica",
+     "texto": "Edad",
+     "unidad": "años",
+     "nota": "Fija el horizonte",
+     "dimensiones": "LIBERTAD",
+     "disparador": null
     },
     {
-      "code": "C6",
-      "orden": 6,
-      "nombre": "Calculador del Precio de tu Estatus",
-      "dimension_primaria": "ESTATUS",
-      "facetas": {
-        "T1": "Gasto visible · lo que otros ven",
-        "T2": "Ego · identidad ligada a la marca",
-        "T3": "Autenticidad · qué harías si nadie mirara",
-        "T4": "Presión · vergüenza y nivel a mantener"
+     "id": "C2-6",
+     "faceta": "L1",
+     "tipo": "escala",
+     "texto": "¿Conoces con precisión tu patrimonio neto?",
+     "opciones": [
+      {
+       "texto": "Sí, actualizado al euro",
+       "score": 0
       },
-      "bandas": [
-        {
-          "min": 0,
-          "max": 25,
-          "etiqueta": "Gasto auténtico"
-        },
-        {
-          "min": 26,
-          "max": 50,
-          "etiqueta": "Algo de estatus"
-        },
-        {
-          "min": 51,
-          "max": 75,
-          "etiqueta": "Imagen costosa"
-        },
-        {
-          "min": 76,
-          "max": 100,
-          "etiqueta": "Cautivo del estatus"
-        }
-      ],
-      "metricas_calculadas": [
-        "Prima de estatus estimada = sobrecoste pagado por imagen frente a la alternativa funcional",
-        "Ratio visible/privado del gasto"
-      ],
-      "items": [
-        {
-          "id": "C6-1",
-          "faceta": "T1",
-          "tipo": "escala",
-          "texto": "¿Qué parte de tu gasto va a cosas que los demás ven frente a lo privado?",
-          "opciones": [
-            {
-              "texto": "Pequeña, gasto por uso",
-              "score": 0
-            },
-            {
-              "texto": "Equilibrada",
-              "score": 33
-            },
-            {
-              "texto": "Alta",
-              "score": 66
-            },
-            {
-              "texto": "La mayoría, para que se vea",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ESTATUS·visible",
-          "disparador": "ratio visible/privado"
-        },
-        {
-          "id": "C6-2",
-          "faceta": "T1",
-          "tipo": "escala",
-          "texto": "¿Tienes gastos (coche, casa, marca) que financian tu imagen más que tu uso?",
-          "opciones": [
-            {
-              "texto": "No",
-              "score": 0
-            },
-            {
-              "texto": "Alguno menor",
-              "score": 33
-            },
-            {
-              "texto": "Varios",
-              "score": 66
-            },
-            {
-              "texto": "Son parte central de mi gasto",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ESTATUS·EFICIENCIA",
-          "disparador": "cruza con lifestyle creep"
-        },
-        {
-          "id": "C6-3",
-          "faceta": "T2",
-          "tipo": "escala",
-          "texto": "¿Tu autoestima sube cuando usas marcas que otros reconocen?",
-          "opciones": [
-            {
-              "texto": "No, es independiente",
-              "score": 0
-            },
-            {
-              "texto": "Un poco",
-              "score": 33
-            },
-            {
-              "texto": "Bastante",
-              "score": 66
-            },
-            {
-              "texto": "Mucho",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ESTATUS·PSIQUE",
-          "disparador": "≥66 → identidad ligada al consumo"
-        },
-        {
-          "id": "C6-4",
-          "faceta": "T2",
-          "tipo": "escala",
-          "texto": "¿La marca o el logo importa más que la función de lo que compras?",
-          "opciones": [
-            {
-              "texto": "No, prima la función",
-              "score": 0
-            },
-            {
-              "texto": "A veces",
-              "score": 33
-            },
-            {
-              "texto": "A menudo",
-              "score": 66
-            },
-            {
-              "texto": "Casi siempre",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ESTATUS·ego",
-          "disparador": "peso del símbolo sobre la utilidad"
-        },
-        {
-          "id": "C6-5",
-          "faceta": "T3",
-          "tipo": "escala",
-          "texto": "Si nadie lo supiera, ¿comprarías la versión de 100 € en vez de la de 500 €?",
-          "opciones": [
-            {
-              "texto": "Sí, sin duda",
-              "score": 0
-            },
-            {
-              "texto": "Probablemente",
-              "score": 33
-            },
-            {
-              "texto": "Lo dudaría",
-              "score": 66
-            },
-            {
-              "texto": "No, necesito la cara",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ESTATUS·autenticidad",
-          "disparador": "test de autenticidad puro"
-        },
-        {
-          "id": "C6-6",
-          "faceta": "T3",
-          "tipo": "escala",
-          "texto": "¿Cuánta distancia hay entre lo que «pareces» y lo que «eres» financieramente?",
-          "opciones": [
-            {
-              "texto": "Ninguna, coherente",
-              "score": 0
-            },
-            {
-              "texto": "Poca",
-              "score": 33
-            },
-            {
-              "texto": "Bastante",
-              "score": 66
-            },
-            {
-              "texto": "Mucha: aparento más de lo que soy",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ESTATUS·autenticidad",
-          "disparador": "brecha imagen-realidad"
-        },
-        {
-          "id": "C6-7",
-          "faceta": "T3",
-          "tipo": "escala",
-          "texto": "Si fueras anónimo, ¿cambiaría radicalmente lo que compras?",
-          "opciones": [
-            {
-              "texto": "Nada",
-              "score": 0
-            },
-            {
-              "texto": "Algo",
-              "score": 33
-            },
-            {
-              "texto": "Bastante",
-              "score": 66
-            },
-            {
-              "texto": "Por completo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ESTATUS",
-          "disparador": "dependencia de la mirada ajena"
-        },
-        {
-          "id": "C6-8",
-          "faceta": "T4",
-          "tipo": "escala",
-          "texto": "¿Sientes presión por mantener cierto «nivel» de marcas o vida?",
-          "opciones": [
-            {
-              "texto": "No",
-              "score": 0
-            },
-            {
-              "texto": "Leve",
-              "score": 33
-            },
-            {
-              "texto": "Bastante",
-              "score": 66
-            },
-            {
-              "texto": "Constante",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ESTATUS·PSIQUE",
-          "disparador": "presión de mantenimiento"
-        },
-        {
-          "id": "C6-9",
-          "faceta": "T4",
-          "tipo": "escala",
-          "texto": "¿Te avergüenza usar versiones baratas en público?",
-          "opciones": [
-            {
-              "texto": "No",
-              "score": 0
-            },
-            {
-              "texto": "Un poco",
-              "score": 33
-            },
-            {
-              "texto": "Bastante",
-              "score": 66
-            },
-            {
-              "texto": "Mucho, lo evito",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ESTATUS",
-          "disparador": "vergüenza de clase"
-        },
-        {
-          "id": "C6-10",
-          "faceta": "T4",
-          "tipo": "escala",
-          "texto": "¿Has comprado algo caro específicamente para «encajar» en un círculo?",
-          "opciones": [
-            {
-              "texto": "Nunca",
-              "score": 0
-            },
-            {
-              "texto": "Alguna vez",
-              "score": 33
-            },
-            {
-              "texto": "Varias",
-              "score": 66
-            },
-            {
-              "texto": "Es habitual",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ESTATUS·VINCULO",
-          "disparador": "gasto por pertenencia"
-        },
-        {
-          "id": "C6-11",
-          "faceta": "T4",
-          "tipo": "escala",
-          "texto": "¿Maquillas el precio de lo que tienes cuando te preguntan?",
-          "opciones": [
-            {
-              "texto": "No",
-              "score": 0
-            },
-            {
-              "texto": "Rara vez",
-              "score": 33
-            },
-            {
-              "texto": "A veces",
-              "score": 66
-            },
-            {
-              "texto": "Con frecuencia",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ESTATUS·autenticidad",
-          "disparador": "señal de incoherencia"
-        },
-        {
-          "id": "C6-12",
-          "faceta": "T2",
-          "tipo": "escala",
-          "texto": "¿Tu gasto de estatus es inversión consciente o compulsión de inseguridad?",
-          "opciones": [
-            {
-              "texto": "Inversión consciente y proporcional",
-              "score": 0
-            },
-            {
-              "texto": "Mayormente consciente",
-              "score": 33
-            },
-            {
-              "texto": "Mezcla con impulso",
-              "score": 66
-            },
-            {
-              "texto": "Compulsión que no controlo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ESTATUS·autoreflexión",
-          "disparador": "≥66 → trabajar la raíz, no el síntoma"
-        }
-      ]
+      {
+       "texto": "Aproximado",
+       "score": 33
+      },
+      {
+       "texto": "Vagamente",
+       "score": 66
+      },
+      {
+       "texto": "No tengo idea",
+       "score": 100
+      }
+     ],
+     "dimensiones": "LIBERTAD·claridad",
+     "disparador": "≥66 → empezar por inventario patrimonial"
     },
     {
-      "code": "C7",
-      "orden": 7,
-      "nombre": "Concentración de Riesgo de Ingresos (HHI)",
-      "dimension_primaria": "CONCENTRACION",
-      "facetas": {
-        "H1": "Dependencia · cuántas fuentes y de qué peso",
-        "H2": "Seguridad · estabilidad del empleo y sector",
-        "H3": "Empleabilidad · transferencia de tus skills",
-        "H4": "Alternativas · ingresos pasivos y plan",
-        "H5": "Atrapamiento · qué te ata a la fuente actual"
+     "id": "C2-7",
+     "faceta": "L2",
+     "tipo": "escala",
+     "texto": "¿Tienes un objetivo numérico concreto de libertad financiera?",
+     "opciones": [
+      {
+       "texto": "Sí, calculado y con plazo",
+       "score": 0
       },
-      "bandas": [
-        {
-          "min": 0,
-          "max": 25,
-          "etiqueta": "Ingresos diversificados"
-        },
-        {
-          "min": 26,
-          "max": 50,
-          "etiqueta": "Dependencia moderada"
-        },
-        {
-          "min": 51,
-          "max": 75,
-          "etiqueta": "Alta concentración"
-        },
-        {
-          "min": 76,
-          "max": 100,
-          "etiqueta": "Riesgo de fuente única"
-        }
-      ],
-      "metricas_calculadas": [
-        "Índice de concentración (HHI) ≈ peso de la fuente principal sobre el total",
-        "Meses de cobertura con ingresos NO principales"
-      ],
-      "items": [
-        {
-          "id": "C7-1",
-          "faceta": "H1",
-          "tipo": "escala",
-          "texto": "¿Qué porcentaje de tus ingresos proviene de una sola fuente?",
-          "opciones": [
-            {
-              "texto": "Menos del 50%",
-              "score": 0
-            },
-            {
-              "texto": "50–75%",
-              "score": 33
-            },
-            {
-              "texto": "75–95%",
-              "score": 66
-            },
-            {
-              "texto": "Casi el 100%",
-              "score": 100
-            }
-          ],
-          "dimensiones": "CONCENTRACION",
-          "disparador": "núcleo del HHI"
-        },
-        {
-          "id": "C7-2",
-          "faceta": "H1",
-          "tipo": "escala",
-          "texto": "¿Cuántas fuentes de ingreso regulares tienes?",
-          "opciones": [
-            {
-              "texto": "3 o más",
-              "score": 0
-            },
-            {
-              "texto": "2",
-              "score": 33
-            },
-            {
-              "texto": "1 con algún extra",
-              "score": 66
-            },
-            {
-              "texto": "Solo una",
-              "score": 100
-            }
-          ],
-          "dimensiones": "CONCENTRACION",
-          "disparador": "diversificación de fuentes"
-        },
-        {
-          "id": "C7-3",
-          "faceta": "H2",
-          "tipo": "escala",
-          "texto": "¿Cómo de seguro es tu empleo o tu fuente principal?",
-          "opciones": [
-            {
-              "texto": "Muy estable",
-              "score": 0
-            },
-            {
-              "texto": "Razonablemente",
-              "score": 33
-            },
-            {
-              "texto": "Incierto",
-              "score": 66
-            },
-            {
-              "texto": "Frágil / en riesgo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "CONCENTRACION·estabilidad",
-          "disparador": "riesgo de la fuente"
-        },
-        {
-          "id": "C7-4",
-          "faceta": "H2",
-          "tipo": "escala",
-          "texto": "¿Tu sector es cíclico o vulnerable a la automatización?",
-          "opciones": [
-            {
-              "texto": "Resistente y en crecimiento",
-              "score": 0
-            },
-            {
-              "texto": "Estable",
-              "score": 33
-            },
-            {
-              "texto": "Algo expuesto",
-              "score": 66
-            },
-            {
-              "texto": "Muy expuesto",
-              "score": 100
-            }
-          ],
-          "dimensiones": "CONCENTRACION",
-          "disparador": "riesgo estructural del sector"
-        },
-        {
-          "id": "C7-5",
-          "faceta": "H3",
-          "tipo": "escala",
-          "texto": "Si tuvieras que conseguir ingresos equivalentes, ¿cuánto tardarías?",
-          "opciones": [
-            {
-              "texto": "Semanas",
-              "score": 0
-            },
-            {
-              "texto": "1–3 meses",
-              "score": 33
-            },
-            {
-              "texto": "3–6 meses",
-              "score": 66
-            },
-            {
-              "texto": "Más de 6 / no sabría",
-              "score": 100
-            }
-          ],
-          "dimensiones": "CONCENTRACION·empleabilidad",
-          "disparador": "cruza con Stress-test"
-        },
-        {
-          "id": "C7-6",
-          "faceta": "H3",
-          "tipo": "escala",
-          "texto": "¿Tus habilidades son transferibles fuera de tu empleo o sector actual?",
-          "opciones": [
-            {
-              "texto": "Muy transferibles",
-              "score": 0
-            },
-            {
-              "texto": "Bastante",
-              "score": 33
-            },
-            {
-              "texto": "Poco",
-              "score": 66
-            },
-            {
-              "texto": "Atadas a este puesto",
-              "score": 100
-            }
-          ],
-          "dimensiones": "CONCENTRACION",
-          "disparador": "portabilidad del talento"
-        },
-        {
-          "id": "C7-7",
-          "faceta": "H4",
-          "tipo": "escala",
-          "texto": "¿Qué parte de tus ingresos NO depende de tu tiempo (rentas, inversiones, negocio)?",
-          "opciones": [
-            {
-              "texto": "Una parte real",
-              "score": 0
-            },
-            {
-              "texto": "Algo",
-              "score": 33
-            },
-            {
-              "texto": "Casi nada",
-              "score": 66
-            },
-            {
-              "texto": "Nada",
-              "score": 100
-            }
-          ],
-          "dimensiones": "CONCENTRACION·LIBERTAD",
-          "disparador": "cruza con Libertad Financiera"
-        },
-        {
-          "id": "C7-8",
-          "faceta": "H4",
-          "tipo": "escala",
-          "texto": "¿Tienes un plan concreto para crear fuentes alternativas en 2 años?",
-          "opciones": [
-            {
-              "texto": "Sí, en marcha",
-              "score": 0
-            },
-            {
-              "texto": "Empezando",
-              "score": 33
-            },
-            {
-              "texto": "Solo una idea",
-              "score": 66
-            },
-            {
-              "texto": "Ninguno",
-              "score": 100
-            }
-          ],
-          "dimensiones": "CONCENTRACION",
-          "disparador": "≥66 → diseñar plan de diversificación"
-        },
-        {
-          "id": "C7-9",
-          "faceta": "H4",
-          "tipo": "escala",
-          "texto": "Si perdieras tu fuente principal, ¿cuántos meses cubrirías con OTROS ingresos?",
-          "opciones": [
-            {
-              "texto": "6 o más",
-              "score": 0
-            },
-            {
-              "texto": "3–5",
-              "score": 33
-            },
-            {
-              "texto": "1–2",
-              "score": 66
-            },
-            {
-              "texto": "Ninguno",
-              "score": 100
-            }
-          ],
-          "dimensiones": "CONCENTRACION·LIQUIDEZ",
-          "disparador": "colchón de ingresos alternativos"
-        },
-        {
-          "id": "C7-10",
-          "faceta": "H5",
-          "tipo": "escala",
-          "texto": "¿Hay factores que te mantienen atado a tu fuente actual (deuda, familia, cláusulas)?",
-          "opciones": [
-            {
-              "texto": "No, tengo libertad",
-              "score": 0
-            },
-            {
-              "texto": "Alguno menor",
-              "score": 33
-            },
-            {
-              "texto": "Varios",
-              "score": 66
-            },
-            {
-              "texto": "Estoy muy atado",
-              "score": 100
-            }
-          ],
-          "dimensiones": "CONCENTRACION·lock-in",
-          "disparador": "efectos de bloqueo"
-        },
-        {
-          "id": "C7-11",
-          "faceta": "H5",
-          "tipo": "escala",
-          "texto": "¿Negociarías mejor tus condiciones si tuvieras otra opción de ingreso real?",
-          "opciones": [
-            {
-              "texto": "Ya negocio desde la fuerza",
-              "score": 0
-            },
-            {
-              "texto": "Algo",
-              "score": 33
-            },
-            {
-              "texto": "Poco margen",
-              "score": 66
-            },
-            {
-              "texto": "Ninguno, dependo del todo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "CONCENTRACION",
-          "disparador": "poder de negociación"
-        },
-        {
-          "id": "C7-12",
-          "faceta": "H5",
-          "tipo": "escala",
-          "texto": "Del 1 al 10, ¿cómo de robusta y diversificada es tu estructura de ingresos?",
-          "opciones": [
-            {
-              "texto": "8–10",
-              "score": 0
-            },
-            {
-              "texto": "6–7",
-              "score": 33
-            },
-            {
-              "texto": "4–5",
-              "score": 66
-            },
-            {
-              "texto": "1–3",
-              "score": 100
-            }
-          ],
-          "dimensiones": "CONCENTRACION·metacognición",
-          "disparador": "autoevaluación"
-        }
-      ]
+      {
+       "texto": "Cifra orientativa",
+       "score": 33
+      },
+      {
+       "texto": "Idea difusa",
+       "score": 66
+      },
+      {
+       "texto": "Nunca lo pensé",
+       "score": 100
+      }
+     ],
+     "dimensiones": "LIBERTAD·objetivo",
+     "disparador": "compara con FI number calculado"
     },
     {
-      "code": "C8",
-      "orden": 8,
-      "nombre": "Score de Antifragilidad (Taleb)",
-      "dimension_primaria": "ANTIFRAGILIDAD",
-      "facetas": {
-        "A1": "Cobertura · qué sube cuando todo baja",
-        "A2": "Barbell · seguro + apuestas asimétricas",
-        "A3": "Opcionalidad · caminos abiertos",
-        "A4": "Mentalidad · caos como oportunidad",
-        "A5": "Reserva · liquidez para aprovechar"
+     "id": "C2-8",
+     "faceta": "L3",
+     "tipo": "escala",
+     "texto": "Si tu ingreso principal cayera un 50%, ¿sostendrías tu vida?",
+     "opciones": [
+      {
+       "texto": "Sí, con holgura",
+       "score": 0
       },
-      "bandas": [
-        {
-          "min": 0,
-          "max": 25,
-          "etiqueta": "Antifrágil"
-        },
-        {
-          "min": 26,
-          "max": 50,
-          "etiqueta": "Robusto"
-        },
-        {
-          "min": 51,
-          "max": 75,
-          "etiqueta": "Frágil"
-        },
-        {
-          "min": 76,
-          "max": 100,
-          "etiqueta": "Muy frágil al shock"
-        }
-      ],
-      "metricas_calculadas": [
-        "% del patrimonio no correlacionado o que se beneficia de crisis",
-        "Capacidad de respuesta: liquidez disponible para oportunidades"
-      ],
-      "items": [
-        {
-          "id": "C8-1",
-          "faceta": "A1",
-          "tipo": "escala",
-          "texto": "Si llega una crisis, ¿parte de tu patrimonio SUBE de valor (oro, bonos, coberturas)?",
-          "opciones": [
-            {
-              "texto": "Sí, una parte cubre",
-              "score": 0
-            },
-            {
-              "texto": "Algo",
-              "score": 33
-            },
-            {
-              "texto": "Casi nada",
-              "score": 66
-            },
-            {
-              "texto": "Nada, todo cae junto",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ANTIFRAGILIDAD·convexidad",
-          "disparador": "cobertura ante shocks"
-        },
-        {
-          "id": "C8-2",
-          "faceta": "A1",
-          "tipo": "escala",
-          "texto": "¿Tu deuda principal es a tipo fijo (la inflación la abarata)?",
-          "opciones": [
-            {
-              "texto": "Sí, fijo",
-              "score": 0
-            },
-            {
-              "texto": "Mixta",
-              "score": 33
-            },
-            {
-              "texto": "Variable",
-              "score": 66
-            },
-            {
-              "texto": "Variable y alta",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ANTIFRAGILIDAD·DEUDA",
-          "disparador": "cruza con Capa Deuda"
-        },
-        {
-          "id": "C8-3",
-          "faceta": "A5",
-          "tipo": "escala",
-          "texto": "Si la bolsa cayera un 50%, ¿tendrías liquidez para COMPRAR activos baratos?",
-          "opciones": [
-            {
-              "texto": "Sí, pólvora seca lista",
-              "score": 0
-            },
-            {
-              "texto": "Algo",
-              "score": 33
-            },
-            {
-              "texto": "Muy poco",
-              "score": 66
-            },
-            {
-              "texto": "Nada, a la defensiva",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ANTIFRAGILIDAD·LIQUIDEZ",
-          "disparador": "capacidad de aprovechar la caída"
-        },
-        {
-          "id": "C8-4",
-          "faceta": "A5",
-          "tipo": "escala",
-          "texto": "¿Tienes planes B y redundancias en tu vida financiera?",
-          "opciones": [
-            {
-              "texto": "Sí, varios",
-              "score": 0
-            },
-            {
-              "texto": "Alguno",
-              "score": 33
-            },
-            {
-              "texto": "Pocos",
-              "score": 66
-            },
-            {
-              "texto": "Ninguno",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ANTIFRAGILIDAD·redundancia",
-          "disparador": "backups del sistema"
-        },
-        {
-          "id": "C8-5",
-          "faceta": "A2",
-          "tipo": "escala",
-          "texto": "¿Tienes una estrategia «barbell»: la mayoría seguro + pequeñas apuestas de alto potencial?",
-          "opciones": [
-            {
-              "texto": "Sí, deliberada",
-              "score": 0
-            },
-            {
-              "texto": "Parecido",
-              "score": 33
-            },
-            {
-              "texto": "Todo en medio, sin estrategia",
-              "score": 66
-            },
-            {
-              "texto": "Todo concentrado en un sitio",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ANTIFRAGILIDAD",
-          "disparador": "estructura de cartera"
-        },
-        {
-          "id": "C8-6",
-          "faceta": "A2",
-          "tipo": "escala",
-          "texto": "¿Tienes apuestas pequeñas con pérdida limitada y ganancia potencial grande (asimétricas)?",
-          "opciones": [
-            {
-              "texto": "Sí, varias",
-              "score": 0
-            },
-            {
-              "texto": "Alguna",
-              "score": 33
-            },
-            {
-              "texto": "No, pero me interesa",
-              "score": 66
-            },
-            {
-              "texto": "No, nada",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ANTIFRAGILIDAD·asimetría",
-          "disparador": "opcionalidad positiva"
-        },
-        {
-          "id": "C8-7",
-          "faceta": "A3",
-          "tipo": "escala",
-          "texto": "¿Tu vida financiera te deja varios caminos abiertos, o uno solo?",
-          "opciones": [
-            {
-              "texto": "Muchos caminos",
-              "score": 0
-            },
-            {
-              "texto": "Algunos",
-              "score": 33
-            },
-            {
-              "texto": "Pocos",
-              "score": 66
-            },
-            {
-              "texto": "Uno solo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ANTIFRAGILIDAD·opcionalidad",
-          "disparador": "grados de libertad"
-        },
-        {
-          "id": "C8-8",
-          "faceta": "A3",
-          "tipo": "escala",
-          "texto": "Si mañana apareciera una gran oportunidad, ¿podrías «saltar» (tiempo, dinero, libertad)?",
-          "opciones": [
-            {
-              "texto": "Sí, listo",
-              "score": 0
-            },
-            {
-              "texto": "Probablemente",
-              "score": 33
-            },
-            {
-              "texto": "Difícil",
-              "score": 66
-            },
-            {
-              "texto": "Imposible ahora",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ANTIFRAGILIDAD",
-          "disparador": "prontitud ante oportunidades"
-        },
-        {
-          "id": "C8-9",
-          "faceta": "A4",
-          "tipo": "escala",
-          "texto": "Ante el caos económico, ¿tu mentalidad es aprovecharlo o temerlo?",
-          "opciones": [
-            {
-              "texto": "Lo veo como oportunidad",
-              "score": 0
-            },
-            {
-              "texto": "Mezcla",
-              "score": 33
-            },
-            {
-              "texto": "Más bien temor",
-              "score": 66
-            },
-            {
-              "texto": "Me paraliza",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ANTIFRAGILIDAD·PSIQUE",
-          "disparador": "cruza con Burnout"
-        },
-        {
-          "id": "C8-10",
-          "faceta": "A4",
-          "tipo": "escala",
-          "texto": "¿Aprendes de los golpes y errores financieros, o tiendes a repetirlos?",
-          "opciones": [
-            {
-              "texto": "Aprendo y ajusto",
-              "score": 0
-            },
-            {
-              "texto": "Mayormente",
-              "score": 33
-            },
-            {
-              "texto": "A veces repito",
-              "score": 66
-            },
-            {
-              "texto": "Repito los mismos",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ANTIFRAGILIDAD·aprendizaje",
-          "disparador": "metaaprendizaje"
-        },
-        {
-          "id": "C8-11",
-          "faceta": "A1",
-          "tipo": "escala",
-          "texto": "¿Tus ingresos se mantienen o mejoran en una recesión?",
-          "opciones": [
-            {
-              "texto": "Mejoran / estables",
-              "score": 0
-            },
-            {
-              "texto": "Estables",
-              "score": 33
-            },
-            {
-              "texto": "Caen algo",
-              "score": 66
-            },
-            {
-              "texto": "Se desplomarían",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ANTIFRAGILIDAD·CONCENTRACION",
-          "disparador": "cruza con HHI"
-        },
-        {
-          "id": "C8-12",
-          "faceta": "A4",
-          "tipo": "escala",
-          "texto": "Del 1 al 10, ¿cómo de preparado estás para BENEFICIARTE de un shock inesperado?",
-          "opciones": [
-            {
-              "texto": "8–10",
-              "score": 0
-            },
-            {
-              "texto": "6–7",
-              "score": 33
-            },
-            {
-              "texto": "4–5",
-              "score": 66
-            },
-            {
-              "texto": "1–3",
-              "score": 100
-            }
-          ],
-          "dimensiones": "ANTIFRAGILIDAD·metacognición",
-          "disparador": "autoevaluación"
-        }
-      ]
+      {
+       "texto": "Sí, ajustando",
+       "score": 33
+      },
+      {
+       "texto": "Solo unos meses",
+       "score": 66
+      },
+      {
+       "texto": "No, colapsaría",
+       "score": 100
+      }
+     ],
+     "dimensiones": "LIBERTAD·RESILIENCIA",
+     "disparador": "cruza con Capa 3"
     },
     {
-      "code": "C9",
-      "orden": 9,
-      "nombre": "Gestión de Flujo de Caja",
-      "dimension_primaria": "FLUJO_CAJA",
-      "facetas": {
-        "F1": "Visibilidad · sabes lo que entra y sale",
-        "F2": "Sistema · presupuesto, automatización, cuentas",
-        "F3": "Fugas · dinero que se escapa",
-        "F4": "Colchón · meses y compromiso por deuda",
-        "F5": "Excedente · qué haces con el sobrante"
+     "id": "C2-9",
+     "faceta": "L4",
+     "tipo": "escala",
+     "texto": "¿Qué parte de tus ingresos NO depende de tu trabajo principal?",
+     "opciones": [
+      {
+       "texto": "Una parte significativa",
+       "score": 0
       },
-      "bandas": [
-        {
-          "min": 0,
-          "max": 25,
-          "etiqueta": "Flujo bajo control"
-        },
-        {
-          "min": 26,
-          "max": 50,
-          "etiqueta": "Control parcial"
-        },
-        {
-          "min": 51,
-          "max": 75,
-          "etiqueta": "Flujo a la deriva"
-        },
-        {
-          "min": 76,
-          "max": 100,
-          "etiqueta": "Sin control de caja"
-        }
-      ],
-      "metricas_calculadas": [
-        "Tasa de ahorro = excedente / ingreso",
-        "Meses de caja disponibles",
-        "% del flujo comprometido por deuda"
-      ],
-      "items": [
-        {
-          "id": "C9-1",
-          "faceta": "F1",
-          "tipo": "escala",
-          "texto": "¿Puedes desglosar tus gastos mensuales (fijos y variables) sin dudar?",
-          "opciones": [
-            {
-              "texto": "Sí, con detalle",
-              "score": 0
-            },
-            {
-              "texto": "A grandes rasgos",
-              "score": 33
-            },
-            {
-              "texto": "Con dificultad",
-              "score": 66
-            },
-            {
-              "texto": "No",
-              "score": 100
-            }
-          ],
-          "dimensiones": "FLUJO_CAJA·visibilidad",
-          "disparador": "≥66 → radiografía de gasto"
-        },
-        {
-          "id": "C9-2",
-          "faceta": "F3",
-          "tipo": "escala",
-          "texto": "¿Cuánto dinero «desaparece» cada mes sin saber a dónde fue?",
-          "opciones": [
-            {
-              "texto": "Casi nada, lo controlo",
-              "score": 0
-            },
-            {
-              "texto": "Poco",
-              "score": 33
-            },
-            {
-              "texto": "Bastante",
-              "score": 66
-            },
-            {
-              "texto": "No tengo ni idea",
-              "score": 100
-            }
-          ],
-          "dimensiones": "FLUJO_CAJA·fugas",
-          "disparador": "fugas no rastreadas"
-        },
-        {
-          "id": "C9-3",
-          "faceta": "F1",
-          "tipo": "escala",
-          "texto": "¿Puedes prever con precisión tu flujo a 3 meses?",
-          "opciones": [
-            {
-              "texto": "Sí",
-              "score": 0
-            },
-            {
-              "texto": "Aproximado",
-              "score": 33
-            },
-            {
-              "texto": "Difícil",
-              "score": 66
-            },
-            {
-              "texto": "Imposible",
-              "score": 100
-            }
-          ],
-          "dimensiones": "FLUJO_CAJA",
-          "disparador": "horizonte de previsión"
-        },
-        {
-          "id": "C9-4",
-          "faceta": "F2",
-          "tipo": "escala",
-          "texto": "¿Tienes un presupuesto mensual real y vigente (no teórico)?",
-          "opciones": [
-            {
-              "texto": "Sí, lo sigo",
-              "score": 0
-            },
-            {
-              "texto": "Lo sigo a medias",
-              "score": 33
-            },
-            {
-              "texto": "Empecé y lo dejé",
-              "score": 66
-            },
-            {
-              "texto": "Ninguno",
-              "score": 100
-            }
-          ],
-          "dimensiones": "FLUJO_CAJA·sistema",
-          "disparador": "existencia de sistema"
-        },
-        {
-          "id": "C9-5",
-          "faceta": "F2",
-          "tipo": "escala",
-          "texto": "¿Tu ahorro es automático o «cuando puedo»?",
-          "opciones": [
-            {
-              "texto": "Automático al cobrar",
-              "score": 0
-            },
-            {
-              "texto": "Casi siempre",
-              "score": 33
-            },
-            {
-              "texto": "Cuando sobra",
-              "score": 66
-            },
-            {
-              "texto": "No ahorro de forma sistemática",
-              "score": 100
-            }
-          ],
-          "dimensiones": "FLUJO_CAJA",
-          "disparador": "págate a ti primero"
-        },
-        {
-          "id": "C9-6",
-          "faceta": "F2",
-          "tipo": "escala",
-          "texto": "¿Tienes tus cuentas separadas por función (operativa, contingencia, inversión)?",
-          "opciones": [
-            {
-              "texto": "Sí, separadas",
-              "score": 0
-            },
-            {
-              "texto": "Dos de ellas",
-              "score": 33
-            },
-            {
-              "texto": "Todo junto, con intención",
-              "score": 66
-            },
-            {
-              "texto": "Todo en una cuenta",
-              "score": 100
-            }
-          ],
-          "dimensiones": "FLUJO_CAJA·organización",
-          "disparador": "arquitectura de cuentas"
-        },
-        {
-          "id": "C9-7",
-          "faceta": "F3",
-          "tipo": "escala",
-          "texto": "¿Tienes suscripciones o servicios «fantasma» que pagas sin usar?",
-          "opciones": [
-            {
-              "texto": "Ninguna",
-              "score": 0
-            },
-            {
-              "texto": "Una o dos",
-              "score": 33
-            },
-            {
-              "texto": "Varias",
-              "score": 66
-            },
-            {
-              "texto": "No lo sé",
-              "score": 100
-            }
-          ],
-          "dimensiones": "FLUJO_CAJA·fugas",
-          "disparador": "recuperación inmediata de dinero"
-        },
-        {
-          "id": "C9-8",
-          "faceta": "F4",
-          "tipo": "escala",
-          "texto": "¿Cuántos meses de gastos tienes en efectivo o equivalente?",
-          "opciones": [
-            {
-              "texto": "6 o más",
-              "score": 0
-            },
-            {
-              "texto": "3–5",
-              "score": 33
-            },
-            {
-              "texto": "1–2",
-              "score": 66
-            },
-            {
-              "texto": "Menos de 1",
-              "score": 100
-            }
-          ],
-          "dimensiones": "FLUJO_CAJA·LIQUIDEZ",
-          "disparador": "cruza con Resiliencia"
-        },
-        {
-          "id": "C9-9",
-          "faceta": "F4",
-          "tipo": "escala",
-          "texto": "¿Qué porcentaje de tu flujo mensual está comprometido por pagos de deuda?",
-          "opciones": [
-            {
-              "texto": "Menos del 15%",
-              "score": 0
-            },
-            {
-              "texto": "15–30%",
-              "score": 33
-            },
-            {
-              "texto": "30–45%",
-              "score": 66
-            },
-            {
-              "texto": "Más del 45%",
-              "score": 100
-            }
-          ],
-          "dimensiones": "FLUJO_CAJA·DEUDA",
-          "disparador": "cruza con Capa Deuda"
-        },
-        {
-          "id": "C9-10",
-          "faceta": "F4",
-          "tipo": "escala",
-          "texto": "¿Apartas algo para gastos irregulares anuales (impuestos, seguros, imprevistos)?",
-          "opciones": [
-            {
-              "texto": "Sí, sistemáticamente",
-              "score": 0
-            },
-            {
-              "texto": "A veces",
-              "score": 33
-            },
-            {
-              "texto": "Rara vez",
-              "score": 66
-            },
-            {
-              "texto": "Nunca, me pillan",
-              "score": 100
-            }
-          ],
-          "dimensiones": "FLUJO_CAJA",
-          "disparador": "previsión de gasto irregular"
-        },
-        {
-          "id": "C9-11",
-          "faceta": "F5",
-          "tipo": "escala",
-          "texto": "¿Qué haces con el excedente de flujo a fin de mes?",
-          "opciones": [
-            {
-              "texto": "Lo invierto/asigno con plan",
-              "score": 0
-            },
-            {
-              "texto": "Lo ahorro sin plan",
-              "score": 33
-            },
-            {
-              "texto": "Se queda parado",
-              "score": 66
-            },
-            {
-              "texto": "No suele haber excedente",
-              "score": 100
-            }
-          ],
-          "dimensiones": "FLUJO_CAJA·excedente",
-          "disparador": "productividad del sobrante"
-        },
-        {
-          "id": "C9-12",
-          "faceta": "F5",
-          "tipo": "escala",
-          "texto": "¿Has logrado reducir un gasto recurrente en los últimos 6 meses?",
-          "opciones": [
-            {
-              "texto": "Sí, varios",
-              "score": 0
-            },
-            {
-              "texto": "Uno",
-              "score": 33
-            },
-            {
-              "texto": "Lo intenté sin éxito",
-              "score": 66
-            },
-            {
-              "texto": "No me lo planteé",
-              "score": 100
-            }
-          ],
-          "dimensiones": "FLUJO_CAJA",
-          "disparador": "músculo de optimización"
-        },
-        {
-          "id": "C9-13",
-          "faceta": "F1",
-          "tipo": "escala",
-          "texto": "Del 1 al 10, ¿cómo de bajo control sientes tu flujo de caja?",
-          "opciones": [
-            {
-              "texto": "8–10",
-              "score": 0
-            },
-            {
-              "texto": "6–7",
-              "score": 33
-            },
-            {
-              "texto": "4–5",
-              "score": 66
-            },
-            {
-              "texto": "1–3",
-              "score": 100
-            }
-          ],
-          "dimensiones": "FLUJO_CAJA·metacognición",
-          "disparador": "autoevaluación"
-        }
-      ]
+      {
+       "texto": "Algo",
+       "score": 33
+      },
+      {
+       "texto": "Casi nada",
+       "score": 66
+      },
+      {
+       "texto": "Nada, todo depende de mi trabajo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "LIBERTAD·CONCENTRACION",
+     "disparador": "cruza con HHI de ingresos"
     },
     {
-      "code": "C10",
-      "orden": 10,
-      "nombre": "Resiliencia y Deuda",
-      "dimension_primaria": "DEUDA",
-      "facetas": {
-        "D1": "Carga · cuánta deuda y su peso",
-        "D2": "Calidad · toxicidad y tipo de interés",
-        "D3": "Sensibilidad · resistencia a subidas de tipos",
-        "D4": "Maniobra · acceso a crédito y refinanciación",
-        "D5": "Vínculo · transparencia y deuda con allegados"
+     "id": "C2-10",
+     "faceta": "L2",
+     "tipo": "escala",
+     "texto": "Tu plan para llegar a FI, ¿es realista y revisado o un deseo?",
+     "opciones": [
+      {
+       "texto": "Realista, revisado, cuadra",
+       "score": 0
       },
-      "bandas": [
-        {
-          "min": 0,
-          "max": 25,
-          "etiqueta": "Deuda sana"
-        },
-        {
-          "min": 26,
-          "max": 50,
-          "etiqueta": "Bajo control"
-        },
-        {
-          "min": 51,
-          "max": 75,
-          "etiqueta": "Deuda tensionada"
-        },
-        {
-          "min": 76,
-          "max": 100,
-          "etiqueta": "Sobreendeudamiento"
-        }
-      ],
-      "metricas_calculadas": [
-        "Ratio deuda/patrimonio neto",
-        "% del ingreso a servicio de la deuda",
-        "Resistencia: ¿se sostiene la deuda con −30% de ingresos?"
-      ],
-      "items": [
-        {
-          "id": "C10-1",
-          "faceta": "D1",
-          "tipo": "escala",
-          "texto": "¿Cuál es tu nivel de deuda frente a tu patrimonio neto?",
-          "opciones": [
-            {
-              "texto": "Sin deuda o muy baja",
-              "score": 0
-            },
-            {
-              "texto": "Manejable",
-              "score": 33
-            },
-            {
-              "texto": "Alta",
-              "score": 66
-            },
-            {
-              "texto": "La deuda supera mi patrimonio",
-              "score": 100
-            }
-          ],
-          "dimensiones": "DEUDA·carga",
-          "disparador": "ratio deuda/patrimonio"
-        },
-        {
-          "id": "C10-2",
-          "faceta": "D1",
-          "tipo": "escala",
-          "texto": "¿Qué parte de tus ingresos se va en pago de deuda (cuotas)?",
-          "opciones": [
-            {
-              "texto": "Menos del 15%",
-              "score": 0
-            },
-            {
-              "texto": "15–30%",
-              "score": 33
-            },
-            {
-              "texto": "30–45%",
-              "score": 66
-            },
-            {
-              "texto": "Más del 45%",
-              "score": 100
-            }
-          ],
-          "dimensiones": "DEUDA",
-          "disparador": "servicio de la deuda"
-        },
-        {
-          "id": "C10-3",
-          "faceta": "D2",
-          "tipo": "escala",
-          "texto": "¿Tienes deuda de alto interés (tarjetas revolving, microcréditos)?",
-          "opciones": [
-            {
-              "texto": "No",
-              "score": 0
-            },
-            {
-              "texto": "Algo, bajo control",
-              "score": 33
-            },
-            {
-              "texto": "Bastante",
-              "score": 66
-            },
-            {
-              "texto": "Sí, y crece",
-              "score": 100
-            }
-          ],
-          "dimensiones": "DEUDA·toxicidad",
-          "disparador": "≥66 → prioridad: matar deuda cara"
-        },
-        {
-          "id": "C10-4",
-          "faceta": "D2",
-          "tipo": "escala",
-          "texto": "¿Tu deuda principal (hipoteca) es a tipo fijo o variable?",
-          "opciones": [
-            {
-              "texto": "Fijo",
-              "score": 0
-            },
-            {
-              "texto": "Mixto",
-              "score": 33
-            },
-            {
-              "texto": "Variable con margen",
-              "score": 66
-            },
-            {
-              "texto": "Variable y ajustada",
-              "score": 100
-            }
-          ],
-          "dimensiones": "DEUDA·ANTIFRAGILIDAD",
-          "disparador": "cruza con Antifragilidad"
-        },
-        {
-          "id": "C10-5",
-          "faceta": "D3",
-          "tipo": "escala",
-          "texto": "Si los tipos subieran un 2%, ¿qué impacto tendría en ti?",
-          "opciones": [
-            {
-              "texto": "Mínimo, lo absorbo",
-              "score": 0
-            },
-            {
-              "texto": "Notable pero manejable",
-              "score": 33
-            },
-            {
-              "texto": "Doloroso",
-              "score": 66
-            },
-            {
-              "texto": "Insostenible",
-              "score": 100
-            }
-          ],
-          "dimensiones": "DEUDA·sensibilidad",
-          "disparador": "stress de tipos"
-        },
-        {
-          "id": "C10-6",
-          "faceta": "D3",
-          "tipo": "escala",
-          "texto": "¿Podrías refinanciar o reestructurar tu deuda si lo necesitaras?",
-          "opciones": [
-            {
-              "texto": "Sí, con margen",
-              "score": 0
-            },
-            {
-              "texto": "Probablemente",
-              "score": 33
-            },
-            {
-              "texto": "Difícil",
-              "score": 66
-            },
-            {
-              "texto": "No",
-              "score": 100
-            }
-          ],
-          "dimensiones": "DEUDA",
-          "disparador": "flexibilidad de la deuda"
-        },
-        {
-          "id": "C10-7",
-          "faceta": "D4",
-          "tipo": "escala",
-          "texto": "¿Tienes acceso a crédito disponible (no usado) para una emergencia?",
-          "opciones": [
-            {
-              "texto": "Sí, suficiente",
-              "score": 0
-            },
-            {
-              "texto": "Algo",
-              "score": 33
-            },
-            {
-              "texto": "Muy poco",
-              "score": 66
-            },
-            {
-              "texto": "Ninguno",
-              "score": 100
-            }
-          ],
-          "dimensiones": "DEUDA·LIQUIDEZ",
-          "disparador": "línea de defensa"
-        },
-        {
-          "id": "C10-8",
-          "faceta": "D4",
-          "tipo": "escala",
-          "texto": "Si te lo propusieras, ¿en cuánto tiempo quedarías libre de deuda mala?",
-          "opciones": [
-            {
-              "texto": "Ya lo estoy / menos de 1 año",
-              "score": 0
-            },
-            {
-              "texto": "1–3 años",
-              "score": 33
-            },
-            {
-              "texto": "3–5 años",
-              "score": 66
-            },
-            {
-              "texto": "No veo cómo",
-              "score": 100
-            }
-          ],
-          "dimensiones": "DEUDA",
-          "disparador": "horizonte de desapalancamiento"
-        },
-        {
-          "id": "C10-9",
-          "faceta": "D5",
-          "tipo": "escala",
-          "texto": "¿Tu deuda es transparente con tu pareja/familia?",
-          "opciones": [
-            {
-              "texto": "Totalmente",
-              "score": 0
-            },
-            {
-              "texto": "En su mayoría",
-              "score": 33
-            },
-            {
-              "texto": "Solo en parte",
-              "score": 66
-            },
-            {
-              "texto": "La oculto",
-              "score": 100
-            }
-          ],
-          "dimensiones": "DEUDA·VINCULO",
-          "disparador": "clave para informe de pareja"
-        },
-        {
-          "id": "C10-10",
-          "faceta": "D5",
-          "tipo": "escala",
-          "texto": "¿Tienes deudas con familiares o amigos que tensan la relación?",
-          "opciones": [
-            {
-              "texto": "No",
-              "score": 0
-            },
-            {
-              "texto": "Alguna, sin tensión",
-              "score": 33
-            },
-            {
-              "texto": "Sí, con cierta tensión",
-              "score": 66
-            },
-            {
-              "texto": "Sí, fuente de conflicto",
-              "score": 100
-            }
-          ],
-          "dimensiones": "DEUDA·VINCULO",
-          "disparador": "deuda relacional"
-        },
-        {
-          "id": "C10-11",
-          "faceta": "D3",
-          "tipo": "escala",
-          "texto": "Si tus ingresos cayeran un 30%, ¿podrías seguir pagando tu deuda?",
-          "opciones": [
-            {
-              "texto": "Sí, con holgura",
-              "score": 0
-            },
-            {
-              "texto": "Sí, ajustando",
-              "score": 33
-            },
-            {
-              "texto": "Solo un tiempo",
-              "score": 66
-            },
-            {
-              "texto": "No, entraría en mora",
-              "score": 100
-            }
-          ],
-          "dimensiones": "DEUDA·RESILIENCIA",
-          "disparador": "resiliencia de la deuda"
-        },
-        {
-          "id": "C10-12",
-          "faceta": "D1",
-          "tipo": "escala",
-          "texto": "¿Tienes un plan claro y con fecha para reducir o eliminar tu deuda?",
-          "opciones": [
-            {
-              "texto": "Sí, con fecha",
-              "score": 0
-            },
-            {
-              "texto": "Una idea",
-              "score": 33
-            },
-            {
-              "texto": "Vagamente",
-              "score": 66
-            },
-            {
-              "texto": "Ninguno",
-              "score": 100
-            }
-          ],
-          "dimensiones": "DEUDA",
-          "disparador": "plan de salida"
-        },
-        {
-          "id": "C10-13",
-          "faceta": "D2",
-          "tipo": "escala",
-          "texto": "Del 1 al 10, ¿cómo de sana y bajo control está tu deuda?",
-          "opciones": [
-            {
-              "texto": "8–10",
-              "score": 0
-            },
-            {
-              "texto": "6–7",
-              "score": 33
-            },
-            {
-              "texto": "4–5",
-              "score": 66
-            },
-            {
-              "texto": "1–3",
-              "score": 100
-            }
-          ],
-          "dimensiones": "DEUDA·metacognición",
-          "disparador": "autoevaluación"
-        }
-      ]
+      {
+       "texto": "Razonable sin revisar",
+       "score": 33
+      },
+      {
+       "texto": "Optimista sin comprobar",
+       "score": 66
+      },
+      {
+       "texto": "No tengo plan",
+       "score": 100
+      }
+     ],
+     "dimensiones": "LIBERTAD·realismo",
+     "disparador": "≥66 → modelar números reales"
+    },
+    {
+     "id": "C2-11",
+     "faceta": "L1",
+     "tipo": "escala",
+     "texto": "¿Con qué frecuencia revisas tu patrimonio y tu progreso?",
+     "opciones": [
+      {
+       "texto": "Trimestral, con método",
+       "score": 0
+      },
+      {
+       "texto": "Un par de veces al año",
+       "score": 33
+      },
+      {
+       "texto": "Rara vez",
+       "score": 66
+      },
+      {
+       "texto": "Nunca",
+       "score": 100
+      }
+     ],
+     "dimensiones": "LIBERTAD·seguimiento",
+     "disparador": "hábito de revisión"
+    },
+    {
+     "id": "C2-12",
+     "faceta": "L4",
+     "tipo": "escala",
+     "texto": "¿Tu dinero está invertido y alineado con el objetivo, o parado?",
+     "opciones": [
+      {
+       "texto": "Invertido y alineado",
+       "score": 0
+      },
+      {
+       "texto": "Mayormente",
+       "score": 33
+      },
+      {
+       "texto": "Parte parado",
+       "score": 66
+      },
+      {
+       "texto": "Parado o disperso",
+       "score": 100
+      }
+     ],
+     "dimensiones": "LIBERTAD·coherencia",
+     "disparador": "≥66 → coste de oportunidad"
     }
-  ]
+   ]
+  },
+  {
+   "code": "C3",
+   "orden": 3,
+   "nombre": "Stress-Testing Familiar",
+   "dimension_primaria": "RESILIENCIA",
+   "facetas": {
+    "S0": "Reserva · meses de supervivencia",
+    "S1": "Flexibilidad · capacidad de recorte",
+    "S2": "Alternativas · ingresos sustitutos",
+    "S3": "Multiplicador · dependientes y protección",
+    "S4": "Red · seguros y apoyo",
+    "S5": "Psicológica · experiencia y temple"
+   },
+   "bandas": [
+    {
+     "min": 0,
+     "max": 25,
+     "etiqueta": "Antifrágil"
+    },
+    {
+     "min": 26,
+     "max": 50,
+     "etiqueta": "Resistente"
+    },
+    {
+     "min": 51,
+     "max": 75,
+     "etiqueta": "Vulnerable"
+    },
+    {
+     "min": 76,
+     "max": 100,
+     "etiqueta": "Frágil crítico"
+    }
+   ],
+   "metricas_calculadas": [
+    "Runway = meses que cubre el colchón líquido sin ingresos",
+    "Carga fija = obligaciones fijas / ingreso neto (rigidez)",
+    "Índice de resiliencia = media ponderada de las 6 facetas"
+   ],
+   "items": [
+    {
+     "id": "C3-1",
+     "faceta": "S0",
+     "tipo": "escala",
+     "texto": "¿Cuántos meses cubrirías tus gastos esenciales solo con tu colchón, sin ingresos?",
+     "opciones": [
+      {
+       "texto": "12+ meses",
+       "score": 0
+      },
+      {
+       "texto": "6–11 meses",
+       "score": 33
+      },
+      {
+       "texto": "3–5 meses",
+       "score": 66
+      },
+      {
+       "texto": "Menos de 3 / ninguno",
+       "score": 100
+      }
+     ],
+     "dimensiones": "RESILIENCIA·LIQUIDEZ",
+     "disparador": "<3 → prioridad absoluta: fondo de emergencia"
+    },
+    {
+     "id": "C3-2",
+     "faceta": "S0",
+     "tipo": "escala",
+     "texto": "¿Tienes un fondo de emergencia separado y solo para eso?",
+     "opciones": [
+      {
+       "texto": "Sí, 6+ meses intocable",
+       "score": 0
+      },
+      {
+       "texto": "Sí, parcial",
+       "score": 33
+      },
+      {
+       "texto": "Algo, pero lo uso",
+       "score": 66
+      },
+      {
+       "texto": "No tengo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "RESILIENCIA",
+     "disparador": "≥66 → construir reserva"
+    },
+    {
+     "id": "C3-3",
+     "faceta": "S0",
+     "tipo": "escala",
+     "texto": "Imprevisto de 5.000 € mañana: ¿de dónde sale?",
+     "opciones": [
+      {
+       "texto": "De mi fondo, sin despeinarme",
+       "score": 0
+      },
+      {
+       "texto": "Ahorros, con ajuste",
+       "score": 33
+      },
+      {
+       "texto": "Tendría que financiarlo",
+       "score": 66
+      },
+      {
+       "texto": "No sabría de dónde",
+       "score": 100
+      }
+     ],
+     "dimensiones": "RESILIENCIA",
+     "disparador": "escenario concreto"
+    },
+    {
+     "id": "C3-4",
+     "faceta": "S1",
+     "tipo": "escala",
+     "texto": "Si hiciera falta, ¿cuánto podrías recortar tu gasto rápido?",
+     "opciones": [
+      {
+       "texto": "50%+ sin drama",
+       "score": 0
+      },
+      {
+       "texto": "~30%",
+       "score": 33
+      },
+      {
+       "texto": "Poco, ~15%",
+       "score": 66
+      },
+      {
+       "texto": "Casi nada, todo fijo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "RESILIENCIA·flexibilidad",
+     "disparador": "baja flexibilidad → revisar gasto fijo"
+    },
+    {
+     "id": "C3-5",
+     "faceta": "S1",
+     "tipo": "escala",
+     "texto": "¿Qué peso tienen tus obligaciones fijas sobre tu ingreso?",
+     "opciones": [
+      {
+       "texto": "Bajo (<30%)",
+       "score": 0
+      },
+      {
+       "texto": "Moderado (30–45%)",
+       "score": 33
+      },
+      {
+       "texto": "Alto (45–60%)",
+       "score": 66
+      },
+      {
+       "texto": "Asfixiante (>60%)",
+       "score": 100
+      }
+     ],
+     "dimensiones": "RESILIENCIA·DEUDA",
+     "disparador": "cruza con Capa Deuda"
+    },
+    {
+     "id": "C3-6",
+     "faceta": "S2",
+     "tipo": "escala",
+     "texto": "Si perdieras tu fuente principal, ¿qué alternativas reales tienes?",
+     "opciones": [
+      {
+       "texto": "Varias (skills, red, rentas)",
+       "score": 0
+      },
+      {
+       "texto": "Alguna",
+       "score": 33
+      },
+      {
+       "texto": "Pocas y lentas",
+       "score": 66
+      },
+      {
+       "texto": "Ninguna clara",
+       "score": 100
+      }
+     ],
+     "dimensiones": "RESILIENCIA·CONCENTRACION",
+     "disparador": "cruza con HHI"
+    },
+    {
+     "id": "C3-7",
+     "faceta": "S2",
+     "tipo": "escala",
+     "texto": "¿Conseguirías un ingreso digno en pocas semanas si lo necesitaras?",
+     "opciones": [
+      {
+       "texto": "Sí, con facilidad",
+       "score": 0
+      },
+      {
+       "texto": "Probablemente",
+       "score": 33
+      },
+      {
+       "texto": "Difícil",
+       "score": 66
+      },
+      {
+       "texto": "No",
+       "score": 100
+      }
+     ],
+     "dimensiones": "RESILIENCIA·empleabilidad",
+     "disparador": "empleabilidad"
+    },
+    {
+     "id": "C3-8",
+     "faceta": "S3",
+     "tipo": "escala",
+     "texto": "¿Cuántas personas dependen económicamente de ti?",
+     "opciones": [
+      {
+       "texto": "Solo yo",
+       "score": 0
+      },
+      {
+       "texto": "Una, con colchón",
+       "score": 33
+      },
+      {
+       "texto": "Varias",
+       "score": 66
+      },
+      {
+       "texto": "Varias y sin red",
+       "score": 100
+      }
+     ],
+     "dimensiones": "RESILIENCIA·multiplicador",
+     "disparador": "multiplica el riesgo de todo lo demás"
+    },
+    {
+     "id": "C3-9",
+     "faceta": "S3",
+     "tipo": "escala",
+     "texto": "Si tú faltaras económicamente, ¿tu familia conservaría vivienda y estudios?",
+     "opciones": [
+      {
+       "texto": "Sí, protegido",
+       "score": 0
+      },
+      {
+       "texto": "Un tiempo",
+       "score": 33
+      },
+      {
+       "texto": "Poco",
+       "score": 66
+      },
+      {
+       "texto": "No, expuestos",
+       "score": 100
+      }
+     ],
+     "dimensiones": "RESILIENCIA·BLINDAJE",
+     "disparador": "cruza con Herencia/Blindaje"
+    },
+    {
+     "id": "C3-10",
+     "faceta": "S4",
+     "tipo": "escala",
+     "texto": "¿Tienes seguros que cubran invalidez, desempleo o pérdida de ingresos?",
+     "opciones": [
+      {
+       "texto": "Cobertura sólida",
+       "score": 0
+      },
+      {
+       "texto": "Parcial",
+       "score": 33
+      },
+      {
+       "texto": "Mínima",
+       "score": 66
+      },
+      {
+       "texto": "Ninguna",
+       "score": 100
+      }
+     ],
+     "dimensiones": "RESILIENCIA·protección",
+     "disparador": "≥66 → revisar coberturas"
+    },
+    {
+     "id": "C3-11",
+     "faceta": "S4",
+     "tipo": "escala",
+     "texto": "En una crisis, ¿tienes una red (familia, contactos) que te apoye?",
+     "opciones": [
+      {
+       "texto": "Sólida",
+       "score": 0
+      },
+      {
+       "texto": "Alguna",
+       "score": 33
+      },
+      {
+       "texto": "Escasa",
+       "score": 66
+      },
+      {
+       "texto": "Estaría solo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "RESILIENCIA·red",
+     "disparador": "capital social"
+    },
+    {
+     "id": "C3-12",
+     "faceta": "S5",
+     "tipo": "escala",
+     "texto": "¿Has atravesado antes una crisis económica seria y saliste?",
+     "opciones": [
+      {
+       "texto": "Sí, y aprendí",
+       "score": 0
+      },
+      {
+       "texto": "Algo parecido",
+       "score": 33
+      },
+      {
+       "texto": "No, me asusta",
+       "score": 66
+      },
+      {
+       "texto": "No, me paralizaría",
+       "score": 100
+      }
+     ],
+     "dimensiones": "RESILIENCIA·PSIQUE",
+     "disparador": "cruza con Burnout"
+    },
+    {
+     "id": "C3-13",
+     "faceta": "S5",
+     "tipo": "escala",
+     "texto": "Del 1 al 10, ¿cómo de preparado te sientes para un golpe inesperado?",
+     "opciones": [
+      {
+       "texto": "8–10",
+       "score": 0
+      },
+      {
+       "texto": "6–7",
+       "score": 33
+      },
+      {
+       "texto": "4–5",
+       "score": 66
+      },
+      {
+       "texto": "1–3",
+       "score": 100
+      }
+     ],
+     "dimensiones": "RESILIENCIA·metacognición",
+     "disparador": "autoevaluación"
+    }
+   ]
+  },
+  {
+   "code": "C4",
+   "orden": 4,
+   "nombre": "Índice de Eficiencia del Estilo de Vida",
+   "dimension_primaria": "EFICIENCIA",
+   "facetas": {
+    "E1": "Deriva · el gasto se come las subidas",
+    "E2": "Conciencia · sabes a dónde va el dinero",
+    "E3": "Sostenibilidad · aguanta una caída de ingresos",
+    "E4": "Emocional · compras para sentirte mejor",
+    "E5": "Social · el entorno marca tu gasto"
+   },
+   "bandas": [
+    {
+     "min": 0,
+     "max": 25,
+     "etiqueta": "Estilo de vida eficiente"
+    },
+    {
+     "min": 26,
+     "max": 50,
+     "etiqueta": "Algo de deriva"
+    },
+    {
+     "min": 51,
+     "max": 75,
+     "etiqueta": "Lifestyle creep activo"
+    },
+    {
+     "min": 76,
+     "max": 100,
+     "etiqueta": "Inflado e insostenible"
+    }
+   ],
+   "metricas_calculadas": [
+    "Deriva = variación de la tasa de ahorro frente a la subida de ingresos",
+    "Ratio de gasto visible vs privado (enlaza con Capa Estatus)"
+   ],
+   "items": [
+    {
+     "id": "C4-1",
+     "faceta": "E1",
+     "tipo": "escala",
+     "texto": "Cuando han subido tus ingresos, ¿qué pasó con tu ahorro?",
+     "opciones": [
+      {
+       "texto": "Subió igual o más que el gasto",
+       "score": 0
+      },
+      {
+       "texto": "Subió algo",
+       "score": 33
+      },
+      {
+       "texto": "Se quedó igual",
+       "score": 66
+      },
+      {
+       "texto": "Bajó: el gasto se comió la subida",
+       "score": 100
+      }
+     ],
+     "dimensiones": "EFICIENCIA·deriva",
+     "disparador": "100 → núcleo del lifestyle creep"
+    },
+    {
+     "id": "C4-2",
+     "faceta": "E1",
+     "tipo": "escala",
+     "texto": "¿Qué parte de tus ingresos va a cosas que no existían en tu vida hace 3 años?",
+     "opciones": [
+      {
+       "texto": "Casi nada",
+       "score": 0
+      },
+      {
+       "texto": "Poco",
+       "score": 33
+      },
+      {
+       "texto": "Bastante",
+       "score": 66
+      },
+      {
+       "texto": "Una parte grande",
+       "score": 100
+      }
+     ],
+     "dimensiones": "EFICIENCIA",
+     "disparador": "mide la deriva acumulada"
+    },
+    {
+     "id": "C4-3",
+     "faceta": "E1",
+     "tipo": "escala",
+     "texto": "¿Tus gastos fijos (vivienda, coche, cuotas) son mayores que hace 3 años?",
+     "opciones": [
+      {
+       "texto": "No, iguales o menores",
+       "score": 0
+      },
+      {
+       "texto": "Algo más",
+       "score": 33
+      },
+      {
+       "texto": "Bastante más",
+       "score": 66
+      },
+      {
+       "texto": "Mucho más, sin quererlo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "EFICIENCIA·gastos_fijos",
+     "disparador": "cruza con rigidez (Capa 3)"
+    },
+    {
+     "id": "C4-4",
+     "faceta": "E2",
+     "tipo": "escala",
+     "texto": "¿Puedes nombrar sin mirar tus 5 mayores gastos del mes?",
+     "opciones": [
+      {
+       "texto": "Sí, al detalle",
+       "score": 0
+      },
+      {
+       "texto": "Casi todos",
+       "score": 33
+      },
+      {
+       "texto": "Solo algunos",
+       "score": 66
+      },
+      {
+       "texto": "Ni idea",
+       "score": 100
+      }
+     ],
+     "dimensiones": "EFICIENCIA·conciencia",
+     "disparador": "≥66 → empezar por radiografía de gasto"
+    },
+    {
+     "id": "C4-5",
+     "faceta": "E2",
+     "tipo": "escala",
+     "texto": "¿Cuántas suscripciones o servicios pagas que apenas usas?",
+     "opciones": [
+      {
+       "texto": "Ninguna, las reviso",
+       "score": 0
+      },
+      {
+       "texto": "Una o dos",
+       "score": 33
+      },
+      {
+       "texto": "Varias",
+       "score": 66
+      },
+      {
+       "texto": "Muchas, ni las controlo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "EFICIENCIA·fugas",
+     "disparador": "fugas de dinero recuperables"
+    },
+    {
+     "id": "C4-6",
+     "faceta": "E2",
+     "tipo": "escala",
+     "texto": "¿Cuándo recortaste un gasto de forma deliberada por última vez?",
+     "opciones": [
+      {
+       "texto": "En el último mes",
+       "score": 0
+      },
+      {
+       "texto": "Hace 3–6 meses",
+       "score": 33
+      },
+      {
+       "texto": "Hace más de un año",
+       "score": 66
+      },
+      {
+       "texto": "Nunca",
+       "score": 100
+      }
+     ],
+     "dimensiones": "EFICIENCIA",
+     "disparador": "hábito de poda"
+    },
+    {
+     "id": "C4-7",
+     "faceta": "E3",
+     "tipo": "escala",
+     "texto": "¿Podrías vivir con comodidad con el 50% de tus ingresos actuales?",
+     "opciones": [
+      {
+       "texto": "Sí, sin drama",
+       "score": 0
+      },
+      {
+       "texto": "Sí, ajustando",
+       "score": 33
+      },
+      {
+       "texto": "Con mucho esfuerzo",
+       "score": 66
+      },
+      {
+       "texto": "No",
+       "score": 100
+      }
+     ],
+     "dimensiones": "EFICIENCIA·sostenibilidad",
+     "disparador": "cruza con Resiliencia y Libertad"
+    },
+    {
+     "id": "C4-8",
+     "faceta": "E3",
+     "tipo": "escala",
+     "texto": "Si tu sueldo bajara mañana, ¿cuánto tardarías en adaptar tu gasto?",
+     "opciones": [
+      {
+       "texto": "Inmediato, tengo margen",
+       "score": 0
+      },
+      {
+       "texto": "Pocas semanas",
+       "score": 33
+      },
+      {
+       "texto": "Meses, con dolor",
+       "score": 66
+      },
+      {
+       "texto": "No sabría hacerlo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "EFICIENCIA",
+     "disparador": "velocidad de adaptación"
+    },
+    {
+     "id": "C4-9",
+     "faceta": "E4",
+     "tipo": "escala",
+     "texto": "¿Compras para sentirte mejor emocionalmente?",
+     "opciones": [
+      {
+       "texto": "Rara vez",
+       "score": 0
+      },
+      {
+       "texto": "A veces",
+       "score": 33
+      },
+      {
+       "texto": "Con frecuencia",
+       "score": 66
+      },
+      {
+       "texto": "Es mi válvula de escape",
+       "score": 100
+      }
+     ],
+     "dimensiones": "EFICIENCIA·PSIQUE",
+     "disparador": "≥66 → gasto emocional (cruza Burnout)"
+    },
+    {
+     "id": "C4-10",
+     "faceta": "E4",
+     "tipo": "escala",
+     "texto": "¿Con qué frecuencia te dices «me lo merezco» para justificar un gasto?",
+     "opciones": [
+      {
+       "texto": "Casi nunca",
+       "score": 0
+      },
+      {
+       "texto": "A veces",
+       "score": 33
+      },
+      {
+       "texto": "A menudo",
+       "score": 66
+      },
+      {
+       "texto": "Es mi norma",
+       "score": 100
+      }
+     ],
+     "dimensiones": "EFICIENCIA·merecimiento",
+     "disparador": "patrón de auto-justificación"
+    },
+    {
+     "id": "C4-11",
+     "faceta": "E4",
+     "tipo": "escala",
+     "texto": "¿Tu estilo de vida actual lo elegiste tú o «pasó a serlo»?",
+     "opciones": [
+      {
+       "texto": "Lo elegí conscientemente",
+       "score": 0
+      },
+      {
+       "texto": "Mayormente",
+       "score": 33
+      },
+      {
+       "texto": "En parte pasó solo",
+       "score": 66
+      },
+      {
+       "texto": "Me arrastró sin decidir",
+       "score": 100
+      }
+     ],
+     "dimensiones": "EFICIENCIA·conciencia",
+     "disparador": "agencia sobre el gasto"
+    },
+    {
+     "id": "C4-12",
+     "faceta": "E5",
+     "tipo": "escala",
+     "texto": "Si no tuvieras que impresionar a nadie, ¿cuánto reducirías tu gasto?",
+     "opciones": [
+      {
+       "texto": "Casi nada",
+       "score": 0
+      },
+      {
+       "texto": "Algo",
+       "score": 33
+      },
+      {
+       "texto": "Bastante",
+       "score": 66
+      },
+      {
+       "texto": "Una parte importante",
+       "score": 100
+      }
+     ],
+     "dimensiones": "EFICIENCIA·ESTATUS",
+     "disparador": "puente con Capa Estatus"
+    },
+    {
+     "id": "C4-13",
+     "faceta": "E5",
+     "tipo": "escala",
+     "texto": "¿El gasto de tu entorno influye en el tuyo?",
+     "opciones": [
+      {
+       "texto": "No, decido por mis valores",
+       "score": 0
+      },
+      {
+       "texto": "Un poco",
+       "score": 33
+      },
+      {
+       "texto": "Bastante",
+       "score": 66
+      },
+      {
+       "texto": "Mucho, sigo el ritmo del grupo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "EFICIENCIA·social",
+     "disparador": "presión de comparación"
+    }
+   ]
+  },
+  {
+   "code": "C5",
+   "orden": 5,
+   "nombre": "Checklist de Herencia y Blindaje Legal",
+   "dimension_primaria": "BLINDAJE",
+   "facetas": {
+    "P1": "Documentos · testamento, poder, beneficiarios",
+    "P2": "Acceso · inventario y herencia digital",
+    "P3": "Protección · seguros adecuados",
+    "P4": "Fiscal · optimización y sucesión",
+    "P5": "Estructura · pareja y exposición legal"
+   },
+   "bandas": [
+    {
+     "min": 0,
+     "max": 25,
+     "etiqueta": "Patrimonio blindado"
+    },
+    {
+     "min": 26,
+     "max": 50,
+     "etiqueta": "Cubierto con huecos"
+    },
+    {
+     "min": 51,
+     "max": 75,
+     "etiqueta": "Expuesto"
+    },
+    {
+     "min": 76,
+     "max": 100,
+     "etiqueta": "Desprotección crítica"
+    }
+   ],
+   "metricas_calculadas": [
+    "Índice de blindaje = % de la checklist legal cubierta",
+    "Brecha de seguro = cobertura vs necesidad estimada de la familia"
+   ],
+   "items": [
+    {
+     "id": "C5-1",
+     "faceta": "P1",
+     "tipo": "escala",
+     "texto": "¿Tienes testamento actualizado?",
+     "opciones": [
+      {
+       "texto": "Sí, revisado recientemente",
+       "score": 0
+      },
+      {
+       "texto": "Sí, pero antiguo",
+       "score": 33
+      },
+      {
+       "texto": "Empezado o pensado",
+       "score": 66
+      },
+      {
+       "texto": "No tengo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BLINDAJE·sucesión",
+     "disparador": "base de la planificación sucesoria"
+    },
+    {
+     "id": "C5-2",
+     "faceta": "P1",
+     "tipo": "escala",
+     "texto": "¿Tienes poder notarial preventivo (quién decide si pierdes capacidad)?",
+     "opciones": [
+      {
+       "texto": "Sí",
+       "score": 0
+      },
+      {
+       "texto": "En trámite",
+       "score": 33
+      },
+      {
+       "texto": "Lo conozco, no lo tengo",
+       "score": 66
+      },
+      {
+       "texto": "No sé qué es",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BLINDAJE·incapacidad",
+     "disparador": "≥66 → riesgo en caso de incapacidad"
+    },
+    {
+     "id": "C5-3",
+     "faceta": "P1",
+     "tipo": "escala",
+     "texto": "¿Has designado beneficiarios explícitos en seguros y cuentas?",
+     "opciones": [
+      {
+       "texto": "Sí, todos y revisados",
+       "score": 0
+      },
+      {
+       "texto": "Algunos",
+       "score": 33
+      },
+      {
+       "texto": "No estoy seguro",
+       "score": 66
+      },
+      {
+       "texto": "No",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BLINDAJE·beneficiarios",
+     "disparador": "evita conflictos sucesorios"
+    },
+    {
+     "id": "C5-4",
+     "faceta": "P2",
+     "tipo": "escala",
+     "texto": "Si faltaras hoy, ¿tu familia sabría acceder a tus activos y cuentas?",
+     "opciones": [
+      {
+       "texto": "Sí, todo documentado",
+       "score": 0
+      },
+      {
+       "texto": "En su mayoría",
+       "score": 33
+      },
+      {
+       "texto": "Con dificultad",
+       "score": 66
+      },
+      {
+       "texto": "No, sería un caos",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BLINDAJE·VINCULO",
+     "disparador": "acceso de los herederos"
+    },
+    {
+     "id": "C5-5",
+     "faceta": "P2",
+     "tipo": "escala",
+     "texto": "¿Tienes un inventario de activos (qué tienes, dónde, cómo se accede)?",
+     "opciones": [
+      {
+       "texto": "Sí, actualizado",
+       "score": 0
+      },
+      {
+       "texto": "Parcial",
+       "score": 33
+      },
+      {
+       "texto": "Solo en mi cabeza",
+       "score": 66
+      },
+      {
+       "texto": "No existe",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BLINDAJE·organización",
+     "disparador": "≥66 → crear inventario patrimonial"
+    },
+    {
+     "id": "C5-6",
+     "faceta": "P2",
+     "tipo": "escala",
+     "texto": "¿Tus accesos digitales tienen un plan de herencia digital?",
+     "opciones": [
+      {
+       "texto": "Sí",
+       "score": 0
+      },
+      {
+       "texto": "Parcial",
+       "score": 33
+      },
+      {
+       "texto": "No lo había pensado",
+       "score": 66
+      },
+      {
+       "texto": "Nada, todo se perdería",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BLINDAJE·privacidad",
+     "disparador": "activos digitales olvidados"
+    },
+    {
+     "id": "C5-7",
+     "faceta": "P3",
+     "tipo": "escala",
+     "texto": "¿Tu seguro de vida cubriría lo que tu familia necesitaría?",
+     "opciones": [
+      {
+       "texto": "Sí, calculado",
+       "score": 0
+      },
+      {
+       "texto": "Tengo, sin saber si basta",
+       "score": 33
+      },
+      {
+       "texto": "Mínimo",
+       "score": 66
+      },
+      {
+       "texto": "Ninguno",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BLINDAJE·protección",
+     "disparador": "brecha de seguro"
+    },
+    {
+     "id": "C5-8",
+     "faceta": "P3",
+     "tipo": "escala",
+     "texto": "¿Tienes seguro de invalidez ante incapacidad para generar ingresos?",
+     "opciones": [
+      {
+       "texto": "Sí, sólido",
+       "score": 0
+      },
+      {
+       "texto": "Parcial",
+       "score": 33
+      },
+      {
+       "texto": "Mínimo",
+       "score": 66
+      },
+      {
+       "texto": "Ninguno",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BLINDAJE·RESILIENCIA",
+     "disparador": "cruza con Stress-test"
+    },
+    {
+     "id": "C5-9",
+     "faceta": "P4",
+     "tipo": "escala",
+     "texto": "¿Optimizas fiscalmente tu situación (desgravaciones, estructura, inversiones)?",
+     "opciones": [
+      {
+       "texto": "Sí, con asesor",
+       "score": 0
+      },
+      {
+       "texto": "Algo",
+       "score": 33
+      },
+      {
+       "texto": "Poco",
+       "score": 66
+      },
+      {
+       "texto": "Nada",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BLINDAJE·fiscal",
+     "disparador": "dinero que se fuga en impuestos"
+    },
+    {
+     "id": "C5-10",
+     "faceta": "P4",
+     "tipo": "escala",
+     "texto": "¿Conoces las implicaciones fiscales de tu herencia para tus herederos?",
+     "opciones": [
+      {
+       "texto": "Sí, planificado",
+       "score": 0
+      },
+      {
+       "texto": "A grandes rasgos",
+       "score": 33
+      },
+      {
+       "texto": "Vagamente",
+       "score": 66
+      },
+      {
+       "texto": "No",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BLINDAJE·sucesión",
+     "disparador": "impacto fiscal sucesorio"
+    },
+    {
+     "id": "C5-11",
+     "faceta": "P5",
+     "tipo": "escala",
+     "texto": "¿Tu situación de pareja está protegida legalmente (matrimonio/pareja de hecho, bienes)?",
+     "opciones": [
+      {
+       "texto": "Sí, definida y protegida",
+       "score": 0
+      },
+      {
+       "texto": "Mayormente",
+       "score": 33
+      },
+      {
+       "texto": "Ambigua",
+       "score": 66
+      },
+      {
+       "texto": "Desprotegida (p. ej. pareja de hecho sin nada)",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BLINDAJE·VINCULO",
+     "disparador": "riesgo de pareja: clave Tier 3"
+    },
+    {
+     "id": "C5-12",
+     "faceta": "P5",
+     "tipo": "escala",
+     "texto": "Si te demandaran mañana, ¿tu patrimonio personal estaría expuesto?",
+     "opciones": [
+      {
+       "texto": "Protegido/estructurado",
+       "score": 0
+      },
+      {
+       "texto": "Parcialmente",
+       "score": 33
+      },
+      {
+       "texto": "Expuesto",
+       "score": 66
+      },
+      {
+       "texto": "Totalmente expuesto",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BLINDAJE·riesgo",
+     "disparador": "exposición ante litigios"
+    },
+    {
+     "id": "C5-13",
+     "faceta": "P5",
+     "tipo": "escala",
+     "texto": "¿Has consultado con un asesor legal/fiscal en los últimos 2 años?",
+     "opciones": [
+      {
+       "texto": "Sí",
+       "score": 0
+      },
+      {
+       "texto": "Hace tiempo",
+       "score": 33
+      },
+      {
+       "texto": "Nunca, pero quiero",
+       "score": 66
+      },
+      {
+       "texto": "Nunca",
+       "score": 100
+      }
+     ],
+     "dimensiones": "BLINDAJE·asesoría",
+     "disparador": "oportunidad de servicio Méndez"
+    }
+   ]
+  },
+  {
+   "code": "C6",
+   "orden": 6,
+   "nombre": "Calculador del Precio de tu Estatus",
+   "dimension_primaria": "ESTATUS",
+   "facetas": {
+    "T1": "Gasto visible · lo que otros ven",
+    "T2": "Ego · identidad ligada a la marca",
+    "T3": "Autenticidad · qué harías si nadie mirara",
+    "T4": "Presión · vergüenza y nivel a mantener"
+   },
+   "bandas": [
+    {
+     "min": 0,
+     "max": 25,
+     "etiqueta": "Gasto auténtico"
+    },
+    {
+     "min": 26,
+     "max": 50,
+     "etiqueta": "Algo de estatus"
+    },
+    {
+     "min": 51,
+     "max": 75,
+     "etiqueta": "Imagen costosa"
+    },
+    {
+     "min": 76,
+     "max": 100,
+     "etiqueta": "Cautivo del estatus"
+    }
+   ],
+   "metricas_calculadas": [
+    "Prima de estatus estimada = sobrecoste pagado por imagen frente a la alternativa funcional",
+    "Ratio visible/privado del gasto"
+   ],
+   "items": [
+    {
+     "id": "C6-1",
+     "faceta": "T1",
+     "tipo": "escala",
+     "texto": "¿Qué parte de tu gasto va a cosas que los demás ven frente a lo privado?",
+     "opciones": [
+      {
+       "texto": "Pequeña, gasto por uso",
+       "score": 0
+      },
+      {
+       "texto": "Equilibrada",
+       "score": 33
+      },
+      {
+       "texto": "Alta",
+       "score": 66
+      },
+      {
+       "texto": "La mayoría, para que se vea",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ESTATUS·visible",
+     "disparador": "ratio visible/privado"
+    },
+    {
+     "id": "C6-2",
+     "faceta": "T1",
+     "tipo": "escala",
+     "texto": "¿Tienes gastos (coche, casa, marca) que financian tu imagen más que tu uso?",
+     "opciones": [
+      {
+       "texto": "No",
+       "score": 0
+      },
+      {
+       "texto": "Alguno menor",
+       "score": 33
+      },
+      {
+       "texto": "Varios",
+       "score": 66
+      },
+      {
+       "texto": "Son parte central de mi gasto",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ESTATUS·EFICIENCIA",
+     "disparador": "cruza con lifestyle creep"
+    },
+    {
+     "id": "C6-3",
+     "faceta": "T2",
+     "tipo": "escala",
+     "texto": "¿Tu autoestima sube cuando usas marcas que otros reconocen?",
+     "opciones": [
+      {
+       "texto": "No, es independiente",
+       "score": 0
+      },
+      {
+       "texto": "Un poco",
+       "score": 33
+      },
+      {
+       "texto": "Bastante",
+       "score": 66
+      },
+      {
+       "texto": "Mucho",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ESTATUS·PSIQUE",
+     "disparador": "≥66 → identidad ligada al consumo"
+    },
+    {
+     "id": "C6-4",
+     "faceta": "T2",
+     "tipo": "escala",
+     "texto": "¿La marca o el logo importa más que la función de lo que compras?",
+     "opciones": [
+      {
+       "texto": "No, prima la función",
+       "score": 0
+      },
+      {
+       "texto": "A veces",
+       "score": 33
+      },
+      {
+       "texto": "A menudo",
+       "score": 66
+      },
+      {
+       "texto": "Casi siempre",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ESTATUS·ego",
+     "disparador": "peso del símbolo sobre la utilidad"
+    },
+    {
+     "id": "C6-5",
+     "faceta": "T3",
+     "tipo": "escala",
+     "texto": "Si nadie lo supiera, ¿comprarías la versión de 100 € en vez de la de 500 €?",
+     "opciones": [
+      {
+       "texto": "Sí, sin duda",
+       "score": 0
+      },
+      {
+       "texto": "Probablemente",
+       "score": 33
+      },
+      {
+       "texto": "Lo dudaría",
+       "score": 66
+      },
+      {
+       "texto": "No, necesito la cara",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ESTATUS·autenticidad",
+     "disparador": "test de autenticidad puro"
+    },
+    {
+     "id": "C6-6",
+     "faceta": "T3",
+     "tipo": "escala",
+     "texto": "¿Cuánta distancia hay entre lo que «pareces» y lo que «eres» financieramente?",
+     "opciones": [
+      {
+       "texto": "Ninguna, coherente",
+       "score": 0
+      },
+      {
+       "texto": "Poca",
+       "score": 33
+      },
+      {
+       "texto": "Bastante",
+       "score": 66
+      },
+      {
+       "texto": "Mucha: aparento más de lo que soy",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ESTATUS·autenticidad",
+     "disparador": "brecha imagen-realidad"
+    },
+    {
+     "id": "C6-7",
+     "faceta": "T3",
+     "tipo": "escala",
+     "texto": "Si fueras anónimo, ¿cambiaría radicalmente lo que compras?",
+     "opciones": [
+      {
+       "texto": "Nada",
+       "score": 0
+      },
+      {
+       "texto": "Algo",
+       "score": 33
+      },
+      {
+       "texto": "Bastante",
+       "score": 66
+      },
+      {
+       "texto": "Por completo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ESTATUS",
+     "disparador": "dependencia de la mirada ajena"
+    },
+    {
+     "id": "C6-8",
+     "faceta": "T4",
+     "tipo": "escala",
+     "texto": "¿Sientes presión por mantener cierto «nivel» de marcas o vida?",
+     "opciones": [
+      {
+       "texto": "No",
+       "score": 0
+      },
+      {
+       "texto": "Leve",
+       "score": 33
+      },
+      {
+       "texto": "Bastante",
+       "score": 66
+      },
+      {
+       "texto": "Constante",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ESTATUS·PSIQUE",
+     "disparador": "presión de mantenimiento"
+    },
+    {
+     "id": "C6-9",
+     "faceta": "T4",
+     "tipo": "escala",
+     "texto": "¿Te avergüenza usar versiones baratas en público?",
+     "opciones": [
+      {
+       "texto": "No",
+       "score": 0
+      },
+      {
+       "texto": "Un poco",
+       "score": 33
+      },
+      {
+       "texto": "Bastante",
+       "score": 66
+      },
+      {
+       "texto": "Mucho, lo evito",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ESTATUS",
+     "disparador": "vergüenza de clase"
+    },
+    {
+     "id": "C6-10",
+     "faceta": "T4",
+     "tipo": "escala",
+     "texto": "¿Has comprado algo caro específicamente para «encajar» en un círculo?",
+     "opciones": [
+      {
+       "texto": "Nunca",
+       "score": 0
+      },
+      {
+       "texto": "Alguna vez",
+       "score": 33
+      },
+      {
+       "texto": "Varias",
+       "score": 66
+      },
+      {
+       "texto": "Es habitual",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ESTATUS·VINCULO",
+     "disparador": "gasto por pertenencia"
+    },
+    {
+     "id": "C6-11",
+     "faceta": "T4",
+     "tipo": "escala",
+     "texto": "¿Maquillas el precio de lo que tienes cuando te preguntan?",
+     "opciones": [
+      {
+       "texto": "No",
+       "score": 0
+      },
+      {
+       "texto": "Rara vez",
+       "score": 33
+      },
+      {
+       "texto": "A veces",
+       "score": 66
+      },
+      {
+       "texto": "Con frecuencia",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ESTATUS·autenticidad",
+     "disparador": "señal de incoherencia"
+    },
+    {
+     "id": "C6-12",
+     "faceta": "T2",
+     "tipo": "escala",
+     "texto": "¿Tu gasto de estatus es inversión consciente o compulsión de inseguridad?",
+     "opciones": [
+      {
+       "texto": "Inversión consciente y proporcional",
+       "score": 0
+      },
+      {
+       "texto": "Mayormente consciente",
+       "score": 33
+      },
+      {
+       "texto": "Mezcla con impulso",
+       "score": 66
+      },
+      {
+       "texto": "Compulsión que no controlo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ESTATUS·autoreflexión",
+     "disparador": "≥66 → trabajar la raíz, no el síntoma"
+    }
+   ]
+  },
+  {
+   "code": "C7",
+   "orden": 7,
+   "nombre": "Concentración de Riesgo de Ingresos (HHI)",
+   "dimension_primaria": "CONCENTRACION",
+   "facetas": {
+    "H1": "Dependencia · cuántas fuentes y de qué peso",
+    "H2": "Seguridad · estabilidad del empleo y sector",
+    "H3": "Empleabilidad · transferencia de tus skills",
+    "H4": "Alternativas · ingresos pasivos y plan",
+    "H5": "Atrapamiento · qué te ata a la fuente actual"
+   },
+   "bandas": [
+    {
+     "min": 0,
+     "max": 25,
+     "etiqueta": "Ingresos diversificados"
+    },
+    {
+     "min": 26,
+     "max": 50,
+     "etiqueta": "Dependencia moderada"
+    },
+    {
+     "min": 51,
+     "max": 75,
+     "etiqueta": "Alta concentración"
+    },
+    {
+     "min": 76,
+     "max": 100,
+     "etiqueta": "Riesgo de fuente única"
+    }
+   ],
+   "metricas_calculadas": [
+    "Índice de concentración (HHI) ≈ peso de la fuente principal sobre el total",
+    "Meses de cobertura con ingresos NO principales"
+   ],
+   "items": [
+    {
+     "id": "C7-1",
+     "faceta": "H1",
+     "tipo": "escala",
+     "texto": "¿Qué porcentaje de tus ingresos proviene de una sola fuente?",
+     "opciones": [
+      {
+       "texto": "Menos del 50%",
+       "score": 0
+      },
+      {
+       "texto": "50–75%",
+       "score": 33
+      },
+      {
+       "texto": "75–95%",
+       "score": 66
+      },
+      {
+       "texto": "Casi el 100%",
+       "score": 100
+      }
+     ],
+     "dimensiones": "CONCENTRACION",
+     "disparador": "núcleo del HHI"
+    },
+    {
+     "id": "C7-2",
+     "faceta": "H1",
+     "tipo": "escala",
+     "texto": "¿Cuántas fuentes de ingreso regulares tienes?",
+     "opciones": [
+      {
+       "texto": "3 o más",
+       "score": 0
+      },
+      {
+       "texto": "2",
+       "score": 33
+      },
+      {
+       "texto": "1 con algún extra",
+       "score": 66
+      },
+      {
+       "texto": "Solo una",
+       "score": 100
+      }
+     ],
+     "dimensiones": "CONCENTRACION",
+     "disparador": "diversificación de fuentes"
+    },
+    {
+     "id": "C7-3",
+     "faceta": "H2",
+     "tipo": "escala",
+     "texto": "¿Cómo de seguro es tu empleo o tu fuente principal?",
+     "opciones": [
+      {
+       "texto": "Muy estable",
+       "score": 0
+      },
+      {
+       "texto": "Razonablemente",
+       "score": 33
+      },
+      {
+       "texto": "Incierto",
+       "score": 66
+      },
+      {
+       "texto": "Frágil / en riesgo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "CONCENTRACION·estabilidad",
+     "disparador": "riesgo de la fuente"
+    },
+    {
+     "id": "C7-4",
+     "faceta": "H2",
+     "tipo": "escala",
+     "texto": "¿Tu sector es cíclico o vulnerable a la automatización?",
+     "opciones": [
+      {
+       "texto": "Resistente y en crecimiento",
+       "score": 0
+      },
+      {
+       "texto": "Estable",
+       "score": 33
+      },
+      {
+       "texto": "Algo expuesto",
+       "score": 66
+      },
+      {
+       "texto": "Muy expuesto",
+       "score": 100
+      }
+     ],
+     "dimensiones": "CONCENTRACION",
+     "disparador": "riesgo estructural del sector"
+    },
+    {
+     "id": "C7-5",
+     "faceta": "H3",
+     "tipo": "escala",
+     "texto": "Si tuvieras que conseguir ingresos equivalentes, ¿cuánto tardarías?",
+     "opciones": [
+      {
+       "texto": "Semanas",
+       "score": 0
+      },
+      {
+       "texto": "1–3 meses",
+       "score": 33
+      },
+      {
+       "texto": "3–6 meses",
+       "score": 66
+      },
+      {
+       "texto": "Más de 6 / no sabría",
+       "score": 100
+      }
+     ],
+     "dimensiones": "CONCENTRACION·empleabilidad",
+     "disparador": "cruza con Stress-test"
+    },
+    {
+     "id": "C7-6",
+     "faceta": "H3",
+     "tipo": "escala",
+     "texto": "¿Tus habilidades son transferibles fuera de tu empleo o sector actual?",
+     "opciones": [
+      {
+       "texto": "Muy transferibles",
+       "score": 0
+      },
+      {
+       "texto": "Bastante",
+       "score": 33
+      },
+      {
+       "texto": "Poco",
+       "score": 66
+      },
+      {
+       "texto": "Atadas a este puesto",
+       "score": 100
+      }
+     ],
+     "dimensiones": "CONCENTRACION",
+     "disparador": "portabilidad del talento"
+    },
+    {
+     "id": "C7-7",
+     "faceta": "H4",
+     "tipo": "escala",
+     "texto": "¿Qué parte de tus ingresos NO depende de tu tiempo (rentas, inversiones, negocio)?",
+     "opciones": [
+      {
+       "texto": "Una parte real",
+       "score": 0
+      },
+      {
+       "texto": "Algo",
+       "score": 33
+      },
+      {
+       "texto": "Casi nada",
+       "score": 66
+      },
+      {
+       "texto": "Nada",
+       "score": 100
+      }
+     ],
+     "dimensiones": "CONCENTRACION·LIBERTAD",
+     "disparador": "cruza con Libertad Financiera"
+    },
+    {
+     "id": "C7-8",
+     "faceta": "H4",
+     "tipo": "escala",
+     "texto": "¿Tienes un plan concreto para crear fuentes alternativas en 2 años?",
+     "opciones": [
+      {
+       "texto": "Sí, en marcha",
+       "score": 0
+      },
+      {
+       "texto": "Empezando",
+       "score": 33
+      },
+      {
+       "texto": "Solo una idea",
+       "score": 66
+      },
+      {
+       "texto": "Ninguno",
+       "score": 100
+      }
+     ],
+     "dimensiones": "CONCENTRACION",
+     "disparador": "≥66 → diseñar plan de diversificación"
+    },
+    {
+     "id": "C7-9",
+     "faceta": "H4",
+     "tipo": "escala",
+     "texto": "Si perdieras tu fuente principal, ¿cuántos meses cubrirías con OTROS ingresos?",
+     "opciones": [
+      {
+       "texto": "6 o más",
+       "score": 0
+      },
+      {
+       "texto": "3–5",
+       "score": 33
+      },
+      {
+       "texto": "1–2",
+       "score": 66
+      },
+      {
+       "texto": "Ninguno",
+       "score": 100
+      }
+     ],
+     "dimensiones": "CONCENTRACION·LIQUIDEZ",
+     "disparador": "colchón de ingresos alternativos"
+    },
+    {
+     "id": "C7-10",
+     "faceta": "H5",
+     "tipo": "escala",
+     "texto": "¿Hay factores que te mantienen atado a tu fuente actual (deuda, familia, cláusulas)?",
+     "opciones": [
+      {
+       "texto": "No, tengo libertad",
+       "score": 0
+      },
+      {
+       "texto": "Alguno menor",
+       "score": 33
+      },
+      {
+       "texto": "Varios",
+       "score": 66
+      },
+      {
+       "texto": "Estoy muy atado",
+       "score": 100
+      }
+     ],
+     "dimensiones": "CONCENTRACION·lock-in",
+     "disparador": "efectos de bloqueo"
+    },
+    {
+     "id": "C7-11",
+     "faceta": "H5",
+     "tipo": "escala",
+     "texto": "¿Negociarías mejor tus condiciones si tuvieras otra opción de ingreso real?",
+     "opciones": [
+      {
+       "texto": "Ya negocio desde la fuerza",
+       "score": 0
+      },
+      {
+       "texto": "Algo",
+       "score": 33
+      },
+      {
+       "texto": "Poco margen",
+       "score": 66
+      },
+      {
+       "texto": "Ninguno, dependo del todo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "CONCENTRACION",
+     "disparador": "poder de negociación"
+    },
+    {
+     "id": "C7-12",
+     "faceta": "H5",
+     "tipo": "escala",
+     "texto": "Del 1 al 10, ¿cómo de robusta y diversificada es tu estructura de ingresos?",
+     "opciones": [
+      {
+       "texto": "8–10",
+       "score": 0
+      },
+      {
+       "texto": "6–7",
+       "score": 33
+      },
+      {
+       "texto": "4–5",
+       "score": 66
+      },
+      {
+       "texto": "1–3",
+       "score": 100
+      }
+     ],
+     "dimensiones": "CONCENTRACION·metacognición",
+     "disparador": "autoevaluación"
+    }
+   ]
+  },
+  {
+   "code": "C8",
+   "orden": 8,
+   "nombre": "Score de Antifragilidad (Taleb)",
+   "dimension_primaria": "ANTIFRAGILIDAD",
+   "facetas": {
+    "A1": "Cobertura · qué sube cuando todo baja",
+    "A2": "Barbell · seguro + apuestas asimétricas",
+    "A3": "Opcionalidad · caminos abiertos",
+    "A4": "Mentalidad · caos como oportunidad",
+    "A5": "Reserva · liquidez para aprovechar"
+   },
+   "bandas": [
+    {
+     "min": 0,
+     "max": 25,
+     "etiqueta": "Antifrágil"
+    },
+    {
+     "min": 26,
+     "max": 50,
+     "etiqueta": "Robusto"
+    },
+    {
+     "min": 51,
+     "max": 75,
+     "etiqueta": "Frágil"
+    },
+    {
+     "min": 76,
+     "max": 100,
+     "etiqueta": "Muy frágil al shock"
+    }
+   ],
+   "metricas_calculadas": [
+    "% del patrimonio no correlacionado o que se beneficia de crisis",
+    "Capacidad de respuesta: liquidez disponible para oportunidades"
+   ],
+   "items": [
+    {
+     "id": "C8-1",
+     "faceta": "A1",
+     "tipo": "escala",
+     "texto": "Si llega una crisis, ¿parte de tu patrimonio SUBE de valor (oro, bonos, coberturas)?",
+     "opciones": [
+      {
+       "texto": "Sí, una parte cubre",
+       "score": 0
+      },
+      {
+       "texto": "Algo",
+       "score": 33
+      },
+      {
+       "texto": "Casi nada",
+       "score": 66
+      },
+      {
+       "texto": "Nada, todo cae junto",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ANTIFRAGILIDAD·convexidad",
+     "disparador": "cobertura ante shocks"
+    },
+    {
+     "id": "C8-2",
+     "faceta": "A1",
+     "tipo": "escala",
+     "texto": "¿Tu deuda principal es a tipo fijo (la inflación la abarata)?",
+     "opciones": [
+      {
+       "texto": "Sí, fijo",
+       "score": 0
+      },
+      {
+       "texto": "Mixta",
+       "score": 33
+      },
+      {
+       "texto": "Variable",
+       "score": 66
+      },
+      {
+       "texto": "Variable y alta",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ANTIFRAGILIDAD·DEUDA",
+     "disparador": "cruza con Capa Deuda"
+    },
+    {
+     "id": "C8-3",
+     "faceta": "A5",
+     "tipo": "escala",
+     "texto": "Si la bolsa cayera un 50%, ¿tendrías liquidez para COMPRAR activos baratos?",
+     "opciones": [
+      {
+       "texto": "Sí, pólvora seca lista",
+       "score": 0
+      },
+      {
+       "texto": "Algo",
+       "score": 33
+      },
+      {
+       "texto": "Muy poco",
+       "score": 66
+      },
+      {
+       "texto": "Nada, a la defensiva",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ANTIFRAGILIDAD·LIQUIDEZ",
+     "disparador": "capacidad de aprovechar la caída"
+    },
+    {
+     "id": "C8-4",
+     "faceta": "A5",
+     "tipo": "escala",
+     "texto": "¿Tienes planes B y redundancias en tu vida financiera?",
+     "opciones": [
+      {
+       "texto": "Sí, varios",
+       "score": 0
+      },
+      {
+       "texto": "Alguno",
+       "score": 33
+      },
+      {
+       "texto": "Pocos",
+       "score": 66
+      },
+      {
+       "texto": "Ninguno",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ANTIFRAGILIDAD·redundancia",
+     "disparador": "backups del sistema"
+    },
+    {
+     "id": "C8-5",
+     "faceta": "A2",
+     "tipo": "escala",
+     "texto": "¿Tienes una estrategia «barbell»: la mayoría seguro + pequeñas apuestas de alto potencial?",
+     "opciones": [
+      {
+       "texto": "Sí, deliberada",
+       "score": 0
+      },
+      {
+       "texto": "Parecido",
+       "score": 33
+      },
+      {
+       "texto": "Todo en medio, sin estrategia",
+       "score": 66
+      },
+      {
+       "texto": "Todo concentrado en un sitio",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ANTIFRAGILIDAD",
+     "disparador": "estructura de cartera"
+    },
+    {
+     "id": "C8-6",
+     "faceta": "A2",
+     "tipo": "escala",
+     "texto": "¿Tienes apuestas pequeñas con pérdida limitada y ganancia potencial grande (asimétricas)?",
+     "opciones": [
+      {
+       "texto": "Sí, varias",
+       "score": 0
+      },
+      {
+       "texto": "Alguna",
+       "score": 33
+      },
+      {
+       "texto": "No, pero me interesa",
+       "score": 66
+      },
+      {
+       "texto": "No, nada",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ANTIFRAGILIDAD·asimetría",
+     "disparador": "opcionalidad positiva"
+    },
+    {
+     "id": "C8-7",
+     "faceta": "A3",
+     "tipo": "escala",
+     "texto": "¿Tu vida financiera te deja varios caminos abiertos, o uno solo?",
+     "opciones": [
+      {
+       "texto": "Muchos caminos",
+       "score": 0
+      },
+      {
+       "texto": "Algunos",
+       "score": 33
+      },
+      {
+       "texto": "Pocos",
+       "score": 66
+      },
+      {
+       "texto": "Uno solo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ANTIFRAGILIDAD·opcionalidad",
+     "disparador": "grados de libertad"
+    },
+    {
+     "id": "C8-8",
+     "faceta": "A3",
+     "tipo": "escala",
+     "texto": "Si mañana apareciera una gran oportunidad, ¿podrías «saltar» (tiempo, dinero, libertad)?",
+     "opciones": [
+      {
+       "texto": "Sí, listo",
+       "score": 0
+      },
+      {
+       "texto": "Probablemente",
+       "score": 33
+      },
+      {
+       "texto": "Difícil",
+       "score": 66
+      },
+      {
+       "texto": "Imposible ahora",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ANTIFRAGILIDAD",
+     "disparador": "prontitud ante oportunidades"
+    },
+    {
+     "id": "C8-9",
+     "faceta": "A4",
+     "tipo": "escala",
+     "texto": "Ante el caos económico, ¿tu mentalidad es aprovecharlo o temerlo?",
+     "opciones": [
+      {
+       "texto": "Lo veo como oportunidad",
+       "score": 0
+      },
+      {
+       "texto": "Mezcla",
+       "score": 33
+      },
+      {
+       "texto": "Más bien temor",
+       "score": 66
+      },
+      {
+       "texto": "Me paraliza",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ANTIFRAGILIDAD·PSIQUE",
+     "disparador": "cruza con Burnout"
+    },
+    {
+     "id": "C8-10",
+     "faceta": "A4",
+     "tipo": "escala",
+     "texto": "¿Aprendes de los golpes y errores financieros, o tiendes a repetirlos?",
+     "opciones": [
+      {
+       "texto": "Aprendo y ajusto",
+       "score": 0
+      },
+      {
+       "texto": "Mayormente",
+       "score": 33
+      },
+      {
+       "texto": "A veces repito",
+       "score": 66
+      },
+      {
+       "texto": "Repito los mismos",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ANTIFRAGILIDAD·aprendizaje",
+     "disparador": "metaaprendizaje"
+    },
+    {
+     "id": "C8-11",
+     "faceta": "A1",
+     "tipo": "escala",
+     "texto": "¿Tus ingresos se mantienen o mejoran en una recesión?",
+     "opciones": [
+      {
+       "texto": "Mejoran / estables",
+       "score": 0
+      },
+      {
+       "texto": "Estables",
+       "score": 33
+      },
+      {
+       "texto": "Caen algo",
+       "score": 66
+      },
+      {
+       "texto": "Se desplomarían",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ANTIFRAGILIDAD·CONCENTRACION",
+     "disparador": "cruza con HHI"
+    },
+    {
+     "id": "C8-12",
+     "faceta": "A4",
+     "tipo": "escala",
+     "texto": "Del 1 al 10, ¿cómo de preparado estás para BENEFICIARTE de un shock inesperado?",
+     "opciones": [
+      {
+       "texto": "8–10",
+       "score": 0
+      },
+      {
+       "texto": "6–7",
+       "score": 33
+      },
+      {
+       "texto": "4–5",
+       "score": 66
+      },
+      {
+       "texto": "1–3",
+       "score": 100
+      }
+     ],
+     "dimensiones": "ANTIFRAGILIDAD·metacognición",
+     "disparador": "autoevaluación"
+    }
+   ]
+  },
+  {
+   "code": "C9",
+   "orden": 9,
+   "nombre": "Gestión de Flujo de Caja",
+   "dimension_primaria": "FLUJO_CAJA",
+   "facetas": {
+    "F1": "Visibilidad · sabes lo que entra y sale",
+    "F2": "Sistema · presupuesto, automatización, cuentas",
+    "F3": "Fugas · dinero que se escapa",
+    "F4": "Colchón · meses y compromiso por deuda",
+    "F5": "Excedente · qué haces con el sobrante"
+   },
+   "bandas": [
+    {
+     "min": 0,
+     "max": 25,
+     "etiqueta": "Flujo bajo control"
+    },
+    {
+     "min": 26,
+     "max": 50,
+     "etiqueta": "Control parcial"
+    },
+    {
+     "min": 51,
+     "max": 75,
+     "etiqueta": "Flujo a la deriva"
+    },
+    {
+     "min": 76,
+     "max": 100,
+     "etiqueta": "Sin control de caja"
+    }
+   ],
+   "metricas_calculadas": [
+    "Tasa de ahorro = excedente / ingreso",
+    "Meses de caja disponibles",
+    "% del flujo comprometido por deuda"
+   ],
+   "items": [
+    {
+     "id": "C9-1",
+     "faceta": "F1",
+     "tipo": "escala",
+     "texto": "¿Puedes desglosar tus gastos mensuales (fijos y variables) sin dudar?",
+     "opciones": [
+      {
+       "texto": "Sí, con detalle",
+       "score": 0
+      },
+      {
+       "texto": "A grandes rasgos",
+       "score": 33
+      },
+      {
+       "texto": "Con dificultad",
+       "score": 66
+      },
+      {
+       "texto": "No",
+       "score": 100
+      }
+     ],
+     "dimensiones": "FLUJO_CAJA·visibilidad",
+     "disparador": "≥66 → radiografía de gasto"
+    },
+    {
+     "id": "C9-2",
+     "faceta": "F3",
+     "tipo": "escala",
+     "texto": "¿Cuánto dinero «desaparece» cada mes sin saber a dónde fue?",
+     "opciones": [
+      {
+       "texto": "Casi nada, lo controlo",
+       "score": 0
+      },
+      {
+       "texto": "Poco",
+       "score": 33
+      },
+      {
+       "texto": "Bastante",
+       "score": 66
+      },
+      {
+       "texto": "No tengo ni idea",
+       "score": 100
+      }
+     ],
+     "dimensiones": "FLUJO_CAJA·fugas",
+     "disparador": "fugas no rastreadas"
+    },
+    {
+     "id": "C9-3",
+     "faceta": "F1",
+     "tipo": "escala",
+     "texto": "¿Puedes prever con precisión tu flujo a 3 meses?",
+     "opciones": [
+      {
+       "texto": "Sí",
+       "score": 0
+      },
+      {
+       "texto": "Aproximado",
+       "score": 33
+      },
+      {
+       "texto": "Difícil",
+       "score": 66
+      },
+      {
+       "texto": "Imposible",
+       "score": 100
+      }
+     ],
+     "dimensiones": "FLUJO_CAJA",
+     "disparador": "horizonte de previsión"
+    },
+    {
+     "id": "C9-4",
+     "faceta": "F2",
+     "tipo": "escala",
+     "texto": "¿Tienes un presupuesto mensual real y vigente (no teórico)?",
+     "opciones": [
+      {
+       "texto": "Sí, lo sigo",
+       "score": 0
+      },
+      {
+       "texto": "Lo sigo a medias",
+       "score": 33
+      },
+      {
+       "texto": "Empecé y lo dejé",
+       "score": 66
+      },
+      {
+       "texto": "Ninguno",
+       "score": 100
+      }
+     ],
+     "dimensiones": "FLUJO_CAJA·sistema",
+     "disparador": "existencia de sistema"
+    },
+    {
+     "id": "C9-5",
+     "faceta": "F2",
+     "tipo": "escala",
+     "texto": "¿Tu ahorro es automático o «cuando puedo»?",
+     "opciones": [
+      {
+       "texto": "Automático al cobrar",
+       "score": 0
+      },
+      {
+       "texto": "Casi siempre",
+       "score": 33
+      },
+      {
+       "texto": "Cuando sobra",
+       "score": 66
+      },
+      {
+       "texto": "No ahorro de forma sistemática",
+       "score": 100
+      }
+     ],
+     "dimensiones": "FLUJO_CAJA",
+     "disparador": "págate a ti primero"
+    },
+    {
+     "id": "C9-6",
+     "faceta": "F2",
+     "tipo": "escala",
+     "texto": "¿Tienes tus cuentas separadas por función (operativa, contingencia, inversión)?",
+     "opciones": [
+      {
+       "texto": "Sí, separadas",
+       "score": 0
+      },
+      {
+       "texto": "Dos de ellas",
+       "score": 33
+      },
+      {
+       "texto": "Todo junto, con intención",
+       "score": 66
+      },
+      {
+       "texto": "Todo en una cuenta",
+       "score": 100
+      }
+     ],
+     "dimensiones": "FLUJO_CAJA·organización",
+     "disparador": "arquitectura de cuentas"
+    },
+    {
+     "id": "C9-7",
+     "faceta": "F3",
+     "tipo": "escala",
+     "texto": "¿Tienes suscripciones o servicios «fantasma» que pagas sin usar?",
+     "opciones": [
+      {
+       "texto": "Ninguna",
+       "score": 0
+      },
+      {
+       "texto": "Una o dos",
+       "score": 33
+      },
+      {
+       "texto": "Varias",
+       "score": 66
+      },
+      {
+       "texto": "No lo sé",
+       "score": 100
+      }
+     ],
+     "dimensiones": "FLUJO_CAJA·fugas",
+     "disparador": "recuperación inmediata de dinero"
+    },
+    {
+     "id": "C9-8",
+     "faceta": "F4",
+     "tipo": "escala",
+     "texto": "¿Cuántos meses de gastos tienes en efectivo o equivalente?",
+     "opciones": [
+      {
+       "texto": "6 o más",
+       "score": 0
+      },
+      {
+       "texto": "3–5",
+       "score": 33
+      },
+      {
+       "texto": "1–2",
+       "score": 66
+      },
+      {
+       "texto": "Menos de 1",
+       "score": 100
+      }
+     ],
+     "dimensiones": "FLUJO_CAJA·LIQUIDEZ",
+     "disparador": "cruza con Resiliencia"
+    },
+    {
+     "id": "C9-9",
+     "faceta": "F4",
+     "tipo": "escala",
+     "texto": "¿Qué porcentaje de tu flujo mensual está comprometido por pagos de deuda?",
+     "opciones": [
+      {
+       "texto": "Menos del 15%",
+       "score": 0
+      },
+      {
+       "texto": "15–30%",
+       "score": 33
+      },
+      {
+       "texto": "30–45%",
+       "score": 66
+      },
+      {
+       "texto": "Más del 45%",
+       "score": 100
+      }
+     ],
+     "dimensiones": "FLUJO_CAJA·DEUDA",
+     "disparador": "cruza con Capa Deuda"
+    },
+    {
+     "id": "C9-10",
+     "faceta": "F4",
+     "tipo": "escala",
+     "texto": "¿Apartas algo para gastos irregulares anuales (impuestos, seguros, imprevistos)?",
+     "opciones": [
+      {
+       "texto": "Sí, sistemáticamente",
+       "score": 0
+      },
+      {
+       "texto": "A veces",
+       "score": 33
+      },
+      {
+       "texto": "Rara vez",
+       "score": 66
+      },
+      {
+       "texto": "Nunca, me pillan",
+       "score": 100
+      }
+     ],
+     "dimensiones": "FLUJO_CAJA",
+     "disparador": "previsión de gasto irregular"
+    },
+    {
+     "id": "C9-11",
+     "faceta": "F5",
+     "tipo": "escala",
+     "texto": "¿Qué haces con el excedente de flujo a fin de mes?",
+     "opciones": [
+      {
+       "texto": "Lo invierto/asigno con plan",
+       "score": 0
+      },
+      {
+       "texto": "Lo ahorro sin plan",
+       "score": 33
+      },
+      {
+       "texto": "Se queda parado",
+       "score": 66
+      },
+      {
+       "texto": "No suele haber excedente",
+       "score": 100
+      }
+     ],
+     "dimensiones": "FLUJO_CAJA·excedente",
+     "disparador": "productividad del sobrante"
+    },
+    {
+     "id": "C9-12",
+     "faceta": "F5",
+     "tipo": "escala",
+     "texto": "¿Has logrado reducir un gasto recurrente en los últimos 6 meses?",
+     "opciones": [
+      {
+       "texto": "Sí, varios",
+       "score": 0
+      },
+      {
+       "texto": "Uno",
+       "score": 33
+      },
+      {
+       "texto": "Lo intenté sin éxito",
+       "score": 66
+      },
+      {
+       "texto": "No me lo planteé",
+       "score": 100
+      }
+     ],
+     "dimensiones": "FLUJO_CAJA",
+     "disparador": "músculo de optimización"
+    },
+    {
+     "id": "C9-13",
+     "faceta": "F1",
+     "tipo": "escala",
+     "texto": "Del 1 al 10, ¿cómo de bajo control sientes tu flujo de caja?",
+     "opciones": [
+      {
+       "texto": "8–10",
+       "score": 0
+      },
+      {
+       "texto": "6–7",
+       "score": 33
+      },
+      {
+       "texto": "4–5",
+       "score": 66
+      },
+      {
+       "texto": "1–3",
+       "score": 100
+      }
+     ],
+     "dimensiones": "FLUJO_CAJA·metacognición",
+     "disparador": "autoevaluación"
+    }
+   ]
+  },
+  {
+   "code": "C10",
+   "orden": 10,
+   "nombre": "Resiliencia y Deuda",
+   "dimension_primaria": "DEUDA",
+   "facetas": {
+    "D1": "Carga · cuánta deuda y su peso",
+    "D2": "Calidad · toxicidad y tipo de interés",
+    "D3": "Sensibilidad · resistencia a subidas de tipos",
+    "D4": "Maniobra · acceso a crédito y refinanciación",
+    "D5": "Vínculo · transparencia y deuda con allegados"
+   },
+   "bandas": [
+    {
+     "min": 0,
+     "max": 25,
+     "etiqueta": "Deuda sana"
+    },
+    {
+     "min": 26,
+     "max": 50,
+     "etiqueta": "Bajo control"
+    },
+    {
+     "min": 51,
+     "max": 75,
+     "etiqueta": "Deuda tensionada"
+    },
+    {
+     "min": 76,
+     "max": 100,
+     "etiqueta": "Sobreendeudamiento"
+    }
+   ],
+   "metricas_calculadas": [
+    "Ratio deuda/patrimonio neto",
+    "% del ingreso a servicio de la deuda",
+    "Resistencia: ¿se sostiene la deuda con −30% de ingresos?"
+   ],
+   "items": [
+    {
+     "id": "C10-1",
+     "faceta": "D1",
+     "tipo": "escala",
+     "texto": "¿Cuál es tu nivel de deuda frente a tu patrimonio neto?",
+     "opciones": [
+      {
+       "texto": "Sin deuda o muy baja",
+       "score": 0
+      },
+      {
+       "texto": "Manejable",
+       "score": 33
+      },
+      {
+       "texto": "Alta",
+       "score": 66
+      },
+      {
+       "texto": "La deuda supera mi patrimonio",
+       "score": 100
+      }
+     ],
+     "dimensiones": "DEUDA·carga",
+     "disparador": "ratio deuda/patrimonio"
+    },
+    {
+     "id": "C10-2",
+     "faceta": "D1",
+     "tipo": "escala",
+     "texto": "¿Qué parte de tus ingresos se va en pago de deuda (cuotas)?",
+     "opciones": [
+      {
+       "texto": "Menos del 15%",
+       "score": 0
+      },
+      {
+       "texto": "15–30%",
+       "score": 33
+      },
+      {
+       "texto": "30–45%",
+       "score": 66
+      },
+      {
+       "texto": "Más del 45%",
+       "score": 100
+      }
+     ],
+     "dimensiones": "DEUDA",
+     "disparador": "servicio de la deuda"
+    },
+    {
+     "id": "C10-3",
+     "faceta": "D2",
+     "tipo": "escala",
+     "texto": "¿Tienes deuda de alto interés (tarjetas revolving, microcréditos)?",
+     "opciones": [
+      {
+       "texto": "No",
+       "score": 0
+      },
+      {
+       "texto": "Algo, bajo control",
+       "score": 33
+      },
+      {
+       "texto": "Bastante",
+       "score": 66
+      },
+      {
+       "texto": "Sí, y crece",
+       "score": 100
+      }
+     ],
+     "dimensiones": "DEUDA·toxicidad",
+     "disparador": "≥66 → prioridad: matar deuda cara"
+    },
+    {
+     "id": "C10-4",
+     "faceta": "D2",
+     "tipo": "escala",
+     "texto": "¿Tu deuda principal (hipoteca) es a tipo fijo o variable?",
+     "opciones": [
+      {
+       "texto": "Fijo",
+       "score": 0
+      },
+      {
+       "texto": "Mixto",
+       "score": 33
+      },
+      {
+       "texto": "Variable con margen",
+       "score": 66
+      },
+      {
+       "texto": "Variable y ajustada",
+       "score": 100
+      }
+     ],
+     "dimensiones": "DEUDA·ANTIFRAGILIDAD",
+     "disparador": "cruza con Antifragilidad"
+    },
+    {
+     "id": "C10-5",
+     "faceta": "D3",
+     "tipo": "escala",
+     "texto": "Si los tipos subieran un 2%, ¿qué impacto tendría en ti?",
+     "opciones": [
+      {
+       "texto": "Mínimo, lo absorbo",
+       "score": 0
+      },
+      {
+       "texto": "Notable pero manejable",
+       "score": 33
+      },
+      {
+       "texto": "Doloroso",
+       "score": 66
+      },
+      {
+       "texto": "Insostenible",
+       "score": 100
+      }
+     ],
+     "dimensiones": "DEUDA·sensibilidad",
+     "disparador": "stress de tipos"
+    },
+    {
+     "id": "C10-6",
+     "faceta": "D3",
+     "tipo": "escala",
+     "texto": "¿Podrías refinanciar o reestructurar tu deuda si lo necesitaras?",
+     "opciones": [
+      {
+       "texto": "Sí, con margen",
+       "score": 0
+      },
+      {
+       "texto": "Probablemente",
+       "score": 33
+      },
+      {
+       "texto": "Difícil",
+       "score": 66
+      },
+      {
+       "texto": "No",
+       "score": 100
+      }
+     ],
+     "dimensiones": "DEUDA",
+     "disparador": "flexibilidad de la deuda"
+    },
+    {
+     "id": "C10-7",
+     "faceta": "D4",
+     "tipo": "escala",
+     "texto": "¿Tienes acceso a crédito disponible (no usado) para una emergencia?",
+     "opciones": [
+      {
+       "texto": "Sí, suficiente",
+       "score": 0
+      },
+      {
+       "texto": "Algo",
+       "score": 33
+      },
+      {
+       "texto": "Muy poco",
+       "score": 66
+      },
+      {
+       "texto": "Ninguno",
+       "score": 100
+      }
+     ],
+     "dimensiones": "DEUDA·LIQUIDEZ",
+     "disparador": "línea de defensa"
+    },
+    {
+     "id": "C10-8",
+     "faceta": "D4",
+     "tipo": "escala",
+     "texto": "Si te lo propusieras, ¿en cuánto tiempo quedarías libre de deuda mala?",
+     "opciones": [
+      {
+       "texto": "Ya lo estoy / menos de 1 año",
+       "score": 0
+      },
+      {
+       "texto": "1–3 años",
+       "score": 33
+      },
+      {
+       "texto": "3–5 años",
+       "score": 66
+      },
+      {
+       "texto": "No veo cómo",
+       "score": 100
+      }
+     ],
+     "dimensiones": "DEUDA",
+     "disparador": "horizonte de desapalancamiento"
+    },
+    {
+     "id": "C10-9",
+     "faceta": "D5",
+     "tipo": "escala",
+     "texto": "¿Tu deuda es transparente con tu pareja/familia?",
+     "opciones": [
+      {
+       "texto": "Totalmente",
+       "score": 0
+      },
+      {
+       "texto": "En su mayoría",
+       "score": 33
+      },
+      {
+       "texto": "Solo en parte",
+       "score": 66
+      },
+      {
+       "texto": "La oculto",
+       "score": 100
+      }
+     ],
+     "dimensiones": "DEUDA·VINCULO",
+     "disparador": "clave para informe de pareja"
+    },
+    {
+     "id": "C10-10",
+     "faceta": "D5",
+     "tipo": "escala",
+     "texto": "¿Tienes deudas con familiares o amigos que tensan la relación?",
+     "opciones": [
+      {
+       "texto": "No",
+       "score": 0
+      },
+      {
+       "texto": "Alguna, sin tensión",
+       "score": 33
+      },
+      {
+       "texto": "Sí, con cierta tensión",
+       "score": 66
+      },
+      {
+       "texto": "Sí, fuente de conflicto",
+       "score": 100
+      }
+     ],
+     "dimensiones": "DEUDA·VINCULO",
+     "disparador": "deuda relacional"
+    },
+    {
+     "id": "C10-11",
+     "faceta": "D3",
+     "tipo": "escala",
+     "texto": "Si tus ingresos cayeran un 30%, ¿podrías seguir pagando tu deuda?",
+     "opciones": [
+      {
+       "texto": "Sí, con holgura",
+       "score": 0
+      },
+      {
+       "texto": "Sí, ajustando",
+       "score": 33
+      },
+      {
+       "texto": "Solo un tiempo",
+       "score": 66
+      },
+      {
+       "texto": "No, entraría en mora",
+       "score": 100
+      }
+     ],
+     "dimensiones": "DEUDA·RESILIENCIA",
+     "disparador": "resiliencia de la deuda"
+    },
+    {
+     "id": "C10-12",
+     "faceta": "D1",
+     "tipo": "escala",
+     "texto": "¿Tienes un plan claro y con fecha para reducir o eliminar tu deuda?",
+     "opciones": [
+      {
+       "texto": "Sí, con fecha",
+       "score": 0
+      },
+      {
+       "texto": "Una idea",
+       "score": 33
+      },
+      {
+       "texto": "Vagamente",
+       "score": 66
+      },
+      {
+       "texto": "Ninguno",
+       "score": 100
+      }
+     ],
+     "dimensiones": "DEUDA",
+     "disparador": "plan de salida"
+    },
+    {
+     "id": "C10-13",
+     "faceta": "D2",
+     "tipo": "escala",
+     "texto": "Del 1 al 10, ¿cómo de sana y bajo control está tu deuda?",
+     "opciones": [
+      {
+       "texto": "8–10",
+       "score": 0
+      },
+      {
+       "texto": "6–7",
+       "score": 33
+      },
+      {
+       "texto": "4–5",
+       "score": 66
+      },
+      {
+       "texto": "1–3",
+       "score": 100
+      }
+     ],
+     "dimensiones": "DEUDA·metacognición",
+     "disparador": "autoevaluación"
+    }
+   ]
+  }
+ ],
+ "arquetipo": [
+  {
+   "id": "ARQ-1",
+   "tipo": "arquetipo",
+   "faceta": "ARQ",
+   "texto": "Os caen 50.000 € inesperados. ¿Qué es lo PRIMERO que harías, casi sin pensarlo?",
+   "opciones": [
+    {
+     "texto": "Asegurar el colchón: ahorrarlo o quitar deuda",
+     "arq": "SEG"
+    },
+    {
+     "texto": "Invertirlo para que crezca con el tiempo",
+     "arq": "MUL"
+    },
+    {
+     "texto": "Mejorar mi vida ahora: casa, coche, viajes",
+     "arq": "EST"
+    },
+    {
+     "texto": "Comprar tiempo y libertad: trabajar menos, decidir más",
+     "arq": "LIB"
+    }
+   ]
+  },
+  {
+   "id": "ARQ-2",
+   "tipo": "arquetipo",
+   "faceta": "ARQ",
+   "texto": "Para ti, el dinero significa sobre todo…",
+   "opciones": [
+    {
+     "texto": "Seguridad y tranquilidad ante lo que pueda venir",
+     "arq": "SEG"
+    },
+    {
+     "texto": "Libertad para decidir cómo vivo mi vida",
+     "arq": "LIB"
+    },
+    {
+     "texto": "Poder disfrutar y darme buena vida",
+     "arq": "EST"
+    },
+    {
+     "texto": "Una herramienta para construir y multiplicar",
+     "arq": "MUL"
+    }
+   ]
+  },
+  {
+   "id": "ARQ-3",
+   "tipo": "arquetipo",
+   "faceta": "ARQ",
+   "texto": "Cuando piensas en asumir riesgo (invertir, emprender, endeudarte para crecer)…",
+   "opciones": [
+    {
+     "texto": "Me genera inquietud; prefiero lo seguro",
+     "arq": "SEG"
+    },
+    {
+     "texto": "Lo veo como una palanca natural para crecer",
+     "arq": "MUL"
+    },
+    {
+     "texto": "Lo asumo si mejora mi nivel de vida",
+     "arq": "EST"
+    },
+    {
+     "texto": "Lo asumo si me compra autonomía y libertad",
+     "arq": "LIB"
+    }
+   ]
+  }
+ ]
 }

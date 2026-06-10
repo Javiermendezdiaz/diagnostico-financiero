@@ -56,9 +56,16 @@ def adaptar_item(it):
         base["tipo"] = "numerica"; base["unidad"] = it.get("unidad", "")
     return base
 
+def adaptar_arq(it):
+    return {"id": it["id"], "pregunta": it["texto"], "bloque": "Tu arquetipo del dinero",
+            "tipo": "opcion_multiple", "opciones": [o["texto"] for o in it["opciones"]]}
+
 def items_para_tier(tier):
     out = [adaptar_item(it) for capa in rb.INST["capas"] for it in capa["items"]]
-    return out[:TIER_LIMIT.get(tier, 1000)]
+    out = out[:TIER_LIMIT.get(tier, 1000)]
+    if tier in (2, 3):
+        out += [adaptar_arq(it) for it in rb.INST.get("arquetipo", [])]
+    return out
 
 def datos_completos(d):
     d = dict(d or {})
@@ -82,7 +89,7 @@ def generar_couple(out, arow, brow):
 @app.get("/")
 def health():
     return {"status": "healthy", "service": "ITAP", "capas": len(rb.INST["capas"]),
-            "version": rb.INST["meta"]["version"], "persistencia": "sqlite", "pareja": True, "rgpd": True, "nombre": True}
+            "version": rb.INST["meta"]["version"], "persistencia": "sqlite", "pareja": True, "rgpd": True, "nombre": True, "arquetipo": True}
 
 @app.get("/api/questions/{tier}")
 def questions(tier: int):

@@ -290,10 +290,64 @@ def coherencia(salud, fi, datos):
                 "el trabajo que todav\u00eda tienes por delante.")
     return None
 
+# ---------- Arquetipo del dinero ----------
+ARQ_META = {
+ "SEG": {"nombre": "El Guardi\u00e1n", "lema": "El dinero es protecci\u00f3n.",
+         "color": "#1D6F42",
+         "desc": "Para ti el dinero es, antes que nada, un escudo. Priorizas el col"
+                 "ch\u00f3n, te incomoda el riesgo y duermes mejor sabiendo que hay margen. "
+                 "Tu fortaleza es la prudencia; tu punto ciego, dejar dinero parado por miedo "
+                 "a moverlo.",
+         "luz": "Aportas estabilidad y red de seguridad a cualquier decisi\u00f3n.",
+         "sombra": "Puedes confundir prudencia con par\u00e1lisis y perder oportunidades por exceso de cautela."},
+ "LIB": {"nombre": "El Explorador", "lema": "El dinero es libertad.",
+         "color": "#0284C7",
+         "desc": "El dinero, para ti, compra lo \u00fanico que no se recupera: tiempo y opciones. "
+                 "Lo quieres para decidir c\u00f3mo vives, no para acumular. Tu fortaleza es la "
+                 "claridad de prop\u00f3sito; tu punto ciego, infravalorar la seguridad que hace "
+                 "posible esa libertad.",
+         "luz": "Mantienes el foco en lo que de verdad importa: vivir a tu manera.",
+         "sombra": "Puedes despreciar la planificaci\u00f3n y quedarte sin la base que sostiene la libertad."},
+ "EST": {"nombre": "El Vividor", "lema": "El dinero es para vivir bien.",
+         "color": "#B45309",
+         "desc": "Crees que el dinero existe para disfrutarse, y vives el presente sin culpa. "
+                 "Tu fortaleza es saber gozar lo ganado; tu punto ciego, que el nivel de vida "
+                 "tiende a comerse el futuro si nadie le pone freno.",
+         "luz": "Le das sentido y disfrute al dinero hoy, no s\u00f3lo en una hoja de c\u00e1lculo.",
+         "sombra": "El gasto de estilo de vida puede asfixiar el ahorro sin que lo notes."},
+ "MUL": {"nombre": "El Constructor", "lema": "El dinero es una herramienta.",
+         "color": "#7C3AED",
+         "desc": "Ves el dinero como materia prima para construir y multiplicar. Te sientes "
+                 "c\u00f3modo con el riesgo calculado y piensas en sistemas, no en sueldos. Tu "
+                 "fortaleza es la mentalidad de crecimiento; tu punto ciego, subestimar el coste "
+                 "emocional que el riesgo tiene para quien te rodea.",
+         "luz": "Conviertes recursos en m\u00e1s recursos: piensas a largo plazo.",
+         "sombra": "Puedes asumir m\u00e1s riesgo del que tu entorno tolera y generar tensi\u00f3n."},
+}
+_ARQ_FALLBACK = ["SEG","LIB","EST","MUL"]
+def arquetipo(resp):
+    """Devuelve (code, votos, secundario|None) a partir de las preguntas ARQ-*. Degradado seguro."""
+    votos={"SEG":0,"LIB":0,"EST":0,"MUL":0}
+    for it in INST.get("arquetipo",[]):
+        idx=resp.get(it["id"])
+        if idx is None: continue
+        try: a=it["opciones"][idx].get("arq")
+        except (IndexError,TypeError): a=None
+        if a in votos: votos[a]+=1
+    total=sum(votos.values())
+    if total==0:
+        return None,votos,None
+    orden=sorted(votos,key=lambda k:(-votos[k],_ARQ_FALLBACK.index(k)))
+    dom=orden[0]
+    sec=orden[1] if votos[orden[1]]>0 and votos[orden[1]]==votos[dom] else (orden[1] if votos[orden[1]]>=2 else None)
+    if sec==dom: sec=None
+    return dom,votos,sec
+
 def build(cli,resp,datos,out,depth="completo"):
     p,tr,salud=perfil(resp); fi=fi_metrics(datos); radar_png(p,"_radar.png")
     bi,bl=banda(CAPAS["C1"],salud); S=[]
     coh=coherencia(salud,fi,datos)
+    arq_code,_,_=arquetipo(resp)
     # cover
     S+=[Spacer(1,34*mm),
         Paragraph("TU LIBRO FINANCIERO",St("cv0",fontSize=12,textColor=GREY,fontName="Helvetica-Bold")),
@@ -332,6 +386,12 @@ def build(cli,resp,datos,out,depth="completo"):
                           f"mejor que el {pctil(salud):.0f}% de la cohorte de referencia</font>",body)]],
               colWidths=[42*mm,118*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),
         *([Spacer(1,4*mm),Paragraph(coh[0],h_sub),Paragraph(coh[1],St("coh",fontSize=10,leading=14,backColor=LIGHT,borderPadding=10,textColor=INK,spaceBefore=4,spaceAfter=4))] if coh else []),
+        *([Spacer(1,4*mm),
+           Paragraph(f"Tu arquetipo del dinero: {ARQ_META[arq_code]['nombre']}",h_sub),
+           Paragraph(f"<i>{ARQ_META[arq_code]['lema']}</i> {ARQ_META[arq_code]['desc']}",body),
+           Paragraph(f"<font color='#1D6F42'><b>Lo que te aporta:</b></font> {ARQ_META[arq_code]['luz']}  "
+                     f"<font color='#B91C1C'><b>Tu punto ciego:</b></font> {ARQ_META[arq_code]['sombra']}",
+                     St("aq",fontSize=9.2,leading=13,textColor=GREY,spaceAfter=4))] if arq_code else []),
         Spacer(1,2*mm),
         Paragraph("Cuanto más cerca del centro está cada capa en este mapa, más sana. La zona verde central es el "
                   "territorio saludable. Antes de entrar capítulo a capítulo, esta es tu silueta completa:",body),
