@@ -296,6 +296,54 @@ def seccion_arquetipos(rA,rB,nA,nB):
                     ("BOX",(0,0),(-1,-1),0.6,colors.HexColor("#E9C46A"))]))])]
     return out
 
+def laboratorio_pareja(rA,rB,pA,pB,nA,nB,dA,dB,hogar,divs):
+    out=[PageBreak(), Paragraph("Vuestro laboratorio de pareja",h_sec),
+         Paragraph("Lo que sigue no se lee, se hace. Son tres ejercicios para esta semana. Imprimid esta página, "
+                   "coged un boli y rellenadla juntos. Vale más quince minutos haciendo esto que releer todo el libro.",body)]
+    # Ej 1: Caja de autonomia
+    libre=max(hogar.get("ingreso_mensual",0)-hogar.get("gasto_mensual",0)-hogar.get("ahorro_mensual",0),0)
+    sug=int(round(max(libre*0.15,50)/10.0))*10
+    out+=[Paragraph("1 · La caja de autonomía",h_sub),
+          Paragraph("La mayoría de los conflictos de dinero en pareja no son por las cifras grandes, sino por sentirse "
+                    "fiscalizado en las pequeñas. La solución no es discutir cada gasto: es acordar una cantidad mensual "
+                    "para cada uno —su <b>caja de autonomía</b>— en la que el otro <b>no opina, no pregunta, no juzga</b>.",body),
+          rb._box([Paragraph(f"<b>Nuestro pacto:</b> cada mes, {nA} y {nB} dispondrán de una caja personal de "
+                f"<b>__________ €</b> cada uno (orientativo para vuestro excedente: unos {rb._eur(sug)}). "
+                f"Sobre ese dinero no se piden explicaciones. Firmamos:",St("p1",fontSize=10.5,leading=15)),
+                Spacer(1,7*mm),
+                Table([["Firma "+nA,"Firma "+nB]],colWidths=[78*mm,78*mm],
+                  style=TableStyle([("LINEABOVE",(0,0),(-1,0),0.6,colors.HexColor("#9CA3AF")),
+                    ("TEXTCOLOR",(0,0),(-1,0),colors.HexColor("#9CA3AF")),("FONTSIZE",(0,0),(-1,0),8),
+                    ("TOPPADDING",(0,0),(-1,0),3)]))],"#F4F7FA","#0284C7",ancho=158*mm),
+          Spacer(1,4*mm)]
+    # Ej 2: rol cruzado (solo si arquetipos distintos)
+    aA,_,_=rb.arquetipo(rA); aB,_,_=rb.arquetipo(rB)
+    if aA and aB and aA!=aB:
+        out+=[Paragraph("2 · Veinte minutos en la piel del otro",h_sub),
+              Paragraph(f"{nA} vive el dinero como <b>{rb.ARQ_META[aA]['nombre']}</b>; {nB}, como "
+                        f"<b>{rb.ARQ_META[aB]['nombre']}</b>. Este fin de semana, intercambiad los papeles durante veinte "
+                        f"minutos: {nA} defiende con todas sus fuerzas la postura de {nB}, y al revés. No vale usar tus "
+                        f"propios argumentos. El objetivo no es ganar: es sentir, aunque sea un rato, por qué el otro "
+                        f"decide como decide. Apuntad aquí qué descubristeis al poneros en su lugar:",body),
+              rb._lineas(2,ancho=158*mm),Spacer(1,4*mm)]
+        n3="3"
+    else:
+        n3="2"
+    # Ej 3: preparacion legal humana (si C5 debil en alguno)
+    if pA["C5"]["score"]>=50 or pB["C5"]["score"]>=50:
+        out+=[Paragraph(f"{n3} · La conversación que nadie quiere tener (y que más protege)",h_sub),
+              Paragraph("Vuestro blindaje legal tiene huecos. No hace falta ir al notario hoy, pero sí responder juntos "
+                        "a tres preguntas que, el día que hagan falta, lo cambian todo. Hacedlo con calma, como un acto "
+                        "de cuidado mutuo, no de miedo:",body),
+              Paragraph("&#8226; Si uno faltara, ¿el otro sabe dónde están las cuentas, claves y documentos clave?",small),
+              Paragraph("&#8226; ¿Tiene cada uno liquidez a su nombre para el primer mes, si una cuenta conjunta se bloqueara?",small),
+              Paragraph("&#8226; Sin testamento, ¿sabéis quién heredaría qué? ¿Es lo que querríais?",small),
+              rb._lineas(2,ancho=158*mm),
+              Paragraph("Si a más de una respondéis «no sé», vuestro paso de esta semana no es un presupuesto: es una "
+                        "llamada a la notaría. Apuntad aquí el día que la haréis: ______________.",small),
+              Spacer(1,4*mm)]
+    return out
+
 def build_couple(rA,dA,cliA,rB,dB,cliB,out):
     pA,trA,saludA=rb.perfil(rA); pB,trB,saludB=rb.perfil(rB)
     nA,nB=cliA["nombre"].split()[0], cliB["nombre"].split()[0]
@@ -317,6 +365,9 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
         Paragraph(f"Escrito para  <b>{cliA['nombre']}</b>  &amp;  <b>{cliB['nombre']}</b>",St("cn",fontSize=12)),
         Paragraph(cliA["fecha"],small),
         Spacer(1,3*mm), Paragraph("Edición de Pareja · Tier 3",St("ct",fontSize=9.5,textColor=colors.HexColor(A_COL),fontName="Helvetica-Bold")),
+        Spacer(1,16*mm),
+        Paragraph(f"DOCUMENTO CONFIDENCIAL · REF {rb.report_id(cliA['nombre']+cliB['nombre'],cliA['fecha'])} · USO PRIVADO",
+                  St("cr",fontSize=7.5,textColor=GREY,fontName="Helvetica")),
         PageBreak()]
     # apertura
     S+=[Paragraph("Antes de empezar",h_sec),
@@ -357,7 +408,12 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                ["A\u00f1os a la libertad","m\u00e1s de 100" if fi_h[3] is None else "%s a\u00f1os"%fi_h[3]]],
               colWidths=[105*mm,51*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
               ("FONTNAME",(1,0),(1,-1),"Helvetica-Bold"),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
-              ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)])),
+              ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)]))]
+    rb.cashflow_waterfall(hogar,"_cashH.png")
+    S+=[KeepTogether([Paragraph("Vuestro flujo de caja conjunto",h_sub),
+        Image("_cashH.png",width=158*mm,height=74*mm,hAlign="CENTER"),
+        Paragraph("De cada euro que entra en casa, esto es lo que se queda y lo que se va. Si la barra «sin asignar» "
+                  "es grande, no es libertad: es dinero esperando una decisión que aún no habéis tomado juntos.",small)]),
         PageBreak()]
     # mapa de divergencias por capa
     S+=[Paragraph("Dónde coincidís y dónde no",h_sec),
@@ -438,7 +494,12 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
     # guion de conversacion
     S+=[Paragraph("Vuestro guion de conversación",h_sec),
         Paragraph("Sentaos sin móviles, treinta minutos. Recorred estas preguntas por turnos: primero uno explica "
-                  "su «por qué», luego el otro, sin interrumpir. El objetivo no es ganar, es entender.",body)]
+                  "su «por qué», luego el otro, sin interrumpir. El objetivo no es ganar, es entender.",body),
+        rb._box([Paragraph("<b>Reglas de juego:</b> prohibidas las palabras «capricho», «controlar» y «ya lo veremos» "
+                "(cierran la conversación del otro). Turnos de tres minutos sin interrumpir. Si el tono sube, se cierra "
+                "el cuaderno y se retoma en 24 horas. No se decide nada con enfado.",St("rg",fontSize=9.8,leading=14))],
+                "#FEF9E7","#B45309",ancho=158*mm),
+        Spacer(1,3*mm)]
     base_qs=[]
     for d in divs[:4]:
         base_qs.append(f"Sobre «{d['texto']}» — {nA} respondió «{d['A']}» y {nB} «{d['B']}». "
@@ -450,6 +511,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                "¿Qué necesitáis del otro para sentir que vais en el mismo barco?"]
     for i,qq in enumerate(base_qs,1):
         S+=[Paragraph(f"<font color='{A_COL}'><b>{i}.</b></font>  {qq}",St("g",fontSize=10,leading=14,spaceAfter=8,leftIndent=2))]
+    S+=laboratorio_pareja(rA,rB,pA,pB,nA,nB,dA,dB,hogar,divs)
     S+=[Spacer(1,4*mm),
         Paragraph("Cómo seguir",h_sub),
         Paragraph("Repetid el diagnóstico por separado dentro de unos meses: veréis cómo vuestras distancias se "

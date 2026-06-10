@@ -343,6 +343,200 @@ def arquetipo(resp):
     if sec==dom: sec=None
     return dom,votos,sec
 
+# ---------- Cuadro financiero: graficos y modulos deterministas ----------
+def _eur(n):
+    try: return ("%s"%format(int(round(n)),",d")).replace(",",".")+" €"
+    except Exception: return "—"
+
+def cashflow_waterfall(datos, path):
+    ing=max(datos.get("ingreso_mensual",0),1); gas=datos.get("gasto_mensual",0); aho=datos.get("ahorro_mensual",0)
+    resto=max(ing-gas-aho,0); deficit=max(gas+aho-ing,0)
+    import matplotlib.pyplot as plt
+    fig,ax=plt.subplots(figsize=(6.4,3.0))
+    pasos=[("Ingreso",ing,"#0F766E",0)]
+    base=ing
+    base-=gas; pasos.append(("Gastos",-gas,"#B45309",base))
+    base-=aho; pasos.append(("Ahorro",-aho,"#1D6F42",base))
+    # barras
+    x=range(len(pasos)+1)
+    labels=["Ingreso","Gastos","Ahorro","Sin asignar"]
+    # ingreso
+    ax.bar(0,ing,color="#0F766E",width=0.6)
+    ax.bar(1,gas,bottom=ing-gas,color="#C2710C",width=0.6)
+    ax.bar(2,aho,bottom=ing-gas-aho,color="#1D6F42",width=0.6)
+    libre=ing-gas-aho
+    ax.bar(3,abs(libre),bottom=min(libre,0),color="#94A3B8" if libre>=0 else "#B91C1C",width=0.6)
+    for i,(lab,val) in enumerate(zip(labels,[ing,gas,aho,abs(libre)])):
+        ax.text(i,val if i==0 else 0,"",ha="center")
+    ax.set_xticks(range(4)); ax.set_xticklabels(labels,size=9,color="#374151")
+    ax.annotate(_eur(ing),(0,ing),ha="center",va="bottom",size=8.5,color="#0F766E",weight="bold")
+    ax.annotate(_eur(gas),(1,ing-gas/2),ha="center",va="center",size=8.5,color="white",weight="bold")
+    ax.annotate(_eur(aho),(2,ing-gas-aho/2),ha="center",va="center",size=8.5,color="white",weight="bold")
+    ax.annotate(_eur(abs(libre)),(3,abs(libre)),ha="center",va="bottom",size=8.5,
+                color="#475569" if libre>=0 else "#B91C1C",weight="bold")
+    ax.set_ylim(0,ing*1.15); ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_color("#D5DBE3"); ax.tick_params(axis="y",labelsize=7,colors="#9CA3AF")
+    ax.set_title("De cada euro que entra, a dónde va",size=10,color="#1F2937",weight="bold",pad=8)
+    plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
+    return libre
+
+def proyeccion_chart(datos, path, r=0.05):
+    edad=int(datos.get("edad",40)); meta_edad=65
+    anos=max(meta_edad-edad,1)
+    pat=datos.get("patrimonio",0); aho=datos.get("ahorro_mensual",0)*12
+    import matplotlib.pyplot as plt
+    xs=list(range(edad,meta_edad+1))
+    def proy(extra):
+        v=pat; out=[v]
+        for _ in range(anos):
+            v=v*(1+r)+aho+extra; out.append(v)
+        return out
+    base=proy(0); mejora=proy(0.05*datos.get("ingreso_mensual",0)*12)  # +5pp del ingreso anual
+    fig,ax=plt.subplots(figsize=(6.4,3.0))
+    ax.plot(xs,base,color="#0284C7",linewidth=2.2,label="Si sigues igual")
+    ax.plot(xs,mejora,color="#1D6F42",linewidth=2.2,linestyle="--",label="Si ahorras 5 puntos más")
+    ax.fill_between(xs,base,mejora,color="#1D6F42",alpha=0.08)
+    ax.scatter([meta_edad],[base[-1]],color="#0284C7",zorder=5)
+    ax.scatter([meta_edad],[mejora[-1]],color="#1D6F42",zorder=5)
+    ax.annotate(_eur(base[-1]),(meta_edad,base[-1]),ha="right",va="top",size=8,color="#0284C7",weight="bold")
+    ax.annotate(_eur(mejora[-1]),(meta_edad,mejora[-1]),ha="right",va="bottom",size=8,color="#1D6F42",weight="bold")
+    ax.set_xlabel("Edad",size=8,color="#6B7280"); ax.tick_params(labelsize=7,colors="#9CA3AF")
+    ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False); ax.spines["left"].set_color("#D5DBE3")
+    ax.spines["bottom"].set_color("#D5DBE3")
+    ax.legend(fontsize=8,frameon=False,loc="upper left")
+    ax.set_title("Tu patrimonio proyectado a los 65 (estimación al 5%/año)",size=10,color="#1F2937",weight="bold",pad=8)
+    plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
+    return base[-1],mejora[-1],meta_edad
+
+def tapon_coste(datos, real=0.025):
+    """Coste de oportunidad estimado de la liquidez parada por encima de un colchon de 6 meses."""
+    gas=datos.get("gasto_mensual",0); pat=datos.get("patrimonio",0)
+    colchon=gas*6
+    exceso=max(pat-colchon,0)
+    if exceso < 5000: return None
+    coste=exceso*real
+    return exceso, coste
+
+def foda(p):
+    orden=sorted(CAPAS,key=lambda c:p[c]["score"])
+    fort=[(c,CAPAS[c]["nombre"]) for c in orden[:3]]
+    debi=[(c,CAPAS[c]["nombre"]) for c in orden[-3:][::-1]]
+    oport=[OPORTUNIDAD[c] for c,_ in debi[:2]]
+    amen=[RIESGO[c] for c,_ in debi[:2]]
+    return fort,debi,oport,amen
+
+def _box(parras, fondo, barra, ancho=76*mm):
+    return Table([[parras]],colWidths=[ancho],
+        style=TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.HexColor(fondo)),
+          ("LEFTPADDING",(0,0),(-1,-1),9),("RIGHTPADDING",(0,0),(-1,-1),9),
+          ("TOPPADDING",(0,0),(-1,-1),8),("BOTTOMPADDING",(0,0),(-1,-1),8),
+          ("LINEBEFORE",(0,0),(0,-1),3,colors.HexColor(barra)),("VALIGN",(0,0),(-1,-1),"TOP")]))
+
+def _lineas(n=3, ancho=160*mm, alto=7*mm):
+    rows=[[""] for _ in range(n)]
+    return Table(rows,colWidths=[ancho],rowHeights=[alto]*n,
+        style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.5,colors.HexColor("#C7CFDA")),
+          ("TOPPADDING",(0,0),(-1,-1),2),("BOTTOMPADDING",(0,0),(-1,-1),2)]))
+
+def report_id(nombre, fecha):
+    import hashlib
+    ini=''.join([w[0] for w in (nombre or 'X').split()[:2]]).upper() or 'X'
+    h=hashlib.sha1((str(nombre)+str(fecha)).encode('utf-8')).hexdigest()[:5].upper()
+    return f"ITAP-{ini}-{h}"
+
+def valor_hora(datos):
+    return max(datos.get("ingreso_mensual",0),0)/160.0
+
+def cuadro_financiero(p, datos, fi):
+    """FODA + cash flow + proyeccion + tapon. Devuelve flowables."""
+    out=[Paragraph("Tu cuadro financiero",h_sec),
+         Paragraph("Antes de pasar a la acción, esta es tu fotografía objetiva en una sola página: tus fuerzas y "
+                   "frentes, por dónde se mueve tu dinero y hacia dónde te lleva si no cambias nada.",body),
+         Paragraph("FODA financiero",h_sub)]
+    fort,debi,oport,amen=foda(p)
+    F=[Paragraph("<b><font color='#1D6F42'>Fortalezas</font></b>",small)]+[Paragraph("&#8226; "+n,small) for _,n in fort]
+    D=[Paragraph("<b><font color='#B91C1C'>Debilidades</font></b>",small)]+[Paragraph("&#8226; "+n,small) for _,n in debi]
+    O=[Paragraph("<b><font color='#0284C7'>Oportunidades</font></b>",small)]+[Paragraph("&#8226; "+t,small) for t in oport]
+    A=[Paragraph("<b><font color='#B45309'>Amenazas</font></b>",small)]+[Paragraph("&#8226; "+t,small) for t in amen]
+    out.append(Table([[F,O],[D,A]],colWidths=[80*mm,80*mm],
+        style=TableStyle([("BACKGROUND",(0,0),(0,0),colors.HexColor("#EEF7F0")),
+          ("BACKGROUND",(1,0),(1,0),colors.HexColor("#EAF4FB")),
+          ("BACKGROUND",(0,1),(0,1),colors.HexColor("#FBECEC")),
+          ("BACKGROUND",(1,1),(1,1),colors.HexColor("#FBF3E8")),
+          ("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),9),("RIGHTPADDING",(0,0),(-1,-1),9),
+          ("TOPPADDING",(0,0),(-1,-1),8),("BOTTOMPADDING",(0,0),(-1,-1),8),
+          ("LINEBELOW",(0,0),(-1,0),3,colors.white),("LINEAFTER",(0,0),(0,-1),3,colors.white)])))
+    out.append(PageBreak())
+    cashflow_waterfall(datos,"_cash.png")
+    out+=[KeepTogether([Paragraph("Tu flujo de caja",h_sub),
+          Image("_cash.png",width=160*mm,height=75*mm,hAlign="CENTER")])]
+    tap=tapon_coste(datos)
+    if tap:
+        exceso,coste=tap
+        vnh=valor_hora(datos)
+        horas=(coste/12)/vnh if vnh>0 else 0
+        out.append(_box([Paragraph(f"<font color='#B45309'><b>La auditoría del tapón</b></font><br/>"
+            f"<font size=9.5>Tienes unos <b>{_eur(exceso)}</b> de liquidez por encima de un colchón sano de 6 meses. "
+            f"Parada y sin invertir, esa cifra deja de ganar alrededor de <b>{_eur(coste)} al año</b> solo en coste de "
+            f"oportunidad frente a la inflación. No es prudencia: es un peaje invisible. Mover una parte a algo que "
+            f"al menos preserve su valor es de las decisiones más rentables y menos arriesgadas que tienes sobre la mesa.</font>",
+            St("tp",fontSize=10.5,leading=15))],"#FBF3E8","#B45309",ancho=160*mm))
+    out.append(PageBreak())
+    f65,m65,_=proyeccion_chart(datos,"_proy.png")
+    out+=[KeepTogether([Paragraph("Hacia dónde vas",h_sub),
+          Image("_proy.png",width=160*mm,height=75*mm,hAlign="CENTER")]),
+          Paragraph(f"Si mantienes tu ritmo actual, a los 65 rondarías los <b>{_eur(f65)}</b>. Subiendo tu ahorro "
+                    f"cinco puntos, esa cifra sube a <b>{_eur(m65)}</b>: la diferencia entre ambas líneas es, literalmente, "
+                    f"el precio de no decidir. (Estimación a un 5% anual; orientativa, no una promesa de rentabilidad.)",body),
+          PageBreak()]
+    return out
+
+def laboratorio_individual(p, datos, fi, salud, resp):
+    out=[Paragraph("Tu cuaderno de trabajo",h_sec),
+         Paragraph("Aquí termina el análisis y empiezas tú. Estos ejercicios están pensados para hacerse con boli, "
+                   "impresos o en pantalla, esta misma semana. Un informe que se lee se olvida; uno que se rellena, cambia algo.",body)]
+    # 1. Valor de tu hora
+    vnh=valor_hora(datos)
+    if vnh>0:
+        tap=tapon_coste(datos); extra=""
+        if tap:
+            horas=(tap[1]/12)/vnh
+            extra=(f" Con tu liquidez parada perdiendo valor, estás regalando el equivalente a unas "
+                   f"<b>{horas:.0f} horas de tu trabajo cada mes</b> en coste de oportunidad.")
+        out+=[Paragraph("1 · El valor de tu hora",h_sub),
+              Paragraph(f"Tu hora de vida trabajada vale aproximadamente <b>{_eur(vnh)}</b> (ingreso neto ÷ 160 h). "
+                        f"Deja de pensar en euros y empieza a pensar en horas de vida.{extra}",body),
+              Paragraph("Apunta un gasto o una ineficiencia que quieras revisar y tradúcelo a horas de tu vida:",small),
+              _lineas(2),Spacer(1,4*mm)]
+    # 2. FODA de arbitraje
+    fort,debi,_,_=foda(p)
+    out+=[Paragraph("2 · Tu arbitraje del fin de semana",h_sub),
+          Paragraph(f"Tu mayor fortaleza es <b>{fort[0][1]}</b>. Tu mayor freno es <b>{debi[0][1]}</b>. El ejercicio "
+                    f"no es teórico: usa la primera para atacar el segundo. Escribe la <b>única</b> acción concreta "
+                    f"que harás este fin de semana para mover ese freno — y ponle fecha y hora:",body),
+          _lineas(2),Spacer(1,4*mm)]
+    # 3. El guion del dinero
+    out+=[Paragraph("3 · El guion del dinero",h_sub),
+          Paragraph("Casi ninguna decisión de dinero es racional: repetimos el guion que aprendimos de niños. "
+                    "Escribe las tres frases sobre el dinero que más oías en tu casa de pequeño "
+                    "(p. ej. «el dinero no cae de los árboles», «hay que guardar por si acaso»):",body),
+          _lineas(3),
+          Paragraph("Ahora une cada frase con un comportamiento tuyo de hoy. ¿Cuál te está ayudando y cuál te está frenando?",small),
+          _lineas(2),Spacer(1,4*mm)]
+    # 4. Compromiso firmado
+    plan_top=plan(p)
+    palanca=plan_top[0][2] if plan_top else "tu primer foco del plan"
+    out+=[Paragraph("4 · Tu compromiso",h_sub),
+          _box([Paragraph(f"<b>Me comprometo</b>, antes de 30 días, a dar un primer paso sobre: "
+                f"<b>{palanca}</b>.",St("cm",fontSize=10.5,leading=15)),
+                Spacer(1,8*mm),
+                Table([["Firma","Fecha"]],colWidths=[95*mm,55*mm],
+                  style=TableStyle([("LINEABOVE",(0,0),(-1,0),0.6,colors.HexColor("#9CA3AF")),
+                    ("TEXTCOLOR",(0,0),(-1,0),colors.HexColor("#9CA3AF")),("FONTSIZE",(0,0),(-1,0),8),
+                    ("TOPPADDING",(0,0),(-1,0),3)]))],"#F4F7FA","#0284C7",ancho=160*mm),
+          PageBreak()]
+    return out
+
 def build(cli,resp,datos,out,depth="completo"):
     p,tr,salud=perfil(resp); fi=fi_metrics(datos); radar_png(p,"_radar.png")
     bi,bl=banda(CAPAS["C1"],salud); S=[]
@@ -361,6 +555,9 @@ def build(cli,resp,datos,out,depth="completo"):
         Paragraph(f"Escrito para  <b>{cli['nombre']}</b>",St("cvn",fontSize=12)),
         Paragraph(cli["email"],small), Paragraph(cli["fecha"],small),
         Spacer(1,3*mm), Paragraph("Edición Avanzada · Tier 2",St("cvt",fontSize=9.5,textColor=ACC,fontName="Helvetica-Bold")),
+        Spacer(1,16*mm),
+        Paragraph(f"DOCUMENTO CONFIDENCIAL · REF {report_id(cli['nombre'],cli['fecha'])} · USO PRIVADO",
+                  St("cvr",fontSize=7.5,textColor=GREY,fontName="Helvetica")),
         PageBreak()]
     # carta de apertura
     S+=[Paragraph("Antes de empezar",h_sec),
@@ -516,6 +713,7 @@ def build(cli,resp,datos,out,depth="completo"):
               ("FONTNAME",(1,0),(1,-1),"Helvetica-Bold"),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
               ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)])),
         PageBreak()]
+    S+=cuadro_financiero(p,datos,fi)
     if depth!="esencial":
         top=plan(p)
         def _acc(i):
@@ -543,6 +741,8 @@ def build(cli,resp,datos,out,depth="completo"):
         for t,d2 in glos:
             S.append(Paragraph(f"<b>{t}.</b> {d2}",St("gl",fontSize=10,leading=14,spaceAfter=5)))
         S+=[PageBreak()]
+    if depth!="esencial":
+        S+=laboratorio_individual(p,datos,fi,salud,resp)
     # cierre
     S+=[Paragraph("Cómo seguir",h_sec),
         Paragraph("Este libro es una foto de hoy, no una condena. La mayoría de las cifras que más te incomodan "
