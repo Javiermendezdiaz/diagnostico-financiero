@@ -3,108 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITAP Financial Strategy - Evaluación Patrimonial</title>
+    <title>ITAP Tier 2 - Diagnóstico Financiero</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; max-width: 500px; margin: 60px auto; padding: 20px; }
-        .card { background: #1e293b; padding: 30px; border: 1px solid #334155; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
-        h1 { font-size: 24px; margin-bottom: 20px; text-align: center; color: #38bdf8; }
-        label { display: block; margin-bottom: 8px; font-size: 14px; color: #94a3b8; }
-        input, select, button { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; box-sizing: border-box; }
-        button { background: #0284c7; color: white; font-weight: bold; border: none; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
-        button:hover { background: #0369a1; }
-        .hidden { display: none; }
-        .progress-bar { background: #334155; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
-        .progress { background: #38bdf8; height: 100%; width: 0%; transition: width 0.3s; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #f8fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .container { max-width: 600px; width: 100%; background: #1e293b; border-radius: 12px; border: 1px solid #334155; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); padding: 40px 30px; text-align: center; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; color: white; }
+        .header p { font-size: 14px; color: #e0f2fe; }
+        .content { padding: 40px 30px; }
+        .step { display: none; }
+        .step.active { display: block; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; color: #94a3b8; font-weight: 500; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #f8fafc; font-size: 14px; }
+        input:focus, select:focus { outline: none; border-color: #0284c7; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1); }
+        button { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 6px; border: none; background: #0284c7; color: white; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; }
+        button:hover { background: #0369a1; transform: translateY(-2px); }
+        button:disabled { background: #64748b; cursor: not-allowed; transform: none; }
+        .progress-bar { background: #334155; height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 30px; }
+        .progress { background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%); height: 100%; transition: width 0.3s; }
+        .question-text { font-size: 16px; font-weight: 600; margin-bottom: 25px; color: #f8fafc; line-height: 1.5; }
+        .question-number { font-size: 12px; color: #64748b; margin-bottom: 10px; }
+        .options { display: flex; flex-direction: column; gap: 12px; }
+        .option { padding: 15px; border: 2px solid #334155; border-radius: 6px; cursor: pointer; background: #0f172a; color: #f8fafc; font-size: 14px; transition: all 0.2s; }
+        .option:hover { border-color: #0284c7; background: #1a1f2e; }
+        .option.selected { border-color: #0284c7; background: #0284c7; }
+        .completion-screen { text-align: center; padding: 20px 0; }
+        .completion-screen h2 { font-size: 22px; color: #38bdf8; margin-bottom: 15px; }
+        .completion-screen p { font-size: 14px; color: #94a3b8; margin-bottom: 25px; }
+        .loading { text-align: center; padding: 40px 0; }
+        .spinner { display: inline-block; width: 40px; height: 40px; border: 4px solid #334155; border-top-color: #0284c7; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .error { background: #7f1d1d; color: #fca5a5; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; }
     </style>
 </head>
 <body>
-
-    <div class="card">
-        <h1>Evaluación Patrimonial Pro</h1>
-        
-        <div id="step-registro">
-            <label>Correo Electrónico</label>
-            <input type="email" id="email" placeholder="tu@email.com" required>
-            
-            <label>Profundidad del Informe</label>
-            <select id="tier">
-                <option value="1">Diagnóstico Rápido (€19)</option>
-                <option value="2">Informe Avanzado Tier 2 (€39)</option>
-                <option value="3">Análisis Supremo VIP (€54)</option>
-            </select>
-            
-            <button id="btn-inicio" onclick="iniciarCuestionario()">Comenzar Auditoría →</button>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Diagnóstico Patrimonial</h1>
+            <p>Evaluación inteligente de estrategia financiera</p>
         </div>
 
-        <div id="step-cuestionario" class="hidden">
-            <div class="progress-bar"><div id="progress" class="progress"></div></div>
-            <p id="pregunta-texto" style="font-size: 16px; margin-bottom: 20px; font-weight: 500;"></p>
-            <button onclick="responderPregunta(5)">5. Eficiencia Óptima / Blindada</button>
-            <button onclick="responderPregunta(3)">3. Estable / Conservador</button>
-            <button onclick="responderPregunta(1)">1. Exposición Total al Riesgo</button>
-        </div>
+        <div class="content">
+            <!-- STEP 1: Registro -->
+            <div id="step-registro" class="step active">
+                <h2 style="font-size: 20px; margin-bottom: 25px; color: #f8fafc;">Comencemos</h2>
+                <label>Tu correo electrónico</label>
+                <input type="email" id="email" placeholder="tu@email.com" required>
 
-        <div id="step-pago" class="hidden">
-            <h2 style="font-size: 18px; color: #38bdf8; text-align: center; margin-bottom: 10px;">¡Cuestionario Completado!</h2>
-            <p style="font-size: 14px; color: #94a3b8; text-align: center; margin-bottom: 20px;">Procesa el pago seguro con Stripe:</p>
-            <button id="btn-pagar" onclick="ejecutarPago()">Pagar y Descargar PDF</button>
-            <div id="pago-error" style="color: #f87171; font-size: 14px; margin-top: 10px; text-align: center;"></div>
+                <label>Elige la profundidad del análisis</label>
+                <select id="tier">
+                    <option value="1">Diagnóstico Rápido (100 preguntas) - €19</option>
+                    <option value="2" selected>Informe Avanzado (200 preguntas) - €39</option>
+                    <option value="3">Análisis Supremo (500 preguntas) - €54</option>
+                </select>
+
+                <button onclick="iniciarCuestionario()">Comenzar Diagnóstico →</button>
+            </div>
+
+            <!-- STEP 2: Cuestionario -->
+            <div id="step-cuestionario" class="step">
+                <div class="progress-bar"><div id="progress" class="progress"></div></div>
+                <div class="question-number" id="question-number"></div>
+                <p class="question-text" id="question-text"></p>
+                <div class="options" id="options-container"></div>
+                <button onclick="irSiguiente()" style="margin-top: 30px;">Siguiente →</button>
+            </div>
+
+            <!-- STEP 3: Pago -->
+            <div id="step-pago" class="step">
+                <div class="completion-screen">
+                    <h2>✅ ¡Cuestionario Completado!</h2>
+                    <p>Accede ahora a tu informe personalizado con análisis profundo.</p>
+                    <button id="btn-pagar" onclick="procesarPago()">Pagar y Descargar PDF</button>
+                    <div id="pago-error"></div>
+                </div>
+            </div>
+
+            <!-- STEP 4: Cargando -->
+            <div id="step-cargando" class="step">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 20px; color: #94a3b8;">Cargando preguntas...</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        let currentTier = 1;
-        let currentQuestion = 1;
-        const totalQuestions = 2;
+        const API_URL = "https://diagnostico-financiero-app.onrender.com";
 
-        // Payment Links de Stripe por tier
-        const stripeLinks = {
+        const STRIPE_LINKS = {
             1: "https://buy.stripe.com/6oUbJ0dyd38Tgyw7ndfAc01",
             2: "https://buy.stripe.com/eVqfZg79P6l55TS9vlfAc02",
             3: "https://buy.stripe.com/eVq8wO9hXaBl2HGePFfAc00"
         };
 
+        let state = {
+            email: '',
+            tier: 2,
+            sessionId: null,
+            preguntas: [],
+            respuestas: {},
+            currentIndex: 0
+        };
+
         async function iniciarCuestionario() {
-            const email = document.getElementById('email').value;
-            const tier = document.getElementById('tier').value;
-            if(!email) return alert('Por favor introduce tu email');
+            const email = document.getElementById('email').value.trim();
+            if (!email) {
+                alert('Por favor introduce tu email');
+                return;
+            }
 
-            currentTier = parseInt(tier);
-            const btn = document.getElementById('btn-inicio');
-            btn.innerText = "Cargando...";
-            btn.disabled = true;
+            state.email = email;
+            state.tier = parseInt(document.getElementById('tier').value);
 
-            setTimeout(() => {
-                document.getElementById('step-registro').classList.add('hidden');
-                document.getElementById('step-cuestionario').classList.remove('hidden');
+            mostrarPaso('step-cargando');
+
+            try {
+                // 1. Iniciar sesión en backend
+                const startRes = await fetch(`${API_URL}/api/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: state.email, tier: state.tier })
+                });
+                const startData = await startRes.json();
+                state.sessionId = startData.session_id;
+
+                // 2. Cargar preguntas
+                const questionsRes = await fetch(`${API_URL}/api/questions/${state.tier}`);
+                const questionsData = await questionsRes.json();
+                state.preguntas = questionsData.questions || [];
+
+                if (state.preguntas.length === 0) {
+                    throw new Error('No se cargaron preguntas');
+                }
+
+                state.currentIndex = 0;
+                mostrarPaso('step-cuestionario');
                 mostrarPregunta();
-            }, 600);
-        }
-
-        function mostrarPregunta() {
-            document.getElementById('progress').style.width = `${(currentQuestion / totalQuestions) * 100}%`;
-            document.getElementById('pregunta-texto').innerText = currentQuestion === 1 ? 
-                "¿Cómo califica la diversificación actual de sus activos frente a la inflación?" : 
-                "¿Dispone de una estructura fiscal optimizada para la transmisión de patrimonio?";
-        }
-
-        function responderPregunta(valor) {
-            if(currentQuestion < totalQuestions) {
-                currentQuestion++;
-                mostrarPregunta();
-            } else {
-                document.getElementById('step-cuestionario').classList.add('hidden');
-                document.getElementById('step-pago').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar. Por favor recarga la página.');
+                mostrarPaso('step-registro');
             }
         }
 
-        function ejecutarPago() {
-            const btn = document.getElementById('btn-pagar');
-            btn.disabled = true;
-            btn.innerText = "Redirigiendo al pago...";
+        function mostrarPregunta() {
+            const pregunta = state.preguntas[state.currentIndex];
+            const total = state.preguntas.length;
+            const porcentaje = ((state.currentIndex + 1) / total) * 100;
 
-            // Redirige al link de Stripe según el tier seleccionado
-            window.location.href = stripeLinks[currentTier];
+            document.getElementById('progress').style.width = porcentaje + '%';
+            document.getElementById('question-number').textContent = `Pregunta ${state.currentIndex + 1} de ${total}`;
+            document.getElementById('question-text').textContent = pregunta.pregunta || '';
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            if (pregunta.tipo === 'abierta') {
+                const textarea = document.createElement('textarea');
+                textarea.id = 'open-answer';
+                textarea.style.cssText = 'width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #f8fafc; font-family: inherit; min-height: 80px;';
+                textarea.placeholder = 'Escribe tu respuesta aquí...';
+                container.appendChild(textarea);
+            } else if (pregunta.opciones) {
+                pregunta.opciones.forEach((opcion, idx) => {
+                    const btn = document.createElement('button');
+                    btn.textContent = (typeof opcion === 'string') ? opcion : opcion.texto;
+                    btn.className = 'option';
+                    btn.style.cssText = 'width: 100%; padding: 15px; border: 2px solid #334155; margin-bottom: 12px; background: #0f172a; color: #f8fafc; border-radius: 6px; cursor: pointer; transition: all 0.2s; text-align: left; font-size: 14px;';
+                    btn.onclick = () => seleccionarOpcion(idx);
+                    container.appendChild(btn);
+                });
+            }
+        }
+
+        function seleccionarOpcion(idx) {
+            const pregunta = state.preguntas[state.currentIndex];
+            state.respuestas[pregunta.id] = idx;
+            irSiguiente();
+        }
+
+        async function irSiguiente() {
+            const pregunta = state.preguntas[state.currentIndex];
+
+            // Guardar respuesta si es abierta
+            if (pregunta.tipo === 'abierta') {
+                const answer = document.getElementById('open-answer')?.value;
+                if (!answer?.trim()) {
+                    alert('Por favor responde la pregunta');
+                    return;
+                }
+                try {
+                    await fetch(`${API_URL}/api/open-answer`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            session_id: state.sessionId,
+                            question_id: pregunta.id,
+                            answer_text: answer
+                        })
+                    });
+                } catch (e) { console.error('Error guardando respuesta abierta:', e); }
+            }
+
+            state.currentIndex++;
+            if (state.currentIndex < state.preguntas.length) {
+                mostrarPregunta();
+            } else {
+                finalizarCuestionario();
+            }
+        }
+
+        async function finalizarCuestionario() {
+            try {
+                await fetch(`${API_URL}/api/complete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: state.sessionId })
+                });
+            } catch (e) { console.error('Error finalizando:', e); }
+
+            // Guardar sessionId en localStorage
+            localStorage.setItem('itap_session_id', state.sessionId);
+
+            mostrarPaso('step-pago');
+        }
+
+        function procesarPago() {
+            const link = STRIPE_LINKS[state.tier];
+            if (link) {
+                window.location.href = link;
+            }
+        }
+
+        function mostrarPaso(paso) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById(paso).classList.add('active');
         }
     </script>
 </body>
