@@ -290,6 +290,24 @@ def build(cli,resp,datos,out):
         Paragraph("Instrumento de 10 capas con dimensiones psicométricas de polaridad consistente. Los percentiles "
                   "son provisionales y se afinan con datos reales conforme crece la base de respondentes. Herramienta "
                   "de autoconocimiento; no sustituye asesoramiento profesional individualizado.",small)]
+    # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
+    NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
+    S+=[PageBreak(), Paragraph("Anexo \u2014 Tus respuestas",h_sec),
+        Paragraph("Para total transparencia: estas son las preguntas que respondiste y lo que elegiste. "
+                  "Tu diagn\u00f3stico se basa exactamente en esto, ni m\u00e1s ni menos.",body)]
+    for capa in INST["capas"]:
+        rows=[[Paragraph("<b>Pregunta</b>",small),Paragraph("<b>Tu respuesta</b>",small)]]
+        for it in capa["items"]:
+            if it["tipo"]=="escala":
+                idx=resp.get(it["id"]); ans=it["opciones"][idx]["texto"] if idx is not None else "\u2014"
+            else:
+                v=datos.get(NUM_MAP.get(it["id"],""),"\u2014"); ans=("%s %s"%(v,it.get("unidad",""))).strip()
+            rows.append([Paragraph(it["texto"],small),Paragraph(ans,small)])
+        t=Table(rows,colWidths=[104*mm,52*mm])
+        t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,-1),0.3,LINE),
+            ("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),3),("BOTTOMPADDING",(0,0),(-1,-1),3),
+            ("LEFTPADDING",(0,0),(-1,-1),6),("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]))
+        S+=[Paragraph("%s \u00b7 %s"%(capa["code"],capa["nombre"]),h_sub), t]
     doc=SimpleDocTemplate(out,pagesize=A4,topMargin=20*mm,bottomMargin=20*mm,leftMargin=22*mm,rightMargin=22*mm,
                           title="Tu Libro Financiero — ITAP")
     doc.build(S,onFirstPage=deco,onLaterPages=deco); print("PDF OK ->",out)
