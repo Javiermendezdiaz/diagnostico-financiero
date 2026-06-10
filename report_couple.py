@@ -77,21 +77,41 @@ def tbl(rows,widths,head=True):
     t.setStyle(TableStyle(sty)); return t
 
 CAP_QMIDE=rb.QMIDE
+CHOQUE={
+ "C1":"{debil} carga en solitario el peso emocional del dinero mientras {fuerte} lo vive con calma. El riesgo no son las cifras: es que {debil} somatice la alerta de toda la casa sin que {fuerte} lo perciba. La tranquilidad de {fuerte} se est\u00e1 financiando, en silencio, con el desgaste de {debil}.",
+ "C2":"Ten\u00e9is horizontes de libertad desalineados: {debil} ve la meta lejos y {fuerte} la siente al alcance. Sin un \u00fanico n\u00famero com\u00fan, cada uno rema hacia una orilla distinta y el barco gira en c\u00edrculos.",
+ "C3":"Ante un golpe, {fuerte} se siente con red y {debil} en el alambre. Esa asimetr\u00eda hace que {debil} frene decisiones que {fuerte} ve seguras \u2014 no por tacañer\u00eda, sino por puro instinto de supervivencia.",
+ "C4":"{debil} percibe el estilo de vida como una deriva que aprieta; {fuerte}, como algo bajo control. Lo que para uno es \u00abdisfrutar lo ganado\u00bb, para el otro es \u00abver c\u00f3mo se escapa el futuro\u00bb.",
+ "C5":"Esta distancia es delicada: habla de la ausencia, de qu\u00e9 pasar\u00eda si uno falta y del compromiso a largo plazo. {debil} ya lo ha mirado de frente; {fuerte}, a\u00fan no. No es burocracia: es cu\u00e1nto hab\u00e9is proyectado de verdad un \u00abpara siempre\u00bb.",
+ "C6":"El gasto de imagen os divide: para {fuerte} es leg\u00edtimo, para {debil} inc\u00f3modo. Detr\u00e1s suele haber dos educaciones distintas sobre el dinero y dos necesidades distintas de aprobaci\u00f3n. No discut\u00eds por una cena: discut\u00eds por lo que significa.",
+ "C7":"{debil} siente el riesgo de depender de una sola fuente; {fuerte} lo minimiza. Si el ingreso principal lo aporta quien menos lo teme, la casa puede estar m\u00e1s expuesta de lo que cree.",
+ "C8":"{fuerte} ve oportunidad donde {debil} ve amenaza. En una crisis, esa diferencia de temperamento puede ser vuestra mayor fuerza \u2014uno protege, otro aprovecha\u2014 o vuestra peor pelea, si no os repart\u00eds los roles a prop\u00f3sito.",
+ "C9":"{fuerte} cree tener el flujo bajo control; {debil} no. Cuando uno gobierna el dinero y el otro lo padece, el que no mira acaba dependiendo de la vigilancia del que s\u00ed: un reparto injusto que termina pasando factura.",
+ "C10":"La deuda os pesa distinto: {debil} la siente encima, {fuerte} la lleva ligera. Si quien convive con la tensi\u00f3n es quien menos margen tiene, cualquier inversi\u00f3n que proponga {fuerte} chocar\u00e1 con un freno que ni siquiera entiende."}
+SOMBRA={
+ "C1":"Los dos llev\u00e1is el dinero con tensi\u00f3n a la vez. El problema no es de compatibilidad: es que cuando ambos os agot\u00e1is en lo mismo, no queda nadie sereno que sostenga la casa. Hay que romper el bucle entre los dos, no esperar a que el otro mejore.",
+ "C2":"Ninguno tiene a\u00fan un rumbo claro hacia la libertad. No es un choque, es un vac\u00edo compartido: nadie est\u00e1 poniendo el destino. Vuestra tarea no es negociar, es decidir juntos a d\u00f3nde vais.",
+ "C3":"Vuestra resiliencia es fr\u00e1gil por los dos lados. Un imprevisto os pillar\u00eda a ambos sin red, y nadie compensa a nadie. Es vuestra prioridad n\u00ba1, por encima de cualquier inversi\u00f3n.",
+ "C4":"El estilo de vida se os infla a ambos. Sin freno en ninguno, cada subida de ingreso se evapora. Necesit\u00e1is un pacto com\u00fan, porque por separado os arrastr\u00e1is mutuamente.",
+ "C5":"Aqu\u00ed ten\u00e9is una zona de sombra peligrosa: ninguno de los dos est\u00e1 protegido legalmente. No es un problema de pareja, es de desprotecci\u00f3n mutua. Vuestra sincron\u00eda en la inacci\u00f3n os deja expuestos ante el primer imprevisto serio.",
+ "C6":"Los dos ced\u00e9is al gasto de imagen. Sin un ancla en ninguno, aliment\u00e1is juntos una rueda cara. Re\u00edr de ello juntos es el primer paso para soltarlo.",
+ "C7":"Ambos depend\u00e9is en exceso de pocas fuentes. La casa entera se sostiene sobre patas fr\u00e1giles y ninguno diversifica. Es un riesgo estructural que solo se ve cuando ya ha fallado.",
+ "C8":"Ninguno est\u00e1 preparado para aprovechar una crisis; ambos solo podr\u00edais sufrirla. Convertir eso en una ventaja conjunta es de las palancas m\u00e1s rentables que ten\u00e9is.",
+ "C9":"A los dos se os escapa el control del flujo. Si nadie mira a d\u00f3nde va el dinero, decide la inercia por vosotros. Montar el sistema juntos es urgente.",
+ "C10":"La deuda os pesa a ambos. Sin un plan com\u00fan, cada uno la gestiona a ciegas y el conjunto se tensa. Ponedla toda sobre la mesa, sin secretos, y haced un \u00fanico plan."}
+
 def comparar_capa(code,a,b,nA,nB):
     nm=CAPAS[code]["nombre"]; g=abs(a-b)
     fuerte,debil=(nA,nB) if a<b else (nB,nA)
     if a<30 and b<30:
-        return (f"{nm} es terreno común y sólido para ambos (vosotros: {a:.0f} y {b:.0f}). "
-                f"Es una fortaleza compartida: apoyaos en ella cuando otras áreas aprieten.")
+        return (f"{nm} es terreno firme para los dos ({a:.0f} y {b:.0f}). Es de vuestras fortalezas compartidas: "
+                f"apoyaos aqu\u00ed cuando otras \u00e1reas aprieten.")
     if a>=51 and b>=51:
-        return (f"{nm} es un punto ciego de los dos a la vez ({a:.0f} y {b:.0f}). Ojo: cuando ambos flojean en "
-                f"lo mismo, nadie compensa al otro. Conviene convertirlo en un proyecto conjunto.")
+        return SOMBRA[code]
     if g>=30:
-        return (f"Aquí hay una distancia real ({a:.0f} vs {b:.0f}): {fuerte} lo lleva claramente mejor que {debil}. "
-                f"Bien gestionado es una ventaja —{fuerte} puede tirar del carro—, pero mal hablado es una fuente "
-                f"de reproche silencioso. Es de los temas a poner sobre la mesa.")
-    return (f"{nm} está razonablemente equilibrado entre vosotros ({a:.0f} y {b:.0f}). Pequeñas diferencias que "
-            f"se resuelven hablando, sin drama.")
+        return CHOQUE[code].format(fuerte=fuerte,debil=debil)
+    return (f"{nm} est\u00e1 bastante equilibrado entre vosotros ({a:.0f} y {b:.0f}): diferencias peque\u00f1as que se "
+            f"resuelven hablando, sin necesidad de un gran acuerdo.")
 
 def paso_pareja(code):
     return {
@@ -110,11 +130,11 @@ def _fill(d):
     d=dict(d or {}); d.setdefault("gasto_mensual",2000); d.setdefault("ingreso_mensual",3000)
     d.setdefault("ahorro_mensual",300); d.setdefault("patrimonio",30000); d.setdefault("edad",40); return d
 
-def seccion_individual(nombre, prof, trans, salud, datos, radar_path):
-    fi=rb.fi_metrics(_fill(datos)); pn=nombre.split()[0]
+def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar):
+    pn=nombre.split()[0]
     bi_g,bl_g=rb.banda(rb.CAPAS["C1"],salud)
-    out=[PageBreak(), Paragraph("PERFIL INDIVIDUAL",kick), Paragraph(nombre,h_sec),
-         Paragraph(f"Antes de cruzaros, esta es la foto de {pn} por separado. Para entender a una pareja, primero hay que entender a cada uno.",body),
+    out=[Paragraph("PERFIL INDIVIDUAL",kick), Paragraph(nombre,h_sec),
+         Paragraph(f"Antes de cruzaros, esta es la foto psicol\u00f3gica de {pn}: c\u00f3mo vive el dinero por dentro. Las cifras del hogar son comunes (las ver\u00e9is juntas); lo que cambia de uno a otro es la percepci\u00f3n, el miedo y la prioridad.",body),
          Image(radar_path,width=112*mm,height=112*mm,hAlign="CENTER"),
          Paragraph(f"<b>{salud:.0f}</b>/100 \u2014 salud psicofinanciera global de {pn} (mejor que el {rb.pctil(salud):.0f}% de la cohorte).",body),
          PageBreak(), Paragraph(f"{pn}: fortalezas y focos",h_sub)]
@@ -130,15 +150,8 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path):
         v=trans[t]; vt=("%s"%v) if v is not None else "\u2014"
         out.append(Table([[Paragraph(f"<b>{t.capitalize()}</b>  {vt}/100",small),rb.Bar(v or 0,w=110*mm)]],
                          colWidths=[42*mm,114*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
-    out.append(Paragraph(f"{pn}: n\u00fameros de libertad",h_sub))
-    out.append(Table([["N\u00famero de libertad (regla 25\u00d7)",("%s \u20ac"%format(fi[0],",.0f")).replace(",",".")],
-                      ["Progreso hacia la libertad","%s %%"%fi[1]],["Tasa de ahorro","%s %%"%fi[2]],
-                      ["A\u00f1os a la libertad","m\u00e1s de 100" if fi[3] is None else "%s a\u00f1os"%fi[3]]],
-                     colWidths=[100*mm,56*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
-                     ("FONTNAME",(1,0),(1,-1),"Helvetica-Bold"),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
-                     ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)])))
     out.append(Paragraph(f"{pn}: lo que revelan sus respuestas",h_sub))
-    for ti,tx in rb.insights(prof,trans,fi):
+    for ti,tx in rb.insights(prof,trans,fi_hogar):
         out.append(Paragraph(f"<font color='#0284C7'>&#8226;</font>  <b>{ti}</b>",small))
         out.append(Paragraph(tx,St("ii",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=6)))
     out.append(PageBreak())
@@ -208,6 +221,13 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
         Paragraph("Leedlo juntos. Esa es la mitad del valor.",body),
         PageBreak()]
     # compatibilidad + radar
+    dAf=_fill(dA); dBf=_fill(dB)
+    hogar={"gasto_mensual":dAf["gasto_mensual"]+dBf["gasto_mensual"],
+           "ingreso_mensual":dAf["ingreso_mensual"]+dBf["ingreso_mensual"],
+           "ahorro_mensual":dAf["ahorro_mensual"]+dBf["ahorro_mensual"],
+           "patrimonio":dAf["patrimonio"]+dBf["patrimonio"],
+           "edad":(dAf["edad"]+dBf["edad"])/2}
+    fi_h=rb.fi_metrics(hogar)
     S+=[Paragraph("Vuestro mapa conjunto",h_sec),
         Table([[Paragraph(f"<font size=40 color='#075985'><b>{compat}</b></font><font size=13 color='#6B7280'>/100</font>",body),
                 Paragraph(f"<b>Compatibilidad financiera</b><br/><font size=8 color='#6B7280'>Cuanto más alto, más "
@@ -219,6 +239,17 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                 Paragraph(f"<font color='{B_COL}'>●</font> {cliB['nombre']}: <b>{saludB:.0f}</b>/100",small)]],
               colWidths=[80*mm,80*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0)]),
         Image("_dualradar.png",width=125*mm,height=125*mm,hAlign="CENTER"),
+        Spacer(1,2*mm),
+        Paragraph("Vuestros n\u00fameros del hogar",h_sub),
+        Paragraph("Estas cifras son <b>conjuntas</b>: describen vuestra econom\u00eda como hogar, no a uno ni a otro por "
+                  "separado. Donde de verdad difer\u00eds es en c\u00f3mo las vive cada uno por dentro.",small),
+        Table([["N\u00famero de libertad del hogar (regla 25\u00d7)",("%s \u20ac"%format(fi_h[0],",.0f")).replace(",",".")],
+               ["Progreso hacia la libertad","%s %%"%fi_h[1]],
+               ["Tasa de ahorro conjunta","%s %%"%fi_h[2]],
+               ["A\u00f1os a la libertad","m\u00e1s de 100" if fi_h[3] is None else "%s a\u00f1os"%fi_h[3]]],
+              colWidths=[105*mm,51*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
+              ("FONTNAME",(1,0),(1,-1),"Helvetica-Bold"),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
+              ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)])),
         PageBreak()]
     # mapa de divergencias por capa
     S+=[Paragraph("Dónde coincidís y dónde no",h_sec),
@@ -235,8 +266,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                      rb.Chip(zona,zc,w=64,h=13)])
     S+=[tbl(rows,[78*mm,15*mm,15*mm,20*mm,32*mm]),PageBreak()]
     rb.radar_png(pA,"_radarA.png"); rb.radar_png(pB,"_radarB.png")
-    S+=seccion_individual(cliA["nombre"],pA,trA,saludA,dA,"_radarA.png")
-    S+=seccion_individual(cliB["nombre"],pB,trB,saludB,dB,"_radarB.png")
+    S+=seccion_individual(cliA["nombre"],pA,trA,saludA,dA,"_radarA.png",fi_h)
+    S+=seccion_individual(cliB["nombre"],pB,trB,saludB,dB,"_radarB.png",fi_h)
     # capitulos comparativos por capa
     S+=[Paragraph("Capa por capa, los dos",h_sec),
         Paragraph("El corazon de vuestro libro: las diez dimensiones, leidas en pareja. La barra azul es "
@@ -279,7 +310,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                           fontName="Helvetica-Oblique")),
                 Paragraph("Para hablar entre vosotros: "+rb.REFLEX[code],St("rf2",fontSize=10,leading=14,
                           textColor=INK,fontName="Helvetica-Oblique",spaceBefore=3))]
-        S.extend(bloque); S.append(PageBreak())
+        S.append(KeepTogether(bloque)); S.append(PageBreak())
     # focos de friccion (item-level)
     S+=[Paragraph("Vuestros focos de fricción",h_sec),
         Paragraph("Las preguntas concretas donde respondisteis casi en extremos opuestos. Aquí es donde el dinero "
