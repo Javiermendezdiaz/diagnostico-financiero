@@ -273,9 +273,27 @@ def seccion_adapta(p):
                     St("cta2",fontSize=9.5,leading=14))]
     return out
 
+def coherencia(salud, fi, datos):
+    tasa=fi[2]; fipct=fi[1]; pat=datos.get("patrimonio",0)
+    pat_txt=("%s"%format(pat,",.0f")).replace(",",".")
+    fin_fuerte=(tasa>=20) or (fipct>=30) or (pat>=80000)
+    fin_debil=(tasa<8) and (pat<15000)
+    if salud>=50 and fin_fuerte:
+        return ("Tu mayor hallazgo: una distorsi\u00f3n de seguridad",
+                f"Tus n\u00fameros objetivos son fuertes \u2014ahorras alrededor de un {tasa:.0f}% y manejas un patrimonio de "
+                f"{pat_txt} \u20ac\u2014, pero tu mente opera en estado de alerta. Tu problema de fondo no es el dinero: es c\u00f3mo "
+                f"lo sientes. El trabajo aqu\u00ed no es ganar ni ahorrar m\u00e1s, sino aprender a habitar la seguridad que ya has construido.")
+    if salud<30 and fin_debil:
+        return ("Tu mayor hallazgo: una calma por confirmar",
+                "Vives el dinero con serenidad, y eso es un activo. Pero tus n\u00fameros a\u00fan no la respaldan del todo: el colch\u00f3n y "
+                "el ritmo de ahorro son ajustados. Esa tranquilidad ayuda a construir sin ag\u00f3bio, siempre que no te frene a mirar de frente "
+                "el trabajo que todav\u00eda tienes por delante.")
+    return None
+
 def build(cli,resp,datos,out,depth="completo"):
     p,tr,salud=perfil(resp); fi=fi_metrics(datos); radar_png(p,"_radar.png")
     bi,bl=banda(CAPAS["C1"],salud); S=[]
+    coh=coherencia(salud,fi,datos)
     # cover
     S+=[Spacer(1,34*mm),
         Paragraph("TU LIBRO FINANCIERO",St("cv0",fontSize=12,textColor=GREY,fontName="Helvetica-Bold")),
@@ -313,6 +331,7 @@ def build(cli,resp,datos,out,depth="completo"):
                 Paragraph(f"<b>{bl}</b><br/><font size=8 color='#6B7280'>Salud psicofinanciera global · "
                           f"mejor que el {pctil(salud):.0f}% de la cohorte de referencia</font>",body)]],
               colWidths=[42*mm,118*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),
+        *([Spacer(1,4*mm),Paragraph(coh[0],h_sub),Paragraph(coh[1],St("coh",fontSize=10,leading=14,backColor=LIGHT,borderPadding=10,textColor=INK,spaceBefore=4,spaceAfter=4))] if coh else []),
         Spacer(1,2*mm),
         Paragraph("Cuanto más cerca del centro está cada capa en este mapa, más sana. La zona verde central es el "
                   "territorio saludable. Antes de entrar capítulo a capítulo, esta es tu silueta completa:",body),
@@ -484,16 +503,25 @@ def build(cli,resp,datos,out,depth="completo"):
                   "Tu diagn\u00f3stico se basa exactamente en esto, ni m\u00e1s ni menos.",body)]
     for capa in INST["capas"]:
         rows=[[Paragraph("<b>Pregunta</b>",small),Paragraph("<b>Tu respuesta</b>",small)]]
+        bgs=[]; ri=1
         for it in capa["items"]:
+            sc=None
             if it["tipo"]=="escala":
-                idx=resp.get(it["id"]); ans=it["opciones"][idx]["texto"] if idx is not None else "\u2014"
+                idx=resp.get(it["id"])
+                if idx is not None:
+                    ans=it["opciones"][idx]["texto"]; sc=it["opciones"][idx]["score"]
+                else: ans="\u2014"
             else:
                 v=datos.get(NUM_MAP.get(it["id"],""),"\u2014"); ans=("%s %s"%(v,it.get("unidad",""))).strip()
             rows.append([Paragraph(it["texto"],small),Paragraph(ans,small)])
+            if sc is not None:
+                col="#E7F6EC" if sc<=25 else ("#FEF9E7" if sc<=50 else ("#FDEBD0" if sc<=75 else "#FAE3E3"))
+                bgs.append(("BACKGROUND",(1,ri),(1,ri),colors.HexColor(col)))
+            ri+=1
         t=Table(rows,colWidths=[104*mm,52*mm])
         t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,-1),0.3,LINE),
             ("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),3),("BOTTOMPADDING",(0,0),(-1,-1),3),
-            ("LEFTPADDING",(0,0),(-1,-1),6),("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]))
+            ("LEFTPADDING",(0,0),(-1,-1),6),("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]+bgs))
         S+=[Paragraph("%s \u00b7 %s"%(capa["code"],capa["nombre"]),h_sub), t]
     doc=SimpleDocTemplate(out,pagesize=A4,topMargin=20*mm,bottomMargin=20*mm,leftMargin=22*mm,rightMargin=22*mm,
                           title="Tu Libro Financiero — ITAP")

@@ -356,18 +356,27 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                   "Leer esta tabla juntos ya abre conversaciones.",body)]
     for capa in INST["capas"]:
         rows=[[Paragraph("<b>Pregunta</b>",small),Paragraph("<b>%s</b>"%nA,small),Paragraph("<b>%s</b>"%nB,small)]]
+        bgs=[]; ri=1
+        def _col(sc):
+            return "#E7F6EC" if sc<=25 else ("#FEF9E7" if sc<=50 else ("#FDEBD0" if sc<=75 else "#FAE3E3"))
         for it in capa["items"]:
+            sa=sb=None
             if it["tipo"]=="escala":
                 ia=rA.get(it["id"]); ib=rB.get(it["id"])
-                va=it["opciones"][ia]["texto"] if ia is not None else "\u2014"
-                vb=it["opciones"][ib]["texto"] if ib is not None else "\u2014"
+                if ia is not None: va=it["opciones"][ia]["texto"]; sa=it["opciones"][ia]["score"]
+                else: va="\u2014"
+                if ib is not None: vb=it["opciones"][ib]["texto"]; sb=it["opciones"][ib]["score"]
+                else: vb="\u2014"
             else:
                 va=str(dA.get(NUM_MAP.get(it["id"],""),"\u2014")); vb=str(dB.get(NUM_MAP.get(it["id"],""),"\u2014"))
             rows.append([Paragraph(it["texto"],small),Paragraph(va,small),Paragraph(vb,small)])
+            if sa is not None: bgs.append(("BACKGROUND",(1,ri),(1,ri),colors.HexColor(_col(sa))))
+            if sb is not None: bgs.append(("BACKGROUND",(2,ri),(2,ri),colors.HexColor(_col(sb))))
+            ri+=1
         t=Table(rows,colWidths=[86*mm,35*mm,35*mm])
         t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,-1),0.3,LINE),
             ("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),3),("BOTTOMPADDING",(0,0),(-1,-1),3),
-            ("LEFTPADDING",(0,0),(-1,-1),6),("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]))
+            ("LEFTPADDING",(0,0),(-1,-1),6),("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]+bgs))
         S+=[Paragraph("%s \u00b7 %s"%(capa["code"],capa["nombre"]),h_sub), t]
     doc=SimpleDocTemplate(out,pagesize=A4,topMargin=20*mm,bottomMargin=20*mm,leftMargin=22*mm,rightMargin=22*mm,
                           title="Vuestro Libro Financiero — ITAP")
