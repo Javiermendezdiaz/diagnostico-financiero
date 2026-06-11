@@ -169,7 +169,7 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
     out=[Paragraph("PERFIL INDIVIDUAL",kick), Paragraph(nombre,h_sec),
          Paragraph(f"Antes de cruzaros, esta es la foto psicol\u00f3gica de {pn}: c\u00f3mo vive el dinero por dentro. Las cifras del hogar son comunes (las ver\u00e9is juntas); lo que cambia de uno a otro es la percepci\u00f3n, el miedo y la prioridad.",body),
          Image(radar_path,width=112*mm,height=112*mm,hAlign="CENTER"),
-         Paragraph(f"<b>{salud:.0f}</b>/100 \u2014 salud psicofinanciera global de {pn} (mejor que el {rb.pctil(salud):.0f}% de la cohorte).",body)]
+         Paragraph(f"<b>{salud:.0f}</b>/100 \u2014 salud psicofinanciera global de {pn}.",body)]
     coh=rb.coherencia(salud, rb.fi_metrics(_fill(datos)), _fill(datos))
     if coh:
         out+=[Spacer(1,3*mm), _callout(coh[0], coh[1], "#0284C7", "#F0F7FC")]

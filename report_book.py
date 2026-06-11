@@ -592,8 +592,31 @@ def glosario(p, datos, fi):
             "Barato de resolver, caragísimo de ignorar. El día que hace falta, ya no hay margen."))
     return g[:8]
 
-def build(cli,resp,datos,out,depth="completo"):
+def cohorte_txt(cli, datos):
+    """Texto de cohorte por sexo y edad para los percentiles."""
+    try: edad = int(datos.get("edad", 0) or 0)
+    except Exception: edad = 0
+    sx = (cli.get("sexo") or "").strip().lower()
+    if sx.startswith("h"): grupo = "hombres"
+    elif sx.startswith("m"): grupo = "mujeres"
+    else: grupo = "personas"
+    if edad <= 0: rango = "de tu edad"
+    elif edad < 30: rango = "menores de 30"
+    elif edad < 40: rango = "de 30 a 39 a\u00f1os"
+    elif edad < 50: rango = "de 40 a 49 a\u00f1os"
+    elif edad < 60: rango = "de 50 a 59 a\u00f1os"
+    else: rango = "de 60 o m\u00e1s"
+    return "%s %s" % (grupo, rango)
+
+def build(cli,resp,datos,out,depth="completo",baremo=None):
     p,tr,salud=perfil(resp); fi=fi_metrics(datos); radar_png(p,"_radar.png")
+    _cohorte=cohorte_txt(cli,datos)
+    if baremo and baremo.get("pct") is not None:
+        _pct_frase="mejor que el %d%% de %s" % (round(baremo["pct"]), _cohorte)
+        _pct_nota=" \u00b7 muestra real: %d diagn\u00f3sticos" % baremo["n"]
+    else:
+        _pct_frase="tu percentil se est\u00e1 calibrando contra nuestra muestra de referencia, que crece con cada diagn\u00f3stico"
+        _pct_nota=""
     bi,bl=banda(CAPAS["C1"],salud); S=[]
     coh=coherencia(salud,fi,datos)
     arq_code,_,_=arquetipo(resp)
@@ -607,16 +630,16 @@ def build(cli,resp,datos,out,depth="completo"):
         Spacer(1,7*mm),
         Paragraph("Una lectura honesta de tu relación con el dinero, capa por capa.",St("cv2",fontSize=12,textColor=ACCDK)),
         Spacer(1,40*mm),
-        Paragraph(f"Escrito para  <b>{cli['nombre']}</b>",St("cvn",fontSize=12)),
+        Paragraph(f"Perfil  \u00b7  <b>{cohorte_txt(cli,datos).capitalize()}</b>",St("cvn",fontSize=12)),
         Paragraph(cli["email"],small), Paragraph(cli["fecha"],small),
         Spacer(1,3*mm), Paragraph("Edición Avanzada · Tier 2",St("cvt",fontSize=9.5,textColor=ACC,fontName="Helvetica-Bold")),
         Spacer(1,16*mm),
-        Paragraph(f"DOCUMENTO CONFIDENCIAL · REF {report_id(cli['nombre'],cli['fecha'])} · USO PRIVADO",
+        Paragraph(f"DOCUMENTO CONFIDENCIAL · REF {report_id(cli.get('email') or 'ITAP',cli['fecha'])} · USO PRIVADO",
                   St("cvr",fontSize=7.5,textColor=GREY,fontName="Helvetica")),
         PageBreak()]
     # carta de apertura
     S+=[Paragraph("Antes de empezar",h_sec),
-        Paragraph(f"{cli['nombre'].split()[0] if cli['nombre'] else 'Hola'}, este libro no es un test ni una sentencia. "
+        Paragraph("Este libro no es un test ni una sentencia. "
                   "Es un espejo. Cada página nace de tus propias respuestas y las ordena para que veas, sin ruido, "
                   "dónde tu dinero te sostiene y dónde te pesa.",body),
         Paragraph("Lo hemos escrito como un libro, no como una ficha, porque tu vida financiera no se entiende con "
@@ -635,7 +658,7 @@ def build(cli,resp,datos,out,depth="completo"):
         Table([[Paragraph(f"<font size=42 color='#075985'><b>{salud:.0f}</b></font>"
                           f"<font size=13 color='#6B7280'>/100</font>",body),
                 Paragraph(f"<b>{bl}</b><br/><font size=8 color='#6B7280'>Salud psicofinanciera global · "
-                          f"mejor que el {pctil(salud):.0f}% de la cohorte de referencia</font>",body)]],
+                          f"{_pct_frase}</font>",body)]],
               colWidths=[42*mm,118*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),
         *([Spacer(1,4*mm),Paragraph(coh[0],h_sub),Paragraph(coh[1],St("coh",fontSize=10,leading=14,backColor=LIGHT,borderPadding=10,textColor=INK,spaceBefore=4,spaceAfter=4))] if coh else []),
         *([Spacer(1,4*mm),
@@ -664,8 +687,8 @@ def build(cli,resp,datos,out,depth="completo"):
             S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({p[c]['score']:.0f}/100). {RIESGO[c]}",
                      St("ec",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
         S+=[Spacer(1,3*mm),
-            Paragraph(f"En una frase: tu salud psicofinanciera global es de <b>{salud:.0f}/100</b> ("
-                      f"mejor que el {pctil(salud):.0f}% de la cohorte). No es una condena ni un trofeo: es tu punto "
+            Paragraph(f"En una frase: tu salud psicofinanciera global es de <b>{salud:.0f}/100</b> "
+                      f"({_pct_frase}{_pct_nota}). No es una condena ni un trofeo: es tu punto "
                       "de partida, y se mueve.",body),
             PageBreak()]
     # capítulos por capa
@@ -678,7 +701,7 @@ def build(cli,resp,datos,out,depth="completo"):
              Paragraph("Qu\u00e9 mide",h_sub),
              Paragraph(f"Este cap\u00edtulo mide {QMIDE[code]}",body),
              Paragraph("Tu resultado",h_sub),
-             Table([[Paragraph(f"<b>{pc['score']:.0f}</b>/100  \u00b7  percentil {pc['pct']:.0f}",body),
+             Table([[Paragraph(f"<b>{pc['score']:.0f}</b>/100",body),
                      Chip(pc["banda"],BANDC[pc["bi"]],w=96,h=14)]],
                    colWidths=[60*mm,40*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),
              Bar(pc["score"],w=160*mm/1),
@@ -868,7 +891,7 @@ def build(cli,resp,datos,out,depth="completo"):
                           title="Tu Libro Financiero — ITAP")
     doc.build(S,onFirstPage=deco,onLaterPages=deco); print("PDF OK ->",out)
 
-def build_book(resp, datos, cli, outpath, depth="completo"):
+def build_book(resp, datos, cli, outpath, depth="completo", baremo=None):
     """API entrypoint: genera el libro PDF en outpath."""
-    build(cli, resp, datos, outpath, depth)
+    build(cli, resp, datos, outpath, depth, baremo)
     return outpath

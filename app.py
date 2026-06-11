@@ -16,6 +16,7 @@ DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "itap_sessions.db"
 TIER_LIMIT = {1: 60, 2: 1000, 3: 1000}
 TIER_DEPTH = {1: "esencial", 2: "completo", 3: "completo"}
 PRIVACIDAD_VERSION = "1.0"
+BAREMO_MIN = int(os.environ.get("BAREMO_MIN", "30"))  # muestra minima para afirmar percentil
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 RESEND_FROM = os.environ.get("RESEND_FROM", "ITAP <itap@adaptafamilyoffice.com>")
 NOTIFY_EMAIL = os.environ.get("NOTIFY_EMAIL", "javier@mendezconsultoria.com")
@@ -30,7 +31,8 @@ def init_db():
             creado TEXT, pareja_de TEXT, consentimiento INTEGER, consent_fecha TEXT, consent_version TEXT)""")
         cols = [r["name"] for r in c.execute("PRAGMA table_info(sesiones)")]
         for col, ddl in [("nombre","TEXT"),("pareja_de","TEXT"),("consentimiento","INTEGER"),
-                         ("consent_fecha","TEXT"),("consent_version","TEXT"),("notificado","INTEGER")]:
+                         ("consent_fecha","TEXT"),("consent_version","TEXT"),("notificado","INTEGER"),
+                         ("salud","REAL"),("sexo","TEXT")]:
             if col not in cols:
                 c.execute("ALTER TABLE sesiones ADD COLUMN %s %s" % (col, ddl))
 init_db()
@@ -39,6 +41,7 @@ class StartPayload(BaseModel):
     email: str
     tier: int
     nombre: Optional[str] = None
+    sexo: Optional[str] = None
     consentimiento: bool = False
 
 class CompletePayload(BaseModel):
@@ -79,13 +82,39 @@ def datos_completos(d):
     d.setdefault("ahorro_mensual", 300); d.setdefault("patrimonio", 30000); d.setdefault("edad", 40)
     return d
 
-def _cli(email, nombre=None):
-    nom = (nombre or "").strip() or (email or "cliente").split("@")[0].replace("."," ").title()
-    return {"nombre": nom, "email": email or "", "fecha": datetime.datetime.now().strftime("%d/%m/%Y")}
+def baremo(salud_score):
+    """Percentil empirico real: % de la muestra menos sana que tu. None si la muestra aun es pequena."""
+    try:
+        with db() as c:
+            scores = [r["salud"] for r in c.execute("SELECT salud FROM sesiones WHERE salud IS NOT NULL").fetchall()]
+    except Exception:
+        scores = []
+    N = len(scores)
+    if N < BAREMO_MIN or salud_score is None:
+        return {"pct": None, "n": N}
+    above = sum(1 for x in scores if x > salud_score)   # mas disfuncion = menos sano que tu
+    eq = sum(1 for x in scores if x == salud_score)
+    pct = (above + 0.5 * eq) / N * 100.0
+    return {"pct": round(pct), "n": N}
 
-def generar_pdf(sid, email, nombre, respuestas, datos, tier):
+def _guardar_salud(session_id, respuestas):
+    try:
+        _, _, salud = rb.perfil(respuestas)
+        with db() as c:
+            c.execute("UPDATE sesiones SET salud=? WHERE id=?", (float(salud), session_id))
+        return salud
+    except Exception:
+        return None
+
+def _cli(email, nombre=None, sexo=None):
+    nom = (nombre or "").strip() or (email or "cliente").split("@")[0].replace("."," ").title()
+    return {"nombre": nom, "email": email or "", "sexo": sexo or "",
+            "fecha": datetime.datetime.now().strftime("%d/%m/%Y")}
+
+def generar_pdf(sid, email, nombre, respuestas, datos, tier, bar=None, sexo=None):
     out = os.path.join(REPORTS_DIR, "itap_%s.pdf" % sid)
-    rb.build_book(respuestas, datos_completos(datos), _cli(email, nombre), out, depth=TIER_DEPTH.get(tier, "completo"))
+    rb.build_book(respuestas, datos_completos(datos), _cli(email, nombre, sexo), out,
+                  depth=TIER_DEPTH.get(tier, "completo"), baremo=bar)
     return out
 
 def generar_couple(out, arow, brow):
@@ -108,9 +137,10 @@ def start(payload: StartPayload):
         raise HTTPException(400, "Debes aceptar la politica de privacidad para continuar.")
     sid = str(uuid.uuid4())
     with db() as c:
-        c.execute("""INSERT INTO sesiones(id,email,nombre,tier,respuestas,datos,creado,pareja_de,
-                     consentimiento,consent_fecha,consent_version) VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
-                  (sid, payload.email, (payload.nombre or "").strip() or None, payload.tier, "{}", "{}",
+        c.execute("""INSERT INTO sesiones(id,email,nombre,sexo,tier,respuestas,datos,creado,pareja_de,
+                     consentimiento,consent_fecha,consent_version) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""",
+                  (sid, payload.email, (payload.nombre or "").strip() or None, (payload.sexo or "").strip() or None,
+                   payload.tier, "{}", "{}",
                    datetime.datetime.utcnow().isoformat(), None, 1,
                    datetime.datetime.utcnow().isoformat(), PRIVACIDAD_VERSION))
     return {"session_id": sid}
@@ -126,7 +156,7 @@ def open_answer(payload: dict):
 @app.post("/api/complete")
 def complete(payload: CompletePayload):
     with db() as c:
-        row = c.execute("SELECT email,nombre,tier FROM sesiones WHERE id=?", (payload.session_id,)).fetchone()
+        row = c.execute("SELECT email,nombre,tier,sexo FROM sesiones WHERE id=?", (payload.session_id,)).fetchone()
     if not row:
         raise HTTPException(400, "Sesion no valida. Inicia el cuestionario aceptando la politica de privacidad.")
     email = payload.email or row["email"]
@@ -150,8 +180,10 @@ def complete(payload: CompletePayload):
         except Exception as e:
             raise HTTPException(500, "Error generando informe de pareja: %s" % e)
         return {"ok": True, "es_pareja": True, "report_url": "/api/report/%s" % payload.session_id}
+    salud = _guardar_salud(payload.session_id, payload.respuestas)
+    bar = baremo(salud)
     try:
-        generar_pdf(payload.session_id, email, nombre, payload.respuestas, datos, tier)
+        generar_pdf(payload.session_id, email, nombre, payload.respuestas, datos, tier, bar, row["sexo"])
     except Exception as e:
         raise HTTPException(500, "Error generando informe: %s" % e)
     return {"ok": True, "report_url": "/api/report/%s" % payload.session_id}
@@ -161,7 +193,7 @@ def report(session_id: str):
     path = os.path.join(REPORTS_DIR, "itap_%s.pdf" % session_id)
     if not os.path.exists(path):
         with db() as c:
-            row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de FROM sesiones WHERE id=?", (session_id,)).fetchone()
+            row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo FROM sesiones WHERE id=?", (session_id,)).fetchone()
         if not row or row["respuestas"] in (None, "{}"):
             raise HTTPException(404, "Informe no encontrado")
         try:
@@ -170,7 +202,9 @@ def report(session_id: str):
                     arow = c.execute("SELECT email,nombre,respuestas,datos FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
                 generar_couple(path, arow, row)
             else:
-                generar_pdf(session_id, row["email"], row["nombre"], json.loads(row["respuestas"]), json.loads(row["datos"]), row["tier"])
+                _resp = json.loads(row["respuestas"])
+                _salud = _guardar_salud(session_id, _resp)
+                generar_pdf(session_id, row["email"], row["nombre"], _resp, json.loads(row["datos"]), row["tier"], baremo(_salud), row["sexo"])
         except Exception as e:
             raise HTTPException(500, "Error regenerando informe: %s" % e)
     return FileResponse(path, media_type="application/pdf", filename="Tu_Libro_Financiero_ITAP.pdf")
@@ -180,7 +214,7 @@ def _asegurar_pdf(session_id):
     if os.path.exists(path):
         return path
     with db() as c:
-        row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de FROM sesiones WHERE id=?", (session_id,)).fetchone()
+        row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo FROM sesiones WHERE id=?", (session_id,)).fetchone()
     if not row or row["respuestas"] in (None, "{}"):
         return None
     try:
