@@ -164,7 +164,7 @@ def _compartimento(prof, resp):
     return None
 
 def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, resp=None):
-    pn=nombre.split()[0]
+    pn=(nombre.split()[0] if (nombre or "").strip() else "esta persona")
     bi_g,bl_g=rb.banda(rb.CAPAS["C1"],salud)
     out=[Paragraph("PERFIL INDIVIDUAL",kick), Paragraph(nombre,h_sec),
          Paragraph(f"Antes de cruzaros, esta es la foto psicol\u00f3gica de {pn}: c\u00f3mo vive el dinero por dentro. Las cifras del hogar son comunes (las ver\u00e9is juntas); lo que cambia de uno a otro es la percepci\u00f3n, el miedo y la prioridad.",body),
@@ -357,7 +357,8 @@ def laboratorio_pareja(rA,rB,pA,pB,nA,nB,dA,dB,hogar,divs):
 
 def build_couple(rA,dA,cliA,rB,dB,cliB,out):
     pA,trA,saludA=rb.perfil(rA); pB,trB,saludB=rb.perfil(rB)
-    nA,nB=cliA["nombre"].split()[0], cliB["nombre"].split()[0]
+    nA=(cliA["nombre"].split()[0] if (cliA.get("nombre") or "").strip() else "Persona A")
+    nB=(cliB["nombre"].split()[0] if (cliB.get("nombre") or "").strip() else "Persona B")
     gaps=[abs(pA[c]["score"]-pB[c]["score"]) for c in CAPAS]
     compat=max(0,round(100-statistics.mean(gaps)))
     divs=divergencias_item(rA,rB)
@@ -441,8 +442,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                      rb.Chip(zona,zc,w=64,h=13)])
     S+=[tbl(rows,[78*mm,15*mm,15*mm,20*mm,32*mm]),PageBreak()]
     rb.radar_png(pA,"_radarA.png"); rb.radar_png(pB,"_radarB.png")
-    S+=seccion_individual(cliA["nombre"],pA,trA,saludA,dA,"_radarA.png",fi_h,rA)
-    S+=seccion_individual(cliB["nombre"],pB,trB,saludB,dB,"_radarB.png",fi_h,rB)
+    S+=seccion_individual(cliA["nombre"] or nA,pA,trA,saludA,dA,"_radarA.png",fi_h,rA)
+    S+=seccion_individual(cliB["nombre"] or nB,pB,trB,saludB,dB,"_radarB.png",fi_h,rB)
     # capitulos comparativos por capa
     S+=[Paragraph("Capa por capa, los dos",h_sec),
         Paragraph("El corazon de vuestro libro: las diez dimensiones, leidas en pareja. La barra azul es "

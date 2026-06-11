@@ -76,12 +76,15 @@ def adaptar_arq(it):
             "tipo": "opcion_multiple", "opciones": [o["texto"] for o in it["opciones"]]}
 
 def items_para_tier(tier):
-    out = [adaptar_item(it) for capa in rb.INST["capas"] for it in capa["items"]]
-    out = out[:TIER_LIMIT.get(tier, 1000)]
-    if tier in (2, 3):
-        seeds = [adaptar_seed(it) for it in rb.INST.get("seeds", [])]
-        out = seeds + out + [adaptar_arq(it) for it in rb.INST.get("arquetipo", [])]
-    return out
+    capa_items = [it for capa in rb.INST["capas"] for it in capa["items"]]
+    if tier == 1:
+        sel = [it for it in capa_items if it.get("tier1") or it["tipo"] == "numerica"]
+    else:
+        sel = capa_items
+    out = [adaptar_item(it) for it in sel]
+    seeds = [adaptar_seed(it) for it in rb.INST.get("seeds", [])]
+    arq = [adaptar_arq(it) for it in rb.INST.get("arquetipo", [])] if tier in (2, 3) else []
+    return seeds + out + arq
 
 def datos_completos(d):
     d = dict(d or {})
