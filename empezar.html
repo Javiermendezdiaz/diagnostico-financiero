@@ -99,7 +99,7 @@ a { color:var(--amarillo); }
 <div class="completion">
 <h2>¡<b>Gracias</b>!</h2>
 <p>Tu libro financiero está listo para descargar.</p>
-<button class="dl" onclick="descargar()">Descargar mi Libro (PDF)</button>
+<button id="btn-dl" class="dl" onclick="descargar()">Descargar mi Libro (PDF)</button>
 </div>
 </div>
 </div>
@@ -215,14 +215,23 @@ if(!em) return;
 fetch(`${API_URL}/api/borrar-datos`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})})
 .then(r=>r.json()).then(d=>alert(d.mensaje||'Datos eliminados.')).catch(()=>alert('No se pudo procesar la solicitud.'));
 }
-function pagar(){ window.location.href = STRIPE_LINKS[st.tier]; }
+function pagar(){ window.location.href = STRIPE_LINKS[st.tier] + (STRIPE_LINKS[st.tier].includes('?')?'&':'?') + 'client_reference_id=' + encodeURIComponent(st.sessionId); }
+let _pi=0;
+function confirmarPago(sid){
+const b=document.getElementById('btn-dl');
+fetch(`${API_URL}/api/estado/${sid}`).then(r=>r.json()).then(d=>{
+if(!d.gated || d.pagado){ if(b){b.disabled=false; b.textContent='Descargar mi Libro (PDF)'; } }
+else if(_pi<20){ _pi++; if(b){b.disabled=true; b.textContent='Confirmando tu pago…'; } setTimeout(()=>confirmarPago(sid),2000); }
+else { if(b){b.disabled=false; b.textContent='Descargar (reintentar)'; } }
+}).catch(()=>{ if(b){b.disabled=false;} });
+}
 function descargar(){ const s = JSON.parse(localStorage.getItem('itap')||'{}'); const u = st.reportUrl||s.reportUrl; if(u) window.location.href = API_URL+u; }
 
 (function(){
 if(params.get('paid')==='1'){
 const s = JSON.parse(localStorage.getItem('itap')||'{}');
-if(s.reportUrl){ st.reportUrl=s.reportUrl; paso('step-descarga');
-if(s.sessionId){ fetch(`${API_URL}/api/notify-purchase`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:s.sessionId})}).catch(()=>{}); }
+if(s.reportUrl){ st.reportUrl=s.reportUrl; st.sessionId=s.sessionId; paso('step-descarga');
+if(s.sessionId){ fetch(`${API_URL}/api/notify-purchase`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:s.sessionId})}).catch(()=>{}); confirmarPago(s.sessionId); }
 }
 }
 })();

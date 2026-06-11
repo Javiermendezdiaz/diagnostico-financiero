@@ -1,6 +1,6 @@
 """ITAP — Backend de produccion. Instrumento + motor + Libros. Profundidad por tier. RGPD. Nombre del cliente."""
 import os, uuid, json, datetime, tempfile, sqlite3, base64, urllib.request, urllib.error
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -20,6 +20,7 @@ BAREMO_MIN = int(os.environ.get("BAREMO_MIN", "30"))  # muestra minima para afir
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 RESEND_FROM = os.environ.get("RESEND_FROM", "ITAP <itap@adaptafamilyoffice.com>")
 NOTIFY_EMAIL = os.environ.get("NOTIFY_EMAIL", "javier@mendezconsultoria.com")
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 
 def db():
     c = sqlite3.connect(DB); c.row_factory = sqlite3.Row; return c
@@ -32,7 +33,7 @@ def init_db():
         cols = [r["name"] for r in c.execute("PRAGMA table_info(sesiones)")]
         for col, ddl in [("nombre","TEXT"),("pareja_de","TEXT"),("consentimiento","INTEGER"),
                          ("consent_fecha","TEXT"),("consent_version","TEXT"),("notificado","INTEGER"),
-                         ("salud","REAL"),("sexo","TEXT")]:
+                         ("salud","REAL"),("sexo","TEXT"),("pagado","INTEGER")]:
             if col not in cols:
                 c.execute("ALTER TABLE sesiones ADD COLUMN %s %s" % (col, ddl))
 init_db()
@@ -198,8 +199,37 @@ def complete(payload: CompletePayload):
         raise HTTPException(500, "Error generando informe: %s" % e)
     return {"ok": True, "report_url": "/api/report/%s" % payload.session_id}
 
+@app.get("/api/estado/{session_id}")
+def estado(session_id: str):
+    with db() as c:
+        row = c.execute("SELECT pagado FROM sesiones WHERE id=?", (session_id,)).fetchone()
+    return {"pagado": bool(row and row["pagado"]), "gated": bool(STRIPE_WEBHOOK_SECRET)}
+
+@app.post("/api/stripe-webhook")
+async def stripe_webhook(request: Request):
+    if not STRIPE_WEBHOOK_SECRET:
+        return {"ok": False, "reason": "webhook_no_configurado"}
+    payload = await request.body()
+    sig = request.headers.get("stripe-signature", "")
+    try:
+        import stripe
+        event = stripe.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK_SECRET)
+    except Exception:
+        raise HTTPException(400, "Firma de webhook invalida")
+    if event.get("type") == "checkout.session.completed":
+        ref = (event.get("data", {}).get("object", {}) or {}).get("client_reference_id")
+        if ref:
+            with db() as c:
+                c.execute("UPDATE sesiones SET pagado=1 WHERE id=?", (ref,))
+    return {"ok": True}
+
 @app.get("/api/report/{session_id}")
 def report(session_id: str):
+    if STRIPE_WEBHOOK_SECRET:
+        with db() as c:
+            prow = c.execute("SELECT pagado FROM sesiones WHERE id=?", (session_id,)).fetchone()
+        if not prow or not prow["pagado"]:
+            raise HTTPException(402, "Pago requerido para acceder al informe.")
     path = os.path.join(REPORTS_DIR, "itap_%s.pdf" % session_id)
     if not os.path.exists(path):
         with db() as c:
