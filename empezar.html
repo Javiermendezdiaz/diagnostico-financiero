@@ -215,7 +215,9 @@ function descargar(){ const s = JSON.parse(localStorage.getItem('itap')||'{}'); 
 (function(){
 if(params.get('paid')==='1'){
 const s = JSON.parse(localStorage.getItem('itap')||'{}');
-if(s.reportUrl){ st.reportUrl=s.reportUrl; paso('step-descarga'); }
+if(s.reportUrl){ st.reportUrl=s.reportUrl; paso('step-descarga');
+if(s.sessionId){ fetch(`${API_URL}/api/notify-purchase`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:s.sessionId})}).catch(()=>{}); }
+}
 }
 })();
 </script>

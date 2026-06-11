@@ -1,5 +1,5 @@
 """ITAP — Backend de produccion. Instrumento + motor + Libros. Profundidad por tier. RGPD. Nombre del cliente."""
-import os, uuid, json, datetime, tempfile, sqlite3
+import os, uuid, json, datetime, tempfile, sqlite3, base64, urllib.request, urllib.error
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -16,6 +16,9 @@ DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "itap_sessions.db"
 TIER_LIMIT = {1: 60, 2: 1000, 3: 1000}
 TIER_DEPTH = {1: "esencial", 2: "completo", 3: "completo"}
 PRIVACIDAD_VERSION = "1.0"
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+RESEND_FROM = os.environ.get("RESEND_FROM", "ITAP <itap@adaptafamilyoffice.com>")
+NOTIFY_EMAIL = os.environ.get("NOTIFY_EMAIL", "javier@mendezconsultoria.com")
 
 def db():
     c = sqlite3.connect(DB); c.row_factory = sqlite3.Row; return c
@@ -27,7 +30,7 @@ def init_db():
             creado TEXT, pareja_de TEXT, consentimiento INTEGER, consent_fecha TEXT, consent_version TEXT)""")
         cols = [r["name"] for r in c.execute("PRAGMA table_info(sesiones)")]
         for col, ddl in [("nombre","TEXT"),("pareja_de","TEXT"),("consentimiento","INTEGER"),
-                         ("consent_fecha","TEXT"),("consent_version","TEXT")]:
+                         ("consent_fecha","TEXT"),("consent_version","TEXT"),("notificado","INTEGER")]:
             if col not in cols:
                 c.execute("ALTER TABLE sesiones ADD COLUMN %s %s" % (col, ddl))
 init_db()
@@ -47,6 +50,9 @@ class CompletePayload(BaseModel):
 
 class BorrarPayload(BaseModel):
     email: str
+
+class NotifyPayload(BaseModel):
+    session_id: str
 
 def adaptar_item(it):
     base = {"id": it["id"], "pregunta": it["texto"], "bloque": it.get("faceta", "")}
@@ -89,7 +95,7 @@ def generar_couple(out, arow, brow):
 @app.get("/")
 def health():
     return {"status": "healthy", "service": "ITAP", "capas": len(rb.INST["capas"]),
-            "version": rb.INST["meta"]["version"], "persistencia": "sqlite", "pareja": True, "rgpd": True, "nombre": True, "arquetipo": True}
+            "version": rb.INST["meta"]["version"], "persistencia": "sqlite", "pareja": True, "rgpd": True, "nombre": True, "arquetipo": True, "email": bool(RESEND_API_KEY)}
 
 @app.get("/api/questions/{tier}")
 def questions(tier: int):
@@ -168,6 +174,80 @@ def report(session_id: str):
         except Exception as e:
             raise HTTPException(500, "Error regenerando informe: %s" % e)
     return FileResponse(path, media_type="application/pdf", filename="Tu_Libro_Financiero_ITAP.pdf")
+
+def _asegurar_pdf(session_id):
+    path = os.path.join(REPORTS_DIR, "itap_%s.pdf" % session_id)
+    if os.path.exists(path):
+        return path
+    with db() as c:
+        row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de FROM sesiones WHERE id=?", (session_id,)).fetchone()
+    if not row or row["respuestas"] in (None, "{}"):
+        return None
+    try:
+        if row["pareja_de"]:
+            with db() as c:
+                arow = c.execute("SELECT email,nombre,respuestas,datos FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
+            generar_couple(path, arow, row)
+        else:
+            generar_pdf(session_id, row["email"], row["nombre"], json.loads(row["respuestas"]), json.loads(row["datos"]), row["tier"])
+        return path if os.path.exists(path) else None
+    except Exception:
+        return None
+
+def _resend_email(asunto, html, pdf_bytes, filename):
+    payload = {
+        "from": RESEND_FROM,
+        "to": [NOTIFY_EMAIL],
+        "subject": asunto,
+        "html": html,
+        "attachments": [{"filename": filename, "content": base64.b64encode(pdf_bytes).decode("ascii")}],
+    }
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request("https://api.resend.com/emails", data=data, method="POST",
+        headers={"Authorization": "Bearer %s" % RESEND_API_KEY, "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        return r.status, r.read().decode("utf-8", "ignore")
+
+def enviar_copia(session_id):
+    if not RESEND_API_KEY:
+        return {"ok": False, "reason": "resend_no_configurado"}
+    with db() as c:
+        row = c.execute("SELECT email,nombre,tier,respuestas,notificado FROM sesiones WHERE id=?", (session_id,)).fetchone()
+    if not row or row["respuestas"] in (None, "{}"):
+        return {"ok": False, "reason": "sesion_sin_respuestas"}
+    if row["notificado"]:
+        return {"ok": True, "ya_enviado": True}
+    path = _asegurar_pdf(session_id)
+    if not path:
+        return {"ok": False, "reason": "pdf_no_disponible"}
+    tier_nombre = {1: "Diagnostico Rapido (19 EUR)", 2: "Informe Avanzado (39 EUR)", 3: "Analisis de Pareja (54 EUR)"}.get(row["tier"], "Tier %s" % row["tier"])
+    cliente = (row["nombre"] or "").strip() or "(sin nombre)"
+    email_cli = row["email"] or "(sin email)"
+    asunto = "Nueva compra ITAP - %s - %s" % (cliente, tier_nombre)
+    html = ("<h2>Nueva compra ITAP</h2>"
+            "<p><b>Cliente:</b> %s<br><b>Email:</b> %s<br><b>Producto:</b> %s</p>"
+            "<p>Adjunto va una copia del libro financiero generado.</p>"
+            "<p style='color:#888;font-size:12px'>Notificacion automatica - Adapta Family Office</p>") % (cliente, email_cli, tier_nombre)
+    try:
+        with open(path, "rb") as f:
+            pdf_bytes = f.read()
+        status, _ = _resend_email(asunto, html, pdf_bytes, "ITAP_%s.pdf" % cliente.replace(" ", "_"))
+    except urllib.error.HTTPError as e:
+        return {"ok": False, "reason": "resend_error_%s" % e.code}
+    except Exception as e:
+        return {"ok": False, "reason": "error_%s" % type(e).__name__}
+    if 200 <= status < 300:
+        with db() as c:
+            c.execute("UPDATE sesiones SET notificado=1 WHERE id=?", (session_id,))
+        return {"ok": True}
+    return {"ok": False, "reason": "resend_status_%s" % status}
+
+@app.post("/api/notify-purchase")
+def notify_purchase(payload: NotifyPayload):
+    try:
+        return enviar_copia(payload.session_id)
+    except Exception as e:
+        return {"ok": False, "reason": "error_%s" % type(e).__name__}
 
 @app.post("/api/borrar-datos")
 def borrar_datos(payload: BorrarPayload):
