@@ -170,6 +170,11 @@ cont.appendChild(b);
 }
 }
 
+function _activa(p){
+if(!p || !p.depende_de) return true;
+const sd = st.respuestas[p.depende_de.seed];
+return (sd !== undefined && sd >= p.depende_de.min_idx);
+}
 function siguiente(){
 const p = st.preguntas[st.i];
 if(p.tipo === 'numerica'){
@@ -178,6 +183,7 @@ if(v===''){ alert('Introduce un número'); return; }
 st.datos[NUM_MAP[p.id]] = parseFloat(v);
 }
 st.i++;
+while(st.i < st.preguntas.length && !_activa(st.preguntas[st.i])) st.i++;
 if(st.i < st.preguntas.length) pintar(); else finalizar();
 }
 

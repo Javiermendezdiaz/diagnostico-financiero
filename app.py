@@ -63,7 +63,13 @@ def adaptar_item(it):
         base["tipo"] = "opcion_multiple"; base["opciones"] = [o["texto"] for o in it["opciones"]]
     else:
         base["tipo"] = "numerica"; base["unidad"] = it.get("unidad", "")
+    if "depende_de" in it:
+        base["depende_de"] = it["depende_de"]
     return base
+
+def adaptar_seed(it):
+    return {"id": it["id"], "pregunta": it["texto"], "bloque": "Antes de empezar",
+            "tipo": "opcion_multiple", "opciones": [o["texto"] for o in it["opciones"]], "seed": True}
 
 def adaptar_arq(it):
     return {"id": it["id"], "pregunta": it["texto"], "bloque": "Tu arquetipo del dinero",
@@ -73,7 +79,8 @@ def items_para_tier(tier):
     out = [adaptar_item(it) for capa in rb.INST["capas"] for it in capa["items"]]
     out = out[:TIER_LIMIT.get(tier, 1000)]
     if tier in (2, 3):
-        out += [adaptar_arq(it) for it in rb.INST.get("arquetipo", [])]
+        seeds = [adaptar_seed(it) for it in rb.INST.get("seeds", [])]
+        out = seeds + out + [adaptar_arq(it) for it in rb.INST.get("arquetipo", [])]
     return out
 
 def datos_completos(d):
