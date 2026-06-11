@@ -233,7 +233,9 @@ def enviar_copia(session_id):
             pdf_bytes = f.read()
         status, _ = _resend_email(asunto, html, pdf_bytes, "ITAP_%s.pdf" % cliente.replace(" ", "_"))
     except urllib.error.HTTPError as e:
-        return {"ok": False, "reason": "resend_error_%s" % e.code}
+        try: detalle = e.read().decode("utf-8","ignore")[:400]
+        except Exception: detalle = ""
+        return {"ok": False, "reason": "resend_error_%s" % e.code, "detalle": detalle}
     except Exception as e:
         return {"ok": False, "reason": "error_%s" % type(e).__name__}
     if 200 <= status < 300:
