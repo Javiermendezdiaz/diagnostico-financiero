@@ -145,11 +145,22 @@ def faceta_lectura(score):
     if score<51: return "va bien, con recorrido de mejora."
     if score<76: return "empieza a pesar; conviene atenderla."
     return "es un punto crítico de esta área."
-def segundo_parrafo(bi):
-    return {0:"Mantén lo que funciona: revisa esta área de vez en cuando para que no se deteriore sin avisar. La fortaleza descuidada se oxida.",
-            1:"Tienes una base buena. Un pequeño ajuste sostenido aquí te lleva al nivel más alto sin grandes sacrificios: es de las mejoras más rentables que puedes hacer.",
-            2:"No hace falta una revolución, sino constancia: un hábito bien elegido, repetido tres meses, mueve esta cifra de forma visible. Empieza pequeño, pero empieza.",
-            3:"Esta es de las áreas a las que dar prioridad. El coste de no actuar crece con el tiempo; el de actuar, se paga una vez. Conviértelo en tu primer frente."}[bi]
+def _vidx(code, n=3):
+    return sum(ord(c) for c in (code or "x")) % n
+def segundo_parrafo(bi, code=""):
+    V={0:["Mantén lo que funciona: revísalo de vez en cuando para que no se deteriore sin avisar.",
+          "Aquí no hay nada que arreglar, solo que proteger: la fortaleza descuidada se oxida.",
+          "Es terreno ganado. Tu único trabajo es no darlo por sentado."],
+       1:["Tienes una base buena; un ajuste pequeño y sostenido te lleva al nivel más alto sin grandes sacrificios.",
+          "Estás cerca de la zona óptima: pulir este punto es de las mejoras más rentables que puedes hacer.",
+          "Con poco esfuerzo bien dirigido, esta área pasa de buena a excelente."],
+       2:["No hace falta una revolución, sino constancia: un hábito repetido tres meses mueve esta cifra de forma visible.",
+          "Aquí el problema no es de capacidad, es de sistema: ponle un automatismo y deja de depender de tu fuerza de voluntad.",
+          "Está pidiendo atención, no rescate: un cambio concreto y medible la endereza en un trimestre."],
+       3:["Es de las áreas a las que dar prioridad: el coste de no actuar crece con el tiempo; el de actuar, se paga una vez.",
+          "Esto es un frente abierto. Cuanto antes lo cierres, menos te cuesta — y deja de drenar al resto.",
+          "Aquí es donde más rinde tu energía ahora mismo: el retorno de intervenir es inmediato."]}
+    return V[bi][_vidx(code)]
 
 
 def interpretar(nombre,s,bl,bi,peor):
@@ -158,10 +169,14 @@ def interpretar(nombre,s,bl,bi,peor):
                       f"No la des por garantizada: lo que hoy va bien también se cuida.")
     if bi==1: return (f"En {nl} vas bien, con margen (score {s:.0f}, «{bl}»). El punto que más pesa ahora es "
                       f"«{peor}»; ahí tienes la mejora más fácil y rentable.")
-    if bi==2: return (f"{nombre} muestra sobrecarga (score {s:.0f}, «{bl}»), sobre todo en «{peor}». No es "
-                      f"catastrófico, pero si no lo atiendes va erosionando todo lo demás poco a poco.")
-    return (f"{nombre} está en zona crítica (score {s:.0f}, «{bl}»), en especial en «{peor}». Es uno de los "
-            f"primeros frentes donde intervenir: el retorno de actuar aquí es inmediato.")
+    cierre2=["pesa de fondo y, sin atención, va contagiando al resto de tu economía.",
+             "todavía no duele, pero ya te está restando margen sin que lo notes.",
+             "es el tipo de tensión que, ignorada, se normaliza — y normalizar el problema es lo caro."]
+    cierre3=["es uno de los primeros frentes donde intervenir: el retorno de actuar aquí es inmediato.",
+             "no admite más demora: cada mes que pasa, el agujero se ensancha solo.",
+             "es la palanca que más te cambia el cuadro si la atacas ya."]
+    if bi==2: return (f"{nombre} muestra sobrecarga (score {s:.0f}, «{bl}»), sobre todo en «{peor}». {cierre2[_vidx(nombre)]}")
+    return (f"{nombre} está en zona crítica (score {s:.0f}, «{bl}»), en especial en «{peor}». {cierre3[_vidx(nombre)]}")
 
 def insights(p,tr,fi):
     o=[]
@@ -475,11 +490,13 @@ def cuadro_financiero(p, datos, fi):
         exceso,coste=tap
         vnh=valor_hora(datos)
         horas=(coste/12)/vnh if vnh>0 else 0
+        coste10=exceso*(1-(1/(1.03**10)))  # poder adquisitivo erosionado en 10 años al 3%
         out.append(_box([Paragraph(f"<font color='#B45309'><b>La auditoría del tapón</b></font><br/>"
             f"<font size=9.5>Tienes unos <b>{_eur(exceso)}</b> de liquidez por encima de un colchón sano de 6 meses. "
-            f"Parada y sin invertir, esa cifra deja de ganar alrededor de <b>{_eur(coste)} al año</b> solo en coste de "
-            f"oportunidad frente a la inflación. No es prudencia: es un peaje invisible. Mover una parte a algo que "
-            f"al menos preserve su valor es de las decisiones más rentables y menos arriesgadas que tienes sobre la mesa.</font>",
+            f"Parada y sin invertir, no te cuesta {_eur(coste)} hoy: te cuesta el tiempo. Proyectado a diez años, "
+            f"esa cifra pierde alrededor de <b>{_eur(coste10)} de poder adquisitivo</b> si la inflación ronda el 3% anual. "
+            f"No es prudencia: es un peaje invisible que pagas por no decidir. Mover una parte a algo que al menos "
+            f"preserve su valor es de las decisiones más rentables y menos arriesgadas que tienes sobre la mesa.</font>",
             St("tp",fontSize=10.5,leading=15))],"#FBF3E8","#B45309",ancho=160*mm))
     out.append(PageBreak())
     f65,m65,_=proyeccion_chart(datos,"_proy.png")
@@ -632,7 +649,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None):
         Spacer(1,40*mm),
         Paragraph(f"Perfil  \u00b7  <b>{cohorte_txt(cli,datos).capitalize()}</b>",St("cvn",fontSize=12)),
         Paragraph(cli["email"],small), Paragraph(cli["fecha"],small),
-        Spacer(1,3*mm), Paragraph("Edición Avanzada · Tier 2",St("cvt",fontSize=9.5,textColor=ACC,fontName="Helvetica-Bold")),
+        Spacer(1,3*mm), Paragraph(("Diagnóstico Rápido · Tier 1" if depth=="esencial" else "Informe Avanzado · Tier 2"),St("cvt",fontSize=9.5,textColor=ACC,fontName="Helvetica-Bold")),
         Spacer(1,16*mm),
         Paragraph(f"DOCUMENTO CONFIDENCIAL · REF {report_id(cli.get('email') or 'ITAP',cli['fecha'])} · USO PRIVADO",
                   St("cvr",fontSize=7.5,textColor=GREY,fontName="Helvetica")),
@@ -723,7 +740,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None):
                                  style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),
                                         ("LEFTPADDING",(1,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
             cab+=[Spacer(1,2*mm),
-                  Paragraph(segundo_parrafo(pc["bi"]),body),
+                  Paragraph(segundo_parrafo(pc["bi"],code),body),
                   Paragraph("El riesgo si no act\u00faas",h_sub),
                   Paragraph(RIESGO[code],body),
                   Paragraph("La oportunidad",h_sub),
@@ -857,7 +874,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None):
         Spacer(1,5*mm),
         Paragraph("Metodología y límites",h_sub),
         Paragraph("Instrumento de 10 capas con dimensiones psicométricas de polaridad consistente. Los percentiles "
-                  "son provisionales y se afinan con datos reales conforme crece la base de respondentes. Herramienta "
+                  "se calibran empíricamente frente a la cohorte real de respondentes; mientras la muestra de tu grupo crece, se indican como provisionales. Herramienta "
                   "de autoconocimiento; no sustituye asesoramiento profesional individualizado.",small)]
     S+=seccion_adapta(p)
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
