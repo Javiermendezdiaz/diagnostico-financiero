@@ -94,19 +94,19 @@
      "texto": "¿Cómo te sientes físicamente al revisar tu cuenta bancaria?",
      "opciones": [
       {
-       "texto": " Tranquilidad, todo bajo control",
+       "texto": "Tranquilidad, todo bajo control",
        "score": 0
       },
       {
-       "texto": " Neutral, es solo una herramienta",
+       "texto": "Neutral, es solo una herramienta",
        "score": 25
       },
       {
-       "texto": " Cierta ansiedad o incomodidad",
+       "texto": "Cierta ansiedad o incomodidad",
        "score": 50
       },
       {
-       "texto": " Pánico, evito mirar",
+       "texto": "Pánico, evito mirar",
        "score": 100
       }
      ],
@@ -120,19 +120,19 @@
      "texto": "En una escala del 1-10, ¿cuánto miedo te da una crisis económica repentina?",
      "opciones": [
       {
-       "texto": " 1-3: No me preocupa",
+       "texto": "1-3: No me preocupa",
        "score": 0
       },
       {
-       "texto": " 4-5: Algo de inquietud",
+       "texto": "4-5: Algo de inquietud",
        "score": 35
       },
       {
-       "texto": " 6-7: Bastante miedo",
+       "texto": "6-7: Bastante miedo",
        "score": 65
       },
       {
-       "texto": " 8-10: Terror absoluto",
+       "texto": "8-10: Terror absoluto",
        "score": 100
       }
      ],
@@ -146,19 +146,19 @@
      "texto": "¿Cuántas veces por semana te despiertas con ansiedad relacionada con dinero?",
      "opciones": [
       {
-       "texto": " Nunca",
+       "texto": "Nunca",
        "score": 0
       },
       {
-       "texto": " 1-2 veces",
+       "texto": "1-2 veces",
        "score": 25
       },
       {
-       "texto": " 3-4 veces",
+       "texto": "3-4 veces",
        "score": 50
       },
       {
-       "texto": " Todos los días",
+       "texto": "Todos los días",
        "score": 100
       }
      ],
@@ -172,19 +172,19 @@
      "texto": "¿Discutes dinero frecuentemente con tu pareja/familia de forma tensa?",
      "opciones": [
       {
-       "texto": " Nunca, comunicación sana",
+       "texto": "Nunca, comunicación sana",
        "score": 0
       },
       {
-       "texto": " Ocasionalmente",
+       "texto": "Ocasionalmente",
        "score": 30
       },
       {
-       "texto": " Regularmente",
+       "texto": "Regularmente",
        "score": 65
       },
       {
-       "texto": " Es fuente constante de conflicto",
+       "texto": "Es fuente constante de conflicto",
        "score": 100
       }
      ],
@@ -198,19 +198,19 @@
      "texto": "¿Sientes que trabajas solo para pagar deudas y gastos, sin libertad?",
      "opciones": [
       {
-       "texto": " No, disfruto mi trabajo y tengo control",
+       "texto": "No, disfruto mi trabajo y tengo control",
        "score": 0
       },
       {
-       "texto": " A veces siento presión",
+       "texto": "A veces siento presión",
        "score": 35
       },
       {
-       "texto": " Frecuentemente",
+       "texto": "Frecuentemente",
        "score": 70
       },
       {
-       "texto": " Siempre, es una prisión",
+       "texto": "Siempre, es una prisión",
        "score": 100
       }
      ],
@@ -224,19 +224,19 @@
      "texto": "¿Has postergado decisiones financieras importantes por miedo o incertidumbre?",
      "opciones": [
       {
-       "texto": " Rara vez, tomo decisiones",
+       "texto": "Rara vez, tomo decisiones",
        "score": 0
       },
       {
-       "texto": " A veces",
+       "texto": "A veces",
        "score": 25
       },
       {
-       "texto": " Frecuentemente",
+       "texto": "Frecuentemente",
        "score": 60
       },
       {
-       "texto": " Constantemente, estoy paralizado",
+       "texto": "Constantemente, estoy paralizado",
        "score": 100
       }
      ],
@@ -250,19 +250,19 @@
      "texto": "¿Cuánto tiempo al mes dedicas a pensar/preocuparte por dinero de forma improductiva?",
      "opciones": [
       {
-       "texto": " 0-2 horas",
+       "texto": "0-2 horas",
        "score": 0
       },
       {
-       "texto": " 3-8 horas",
+       "texto": "3-8 horas",
        "score": 30
       },
       {
-       "texto": " 9-20 horas",
+       "texto": "9-20 horas",
        "score": 65
       },
       {
-       "texto": " Más de 20 horas (pensamiento invasivo)",
+       "texto": "Más de 20 horas (pensamiento invasivo)",
        "score": 100
       }
      ],
@@ -276,19 +276,19 @@
      "texto": "¿Evitas hablar de temas financieros o ahorros en reuniones sociales?",
      "opciones": [
       {
-       "texto": " No, hablo naturalmente",
+       "texto": "No, hablo naturalmente",
        "score": 0
       },
       {
-       "texto": " Ocasionalmente",
+       "texto": "Ocasionalmente",
        "score": 20
       },
       {
-       "texto": " Frecuentemente",
+       "texto": "Frecuentemente",
        "score": 55
       },
       {
-       "texto": " Siempre, me avergüenza",
+       "texto": "Siempre, me avergüenza",
        "score": 100
       }
      ],
@@ -302,19 +302,19 @@
      "texto": "¿Tu salud física ha empeorado relacionada con estrés financiero?",
      "opciones": [
       {
-       "texto": " No, mi salud es buena",
+       "texto": "No, mi salud es buena",
        "score": 0
       },
       {
-       "texto": " Leve impacto",
+       "texto": "Leve impacto",
        "score": 30
       },
       {
-       "texto": " Impacto notable",
+       "texto": "Impacto notable",
        "score": 65
       },
       {
-       "texto": " Problema serio",
+       "texto": "Problema serio",
        "score": 100
       }
      ],
@@ -328,19 +328,19 @@
      "texto": "Si heredaras 100.000 € mañana, ¿qué sentirías primero?",
      "opciones": [
       {
-       "texto": " Alegría y oportunidad",
+       "texto": "Alegría y oportunidad",
        "score": 0
       },
       {
-       "texto": " Alivio",
+       "texto": "Alivio",
        "score": 25
       },
       {
-       "texto": " Pánico sobre qué hacer",
+       "texto": "Pánico sobre qué hacer",
        "score": 60
       },
       {
-       "texto": " Miedo de perderlo o que sea una trampa",
+       "texto": "Miedo de perderlo o que sea una trampa",
        "score": 100
       }
      ],
@@ -354,19 +354,19 @@
      "texto": "¿Has considerado abandonar tu trabajo en los últimos 6 meses por dinero?",
      "opciones": [
       {
-       "texto": " Nunca",
+       "texto": "Nunca",
        "score": 0
       },
       {
-       "texto": " Ocasionalmente",
+       "texto": "Ocasionalmente",
        "score": 30
       },
       {
-       "texto": " Regularmente lo pienso",
+       "texto": "Regularmente lo pienso",
        "score": 70
       },
       {
-       "texto": " Es mi obsesión",
+       "texto": "Es mi obsesión",
        "score": 100
       }
      ],
@@ -380,19 +380,19 @@
      "texto": "¿Sacrificas sueño, ejercicio o relaciones por dinero/trabajo?",
      "opciones": [
       {
-       "texto": " No, protejo esas áreas",
+       "texto": "No, protejo esas áreas",
        "score": 0
       },
       {
-       "texto": " Ocasionalmente",
+       "texto": "Ocasionalmente",
        "score": 35
       },
       {
-       "texto": " Frecuentemente",
+       "texto": "Frecuentemente",
        "score": 70
       },
       {
-       "texto": " Es el precio que pago",
+       "texto": "Es el precio que pago",
        "score": 100
       }
      ],
@@ -406,19 +406,19 @@
      "texto": "¿Te genera culpa gastar dinero en ti mismo aunque puedas permitirlo?",
      "opciones": [
       {
-       "texto": " No, disfruto sin culpa",
+       "texto": "No, disfruto sin culpa",
        "score": 0
       },
       {
-       "texto": " A veces siento culpa",
+       "texto": "A veces siento culpa",
        "score": 35
       },
       {
-       "texto": " Frecuentemente",
+       "texto": "Frecuentemente",
        "score": 70
       },
       {
-       "texto": " Siempre",
+       "texto": "Siempre",
        "score": 100
       }
      ],
@@ -432,19 +432,19 @@
      "texto": "¿Has mentido sobre tu situación financiera a alguien cercano?",
      "opciones": [
       {
-       "texto": " Raramente",
+       "texto": "Raramente",
        "score": 0
       },
       {
-       "texto": " Ocasionalmente",
+       "texto": "Ocasionalmente",
        "score": 30
       },
       {
-       "texto": " Regularmente",
+       "texto": "Regularmente",
        "score": 65
       },
       {
-       "texto": " Es una costumbre",
+       "texto": "Es una costumbre",
        "score": 100
       }
      ],
@@ -458,19 +458,19 @@
      "texto": "¿Has sufrido ataques de pánico o ansiedad severa por dinero?",
      "opciones": [
       {
-       "texto": " Nunca",
+       "texto": "Nunca",
        "score": 0
       },
       {
-       "texto": " Una o dos veces",
+       "texto": "Una o dos veces",
        "score": 40
       },
       {
-       "texto": " Varios episodios",
+       "texto": "Varios episodios",
        "score": 75
       },
       {
-       "texto": " Regularmente",
+       "texto": "Regularmente",
        "score": 100
       }
      ],
@@ -484,19 +484,19 @@
      "texto": "¿Tu relación con dinero es reactiva (crisis) o proactiva (plan)?",
      "opciones": [
       {
-       "texto": " Proactiva, planeo",
+       "texto": "Proactiva, planeo",
        "score": 0
       },
       {
-       "texto": " Mayormente proactiva",
+       "texto": "Mayormente proactiva",
        "score": 25
       },
       {
-       "texto": " Mitad y mitad",
+       "texto": "Mitad y mitad",
        "score": 50
       },
       {
-       "texto": " Completamente reactiva",
+       "texto": "Completamente reactiva",
        "score": 100
       }
      ],
@@ -510,19 +510,19 @@
      "texto": "¿Tu valor como persona está conectado a tu dinero?",
      "opciones": [
       {
-       "texto": " No, son independientes",
+       "texto": "No, son independientes",
        "score": 0
       },
       {
-       "texto": " Algo conectado",
+       "texto": "Algo conectado",
        "score": 35
       },
       {
-       "texto": " Bastante conectado",
+       "texto": "Bastante conectado",
        "score": 70
       },
       {
-       "texto": " Completamente",
+       "texto": "Completamente",
        "score": 100
       }
      ],
@@ -536,19 +536,19 @@
      "texto": "¿Cada mes es una lucha o está resuelto?",
      "opciones": [
       {
-       "texto": " Resuelto, respiro fácil",
+       "texto": "Resuelto, respiro fácil",
        "score": 0
       },
       {
-       "texto": " Más o menos, con sustos",
+       "texto": "Más o menos, con sustos",
        "score": 35
       },
       {
-       "texto": " Lucha constante",
+       "texto": "Lucha constante",
        "score": 70
       },
       {
-       "texto": " Caos total",
+       "texto": "Caos total",
        "score": 100
       }
      ],
@@ -562,19 +562,19 @@
      "texto": "¿Has considerado terapia por estrés financiero?",
      "opciones": [
       {
-       "texto": " Ya estoy en terapia",
+       "texto": "Ya estoy en terapia",
        "score": 100
       },
       {
-       "texto": " Lo he considerado",
+       "texto": "Lo he considerado",
        "score": 60
       },
       {
-       "texto": " Nunca lo consideré",
+       "texto": "Nunca lo consideré",
        "score": 20
       },
       {
-       "texto": " No lo necesito",
+       "texto": "No lo necesito",
        "score": 0
       }
      ],
@@ -588,19 +588,19 @@
      "texto": "¿Tienes fondo de emergencia de 3-6 meses?",
      "opciones": [
       {
-       "texto": " Sí, bien financiado",
+       "texto": "Sí, bien financiado",
        "score": 100
       },
       {
-       "texto": " Parcialmente",
+       "texto": "Parcialmente",
        "score": 60
       },
       {
-       "texto": " Muy poco",
+       "texto": "Muy poco",
        "score": 25
       },
       {
-       "texto": " No tengo",
+       "texto": "No tengo",
        "score": 0
       }
      ],
@@ -706,19 +706,19 @@
      "texto": "¿A qué rentabilidad anual esperas que crezca tu dinero si lo inviertes?",
      "opciones": [
       {
-       "texto": " 0-2% (cuentas seguras)",
+       "texto": "0-2% (cuentas seguras)",
        "score": 0
       },
       {
-       "texto": " 3-5% (bonos/mixto)",
+       "texto": "3-5% (bonos/mixto)",
        "score": 25
       },
       {
-       "texto": " 6-8% (histórico bolsa)",
+       "texto": "6-8% (histórico bolsa)",
        "score": 60
       },
       {
-       "texto": " 9%+ (muy optimista)",
+       "texto": "9%+ (muy optimista)",
        "score": 100
       }
      ],
@@ -732,19 +732,19 @@
      "texto": "¿En cuántos años te gustaría lograr la libertad financiera?",
      "opciones": [
       {
-       "texto": " 5 años o menos",
+       "texto": "5 años o menos",
        "score": 100
       },
       {
-       "texto": " 10 años",
+       "texto": "10 años",
        "score": 75
       },
       {
-       "texto": " 20 años",
+       "texto": "20 años",
        "score": 50
       },
       {
-       "texto": " 30+ años",
+       "texto": "30+ años",
        "score": 0
       }
      ],
@@ -758,19 +758,19 @@
      "texto": "¿Tienes ingresos pasivos o alternativos además de tu trabajo principal?",
      "opciones": [
       {
-       "texto": " No, solo nómina",
+       "texto": "No, solo nómina",
        "score": 0
       },
       {
-       "texto": " Pequeño ingreso pasivo (<10% total)",
+       "texto": "Pequeño ingreso pasivo (<10% total)",
        "score": 30
       },
       {
-       "texto": " Ingreso moderado (10-30% total)",
+       "texto": "Ingreso moderado (10-30% total)",
        "score": 60
       },
       {
-       "texto": " Ingresos significativos (>30% total)",
+       "texto": "Ingresos significativos (>30% total)",
        "score": 100
       }
      ],
@@ -784,19 +784,19 @@
      "texto": "Si tu ingreso se redujera un 50%, ¿podrías mantener tu estilo de vida actual?",
      "opciones": [
       {
-       "texto": " Sí, sin problema",
+       "texto": "Sí, sin problema",
        "score": 100
       },
       {
-       "texto": " Con ajustes menores",
+       "texto": "Con ajustes menores",
        "score": 60
       },
       {
-       "texto": " Tendría que cambiar significativamente",
+       "texto": "Tendría que cambiar significativamente",
        "score": 25
       },
       {
-       "texto": " Sería una crisis",
+       "texto": "Sería una crisis",
        "score": 0
       }
      ],
@@ -810,19 +810,19 @@
      "texto": "¿Conoces exactamente cuánto necesitas para jubilarte cómodamente?",
      "opciones": [
       {
-       "texto": " Sí, he hecho cálculos",
+       "texto": "Sí, he hecho cálculos",
        "score": 100
       },
       {
-       "texto": " Tengo una idea aproximada",
+       "texto": "Tengo una idea aproximada",
        "score": 50
       },
       {
-       "texto": " No sé, pero me preocupa",
+       "texto": "No sé, pero me preocupa",
        "score": 25
       },
       {
-       "texto": " No tengo ni idea",
+       "texto": "No tengo ni idea",
        "score": 0
       }
      ],
@@ -836,19 +836,19 @@
      "texto": "¿Qué edad tienes?",
      "opciones": [
       {
-       "texto": " 20-30 años",
+       "texto": "20-30 años",
        "score": 100
       },
       {
-       "texto": " 31-40 años",
+       "texto": "31-40 años",
        "score": 80
       },
       {
-       "texto": " 41-50 años",
+       "texto": "41-50 años",
        "score": 60
       },
       {
-       "texto": " 51-60 años",
+       "texto": "51-60 años",
        "score": 30
       }
      ],
@@ -862,19 +862,19 @@
      "texto": "¿Tienes un número exacto de tu patrimonio neto?",
      "opciones": [
       {
-       "texto": " Sí, actualizado",
+       "texto": "Sí, actualizado",
        "score": 100
       },
       {
-       "texto": " Aproximadamente",
+       "texto": "Aproximadamente",
        "score": 60
       },
       {
-       "texto": " Idea vaga",
+       "texto": "Idea vaga",
        "score": 25
       },
       {
-       "texto": " No sé",
+       "texto": "No sé",
        "score": 0
       }
      ],
@@ -888,19 +888,19 @@
      "texto": "¿Sabes tu FI number (dinero necesario para retirarte)?",
      "opciones": [
       {
-       "texto": " Exacto",
+       "texto": "Exacto",
        "score": 100
       },
       {
-       "texto": " Aproximadamente",
+       "texto": "Aproximadamente",
        "score": 60
       },
       {
-       "texto": " Vagamente",
+       "texto": "Vagamente",
        "score": 25
       },
       {
-       "texto": " No lo sé",
+       "texto": "No lo sé",
        "score": 0
       }
      ],
@@ -914,19 +914,19 @@
      "texto": "¿A qué edad quieres retirarte?",
      "opciones": [
       {
-       "texto": " Tengo plan claro",
+       "texto": "Tengo plan claro",
        "score": 100
       },
       {
-       "texto": " Idea general",
+       "texto": "Idea general",
        "score": 60
       },
       {
-       "texto": " No lo sé",
+       "texto": "No lo sé",
        "score": 25
       },
       {
-       "texto": " Nunca voy a retirarme",
+       "texto": "Nunca voy a retirarme",
        "score": 0
       }
      ],
@@ -940,19 +940,19 @@
      "texto": "¿Cuántas veces por año revisa tu patrimonio?",
      "opciones": [
       {
-       "texto": " Mensualmente",
+       "texto": "Mensualmente",
        "score": 100
       },
       {
-       "texto": " Trimestralmente",
+       "texto": "Trimestralmente",
        "score": 75
       },
       {
-       "texto": " Anualmente",
+       "texto": "Anualmente",
        "score": 40
       },
       {
-       "texto": " Nunca",
+       "texto": "Nunca",
        "score": 0
       }
      ],
@@ -966,19 +966,19 @@
      "texto": "¿Conoces tu SWR (tasa de retiro seguro)?",
      "opciones": [
       {
-       "texto": " Sí, la aplico",
+       "texto": "Sí, la aplico",
        "score": 100
       },
       {
-       "texto": " La conozco",
+       "texto": "La conozco",
        "score": 60
       },
       {
-       "texto": " He oído",
+       "texto": "He oído",
        "score": 25
       },
       {
-       "texto": " No sé qué es",
+       "texto": "No sé qué es",
        "score": 0
       }
      ],
@@ -992,19 +992,19 @@
      "texto": "¿Cuánto ahorras mensualmente en %?",
      "opciones": [
       {
-       "texto": " Más del 30%",
+       "texto": "Más del 30%",
        "score": 100
       },
       {
-       "texto": " 20-30%",
+       "texto": "20-30%",
        "score": 75
       },
       {
-       "texto": " 10-20%",
+       "texto": "10-20%",
        "score": 40
       },
       {
-       "texto": " Menos del 10%",
+       "texto": "Menos del 10%",
        "score": 0
       }
      ],
@@ -1018,19 +1018,19 @@
      "texto": "¿Cuántos años hasta FI si mantienes velocidad actual?",
      "opciones": [
       {
-       "texto": " 0-5 años",
+       "texto": "0-5 años",
        "score": 100
       },
       {
-       "texto": " 5-10 años",
+       "texto": "5-10 años",
        "score": 75
       },
       {
-       "texto": " 10-20 años",
+       "texto": "10-20 años",
        "score": 40
       },
       {
-       "texto": " Más de 20 años o nunca",
+       "texto": "Más de 20 años o nunca",
        "score": 0
       }
      ],
@@ -1044,19 +1044,19 @@
      "texto": "¿Sabes tu expense ratio?",
      "opciones": [
       {
-       "texto": " Exacto",
+       "texto": "Exacto",
        "score": 100
       },
       {
-       "texto": " Aproximado",
+       "texto": "Aproximado",
        "score": 60
       },
       {
-       "texto": " Idea vaga",
+       "texto": "Idea vaga",
        "score": 25
       },
       {
-       "texto": " No sé",
+       "texto": "No sé",
        "score": 0
       }
      ],
@@ -1070,19 +1070,19 @@
      "texto": "¿Has modelado scenarios (recesión, desempleo)?",
      "opciones": [
       {
-       "texto": " Sí, regularmente",
+       "texto": "Sí, regularmente",
        "score": 100
       },
       {
-       "texto": " Ocasionalmente",
+       "texto": "Ocasionalmente",
        "score": 60
       },
       {
-       "texto": " Una vez",
+       "texto": "Una vez",
        "score": 25
       },
       {
-       "texto": " Nunca",
+       "texto": "Nunca",
        "score": 0
       }
      ],
@@ -1096,19 +1096,19 @@
      "texto": "¿Confías en tus números financieros?",
      "opciones": [
       {
-       "texto": " Totalmente",
+       "texto": "Totalmente",
        "score": 100
       },
       {
-       "texto": " Mayormente",
+       "texto": "Mayormente",
        "score": 70
       },
       {
-       "texto": " Algo",
+       "texto": "Algo",
        "score": 35
       },
       {
-       "texto": " No confío",
+       "texto": "No confío",
        "score": 0
       }
      ],
@@ -1122,19 +1122,19 @@
      "texto": "¿Cuál es tu asset allocation (stocks/bonds/cash)?",
      "opciones": [
       {
-       "texto": " Tengo estrategia clara",
+       "texto": "Tengo estrategia clara",
        "score": 100
       },
       {
-       "texto": " Tengo idea",
+       "texto": "Tengo idea",
        "score": 60
       },
       {
-       "texto": " No lo sé",
+       "texto": "No lo sé",
        "score": 25
       },
       {
-       "texto": " No tengo activos",
+       "texto": "No tengo activos",
        "score": 0
       }
      ],
@@ -1148,19 +1148,19 @@
      "texto": "¿Sabes tu inflation-adjusted FI number?",
      "opciones": [
       {
-       "texto": " Sí, lo ajusto anualmente",
+       "texto": "Sí, lo ajusto anualmente",
        "score": 100
       },
       {
-       "texto": " Lo he calculado",
+       "texto": "Lo he calculado",
        "score": 60
       },
       {
-       "texto": " Vagamente",
+       "texto": "Vagamente",
        "score": 25
       },
       {
-       "texto": " No",
+       "texto": "No",
        "score": 0
       }
      ],
@@ -1174,19 +1174,19 @@
      "texto": "¿Cuántos meses de expenses tienes en cash?",
      "opciones": [
       {
-       "texto": " 6+ meses",
+       "texto": "6+ meses",
        "score": 100
       },
       {
-       "texto": " 3-6 meses",
+       "texto": "3-6 meses",
        "score": 75
       },
       {
-       "texto": " 1-3 meses",
+       "texto": "1-3 meses",
        "score": 40
       },
       {
-       "texto": " Menos de 1 mes",
+       "texto": "Menos de 1 mes",
        "score": 0
       }
      ],
@@ -1200,19 +1200,19 @@
      "texto": "¿Qué % de ingresos va a impuestos?",
      "opciones": [
       {
-       "texto": " Sé exacto",
+       "texto": "Sé exacto",
        "score": 100
       },
       {
-       "texto": " Aproximadamente",
+       "texto": "Aproximadamente",
        "score": 60
       },
       {
-       "texto": " Idea vaga",
+       "texto": "Idea vaga",
        "score": 25
       },
       {
-       "texto": " No sé",
+       "texto": "No sé",
        "score": 0
       }
      ],
@@ -1267,19 +1267,19 @@
      "texto": "Escenario A: Te quedas sin trabajo mañana. ¿Cuántos meses sobrevives sin ingresos?",
      "opciones": [
       {
-       "texto": " 0-1 mes (crisis inmediata)",
+       "texto": "0-1 mes (crisis inmediata)",
        "score": 100
       },
       {
-       "texto": " 2-3 meses",
+       "texto": "2-3 meses",
        "score": 70
       },
       {
-       "texto": " 4-6 meses",
+       "texto": "4-6 meses",
        "score": 50
       },
       {
-       "texto": " 7-12 meses",
+       "texto": "7-12 meses",
        "score": 30
       }
      ],
@@ -1293,19 +1293,19 @@
      "texto": "Escenario B: Tu hipoteca/alquiler sube un 20%. ¿Cómo reaccionarías?",
      "opciones": [
       {
-       "texto": " Crisis, no puedo asumir",
+       "texto": "Crisis, no puedo asumir",
        "score": 100
       },
       {
-       "texto": " Difícil, tendría que ajustar gastos",
+       "texto": "Difícil, tendría que ajustar gastos",
        "score": 60
       },
       {
-       "texto": " Complicado pero viable",
+       "texto": "Complicado pero viable",
        "score": 35
       },
       {
-       "texto": " Sin problema",
+       "texto": "Sin problema",
        "score": 0
       }
      ],
@@ -1319,19 +1319,19 @@
      "texto": "Escenario C: Urgencia médica de 5.000 €. ¿De dónde saldrían?",
      "opciones": [
       {
-       "texto": " No tengo, sería deuda",
+       "texto": "No tengo, sería deuda",
        "score": 100
       },
       {
-       "texto": " Tarjeta de crédito",
+       "texto": "Tarjeta de crédito",
        "score": 80
       },
       {
-       "texto": " Ahorro disponible",
+       "texto": "Ahorro disponible",
        "score": 40
       },
       {
-       "texto": " Sin impacto, tengo fondo de emergencia",
+       "texto": "Sin impacto, tengo fondo de emergencia",
        "score": 0
       }
      ],
@@ -1345,19 +1345,19 @@
      "texto": "¿Tienes un fondo de emergencia separado?",
      "opciones": [
       {
-       "texto": " No",
+       "texto": "No",
        "score": 100
       },
       {
-       "texto": " Sí, pero menos de 1 mes",
+       "texto": "Sí, pero menos de 1 mes",
        "score": 75
       },
       {
-       "texto": " 1-3 meses de gastos",
+       "texto": "1-3 meses de gastos",
        "score": 50
       },
       {
-       "texto": " 3-6 meses",
+       "texto": "3-6 meses",
        "score": 25
       }
      ],
@@ -1371,19 +1371,19 @@
      "texto": "¿Cómo reaccionarías si la inflación se dispara un 10%?",
      "opciones": [
       {
-       "texto": " Pánico, no sé qué hacer",
+       "texto": "Pánico, no sé qué hacer",
        "score": 100
       },
       {
-       "texto": " Preocupación moderada",
+       "texto": "Preocupación moderada",
        "score": 60
       },
       {
-       "texto": " Ajustaría presupuesto",
+       "texto": "Ajustaría presupuesto",
        "score": 35
       },
       {
-       "texto": " Tengo inversiones inflacionarias",
+       "texto": "Tengo inversiones inflacionarias",
        "score": 0
       }
      ],
@@ -1397,19 +1397,19 @@
      "texto": "¿Tienes dependientes económicos (hijos, padres)?",
      "opciones": [
       {
-       "texto": " No",
+       "texto": "No",
        "score": 0
       },
       {
-       "texto": " Sí, 1 persona",
+       "texto": "Sí, 1 persona",
        "score": 30
       },
       {
-       "texto": " Sí, 2 personas",
+       "texto": "Sí, 2 personas",
        "score": 60
       },
       {
-       "texto": " Sí, 3 o más",
+       "texto": "Sí, 3 o más",
        "score": 100
       }
      ],
@@ -1423,19 +1423,19 @@
      "texto": "¿Si pierdes fuente de ingresos, tus dependientes quedarían sin educación/vivienda?",
      "opciones": [
       {
-       "texto": " No, tiene cobertura",
+       "texto": "No, tiene cobertura",
        "score": 0
       },
       {
-       "texto": " Parcialmente cubierto",
+       "texto": "Parcialmente cubierto",
        "score": 40
       },
       {
-       "texto": " Quedarían muy afectados",
+       "texto": "Quedarían muy afectados",
        "score": 80
       },
       {
-       "texto": " Sería catastrófico",
+       "texto": "Sería catastrófico",
        "score": 100
       }
      ],
@@ -1449,19 +1449,19 @@
      "texto": "¿Tendrías que endeudarte inmediatamente en una crisis?",
      "opciones": [
       {
-       "texto": " No, tengo ahorros",
+       "texto": "No, tengo ahorros",
        "score": 0
       },
       {
-       "texto": " Posiblemente línea de crédito",
+       "texto": "Posiblemente línea de crédito",
        "score": 50
       },
       {
-       "texto": " Sí, probablemente",
+       "texto": "Sí, probablemente",
        "score": 85
       },
       {
-       "texto": " Sí, con certeza",
+       "texto": "Sí, con certeza",
        "score": 100
       }
      ],
@@ -1475,19 +1475,19 @@
      "texto": "¿Cómo están diversificadas tus inversiones?",
      "opciones": [
       {
-       "texto": " Diversificado (acciones, bonos, inmuebles)",
+       "texto": "Diversificado (acciones, bonos, inmuebles)",
        "score": 0
       },
       {
-       "texto": " Parcialmente diversificado",
+       "texto": "Parcialmente diversificado",
        "score": 40
       },
       {
-       "texto": " Concentrado en 1-2 áreas",
+       "texto": "Concentrado en 1-2 áreas",
        "score": 70
       },
       {
-       "texto": " Todo en un sitio (efectivo o un activo)",
+       "texto": "Todo en un sitio (efectivo o un activo)",
        "score": 100
       }
      ],
@@ -1501,19 +1501,19 @@
      "texto": "¿Qué tan probable es que tu fuente actual de ingresos desaparezca?",
      "opciones": [
       {
-       "texto": " Muy improbable (empleado público, sector estable)",
+       "texto": "Muy improbable (empleado público, sector estable)",
        "score": 0
       },
       {
-       "texto": " Poco probable",
+       "texto": "Poco probable",
        "score": 30
       },
       {
-       "texto": " Posible",
+       "texto": "Posible",
        "score": 65
       },
       {
-       "texto": " Muy probable (freelance, startup, economía informal)",
+       "texto": "Muy probable (freelance, startup, economía informal)",
        "score": 100
       }
      ],
@@ -1527,19 +1527,19 @@
      "texto": "¿Podrías vivir 12 meses sin ingresos?",
      "opciones": [
       {
-       "texto": " Sí, sin problema",
+       "texto": "Sí, sin problema",
        "score": 100
       },
       {
-       "texto": " Sí, con ajustes",
+       "texto": "Sí, con ajustes",
        "score": 70
       },
       {
-       "texto": " Apretado",
+       "texto": "Apretado",
        "score": 35
       },
       {
-       "texto": " Imposible",
+       "texto": "Imposible",
        "score": 0
       }
      ],
@@ -1553,19 +1553,19 @@
      "texto": "¿Qué pasaría si pierdes 50% ingresos mañana?",
      "opciones": [
       {
-       "texto": " Manejable con ajustes",
+       "texto": "Manejable con ajustes",
        "score": 100
       },
       {
-       "texto": " Complicado pero viable",
+       "texto": "Complicado pero viable",
        "score": 70
       },
       {
-       "texto": " Crisis inmediata",
+       "texto": "Crisis inmediata",
        "score": 35
       },
       {
-       "texto": " Catastrofe",
+       "texto": "Catastrofe",
        "score": 0
       }
      ],
@@ -1579,19 +1579,19 @@
      "texto": "¿Tienes ingresos alternativos (skills, network)?",
      "opciones": [
       {
-       "texto": " Múltiples opciones",
+       "texto": "Múltiples opciones",
        "score": 100
       },
       {
-       "texto": " Algunas opciones",
+       "texto": "Algunas opciones",
        "score": 70
       },
       {
-       "texto": " Una opción",
+       "texto": "Una opción",
        "score": 35
       },
       {
-       "texto": " Ninguna",
+       "texto": "Ninguna",
        "score": 0
       }
      ],
@@ -1605,19 +1605,19 @@
      "texto": "¿Cuántos meses sobrevives con emergencia?",
      "opciones": [
       {
-       "texto": " 6+ meses",
+       "texto": "6+ meses",
        "score": 100
       },
       {
-       "texto": " 3-6 meses",
+       "texto": "3-6 meses",
        "score": 70
       },
       {
-       "texto": " 1-3 meses",
+       "texto": "1-3 meses",
        "score": 35
       },
       {
-       "texto": " Menos de 1",
+       "texto": "Menos de 1",
        "score": 0
       }
      ],
@@ -1631,19 +1631,19 @@
      "texto": "¿Podrías reducir gastos en 50% si necesario?",
      "opciones": [
       {
-       "texto": " Sí, fácilmente",
+       "texto": "Sí, fácilmente",
        "score": 100
       },
       {
-       "texto": " Sí, con dolor",
+       "texto": "Sí, con dolor",
        "score": 70
       },
       {
-       "texto": " Algo",
+       "texto": "Algo",
        "score": 35
       },
       {
-       "texto": " No podría",
+       "texto": "No podría",
        "score": 0
       }
      ],
@@ -1657,19 +1657,19 @@
      "texto": "¿Deuda o obligaciones fijas son factor de riesgo?",
      "opciones": [
       {
-       "texto": " No tengo",
+       "texto": "No tengo",
        "score": 100
       },
       {
-       "texto": " Manejable",
+       "texto": "Manejable",
        "score": 70
       },
       {
-       "texto": " Apretado",
+       "texto": "Apretado",
        "score": 35
       },
       {
-       "texto": " Riesgo serio",
+       "texto": "Riesgo serio",
        "score": 0
       }
      ],
@@ -1683,19 +1683,19 @@
      "texto": "¿Cuál sería tu escape plan en crisis?",
      "opciones": [
       {
-       "texto": " Tengo plan B/C/D claro",
+       "texto": "Tengo plan B/C/D claro",
        "score": 100
       },
       {
-       "texto": " Tengo idea",
+       "texto": "Tengo idea",
        "score": 70
       },
       {
-       "texto": " Algo vago",
+       "texto": "Algo vago",
        "score": 35
       },
       {
-       "texto": " Ningún plan",
+       "texto": "Ningún plan",
        "score": 0
       }
      ],
@@ -1709,19 +1709,19 @@
      "texto": "¿Qué score darías a resiliencia financiera (1-10)?",
      "opciones": [
       {
-       "texto": " 1-3",
+       "texto": "1-3",
        "score": 0
       },
       {
-       "texto": " 4-5",
+       "texto": "4-5",
        "score": 35
       },
       {
-       "texto": " 6-7",
+       "texto": "6-7",
        "score": 70
       },
       {
-       "texto": " 8-10",
+       "texto": "8-10",
        "score": 100
       }
      ],
@@ -1735,19 +1735,19 @@
      "texto": "¿Familia puede ayudarte en crisis?",
      "opciones": [
       {
-       "texto": " Sí, sin hesitación",
+       "texto": "Sí, sin hesitación",
        "score": 100
       },
       {
-       "texto": " Quizás",
+       "texto": "Quizás",
        "score": 70
       },
       {
-       "texto": " Dudoso",
+       "texto": "Dudoso",
        "score": 35
       },
       {
-       "texto": " No",
+       "texto": "No",
        "score": 0
       }
      ],
@@ -1761,19 +1761,19 @@
      "texto": "¿Podrías vivir en lugar más barato rápidamente?",
      "opciones": [
       {
-       "texto": " Sí, facilmente",
+       "texto": "Sí, facilmente",
        "score": 100
       },
       {
-       "texto": " Sí, con esfuerzo",
+       "texto": "Sí, con esfuerzo",
        "score": 70
       },
       {
-       "texto": " Sí, pero lento",
+       "texto": "Sí, pero lento",
        "score": 35
       },
       {
-       "texto": " No",
+       "texto": "No",
        "score": 0
       }
      ],
@@ -1827,19 +1827,19 @@
      "texto": "¿Cuánto ganabas hace 3 años vs. ahora?",
      "opciones": [
       {
-       "texto": " Similar o menos",
+       "texto": "Similar o menos",
        "score": 0
       },
       {
-       "texto": " 10-25% más",
+       "texto": "10-25% más",
        "score": 25
       },
       {
-       "texto": " 25-50% más",
+       "texto": "25-50% más",
        "score": 60
       },
       {
-       "texto": " 50%+ más",
+       "texto": "50%+ más",
        "score": 100
       }
      ],
@@ -1853,19 +1853,19 @@
      "texto": "¿Cuánto ahorrabas hace 3 años vs. ahora (en % de ingresos)?",
      "opciones": [
       {
-       "texto": " Ahorro igual o mayor",
+       "texto": "Ahorro igual o mayor",
        "score": 100
       },
       {
-       "texto": " Ahorro algo menor (10-20%)",
+       "texto": "Ahorro algo menor (10-20%)",
        "score": 60
       },
       {
-       "texto": " Ahorro mucho menor (20-50%)",
+       "texto": "Ahorro mucho menor (20-50%)",
        "score": 30
       },
       {
-       "texto": " Ahora ahorro menos o nada",
+       "texto": "Ahora ahorro menos o nada",
        "score": 0
       }
      ],
@@ -1879,19 +1879,19 @@
      "texto": "¿Dónde fue el dinero de tus últimas 3 subidas de sueldo?",
      "opciones": [
       {
-       "texto": " Mayormente a ahorros/inversiones",
+       "texto": "Mayormente a ahorros/inversiones",
        "score": 100
       },
       {
-       "texto": " Mitad y mitad",
+       "texto": "Mitad y mitad",
        "score": 60
       },
       {
-       "texto": " Mayormente a gastos",
+       "texto": "Mayormente a gastos",
        "score": 25
       },
       {
-       "texto": " Todo a gastos/lujos",
+       "texto": "Todo a gastos/lujos",
        "score": 0
       }
      ],
@@ -1905,19 +1905,19 @@
      "texto": "¿Tu alquiler/hipoteca es mayor que hace 3 años?",
      "opciones": [
       {
-       "texto": " No, igual o menor",
+       "texto": "No, igual o menor",
        "score": 0
       },
       {
-       "texto": " Sí, 10-25% más",
+       "texto": "Sí, 10-25% más",
        "score": 30
       },
       {
-       "texto": " Sí, 25-50% más",
+       "texto": "Sí, 25-50% más",
        "score": 65
       },
       {
-       "texto": " Sí, 50%+ más caro",
+       "texto": "Sí, 50%+ más caro",
        "score": 100
       }
      ],
@@ -1931,19 +1931,19 @@
      "texto": "¿Has aumentado suscripciones, membresías o servicios en 3 años?",
      "opciones": [
       {
-       "texto": " No, igual o menos",
+       "texto": "No, igual o menos",
        "score": 0
       },
       {
-       "texto": " Sí, 1-2 nuevos",
+       "texto": "Sí, 1-2 nuevos",
        "score": 25
       },
       {
-       "texto": " Sí, 3-5 nuevos",
+       "texto": "Sí, 3-5 nuevos",
        "score": 60
       },
       {
-       "texto": " Sí, muchos (6+)",
+       "texto": "Sí, muchos (6+)",
        "score": 100
       }
      ],
@@ -1957,19 +1957,19 @@
      "texto": "¿Tu coche/transporte es más caro que hace 3 años?",
      "opciones": [
       {
-       "texto": " No",
+       "texto": "No",
        "score": 0
       },
       {
-       "texto": " Sí, mantengo similar gasto",
+       "texto": "Sí, mantengo similar gasto",
        "score": 25
       },
       {
-       "texto": " Sí, gasto 50-100% más",
+       "texto": "Sí, gasto 50-100% más",
        "score": 65
       },
       {
-       "texto": " Sí, gasto 100%+ más",
+       "texto": "Sí, gasto 100%+ más",
        "score": 100
       }
      ],
@@ -1983,19 +1983,19 @@
      "texto": "¿Pagas más en comidas/entretenimiento que hace 3 años?",
      "opciones": [
       {
-       "texto": " No, igual presupuesto",
+       "texto": "No, igual presupuesto",
        "score": 0
       },
       {
-       "texto": " Sí, moderadamente más",
+       "texto": "Sí, moderadamente más",
        "score": 35
       },
       {
-       "texto": " Sí, significativamente más",
+       "texto": "Sí, significativamente más",
        "score": 70
       },
       {
-       "texto": " Sí, gasto el doble o más",
+       "texto": "Sí, gasto el doble o más",
        "score": 100
       }
      ],
@@ -2009,19 +2009,19 @@
      "texto": "¿Si tu sueldo se redujera mañana, podrías vivir con tu antiguo presupuesto?",
      "opciones": [
       {
-       "texto": " Sí, fácilmente",
+       "texto": "Sí, fácilmente",
        "score": 100
       },
       {
-       "texto": " Probablemente",
+       "texto": "Probablemente",
        "score": 60
       },
       {
-       "texto": " Con dificultad",
+       "texto": "Con dificultad",
        "score": 30
       },
       {
-       "texto": " No, sería imposible",
+       "texto": "No, sería imposible",
        "score": 0
       }
      ],
@@ -2035,19 +2035,19 @@
      "texto": "¿Trabajas más horas/intensidad para mantener tu estilo de vida?",
      "opciones": [
       {
-       "texto": " No, trabajo igual",
+       "texto": "No, trabajo igual",
        "score": 100
       },
       {
-       "texto": " Un poco más",
+       "texto": "Un poco más",
        "score": 60
       },
       {
-       "texto": " Bastante más",
+       "texto": "Bastante más",
        "score": 35
       },
       {
-       "texto": " Mucho más, es agotador",
+       "texto": "Mucho más, es agotador",
        "score": 0
       }
      ],
@@ -2061,19 +2061,19 @@
      "texto": "¿Sientes que controlas tu gasto o que tu gasto te controla?",
      "opciones": [
       {
-       "texto": " Tengo control total",
+       "texto": "Tengo control total",
        "score": 100
       },
       {
-       "texto": " Control moderado",
+       "texto": "Control moderado",
        "score": 60
       },
       {
-       "texto": " Poco control",
+       "texto": "Poco control",
        "score": 30
       },
       {
-       "texto": " Ningún control, solo gasto",
+       "texto": "Ningún control, solo gasto",
        "score": 0
       }
      ],
@@ -2087,19 +2087,19 @@
      "texto": "¿Cuál era tu gasto mensual hace 5 años vs ahora? ¿Se debió a aumento en ingresos?",
      "opciones": [
       {
-       "texto": " Gasto igual, ingresos subieron",
+       "texto": "Gasto igual, ingresos subieron",
        "score": 0
       },
       {
-       "texto": " Gasto creció 5-10%",
+       "texto": "Gasto creció 5-10%",
        "score": 25
       },
       {
-       "texto": " Gasto creció 20-40%",
+       "texto": "Gasto creció 20-40%",
        "score": 65
       },
       {
-       "texto": " Se duplicó o más",
+       "texto": "Se duplicó o más",
        "score": 100
       }
      ],
@@ -2113,19 +2113,19 @@
      "texto": "¿Puedes listar sin pensarlo tus 5 gastos mensuales más grandes? ¿Cuáles son realmente",
      "opciones": [
       {
-       "texto": " Sí, claros: 4-5 son esenciales",
+       "texto": "Sí, claros: 4-5 son esenciales",
        "score": 0
       },
       {
-       "texto": " Sí, pero 2-3 son discutibles",
+       "texto": "Sí, pero 2-3 son discutibles",
        "score": 30
       },
       {
-       "texto": " Sí, pero la mitad son lujo disfrazado",
+       "texto": "Sí, pero la mitad son lujo disfrazado",
        "score": 70
       },
       {
-       "texto": " No tengo claridad",
+       "texto": "No tengo claridad",
        "score": 100
       }
      ],
@@ -2139,19 +2139,19 @@
      "texto": "¿Cuándo fue la última vez que reduciste voluntariamente un gasto porque no podías más?",
      "opciones": [
       {
-       "texto": " Este mes",
+       "texto": "Este mes",
        "score": 0
       },
       {
-       "texto": " Hace 6-12 meses",
+       "texto": "Hace 6-12 meses",
        "score": 25
       },
       {
-       "texto": " Hace más de 2 años",
+       "texto": "Hace más de 2 años",
        "score": 70
       },
       {
-       "texto": " Nunca he reducido voluntariamente",
+       "texto": "Nunca he reducido voluntariamente",
        "score": 100
       }
      ],
@@ -2165,19 +2165,19 @@
      "texto": "¿Qué porcentaje de tus amigos gasta más que tú? ¿Eso influye en tus decisiones?",
      "opciones": [
       {
-       "texto": " 30% gasta más, no me influye",
+       "texto": "30% gasta más, no me influye",
        "score": 0
       },
       {
-       "texto": " 50% gasta más, algo me influye",
+       "texto": "50% gasta más, algo me influye",
        "score": 35
       },
       {
-       "texto": " Mayoría gasta más, sí me influye",
+       "texto": "Mayoría gasta más, sí me influye",
        "score": 70
       },
       {
-       "texto": " Todos gastan más, presión constante",
+       "texto": "Todos gastan más, presión constante",
        "score": 100
       }
      ],
@@ -2191,19 +2191,19 @@
      "texto": "¿Cuál fue tu peor decisión de gasto en los últimos 2 años? ¿Por qué la hiciste?",
      "opciones": [
       {
-       "texto": " Inversión fallida, pero aprendí",
+       "texto": "Inversión fallida, pero aprendí",
        "score": 0
       },
       {
-       "texto": " Compra impulsiva, me arrepiento",
+       "texto": "Compra impulsiva, me arrepiento",
        "score": 40
       },
       {
-       "texto": " Gasto recurrente innecesario aún activo",
+       "texto": "Gasto recurrente innecesario aún activo",
        "score": 70
       },
       {
-       "texto": " Deuda de lujo que aún pago",
+       "texto": "Deuda de lujo que aún pago",
        "score": 100
       }
      ],
@@ -2217,19 +2217,19 @@
      "texto": "¿Tienes suscripciones que no usas? ¿Cuántas? ¿Cuánto mes cuesta?",
      "opciones": [
       {
-       "texto": " Cero suscripciones innecesarias",
+       "texto": "Cero suscripciones innecesarias",
        "score": 0
       },
       {
-       "texto": " 1-2, menos de $20/mes",
+       "texto": "1-2, menos de $20/mes",
        "score": 15
       },
       {
-       "texto": " 3-5, entre $30-60/mes",
+       "texto": "3-5, entre $30-60/mes",
        "score": 50
       },
       {
-       "texto": " Más de 5, más de $100/mes",
+       "texto": "Más de 5, más de $100/mes",
        "score": 100
       }
      ],
@@ -2243,19 +2243,19 @@
      "texto": "Si mañana perdieras el 30% de ingresos, ¿cuánto tardarías en adaptar gasto?",
      "opciones": [
       {
-       "texto": " Inmediato, tengo plan",
+       "texto": "Inmediato, tengo plan",
        "score": 0
       },
       {
-       "texto": " 1-2 meses de ajuste",
+       "texto": "1-2 meses de ajuste",
        "score": 30
       },
       {
-       "texto": " 3-6 meses, dolería",
+       "texto": "3-6 meses, dolería",
        "score": 65
       },
       {
-       "texto": " No sé cómo lo haría",
+       "texto": "No sé cómo lo haría",
        "score": 100
       }
      ],
@@ -2269,19 +2269,19 @@
      "texto": "¿Qué compras para sentirte mejor emocionalmente? ¿Cuánto cuesta mensualmente?",
      "opciones": [
       {
-       "texto": " Nada significativo",
+       "texto": "Nada significativo",
        "score": 0
       },
       {
-       "texto": " $20-50, consciente de ello",
+       "texto": "$20-50, consciente de ello",
        "score": 30
       },
       {
-       "texto": " $100-300, pero lo necesito",
+       "texto": "$100-300, pero lo necesito",
        "score": 70
       },
       {
-       "texto": " No sé, pero bastante",
+       "texto": "No sé, pero bastante",
        "score": 100
       }
      ],
@@ -2295,19 +2295,19 @@
      "texto": "¿Tu actual estilo de vida sería sostenible si tus ingresos bajaran 50%?",
      "opciones": [
       {
-       "texto": " Sí, completamente",
+       "texto": "Sí, completamente",
        "score": 0
       },
       {
-       "texto": " Sí, con ajustes menores",
+       "texto": "Sí, con ajustes menores",
        "score": 25
       },
       {
-       "texto": " Apenas, seria estrés",
+       "texto": "Apenas, seria estrés",
        "score": 65
       },
       {
-       "texto": " No, colapso total",
+       "texto": "No, colapso total",
        "score": 100
       }
      ],
@@ -2321,19 +2321,19 @@
      "texto": "¿Cuándo fue la última vez que preguntaste 'necesito esto' vs 'quiero esto'?",
      "opciones": [
       {
-       "texto": " Siempre lo hago",
+       "texto": "Siempre lo hago",
        "score": 0
       },
       {
-       "texto": " Frecuentemente, 70%",
+       "texto": "Frecuentemente, 70%",
        "score": 25
       },
       {
-       "texto": " A veces, 40%",
+       "texto": "A veces, 40%",
        "score": 65
       },
       {
-       "texto": " Raramente",
+       "texto": "Raramente",
        "score": 100
       }
      ],
@@ -2387,19 +2387,19 @@
      "texto": "¿Tienes testamento actualizado?",
      "opciones": [
       {
-       "texto": " Sí, hecho en últimos 2 años",
+       "texto": "Sí, hecho en últimos 2 años",
        "score": 0
       },
       {
-       "texto": " Sí, pero antiguo (3-5 años)",
+       "texto": "Sí, pero antiguo (3-5 años)",
        "score": 40
       },
       {
-       "texto": " Sí, muy antiguo (5+ años)",
+       "texto": "Sí, muy antiguo (5+ años)",
        "score": 70
       },
       {
-       "texto": " No tengo testamento",
+       "texto": "No tengo testamento",
        "score": 100
       }
      ],
@@ -2413,19 +2413,19 @@
      "texto": "¿Vives en pareja de hecho (sin casarte legalmente)?",
      "opciones": [
       {
-       "texto": " No",
+       "texto": "No",
        "score": 0
       },
       {
-       "texto": " Sí, y está formalizado en testamento",
+       "texto": "Sí, y está formalizado en testamento",
        "score": 25
       },
       {
-       "texto": " Sí, sin ninguna formalización",
+       "texto": "Sí, sin ninguna formalización",
        "score": 100
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -2439,19 +2439,19 @@
      "texto": "¿Designaste beneficiarios explícitos en cuentas/seguros?",
      "opciones": [
       {
-       "texto": " Sí, en todas las cuentas",
+       "texto": "Sí, en todas las cuentas",
        "score": 0
       },
       {
-       "texto": " En algunas",
+       "texto": "En algunas",
        "score": 40
       },
       {
-       "texto": " No, en ninguna",
+       "texto": "No, en ninguna",
        "score": 100
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -2465,19 +2465,19 @@
      "texto": "¿Tienes poder notarial preventivo?",
      "opciones": [
       {
-       "texto": " Sí, actualizado",
+       "texto": "Sí, actualizado",
        "score": 0
       },
       {
-       "texto": " Sí, antiguo",
+       "texto": "Sí, antiguo",
        "score": 50
       },
       {
-       "texto": " No",
+       "texto": "No",
        "score": 100
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -2491,19 +2491,19 @@
      "texto": "¿Tienes seguro de vida con cobertura adecuada?",
      "opciones": [
       {
-       "texto": " Sí, cobertura es 5-10x mi salario anual",
+       "texto": "Sí, cobertura es 5-10x mi salario anual",
        "score": 0
       },
       {
-       "texto": " Sí, pero baja cobertura",
+       "texto": "Sí, pero baja cobertura",
        "score": 40
       },
       {
-       "texto": " No, no tengo",
+       "texto": "No, no tengo",
        "score": 100
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -2517,19 +2517,19 @@
      "texto": "¿Tienes deuda conjunta con alguien?",
      "opciones": [
       {
-       "texto": " No",
+       "texto": "No",
        "score": 0
       },
       {
-       "texto": " Sí, pero está formalizada",
+       "texto": "Sí, pero está formalizada",
        "score": 30
       },
       {
-       "texto": " Sí, informal o mal documentada",
+       "texto": "Sí, informal o mal documentada",
        "score": 100
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -2547,19 +2547,19 @@
      "texto": "¿Optimizas fiscalmente tu situación (desgravaciones, inversiones)?",
      "opciones": [
       {
-       "texto": " Sí, con asesor fiscal",
+       "texto": "Sí, con asesor fiscal",
        "score": 100
       },
       {
-       "texto": " Parcialmente",
+       "texto": "Parcialmente",
        "score": 50
       },
       {
-       "texto": " No, pago lo que toca",
+       "texto": "No, pago lo que toca",
        "score": 0
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -2573,19 +2573,19 @@
      "texto": "¿Tienes documentado quién se encarga de tus cuentas si algo te pasa?",
      "opciones": [
       {
-       "texto": " Sí, está claro y formalizado",
+       "texto": "Sí, está claro y formalizado",
        "score": 100
       },
       {
-       "texto": " Aproximadamente, en mi cabeza",
+       "texto": "Aproximadamente, en mi cabeza",
        "score": 30
       },
       {
-       "texto": " No sé, nadie lo sabe",
+       "texto": "No sé, nadie lo sabe",
        "score": 0
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -2599,19 +2599,19 @@
      "texto": "¿Tus herederos/familia conoce dónde están tus activos/documentos?",
      "opciones": [
       {
-       "texto": " Sí, hay un documento de referencia",
+       "texto": "Sí, hay un documento de referencia",
        "score": 100
       },
       {
-       "texto": " Vagamente",
+       "texto": "Vagamente",
        "score": 40
       },
       {
-       "texto": " No, es un misterio",
+       "texto": "No, es un misterio",
        "score": 0
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -2625,19 +2625,19 @@
      "texto": "¿Has consultado con asesor legal/fiscal en últimos 2 años?",
      "opciones": [
       {
-       "texto": " Sí, regularmente",
+       "texto": "Sí, regularmente",
        "score": 100
       },
       {
-       "texto": " Sí, una vez",
+       "texto": "Sí, una vez",
        "score": 50
       },
       {
-       "texto": " No, nunca",
+       "texto": "No, nunca",
        "score": 0
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -2651,19 +2651,19 @@
      "texto": "¿Tienes un testamento actualizado, poder notarial y beneficiarios designados?",
      "opciones": [
       {
-       "texto": " Sí, todo actualizado hace <1 año",
+       "texto": "Sí, todo actualizado hace <1 año",
        "score": 0
       },
       {
-       "texto": " Sí, pero hace 2+ años",
+       "texto": "Sí, pero hace 2+ años",
        "score": 25
       },
       {
-       "texto": " Parcialmente, falta algo",
+       "texto": "Parcialmente, falta algo",
        "score": 65
       },
       {
-       "texto": " No tengo nada",
+       "texto": "No tengo nada",
        "score": 100
       }
      ],
@@ -2677,19 +2677,19 @@
      "texto": "¿Sabes qué tipo de seguros tienes y cuál es su cobertura exacta?",
      "opciones": [
       {
-       "texto": " Sí, todos documentados, revisados anualmente",
+       "texto": "Sí, todos documentados, revisados anualmente",
        "score": 0
       },
       {
-       "texto": " Sí, pero hace años que no reviso",
+       "texto": "Sí, pero hace años que no reviso",
        "score": 30
       },
       {
-       "texto": " Vagamente, los tengo pero no sé detalles",
+       "texto": "Vagamente, los tengo pero no sé detalles",
        "score": 70
       },
       {
-       "texto": " No sé qué tengo exactamente",
+       "texto": "No sé qué tengo exactamente",
        "score": 100
       }
      ],
@@ -2703,19 +2703,19 @@
      "texto": "¿Tienes una estrategia legal documentada para proteger tu patrimonio?",
      "opciones": [
       {
-       "texto": " Sí, revisada por abogado profesional",
+       "texto": "Sí, revisada por abogado profesional",
        "score": 0
       },
       {
-       "texto": " Tengo algo, pero básico",
+       "texto": "Tengo algo, pero básico",
        "score": 35
       },
       {
-       "texto": " Vagamente, sin estructura clara",
+       "texto": "Vagamente, sin estructura clara",
        "score": 70
       },
       {
-       "texto": " No tengo ninguna",
+       "texto": "No tengo ninguna",
        "score": 100
       }
      ],
@@ -2729,19 +2729,19 @@
      "texto": "¿Si morías hoy, ¿tu familia sabría cómo acceder a tus activos?",
      "opciones": [
       {
-       "texto": " Sí, todo documentado y comunicado",
+       "texto": "Sí, todo documentado y comunicado",
        "score": 0
       },
       {
-       "texto": " Sí, saben dónde está la documentación",
+       "texto": "Sí, saben dónde está la documentación",
        "score": 20
       },
       {
-       "texto": " Parcialmente, hay lagunas",
+       "texto": "Parcialmente, hay lagunas",
        "score": 70
       },
       {
-       "texto": " No, estaría perdido",
+       "texto": "No, estaría perdido",
        "score": 100
       }
      ],
@@ -2755,19 +2755,19 @@
      "texto": "¿Tienes seguro de responsabilidad civil que cubra demandas por accidentes?",
      "opciones": [
       {
-       "texto": " Sí, cobertura amplia y actualizada",
+       "texto": "Sí, cobertura amplia y actualizada",
        "score": 0
       },
       {
-       "texto": " Sí, cobertura básica",
+       "texto": "Sí, cobertura básica",
        "score": 25
       },
       {
-       "texto": " Parcial, solo auto/casa",
+       "texto": "Parcial, solo auto/casa",
        "score": 65
       },
       {
-       "texto": " No tengo",
+       "texto": "No tengo",
        "score": 100
       }
      ],
@@ -2781,19 +2781,19 @@
      "texto": "¿Has revisado tu contrato de trabajo por cláusulas peligrosas?",
      "opciones": [
       {
-       "texto": " Sí, con abogado",
+       "texto": "Sí, con abogado",
        "score": 0
       },
       {
-       "texto": " Sí, por mi cuenta",
+       "texto": "Sí, por mi cuenta",
        "score": 25
       },
       {
-       "texto": " No, pero debería",
+       "texto": "No, pero debería",
        "score": 70
       },
       {
-       "texto": " Nunca, no lo he visto",
+       "texto": "Nunca, no lo he visto",
        "score": 100
       }
      ],
@@ -2807,19 +2807,19 @@
      "texto": "¿Tienes un 'inventario de activos' documentado con ubicaciones y accesos?",
      "opciones": [
       {
-       "texto": " Sí, completo y seguro",
+       "texto": "Sí, completo y seguro",
        "score": 0
       },
       {
-       "texto": " Parcialmente documentado",
+       "texto": "Parcialmente documentado",
        "score": 35
       },
       {
-       "texto": " En mi cabeza, no documentado",
+       "texto": "En mi cabeza, no documentado",
        "score": 70
       },
       {
-       "texto": " No sé dónde está todo",
+       "texto": "No sé dónde está todo",
        "score": 100
       }
      ],
@@ -2833,19 +2833,19 @@
      "texto": "¿Separaste legalmente bienes personales de bienes compartidos?",
      "opciones": [
       {
-       "texto": " Sí, documentado formalmente",
+       "texto": "Sí, documentado formalmente",
        "score": 0
       },
       {
-       "texto": " Parcialmente, en proceso",
+       "texto": "Parcialmente, en proceso",
        "score": 30
       },
       {
-       "texto": " No, está mixto",
+       "texto": "No, está mixto",
        "score": 70
       },
       {
-       "texto": " No relevante o no sé",
+       "texto": "No relevante o no sé",
        "score": 100
       }
      ],
@@ -2859,19 +2859,19 @@
      "texto": "¿Tu seguro de vida cubre el monto que tu familia necesitaría?",
      "opciones": [
       {
-       "texto": " Sí, sobra cobertura",
+       "texto": "Sí, sobra cobertura",
        "score": 0
       },
       {
-       "texto": " Sí, cubre lo necesario",
+       "texto": "Sí, cubre lo necesario",
        "score": 20
       },
       {
-       "texto": " Parcialmente, hay brecha",
+       "texto": "Parcialmente, hay brecha",
        "score": 70
       },
       {
-       "texto": " No tengo o es insuficiente",
+       "texto": "No tengo o es insuficiente",
        "score": 100
       }
      ],
@@ -2885,19 +2885,19 @@
      "texto": "¿Tienes cuentas de emergencia a nombre de tus hijos o herederos?",
      "opciones": [
       {
-       "texto": " Sí, estructura legal completa",
+       "texto": "Sí, estructura legal completa",
        "score": 0
       },
       {
-       "texto": " Parcial, algunas cuentas",
+       "texto": "Parcial, algunas cuentas",
        "score": 30
       },
       {
-       "texto": " Planeo hacerlo",
+       "texto": "Planeo hacerlo",
        "score": 70
       },
       {
-       "texto": " No tengo plan",
+       "texto": "No tengo plan",
        "score": 100
       }
      ],
@@ -2955,19 +2955,19 @@
      "texto": "¿Cuánto gastas mensualmente en ropa/marcas?",
      "opciones": [
       {
-       "texto": " 0-50 €",
+       "texto": "0-50 €",
        "score": 0
       },
       {
-       "texto": " 51-150 €",
+       "texto": "51-150 €",
        "score": 25
       },
       {
-       "texto": " 151-400 €",
+       "texto": "151-400 €",
        "score": 50
       },
       {
-       "texto": " 401-800 €",
+       "texto": "401-800 €",
        "score": 80
       }
      ],
@@ -2981,19 +2981,19 @@
      "texto": "¿Vives en un barrio 'premium' de tu ciudad?",
      "opciones": [
       {
-       "texto": " No, zona estándar",
+       "texto": "No, zona estándar",
        "score": 0
       },
       {
-       "texto": " Ligeramente premium",
+       "texto": "Ligeramente premium",
        "score": 25
       },
       {
-       "texto": " Claramente premium",
+       "texto": "Claramente premium",
        "score": 60
       },
       {
-       "texto": " Ultra-premium/lujo",
+       "texto": "Ultra-premium/lujo",
        "score": 100
       }
      ],
@@ -3007,19 +3007,19 @@
      "texto": "¿Tus hijos van a colegio privado/internacional?",
      "opciones": [
       {
-       "texto": " No, educación pública",
+       "texto": "No, educación pública",
        "score": 0
       },
       {
-       "texto": " Privado estándar",
+       "texto": "Privado estándar",
        "score": 40
       },
       {
-       "texto": " Privado premium",
+       "texto": "Privado premium",
        "score": 70
       },
       {
-       "texto": " Internacional",
+       "texto": "Internacional",
        "score": 100
       }
      ],
@@ -3037,19 +3037,19 @@
      "texto": "¿Tienes membresía/suscripción a clubs (golf, privado, gym elite)?",
      "opciones": [
       {
-       "texto": " No",
+       "texto": "No",
        "score": 0
       },
       {
-       "texto": " Un club básico",
+       "texto": "Un club básico",
        "score": 30
       },
       {
-       "texto": " Uno premium",
+       "texto": "Uno premium",
        "score": 60
       },
       {
-       "texto": " Múltiples clubs premium",
+       "texto": "Múltiples clubs premium",
        "score": 100
       }
      ],
@@ -3063,19 +3063,19 @@
      "texto": "¿Cuánto inviertes en experiencias 'de status' (viajes, cenas, eventos)?",
      "opciones": [
       {
-       "texto": " Poco, 0-2% ingresos",
+       "texto": "Poco, 0-2% ingresos",
        "score": 0
       },
       {
-       "texto": " Moderado, 2-5%",
+       "texto": "Moderado, 2-5%",
        "score": 30
       },
       {
-       "texto": " Significativo, 5-10%",
+       "texto": "Significativo, 5-10%",
        "score": 65
       },
       {
-       "texto": " Mucho, 10%+",
+       "texto": "Mucho, 10%+",
        "score": 100
       }
      ],
@@ -3089,19 +3089,19 @@
      "texto": "¿Compras marcas caras sin necesidad funcional (iPhone, ropa designer)?",
      "opciones": [
       {
-       "texto": " No, busco valor",
+       "texto": "No, busco valor",
        "score": 0
       },
       {
-       "texto": " Ocasionalmente",
+       "texto": "Ocasionalmente",
        "score": 35
       },
       {
-       "texto": " Frecuentemente",
+       "texto": "Frecuentemente",
        "score": 70
       },
       {
-       "texto": " Siempre, es mi estándar",
+       "texto": "Siempre, es mi estándar",
        "score": 100
       }
      ],
@@ -3115,19 +3115,19 @@
      "texto": "¿Si tu salario se redujera, qué ajustarías PRIMERO?",
      "opciones": [
       {
-       "texto": " Primero corto coche/vivienda/lujos",
+       "texto": "Primero corto coche/vivienda/lujos",
        "score": 100
       },
       {
-       "texto": " Ajustaría paulatinamente",
+       "texto": "Ajustaría paulatinamente",
        "score": 50
       },
       {
-       "texto": " Mantendría estilo de vida, usaría deuda",
+       "texto": "Mantendría estilo de vida, usaría deuda",
        "score": 0
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -3141,19 +3141,19 @@
      "texto": "¿Cuánto % de tu ingreso TOTAL va a 'validación/estatus'?",
      "opciones": [
       {
-       "texto": " 0-15%",
+       "texto": "0-15%",
        "score": 0
       },
       {
-       "texto": " 15-30%",
+       "texto": "15-30%",
        "score": 35
       },
       {
-       "texto": " 30-50%",
+       "texto": "30-50%",
        "score": 70
       },
       {
-       "texto": " 50%+ (mayoría del sueldo)",
+       "texto": "50%+ (mayoría del sueldo)",
        "score": 100
       }
      ],
@@ -3167,19 +3167,19 @@
      "texto": "¿Te arrepientes de compras status pasadas?",
      "opciones": [
       {
-       "texto": " No, todas fueron buenas decisiones",
+       "texto": "No, todas fueron buenas decisiones",
        "score": 0
       },
       {
-       "texto": " Algunas",
+       "texto": "Algunas",
        "score": 40
       },
       {
-       "texto": " Muchas",
+       "texto": "Muchas",
        "score": 80
       },
       {
-       "texto": " Sí, casi todas fueron un error",
+       "texto": "Sí, casi todas fueron un error",
        "score": 100
       }
      ],
@@ -3193,19 +3193,19 @@
      "texto": "¿Puedes justificar el precio premium de 3 cosas que posees vs su alternativa barata?",
      "opciones": [
       {
-       "texto": " Sí, justificación funcional clara",
+       "texto": "Sí, justificación funcional clara",
        "score": 0
       },
       {
-       "texto": " Sí, mezcla función y ego",
+       "texto": "Sí, mezcla función y ego",
        "score": 30
       },
       {
-       "texto": " Difícil justificar, mayormente ego",
+       "texto": "Difícil justificar, mayormente ego",
        "score": 70
       },
       {
-       "texto": " No puedo, es puro status",
+       "texto": "No puedo, es puro status",
        "score": 100
       }
      ],
@@ -3219,19 +3219,19 @@
      "texto": "¿El logo o marca de lo que usas importa más que su funcionalidad?",
      "opciones": [
       {
-       "texto": " Funcionalidad es 100% el factor",
+       "texto": "Funcionalidad es 100% el factor",
        "score": 0
       },
       {
-       "texto": " Marca es 20-30% del factor",
+       "texto": "Marca es 20-30% del factor",
        "score": 30
       },
       {
-       "texto": " Marca es 50-50 con función",
+       "texto": "Marca es 50-50 con función",
        "score": 65
       },
       {
-       "texto": " Marca es más importante",
+       "texto": "Marca es más importante",
        "score": 100
       }
      ],
@@ -3245,19 +3245,19 @@
      "texto": "¿Cambiarías tus marcas favoritas si solo usaras cosas 'en privado'?",
      "opciones": [
       {
-       "texto": " No, amo las marcas genuinamente",
+       "texto": "No, amo las marcas genuinamente",
        "score": 0
       },
       {
-       "texto": " Pocas cambiarían",
+       "texto": "Pocas cambiarían",
        "score": 25
       },
       {
-       "texto": " Muchas cambiarían",
+       "texto": "Muchas cambiarían",
        "score": 70
       },
       {
-       "texto": " Cambiaría casi todo",
+       "texto": "Cambiaría casi todo",
        "score": 100
       }
      ],
@@ -3271,19 +3271,19 @@
      "texto": "¿Cuánto pagas extra por algo que crees que 'no se vería bien' si fuera barato?",
      "opciones": [
       {
-       "texto": " No pago extra por eso",
+       "texto": "No pago extra por eso",
        "score": 0
       },
       {
-       "texto": " 10-20% extra algunas veces",
+       "texto": "10-20% extra algunas veces",
        "score": 30
       },
       {
-       "texto": " 20-50% extra frecuentemente",
+       "texto": "20-50% extra frecuentemente",
        "score": 70
       },
       {
-       "texto": " Pago lo que sea necesario",
+       "texto": "Pago lo que sea necesario",
        "score": 100
       }
      ],
@@ -3297,19 +3297,19 @@
      "texto": "¿Si nadie lo supiera, ¿comprarías la versión de $100 vs la de $500?",
      "opciones": [
       {
-       "texto": " La de $100, función es igual",
+       "texto": "La de $100, función es igual",
        "score": 0
       },
       {
-       "texto": " La de $100, ahorro es racional",
+       "texto": "La de $100, ahorro es racional",
        "score": 20
       },
       {
-       "texto": " Me costría la de $500 de todas formas",
+       "texto": "Me costría la de $500 de todas formas",
        "score": 70
       },
       {
-       "texto": " La de $500, independiente de quién sepa",
+       "texto": "La de $500, independiente de quién sepa",
        "score": 100
       }
      ],
@@ -3323,19 +3323,19 @@
      "texto": "¿Tus amigos conocen las marcas que usas? ¿Les importa saberlo?",
      "opciones": [
       {
-       "texto": " No sé, no lo dicen",
+       "texto": "No sé, no lo dicen",
        "score": 0
       },
       {
-       "texto": " A algunos les importa",
+       "texto": "A algunos les importa",
        "score": 25
       },
       {
-       "texto": " A muchos les importa",
+       "texto": "A muchos les importa",
        "score": 65
       },
       {
-       "texto": " Es un tema de conversación importante",
+       "texto": "Es un tema de conversación importante",
        "score": 100
       }
      ],
@@ -3349,19 +3349,19 @@
      "texto": "¿Has rechazado algo por ser 'demasiado barato' o no se vería bien?",
      "opciones": [
       {
-       "texto": " Nunca, función es lo importante",
+       "texto": "Nunca, función es lo importante",
        "score": 0
       },
       {
-       "texto": " Rara vez, precio ultra bajo",
+       "texto": "Rara vez, precio ultra bajo",
        "score": 25
       },
       {
-       "texto": " Sí, varias veces",
+       "texto": "Sí, varias veces",
        "score": 70
       },
       {
-       "texto": " Frecuentemente",
+       "texto": "Frecuentemente",
        "score": 100
       }
      ],
@@ -3375,19 +3375,19 @@
      "texto": "¿La gente 'lee' tu estatus por lo que usas/vistes? ¿Te importa qué leen?",
      "opciones": [
       {
-       "texto": " Sí leen, no me importa",
+       "texto": "Sí leen, no me importa",
        "score": 0
       },
       {
-       "texto": " Sí leen, intento mandar buen mensaje",
+       "texto": "Sí leen, intento mandar buen mensaje",
        "score": 35
       },
       {
-       "texto": " Sí leen, prefiero que subestimen",
+       "texto": "Sí leen, prefiero que subestimen",
        "score": 50
       },
       {
-       "texto": " Sí leen, quiero que vean riqueza",
+       "texto": "Sí leen, quiero que vean riqueza",
        "score": 100
       }
      ],
@@ -3401,19 +3401,19 @@
      "texto": "¿Cuál es el % de tu gasto que va a cosas que otros ven (vs privado)?",
      "opciones": [
       {
-       "texto": " Menos de 20%, gasto personal",
+       "texto": "Menos de 20%, gasto personal",
        "score": 0
       },
       {
-       "texto": " 20-40%, algo visible",
+       "texto": "20-40%, algo visible",
        "score": 25
       },
       {
-       "texto": " 40-70%, bastante visible",
+       "texto": "40-70%, bastante visible",
        "score": 65
       },
       {
-       "texto": " 70%+, mayormente visible",
+       "texto": "70%+, mayormente visible",
        "score": 100
       }
      ],
@@ -3427,19 +3427,19 @@
      "texto": "¿Sientes ansiedad comprando marcas 'no conocidas' aunque sean buenas?",
      "opciones": [
       {
-       "texto": " No, función es función",
+       "texto": "No, función es función",
        "score": 0
       },
       {
-       "texto": " Un poco, prefiero conocidas",
+       "texto": "Un poco, prefiero conocidas",
        "score": 30
       },
       {
-       "texto": " Sí, necesito que sea reconocida",
+       "texto": "Sí, necesito que sea reconocida",
        "score": 70
       },
       {
-       "texto": " Mucha, compro solo premium brands",
+       "texto": "Mucha, compro solo premium brands",
        "score": 100
       }
      ],
@@ -3453,19 +3453,19 @@
      "texto": "¿Has comprado algo caro específicamente para 'encajar' en cierto círculo?",
      "opciones": [
       {
-       "texto": " Nunca, me importa poco",
+       "texto": "Nunca, me importa poco",
        "score": 0
       },
       {
-       "texto": " Rara vez, pero reconozco",
+       "texto": "Rara vez, pero reconozco",
        "score": 35
       },
       {
-       "texto": " Sí, varias veces",
+       "texto": "Sí, varias veces",
        "score": 70
       },
       {
-       "texto": " Frecuentemente",
+       "texto": "Frecuentemente",
        "score": 100
       }
      ],
@@ -3519,19 +3519,19 @@
      "texto": "¿Tienes ingresos por rentas/propiedades?",
      "opciones": [
       {
-       "texto": " No",
+       "texto": "No",
        "score": 0
       },
       {
-       "texto": " Sí, menos de 10% total",
+       "texto": "Sí, menos de 10% total",
        "score": 25
       },
       {
-       "texto": " Sí, 10-20% total",
+       "texto": "Sí, 10-20% total",
        "score": 50
       },
       {
-       "texto": " Sí, más de 20% total",
+       "texto": "Sí, más de 20% total",
        "score": 75
       }
      ],
@@ -3545,19 +3545,19 @@
      "texto": "¿Tienes ingresos por dividendos/inversiones?",
      "opciones": [
       {
-       "texto": " No",
+       "texto": "No",
        "score": 0
       },
       {
-       "texto": " Sí, muy pequeños (<1%)",
+       "texto": "Sí, muy pequeños (<1%)",
        "score": 20
       },
       {
-       "texto": " Sí, 1-5% de ingresos",
+       "texto": "Sí, 1-5% de ingresos",
        "score": 40
       },
       {
-       "texto": " Sí, 5%+ de ingresos",
+       "texto": "Sí, 5%+ de ingresos",
        "score": 70
       }
      ],
@@ -3571,19 +3571,19 @@
      "texto": "¿Tienes negocio/freelance paralelo?",
      "opciones": [
       {
-       "texto": " No",
+       "texto": "No",
        "score": 0
       },
       {
-       "texto": " Sí, hobby/ingresos mínimos",
+       "texto": "Sí, hobby/ingresos mínimos",
        "score": 15
       },
       {
-       "texto": " Sí, ingreso moderado (5-15%)",
+       "texto": "Sí, ingreso moderado (5-15%)",
        "score": 40
       },
       {
-       "texto": " Sí, ingreso significativo (15%+)",
+       "texto": "Sí, ingreso significativo (15%+)",
        "score": 75
       }
      ],
@@ -3597,19 +3597,19 @@
      "texto": "¿Dependerías de tu actual trabajo 5 años más sin poder cambiar?",
      "opciones": [
       {
-       "texto": " No, me cambiaría de inmediato",
+       "texto": "No, me cambiaría de inmediato",
        "score": 100
       },
       {
-       "texto": " Sí, pero con cierta libertad",
+       "texto": "Sí, pero con cierta libertad",
        "score": 60
       },
       {
-       "texto": " Completamente dependiente",
+       "texto": "Completamente dependiente",
        "score": 0
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -3623,19 +3623,19 @@
      "texto": "¿Qué tan seguro es tu empleo actual?",
      "opciones": [
       {
-       "texto": " Muy seguro (empleado público/gran empresa)",
+       "texto": "Muy seguro (empleado público/gran empresa)",
        "score": 0
       },
       {
-       "texto": " Relativamente seguro",
+       "texto": "Relativamente seguro",
        "score": 30
       },
       {
-       "texto": " Inseguro (startup/sector volátil)",
+       "texto": "Inseguro (startup/sector volátil)",
        "score": 70
       },
       {
-       "texto": " Muy inseguro (contract/gig economy)",
+       "texto": "Muy inseguro (contract/gig economy)",
        "score": 100
       }
      ],
@@ -3649,19 +3649,19 @@
      "texto": "Si pierdes tu empleo, ¿cuántos meses podrías vivir con otros ingresos?",
      "opciones": [
       {
-       "texto": " 0 meses (dependo 100% nómina)",
+       "texto": "0 meses (dependo 100% nómina)",
        "score": 100
       },
       {
-       "texto": " 1-3 meses",
+       "texto": "1-3 meses",
        "score": 70
       },
       {
-       "texto": " 3-6 meses",
+       "texto": "3-6 meses",
        "score": 40
       },
       {
-       "texto": " 6+ meses",
+       "texto": "6+ meses",
        "score": 10
       }
      ],
@@ -3675,19 +3675,19 @@
      "texto": "¿Tienes plan para crear fuentes alternas en próximos 2 años?",
      "opciones": [
       {
-       "texto": " Sí, con plan concreto",
+       "texto": "Sí, con plan concreto",
        "score": 100
       },
       {
-       "texto": " Sí, vago/eventual",
+       "texto": "Sí, vago/eventual",
        "score": 50
       },
       {
-       "texto": " No, pero me gustaría",
+       "texto": "No, pero me gustaría",
        "score": 25
       },
       {
-       "texto": " No, ni lo he pensado",
+       "texto": "No, ni lo he pensado",
        "score": 0
       }
      ],
@@ -3701,19 +3701,19 @@
      "texto": "¿Cuál es tu 'riesgo de cliente único'? (¿una empresa podría causar colapso?)",
      "opciones": [
       {
-       "texto": " Bajo (múltiples clientes/empleadores)",
+       "texto": "Bajo (múltiples clientes/empleadores)",
        "score": 0
       },
       {
-       "texto": " Moderado (2-3 clientes principales)",
+       "texto": "Moderado (2-3 clientes principales)",
        "score": 40
       },
       {
-       "texto": " Alto (1-2 clientes = 80%+ ingresos)",
+       "texto": "Alto (1-2 clientes = 80%+ ingresos)",
        "score": 80
       },
       {
-       "texto": " Crítico (un cliente = 100% ingresos)",
+       "texto": "Crítico (un cliente = 100% ingresos)",
        "score": 100
       }
      ],
@@ -3727,19 +3727,19 @@
      "texto": "¿Qué % de tus ingresos viene de tu empleo actual?",
      "opciones": [
       {
-       "texto": " Menos de 50%",
+       "texto": "Menos de 50%",
        "score": 0
       },
       {
-       "texto": " 50-75%",
+       "texto": "50-75%",
        "score": 25
       },
       {
-       "texto": " 75-95%",
+       "texto": "75-95%",
        "score": 65
       },
       {
-       "texto": " Más de 95%",
+       "texto": "Más de 95%",
        "score": 100
       }
      ],
@@ -3753,19 +3753,19 @@
      "texto": "¿Tienes más de 2 fuentes de ingresos regulares?",
      "opciones": [
       {
-       "texto": " Sí, 3+ fuentes diversificadas",
+       "texto": "Sí, 3+ fuentes diversificadas",
        "score": 0
       },
       {
-       "texto": " Sí, 2 fuentes",
+       "texto": "Sí, 2 fuentes",
        "score": 30
       },
       {
-       "texto": " Parcialmente, 1 principal",
+       "texto": "Parcialmente, 1 principal",
        "score": 70
       },
       {
-       "texto": " No, una fuente única",
+       "texto": "No, una fuente única",
        "score": 100
       }
      ],
@@ -3779,19 +3779,19 @@
      "texto": "¿Si perdieras tu trabajo mañana, ¿cuánto tiempo podrías mantener gastos?",
      "opciones": [
       {
-       "texto": " 6+ meses sin ingresos",
+       "texto": "6+ meses sin ingresos",
        "score": 0
       },
       {
-       "texto": " 3-6 meses",
+       "texto": "3-6 meses",
        "score": 25
       },
       {
-       "texto": " 1-3 meses",
+       "texto": "1-3 meses",
        "score": 70
       },
       {
-       "texto": " Menos de 1 mes",
+       "texto": "Menos de 1 mes",
        "score": 100
       }
      ],
@@ -3805,19 +3805,19 @@
      "texto": "¿Has estado 3+ meses sin empleo? ¿Cuánto te mató financieramente?",
      "opciones": [
       {
-       "texto": " Nunca, siempre empleado",
+       "texto": "Nunca, siempre empleado",
        "score": 0
       },
       {
-       "texto": " Sí, fue stressful pero sobreviví",
+       "texto": "Sí, fue stressful pero sobreviví",
        "score": 35
       },
       {
-       "texto": " Sí, usé ahorros significativos",
+       "texto": "Sí, usé ahorros significativos",
        "score": 70
       },
       {
-       "texto": " Sí, caí en deuda",
+       "texto": "Sí, caí en deuda",
        "score": 100
       }
      ],
@@ -3831,19 +3831,19 @@
      "texto": "¿Tu industria es 'cíclica' o 'vulnerable a automatización'?",
      "opciones": [
       {
-       "texto": " No, industria estable",
+       "texto": "No, industria estable",
        "score": 0
       },
       {
-       "texto": " Algo, riesgo moderado",
+       "texto": "Algo, riesgo moderado",
        "score": 30
       },
       {
-       "texto": " Sí, bastante cíclica/vulnerable",
+       "texto": "Sí, bastante cíclica/vulnerable",
        "score": 70
       },
       {
-       "texto": " Muy vulnerable, precupante",
+       "texto": "Muy vulnerable, precupante",
        "score": 100
       }
      ],
@@ -3857,19 +3857,19 @@
      "texto": "¿Tienes habilidades para monetizar fuera de tu empleo actual?",
      "opciones": [
       {
-       "texto": " Sí, podría generar ingresos fácil",
+       "texto": "Sí, podría generar ingresos fácil",
        "score": 0
       },
       {
-       "texto": " Sí, tomaría tiempo pero lo haría",
+       "texto": "Sí, tomaría tiempo pero lo haría",
        "score": 25
       },
       {
-       "texto": " Parcialmente, sería difícil",
+       "texto": "Parcialmente, sería difícil",
        "score": 70
       },
       {
-       "texto": " No, dependo del empleo formal",
+       "texto": "No, dependo del empleo formal",
        "score": 100
       }
      ],
@@ -3883,19 +3883,19 @@
      "texto": "¿Cuándo fue la última vez que ganaste dinero fuera de tu empleo principal?",
      "opciones": [
       {
-       "texto": " Este mes",
+       "texto": "Este mes",
        "score": 0
       },
       {
-       "texto": " Últimos 3 meses",
+       "texto": "Últimos 3 meses",
        "score": 20
       },
       {
-       "texto": " Últimos 12 meses",
+       "texto": "Últimos 12 meses",
        "score": 60
       },
       {
-       "texto": " No recuerdo o nunca",
+       "texto": "No recuerdo o nunca",
        "score": 100
       }
      ],
@@ -3909,19 +3909,19 @@
      "texto": "¿Dependes de 'bonus', 'comisiones' o ingresos variables?",
      "opciones": [
       {
-       "texto": " No, sueldo fijo confiable",
+       "texto": "No, sueldo fijo confiable",
        "score": 0
       },
       {
-       "texto": " Parcialmente, algo variable",
+       "texto": "Parcialmente, algo variable",
        "score": 25
       },
       {
-       "texto": " Significativamente variable",
+       "texto": "Significativamente variable",
        "score": 65
       },
       {
-       "texto": " Mayoría es variable",
+       "texto": "Mayoría es variable",
        "score": 100
       }
      ],
@@ -3935,19 +3935,19 @@
      "texto": "¿Tus ingresos crecieron en los últimos 2 años?",
      "opciones": [
       {
-       "texto": " Sí, 20%+ crecimiento",
+       "texto": "Sí, 20%+ crecimiento",
        "score": 0
       },
       {
-       "texto": " Sí, 10-20%",
+       "texto": "Sí, 10-20%",
        "score": 25
       },
       {
-       "texto": " Poco o nada",
+       "texto": "Poco o nada",
        "score": 65
       },
       {
-       "texto": " Bajaron",
+       "texto": "Bajaron",
        "score": 100
       }
      ],
@@ -3961,19 +3961,19 @@
      "texto": "¿Tu empleador es 'too big to fail' o 'podría quebrar'?",
      "opciones": [
       {
-       "texto": " Muy estable, multinacional",
+       "texto": "Muy estable, multinacional",
        "score": 0
       },
       {
-       "texto": " Estable, pero podría cerrar",
+       "texto": "Estable, pero podría cerrar",
        "score": 30
       },
       {
-       "texto": " Riesgo moderado",
+       "texto": "Riesgo moderado",
        "score": 70
       },
       {
-       "texto": " Alto riesgo, inestable",
+       "texto": "Alto riesgo, inestable",
        "score": 100
       }
      ],
@@ -3987,19 +3987,19 @@
      "texto": "¿Si tu sector colapsara, ¿tus habilidades son transferibles?",
      "opciones": [
       {
-       "texto": " Totalmente, muy demandado",
+       "texto": "Totalmente, muy demandado",
        "score": 0
       },
       {
-       "texto": " Bastante, tendría opciones",
+       "texto": "Bastante, tendría opciones",
        "score": 25
       },
       {
-       "texto": " Parcialmente, sería difícil",
+       "texto": "Parcialmente, sería difícil",
        "score": 70
       },
       {
-       "texto": " No, muy específico",
+       "texto": "No, muy específico",
        "score": 100
       }
      ],
@@ -4013,19 +4013,19 @@
      "texto": "¿Tienes ahorros para sustentar crecimiento de ingresos?",
      "opciones": [
       {
-       "texto": " Sí, reinvierto constantemente",
+       "texto": "Sí, reinvierto constantemente",
        "score": 0
       },
       {
-       "texto": " Sí, aunque mínimo",
+       "texto": "Sí, aunque mínimo",
        "score": 25
       },
       {
-       "texto": " No, pero debería",
+       "texto": "No, pero debería",
        "score": 70
       },
       {
-       "texto": " No, vivo al límite",
+       "texto": "No, vivo al límite",
        "score": 100
       }
      ],
@@ -4079,19 +4079,19 @@
      "texto": "¿Cuánto efectivo/liquidez tienes disponible AHORA?",
      "opciones": [
       {
-       "texto": " 0-5.000 €",
+       "texto": "0-5.000 €",
        "score": 0
       },
       {
-       "texto": " 5.001-15.000 €",
+       "texto": "5.001-15.000 €",
        "score": 25
       },
       {
-       "texto": " 15.001-50.000 €",
+       "texto": "15.001-50.000 €",
        "score": 50
       },
       {
-       "texto": " 50.001-100.000 €",
+       "texto": "50.001-100.000 €",
        "score": 75
       }
      ],
@@ -4105,19 +4105,19 @@
      "texto": "¿Si la bolsa cae 50%, podrías COMPRAR activos baratos?",
      "opciones": [
       {
-       "texto": " Sí, tengo efectivo para aprovechar",
+       "texto": "Sí, tengo efectivo para aprovechar",
        "score": 100
       },
       {
-       "texto": " Parcialmente",
+       "texto": "Parcialmente",
        "score": 50
       },
       {
-       "texto": " No, estaría en pánico",
+       "texto": "No, estaría en pánico",
        "score": 0
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -4131,19 +4131,19 @@
      "texto": "¿Qué % de tu dinero está en activos que SUBEN en crisis? (oro, bonos, opciones)",
      "opciones": [
       {
-       "texto": " 0% (todo acciones/volátil)",
+       "texto": "0% (todo acciones/volátil)",
        "score": 0
       },
       {
-       "texto": " 5-15%",
+       "texto": "5-15%",
        "score": 25
       },
       {
-       "texto": " 15-30%",
+       "texto": "15-30%",
        "score": 60
       },
       {
-       "texto": " 30%+ (hedged/protegido)",
+       "texto": "30%+ (hedged/protegido)",
        "score": 100
       }
      ],
@@ -4157,19 +4157,19 @@
      "texto": "¿Tienes conocimientos/habilidades que aumentan valor en crisis?",
      "opciones": [
       {
-       "texto": " No, mi habilidad es situacional",
+       "texto": "No, mi habilidad es situacional",
        "score": 0
       },
       {
-       "texto": " Algo (tech, finanzas, health)",
+       "texto": "Algo (tech, finanzas, health)",
        "score": 40
       },
       {
-       "texto": " Sí, muy demandado en crisis",
+       "texto": "Sí, muy demandado en crisis",
        "score": 100
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -4183,19 +4183,19 @@
      "texto": "¿Cómo reaccionaría tu plan financiero ante sorpresas negativas?",
      "opciones": [
       {
-       "texto": " Se colapsa",
+       "texto": "Se colapsa",
        "score": 0
       },
       {
-       "texto": " Soporta con dificultad",
+       "texto": "Soporta con dificultad",
        "score": 35
       },
       {
-       "texto": " Resiste bien",
+       "texto": "Resiste bien",
        "score": 70
       },
       {
-       "texto": " Mejora (gana con volatilidad)",
+       "texto": "Mejora (gana con volatilidad)",
        "score": 100
       }
      ],
@@ -4209,19 +4209,19 @@
      "texto": "¿Tienes opciones (calls/puts) o derivados para especular en crisis?",
      "opciones": [
       {
-       "texto": " No",
+       "texto": "No",
        "score": 0
       },
       {
-       "texto": " Sí, pequeña posición",
+       "texto": "Sí, pequeña posición",
        "score": 50
       },
       {
-       "texto": " Sí, posición significativa",
+       "texto": "Sí, posición significativa",
        "score": 100
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -4235,19 +4235,19 @@
      "texto": "¿Tu ingreso AUMENTA o se ESTABILIZA en recesiones?",
      "opciones": [
       {
-       "texto": " Disminuye significativamente",
+       "texto": "Disminuye significativamente",
        "score": 0
       },
       {
-       "texto": " Se mantiene estable",
+       "texto": "Se mantiene estable",
        "score": 60
       },
       {
-       "texto": " Aumenta (contraciclical)",
+       "texto": "Aumenta (contraciclical)",
        "score": 100
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -4261,19 +4261,19 @@
      "texto": "¿Cuánta deuda tienes a tipo fijo (te beneficia inflación)?",
      "opciones": [
       {
-       "texto": " No tengo deuda",
+       "texto": "No tengo deuda",
        "score": 25
       },
       {
-       "texto": " Poca deuda",
+       "texto": "Poca deuda",
        "score": 50
       },
       {
-       "texto": " Deuda moderada a tipo fijo",
+       "texto": "Deuda moderada a tipo fijo",
        "score": 80
       },
       {
-       "texto": " Mucha deuda a tipo fijo (ventaja inflación)",
+       "texto": "Mucha deuda a tipo fijo (ventaja inflación)",
        "score": 100
       }
      ],
@@ -4291,19 +4291,19 @@
      "texto": "¿Podrías vivir de forma 'primitiva' si fuera necesario?",
      "opciones": [
       {
-       "texto": " No, dependo de servicios caros",
+       "texto": "No, dependo de servicios caros",
        "score": 0
       },
       {
-       "texto": " Parcialmente",
+       "texto": "Parcialmente",
        "score": 40
       },
       {
-       "texto": " Sí, tengo flexibilidad",
+       "texto": "Sí, tengo flexibilidad",
        "score": 100
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -4317,19 +4317,19 @@
      "texto": "¿Tu mentalidad es aprovechar crisis o temerlasúnicamente?",
      "opciones": [
       {
-       "texto": " Solo tengo miedo",
+       "texto": "Solo tengo miedo",
        "score": 0
       },
       {
-       "texto": " Mezcla de miedo y oportunidad",
+       "texto": "Mezcla de miedo y oportunidad",
        "score": 50
       },
       {
-       "texto": " Veo las crisis como oportunidades de oro",
+       "texto": "Veo las crisis como oportunidades de oro",
        "score": 100
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -4343,19 +4343,19 @@
      "texto": "¿Si tuviera crisis económica, ¿podrías beneficiarte?",
      "opciones": [
       {
-       "texto": " Sí, tengo opciones largas",
+       "texto": "Sí, tengo opciones largas",
        "score": 0
       },
       {
-       "texto": " Tal vez, tengo algo",
+       "texto": "Tal vez, tengo algo",
        "score": 30
       },
       {
-       "texto": " No, sería perjudicado",
+       "texto": "No, sería perjudicado",
        "score": 70
       },
       {
-       "texto": " Devastado, pérdida total",
+       "texto": "Devastado, pérdida total",
        "score": 100
       }
      ],
@@ -4369,19 +4369,19 @@
      "texto": "¿Tienes 'optionality' en tu vida (múltiples caminos)?",
      "opciones": [
       {
-       "texto": " Mucha, caminos abiertos",
+       "texto": "Mucha, caminos abiertos",
        "score": 0
       },
       {
-       "texto": " Alguna, pero limitado",
+       "texto": "Alguna, pero limitado",
        "score": 30
       },
       {
-       "texto": " Poca, bastante lineal",
+       "texto": "Poca, bastante lineal",
        "score": 70
       },
       {
-       "texto": " Ninguna, camino único",
+       "texto": "Ninguna, camino único",
        "score": 100
       }
      ],
@@ -4395,19 +4395,19 @@
      "texto": "¿Qué cambios en el mundo te beneficiarían financieramente?",
      "opciones": [
       {
-       "texto": " Muchos cambios me benefician",
+       "texto": "Muchos cambios me benefician",
        "score": 0
       },
       {
-       "texto": " Algunos cambios me ayudan",
+       "texto": "Algunos cambios me ayudan",
        "score": 25
       },
       {
-       "texto": " Pocos cambios me ayudan",
+       "texto": "Pocos cambios me ayudan",
        "score": 70
       },
       {
-       "texto": " Ninguno, cambios me perjudican",
+       "texto": "Ninguno, cambios me perjudican",
        "score": 100
       }
      ],
@@ -4421,19 +4421,19 @@
      "texto": "¿Tu portafolio tiene 'opciones' (upside sin downside)?",
      "opciones": [
       {
-       "texto": " Sí, varias posiciones especulativas",
+       "texto": "Sí, varias posiciones especulativas",
        "score": 0
       },
       {
-       "texto": " Alguna, limitada",
+       "texto": "Alguna, limitada",
        "score": 25
       },
       {
-       "texto": " Ninguna, todo es conservador",
+       "texto": "Ninguna, todo es conservador",
        "score": 70
       },
       {
-       "texto": " Nada, todo es fijo",
+       "texto": "Nada, todo es fijo",
        "score": 100
       }
      ],
@@ -4447,19 +4447,19 @@
      "texto": "¿Tienes 'pequeñas apuestas' que podrían dar grande?",
      "opciones": [
       {
-       "texto": " Sí, varias en marcha",
+       "texto": "Sí, varias en marcha",
        "score": 0
       },
       {
-       "texto": " Sí, una o dos",
+       "texto": "Sí, una o dos",
        "score": 25
       },
       {
-       "texto": " No, pero debería",
+       "texto": "No, pero debería",
        "score": 70
       },
       {
-       "texto": " No, no juego",
+       "texto": "No, no juego",
        "score": 100
       }
      ],
@@ -4473,19 +4473,19 @@
      "texto": "¿Qué tipo de 'choques' (cambios de mercado) te favorecerían?",
      "opciones": [
       {
-       "texto": " Volatilidad, recesión, cambios",
+       "texto": "Volatilidad, recesión, cambios",
        "score": 0
       },
       {
-       "texto": " Algunos escenarios",
+       "texto": "Algunos escenarios",
        "score": 25
       },
       {
-       "texto": " Ninguno realmente",
+       "texto": "Ninguno realmente",
        "score": 70
       },
       {
-       "texto": " Todo me perjudicaría",
+       "texto": "Todo me perjudicaría",
        "score": 100
       }
      ],
@@ -4499,19 +4499,19 @@
      "texto": "¿Tu estructura de vida mejora o empeora con estrés?",
      "opciones": [
       {
-       "texto": " Mejora, soy creativo bajo presión",
+       "texto": "Mejora, soy creativo bajo presión",
        "score": 0
       },
       {
-       "texto": " Neutral, me adapto",
+       "texto": "Neutral, me adapto",
        "score": 30
       },
       {
-       "texto": " Empeora, necesito estabilidad",
+       "texto": "Empeora, necesito estabilidad",
        "score": 70
       },
       {
-       "texto": " Colapsa, no manejo estrés",
+       "texto": "Colapsa, no manejo estrés",
        "score": 100
       }
      ],
@@ -4525,19 +4525,19 @@
      "texto": "¿Tienes 'apalancamiento' en tus oportunidades?",
      "opciones": [
       {
-       "texto": " Sí, dinero/influencia/red",
+       "texto": "Sí, dinero/influencia/red",
        "score": 0
       },
       {
-       "texto": " Algo, pero limitado",
+       "texto": "Algo, pero limitado",
        "score": 30
       },
       {
-       "texto": " Poco, no tengo palanca",
+       "texto": "Poco, no tengo palanca",
        "score": 70
       },
       {
-       "texto": " Ninguno, bootstrapping",
+       "texto": "Ninguno, bootstrapping",
        "score": 100
       }
      ],
@@ -4551,19 +4551,19 @@
      "texto": "¿Cuánto de tu portafolio es 'no correlacionado'?",
      "opciones": [
       {
-       "texto": " 100%, completamente diverso",
+       "texto": "100%, completamente diverso",
        "score": 0
       },
       {
-       "texto": " Algo diverso, ~50%",
+       "texto": "Algo diverso, ~50%",
        "score": 25
       },
       {
-       "texto": " Poco, altamente correlacionado",
+       "texto": "Poco, altamente correlacionado",
        "score": 70
       },
       {
-       "texto": " Todo correlacionado",
+       "texto": "Todo correlacionado",
        "score": 100
       }
      ],
@@ -4577,19 +4577,19 @@
      "texto": "¿Tienes 'barbell strategy' (seguro + apuestas)?",
      "opciones": [
       {
-       "texto": " Sí, balance claro",
+       "texto": "Sí, balance claro",
        "score": 0
       },
       {
-       "texto": " Algo, parcial",
+       "texto": "Algo, parcial",
        "score": 30
       },
       {
-       "texto": " No, voy por todo",
+       "texto": "No, voy por todo",
        "score": 70
       },
       {
-       "texto": " No, muy conservador",
+       "texto": "No, muy conservador",
        "score": 100
       }
      ],
@@ -4644,19 +4644,19 @@
      "texto": "¿Puedes desglosar exactamente tus gastos mensuales sin dudas?",
      "opciones": [
       {
-       "texto": " Sí, al céntimo (con sistema de tracking)",
+       "texto": "Sí, al céntimo (con sistema de tracking)",
        "score": 100
       },
       {
-       "texto": " Aproximadamente",
+       "texto": "Aproximadamente",
        "score": 50
       },
       {
-       "texto": " Vaguedad total, 'se va el dinero'",
+       "texto": "Vaguedad total, 'se va el dinero'",
        "score": 0
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -4670,19 +4670,19 @@
      "texto": "¿Tienes suscripciones 'fantasma' que pagas sin usar?",
      "opciones": [
       {
-       "texto": " No",
+       "texto": "No",
        "score": 100
       },
       {
-       "texto": " Sí, 1-2",
+       "texto": "Sí, 1-2",
        "score": 60
       },
       {
-       "texto": " Sí, 3-5",
+       "texto": "Sí, 3-5",
        "score": 30
       },
       {
-       "texto": " Sí, 6+",
+       "texto": "Sí, 6+",
        "score": 0
       }
      ],
@@ -4696,19 +4696,19 @@
      "texto": "¿Cuánto dinero desaparece mensualmente sin saber dónde?",
      "opciones": [
       {
-       "texto": " 0-100 € (bajo)",
+       "texto": "0-100 € (bajo)",
        "score": 100
       },
       {
-       "texto": " 101-300 € (moderado)",
+       "texto": "101-300 € (moderado)",
        "score": 60
       },
       {
-       "texto": " 301-800 € (significativo)",
+       "texto": "301-800 € (significativo)",
        "score": 30
       },
       {
-       "texto": " 800+ € (crisis)",
+       "texto": "800+ € (crisis)",
        "score": 0
       }
      ],
@@ -4722,19 +4722,19 @@
      "texto": "¿Tienes presupuesto mensual formalizado?",
      "opciones": [
       {
-       "texto": " Sí, actualizado mensualmente",
+       "texto": "Sí, actualizado mensualmente",
        "score": 100
       },
       {
-       "texto": " Sí, pero desactualizado",
+       "texto": "Sí, pero desactualizado",
        "score": 50
       },
       {
-       "texto": " No",
+       "texto": "No",
        "score": 0
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -4748,19 +4748,19 @@
      "texto": "¿Qué % de tu ingreso se va en impuestos?",
      "opciones": [
       {
-       "texto": " 10-20% (bajo)",
+       "texto": "10-20% (bajo)",
        "score": 0
       },
       {
-       "texto": " 20-35% (normal)",
+       "texto": "20-35% (normal)",
        "score": 30
       },
       {
-       "texto": " 35-45% (alto)",
+       "texto": "35-45% (alto)",
        "score": 60
       },
       {
-       "texto": " 45%+ (muy alto)",
+       "texto": "45%+ (muy alto)",
        "score": 100
       }
      ],
@@ -4774,19 +4774,19 @@
      "texto": "¿Usas automático para aborros o lo haces 'cuando puedo'?",
      "opciones": [
       {
-       "texto": " Automático en salario (disciplina 100%)",
+       "texto": "Automático en salario (disciplina 100%)",
        "score": 100
       },
       {
-       "texto": " Semi-automático",
+       "texto": "Semi-automático",
        "score": 60
       },
       {
-       "texto": " Manual",
+       "texto": "Manual",
        "score": 30
       },
       {
-       "texto": " No ahorro",
+       "texto": "No ahorro",
        "score": 0
       }
      ],
@@ -4800,19 +4800,19 @@
      "texto": "¿Qué % de tu salario destinas a ahorro?",
      "opciones": [
       {
-       "texto": " 0% (gasto todo)",
+       "texto": "0% (gasto todo)",
        "score": 0
       },
       {
-       "texto": " 1-10% (bajo)",
+       "texto": "1-10% (bajo)",
        "score": 20
       },
       {
-       "texto": " 10-20% (moderado)",
+       "texto": "10-20% (moderado)",
        "score": 60
       },
       {
-       "texto": " 20%+ (agresivo)",
+       "texto": "20%+ (agresivo)",
        "score": 100
       }
      ],
@@ -4826,19 +4826,19 @@
      "texto": "¿Puedes predecir con precisión tus ingresos en 3 meses?",
      "opciones": [
       {
-       "texto": " No tengo idea",
+       "texto": "No tengo idea",
        "score": 0
       },
       {
-       "texto": " Rango muy amplio de variación",
+       "texto": "Rango muy amplio de variación",
        "score": 33
       },
       {
-       "texto": " Rango moderado, bastante predecible",
+       "texto": "Rango moderado, bastante predecible",
        "score": 67
       },
       {
-       "texto": " Muy predecible, margen de error menor al 10%",
+       "texto": "Muy predecible, margen de error menor al 10%",
        "score": 100
       }
      ],
@@ -4852,19 +4852,19 @@
      "texto": "¿Qué % de tus ingresos necesitas para vivir cómodo?",
      "opciones": [
       {
-       "texto": " Más del 120% (gasto más de lo que gano)",
+       "texto": "Más del 120% (gasto más de lo que gano)",
        "score": 0
       },
       {
-       "texto": " 100-120% (muy ajustado)",
+       "texto": "100-120% (muy ajustado)",
        "score": 33
       },
       {
-       "texto": " 70-100% (manejable)",
+       "texto": "70-100% (manejable)",
        "score": 67
       },
       {
-       "texto": " Menos del 70% (amplísimo colchón)",
+       "texto": "Menos del 70% (amplísimo colchón)",
        "score": 100
       }
      ],
@@ -4878,19 +4878,19 @@
      "texto": "¿Tienes un sistema de control de gastos vigente (no teórico)?",
      "opciones": [
       {
-       "texto": " No, no sé a dónde va mi dinero",
+       "texto": "No, no sé a dónde va mi dinero",
        "score": 0
       },
       {
-       "texto": " Idea vaga de categorías principales",
+       "texto": "Idea vaga de categorías principales",
        "score": 33
       },
       {
-       "texto": " Clasifico gastos pero sin análisis",
+       "texto": "Clasifico gastos pero sin análisis",
        "score": 67
       },
       {
-       "texto": " Sistema completo con análisis y alertas",
+       "texto": "Sistema completo con análisis y alertas",
        "score": 100
       }
      ],
@@ -4904,19 +4904,19 @@
      "texto": "¿Cuál es tu ratio de gastos fijos vs variables mensuales?",
      "opciones": [
       {
-       "texto": " No lo sé",
+       "texto": "No lo sé",
        "score": 0
       },
       {
-       "texto": " Muy impreciso, dominan variables",
+       "texto": "Muy impreciso, dominan variables",
        "score": 33
       },
       {
-       "texto": " Aproximadamente 50-50 o claro el predominio",
+       "texto": "Aproximadamente 50-50 o claro el predominio",
        "score": 67
       },
       {
-       "texto": " Exacto y optimizado, variables <30%",
+       "texto": "Exacto y optimizado, variables <30%",
        "score": 100
       }
      ],
@@ -4930,19 +4930,19 @@
      "texto": "¿Has conseguido reducir un gasto recurrente en los últimos 6 meses?",
      "opciones": [
       {
-       "texto": " No, no lo he intentado",
+       "texto": "No, no lo he intentado",
        "score": 0
       },
       {
-       "texto": " Sí, marginal (<5% de mi presupuesto)",
+       "texto": "Sí, marginal (<5% de mi presupuesto)",
        "score": 33
       },
       {
-       "texto": " Sí, moderado (5-15% de cambio)",
+       "texto": "Sí, moderado (5-15% de cambio)",
        "score": 67
       },
       {
-       "texto": " Sí, significativo, he monetizado el ahorro",
+       "texto": "Sí, significativo, he monetizado el ahorro",
        "score": 100
       }
      ],
@@ -4956,19 +4956,19 @@
      "texto": "¿Cuántos meses de gastos tienes en efectivo o equivalente?",
      "opciones": [
       {
-       "texto": " Cero o negativo (endeudado)",
+       "texto": "Cero o negativo (endeudado)",
        "score": 0
       },
       {
-       "texto": " Menos de 1 mes",
+       "texto": "Menos de 1 mes",
        "score": 33
       },
       {
-       "texto": " 1-3 meses",
+       "texto": "1-3 meses",
        "score": 67
       },
       {
-       "texto": " Más de 6 meses",
+       "texto": "Más de 6 meses",
        "score": 100
       }
      ],
@@ -4982,19 +4982,19 @@
      "texto": "¿Apartan algo de cada ingreso para gastos discretos anuales?",
      "opciones": [
       {
-       "texto": " No, me sorprenden cada vez",
+       "texto": "No, me sorprenden cada vez",
        "score": 0
       },
       {
-       "texto": " A veces, irregular",
+       "texto": "A veces, irregular",
        "score": 33
       },
       {
-       "texto": " Sí, pero no el monto suficiente",
+       "texto": "Sí, pero no el monto suficiente",
        "score": 67
       },
       {
-       "texto": " Sí, provisión exacta, automatizada",
+       "texto": "Sí, provisión exacta, automatizada",
        "score": 100
       }
      ],
@@ -5008,19 +5008,19 @@
      "texto": "¿Cuál fue tu mayor gasto sorpresa en los últimos 12 meses?",
      "opciones": [
       {
-       "texto": " Más del 30% de mis ingresos mensuales",
+       "texto": "Más del 30% de mis ingresos mensuales",
        "score": 0
       },
       {
-       "texto": " 15-30% de ingresos mensuales",
+       "texto": "15-30% de ingresos mensuales",
        "score": 33
       },
       {
-       "texto": " 5-15% de ingresos mensuales",
+       "texto": "5-15% de ingresos mensuales",
        "score": 67
       },
       {
-       "texto": " Menos del 5%, todo planificado",
+       "texto": "Menos del 5%, todo planificado",
        "score": 100
       }
      ],
@@ -5034,19 +5034,19 @@
      "texto": "¿Distingues entre liquidez y rentabilidad en tu dinero?",
      "opciones": [
       {
-       "texto": " No entiendo la distinción",
+       "texto": "No entiendo la distinción",
        "score": 0
       },
       {
-       "texto": " Idea vaga, no lo aplico",
+       "texto": "Idea vaga, no lo aplico",
        "score": 33
       },
       {
-       "texto": " Lo entiendo, aplicación parcial",
+       "texto": "Lo entiendo, aplicación parcial",
        "score": 67
       },
       {
-       "texto": " Uso estratégico deliberado de ambos",
+       "texto": "Uso estratégico deliberado de ambos",
        "score": 100
       }
      ],
@@ -5060,19 +5060,19 @@
      "texto": "¿Has modelado un escenario de pérdida de ingreso a 0?",
      "opciones": [
       {
-       "texto": " No, me asusta pensarlo",
+       "texto": "No, me asusta pensarlo",
        "score": 0
       },
       {
-       "texto": " Brevemente, es angustioso",
+       "texto": "Brevemente, es angustioso",
        "score": 33
       },
       {
-       "texto": " Sí, pero mis números no cierran bien",
+       "texto": "Sí, pero mis números no cierran bien",
        "score": 67
       },
       {
-       "texto": " Sí, he modelado y ajustado plan",
+       "texto": "Sí, he modelado y ajustado plan",
        "score": 100
       }
      ],
@@ -5086,19 +5086,19 @@
      "texto": "¿Qué porcentaje de tu flujo mensual está comprometido por deudas?",
      "opciones": [
       {
-       "texto": " Más del 50% (muy endeudado)",
+       "texto": "Más del 50% (muy endeudado)",
        "score": 0
       },
       {
-       "texto": " 30-50% (comprometido)",
+       "texto": "30-50% (comprometido)",
        "score": 33
       },
       {
-       "texto": " 10-30% (manejable)",
+       "texto": "10-30% (manejable)",
        "score": 67
       },
       {
-       "texto": " Menos del 10% o sin deudas",
+       "texto": "Menos del 10% o sin deudas",
        "score": 100
       }
      ],
@@ -5116,19 +5116,19 @@
      "texto": "¿Tu flujo de caja es más fuerte en qué trimestre del año?",
      "opciones": [
       {
-       "texto": " Muy variable, sin patrón claro",
+       "texto": "Muy variable, sin patrón claro",
        "score": 0
       },
       {
-       "texto": " Hay variación, pero la controlo",
+       "texto": "Hay variación, pero la controlo",
        "score": 33
       },
       {
-       "texto": " Patrón claro, lo anticipé",
+       "texto": "Patrón claro, lo anticipé",
        "score": 67
       },
       {
-       "texto": " Optimizado: invierto la estacionalidad",
+       "texto": "Optimizado: invierto la estacionalidad",
        "score": 100
       }
      ],
@@ -5142,19 +5142,19 @@
      "texto": "¿Has refinanciado una deuda para mejorar tu flujo mensual?",
      "opciones": [
       {
-       "texto": " Nunca, no me lo planteé",
+       "texto": "Nunca, no me lo planteé",
        "score": 0
       },
       {
-       "texto": " Pensé en ello pero no lo hice",
+       "texto": "Pensé en ello pero no lo hice",
        "score": 33
       },
       {
-       "texto": " Sí, logré reducción modesta",
+       "texto": "Sí, logré reducción modesta",
        "score": 67
       },
       {
-       "texto": " Sí, estrategia deliberada, buen resultado",
+       "texto": "Sí, estrategia deliberada, buen resultado",
        "score": 100
       }
      ],
@@ -5213,19 +5213,19 @@
      "texto": "¿Cuál es tu RATIO de deuda vs. patrimonio?",
      "opciones": [
       {
-       "texto": " Sin deuda",
+       "texto": "Sin deuda",
        "score": 100
       },
       {
-       "texto": " 0-50% (saludable)",
+       "texto": "0-50% (saludable)",
        "score": 70
       },
       {
-       "texto": " 50-100% (moderado)",
+       "texto": "50-100% (moderado)",
        "score": 40
       },
       {
-       "texto": " 100%+ (peligroso)",
+       "texto": "100%+ (peligroso)",
        "score": 0
       }
      ],
@@ -5243,19 +5243,19 @@
      "texto": "¿Tienes deuda de alto interés (tarjetas revolving, microcréditos)?",
      "opciones": [
       {
-       "texto": " No",
+       "texto": "No",
        "score": 100
       },
       {
-       "texto": " Sí, pequeña cantidad",
+       "texto": "Sí, pequeña cantidad",
        "score": 50
       },
       {
-       "texto": " Sí, significativa",
+       "texto": "Sí, significativa",
        "score": 0
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -5273,19 +5273,19 @@
      "texto": "¿Podrías pagar tu deuda en emergencia si te obligan?",
      "opciones": [
       {
-       "texto": " Sí, sin problema",
+       "texto": "Sí, sin problema",
        "score": 100
       },
       {
-       "texto": " Parcialmente",
+       "texto": "Parcialmente",
        "score": 50
       },
       {
-       "texto": " No, imposible",
+       "texto": "No, imposible",
        "score": 0
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -5303,19 +5303,19 @@
      "texto": "¿Tu hipoteca es a tipo fijo o variable?",
      "opciones": [
       {
-       "texto": " No tengo hipoteca",
+       "texto": "No tengo hipoteca",
        "score": 50
       },
       {
-       "texto": " Tipo fijo (protegido)",
+       "texto": "Tipo fijo (protegido)",
        "score": 100
       },
       {
-       "texto": " Tipo variable (riesgo)",
+       "texto": "Tipo variable (riesgo)",
        "score": 0
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -5333,19 +5333,19 @@
      "texto": "¿La deuda está creciendo o disminuyendo?",
      "opciones": [
       {
-       "texto": " Disminuyendo (buen camino)",
+       "texto": "Disminuyendo (buen camino)",
        "score": 100
       },
       {
-       "texto": " Estancada",
+       "texto": "Estancada",
        "score": 50
       },
       {
-       "texto": " Creciendo (peligro)",
+       "texto": "Creciendo (peligro)",
        "score": 0
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -5363,19 +5363,19 @@
      "texto": "¿Cuál es tu fondo de emergencia en meses de gastos?",
      "opciones": [
       {
-       "texto": " 0 meses (crisis)",
+       "texto": "0 meses (crisis)",
        "score": 0
       },
       {
-       "texto": " 0-1 mes",
+       "texto": "0-1 mes",
        "score": 15
       },
       {
-       "texto": " 1-3 meses",
+       "texto": "1-3 meses",
        "score": 50
       },
       {
-       "texto": " 3-6 meses",
+       "texto": "3-6 meses",
        "score": 85
       }
      ],
@@ -5389,19 +5389,19 @@
      "texto": "¿Podrías negociar/reducir tu deuda en crisis?",
      "opciones": [
       {
-       "texto": " Sí, hay margen",
+       "texto": "Sí, hay margen",
        "score": 80
       },
       {
-       "texto": " Quizás",
+       "texto": "Quizás",
        "score": 50
       },
       {
-       "texto": " No, obligaciones rígidas",
+       "texto": "No, obligaciones rígidas",
        "score": 0
       },
       {
-       "texto": " Opción 4",
+       "texto": "Opción 4",
        "score": 75
       }
      ],
@@ -5419,19 +5419,19 @@
      "texto": "¿Cuál es tu ratio de deuda total vs patrimonio neto?",
      "opciones": [
       {
-       "texto": " Mayor que 1 (endeudado neto)",
+       "texto": "Mayor que 1 (endeudado neto)",
        "score": 0
       },
       {
-       "texto": " 0.5 a 1 (moderadamente apalancado)",
+       "texto": "0.5 a 1 (moderadamente apalancado)",
        "score": 33
       },
       {
-       "texto": " 0.2 a 0.5 (conservador)",
+       "texto": "0.2 a 0.5 (conservador)",
        "score": 67
       },
       {
-       "texto": " Menor que 0.2 o sin deuda",
+       "texto": "Menor que 0.2 o sin deuda",
        "score": 100
       }
      ],
@@ -5449,19 +5449,19 @@
      "texto": "¿Cuál es tu mayor deuda individual y su propósito?",
      "opciones": [
       {
-       "texto": " Deuda de consumo (tarjeta, personal)",
+       "texto": "Deuda de consumo (tarjeta, personal)",
        "score": 0
       },
       {
-       "texto": " Deuda productiva débil (rendimiento < costo)",
+       "texto": "Deuda productiva débil (rendimiento < costo)",
        "score": 33
       },
       {
-       "texto": " Deuda productiva (hipoteca, negocio), rentable",
+       "texto": "Deuda productiva (hipoteca, negocio), rentable",
        "score": 67
       },
       {
-       "texto": " Sin deuda significativa o inversión en activos",
+       "texto": "Sin deuda significativa o inversión en activos",
        "score": 100
       }
      ],
@@ -5479,19 +5479,19 @@
      "texto": "¿Puedes refinanciar tu deuda si suben los tipos de interés?",
      "opciones": [
       {
-       "texto": " No, estoy atrapado",
+       "texto": "No, estoy atrapado",
        "score": 0
       },
       {
-       "texto": " Difícil, mala posición crediticia",
+       "texto": "Difícil, mala posición crediticia",
        "score": 33
       },
       {
-       "texto": " Probablemente sí, con costos moderados",
+       "texto": "Probablemente sí, con costos moderados",
        "score": 67
       },
       {
-       "texto": " Fácil, muy buena posición",
+       "texto": "Fácil, muy buena posición",
        "score": 100
       }
      ],
@@ -5509,19 +5509,19 @@
      "texto": "¿Tienes acceso a crédito si necesitas dinero hoy?",
      "opciones": [
       {
-       "texto": " No, me rechazarían",
+       "texto": "No, me rechazarían",
        "score": 0
       },
       {
-       "texto": " Sí, pero caro (tasa muy alta)",
+       "texto": "Sí, pero caro (tasa muy alta)",
        "score": 33
       },
       {
-       "texto": " Sí, condiciones razonables",
+       "texto": "Sí, condiciones razonables",
        "score": 67
       },
       {
-       "texto": " Sí, líneas múltiples a tasas bajas",
+       "texto": "Sí, líneas múltiples a tasas bajas",
        "score": 100
       }
      ],
@@ -5535,19 +5535,19 @@
      "texto": "¿Has reestructurado deuda alguna vez?",
      "opciones": [
       {
-       "texto": " No, nunca lo he considerado",
+       "texto": "No, nunca lo he considerado",
        "score": 0
       },
       {
-       "texto": " Pensé en ello pero no lo hice",
+       "texto": "Pensé en ello pero no lo hice",
        "score": 33
       },
       {
-       "texto": " Sí, una vez, resultó bien",
+       "texto": "Sí, una vez, resultó bien",
        "score": 67
       },
       {
-       "texto": " Sí, múltiples veces, estrategia sistemática",
+       "texto": "Sí, múltiples veces, estrategia sistemática",
        "score": 100
       }
      ],
@@ -5565,19 +5565,19 @@
      "texto": "¿Cuál es la cobertura de tu deuda (ingresos / pagos)?",
      "opciones": [
       {
-       "texto": " Menos de 1.2x (muy ajustado)",
+       "texto": "Menos de 1.2x (muy ajustado)",
        "score": 0
       },
       {
-       "texto": " 1.2x a 1.5x (ajustado)",
+       "texto": "1.2x a 1.5x (ajustado)",
        "score": 33
       },
       {
-       "texto": " 1.5x a 2x (cómodo)",
+       "texto": "1.5x a 2x (cómodo)",
        "score": 67
       },
       {
-       "texto": " Mayor que 2x (muy robusto)",
+       "texto": "Mayor que 2x (muy robusto)",
        "score": 100
       }
      ],
@@ -5595,19 +5595,19 @@
      "texto": "¿Has fijado la tasa de interés en tu deuda variable?",
      "opciones": [
       {
-       "texto": " No, está variable al 100%",
+       "texto": "No, está variable al 100%",
        "score": 0
       },
       {
-       "texto": " Parcialmente, algo de variable",
+       "texto": "Parcialmente, algo de variable",
        "score": 33
       },
       {
-       "texto": " Mayormente fijo, pequeña exposición",
+       "texto": "Mayormente fijo, pequeña exposición",
        "score": 67
       },
       {
-       "texto": " 100% fijo o cobertura de riesgo",
+       "texto": "100% fijo o cobertura de riesgo",
        "score": 100
       }
      ],
@@ -5625,19 +5625,19 @@
      "texto": "¿Cuál sería el impacto de subida de tasas del 2%?",
      "opciones": [
       {
-       "texto": " Crisis inmediata",
+       "texto": "Crisis inmediata",
        "score": 0
       },
       {
-       "texto": " Impacto severo en flujo",
+       "texto": "Impacto severo en flujo",
        "score": 33
       },
       {
-       "texto": " Incómodo pero manejable",
+       "texto": "Incómodo pero manejable",
        "score": 67
       },
       {
-       "texto": " Casi imperceptible",
+       "texto": "Casi imperceptible",
        "score": 100
       }
      ],
@@ -5651,19 +5651,19 @@
      "texto": "¿Tienes plazo suficiente en tu deuda (amortización)?",
      "opciones": [
       {
-       "texto": " Muy corto, pago alto inmediato",
+       "texto": "Muy corto, pago alto inmediato",
        "score": 0
       },
       {
-       "texto": " Corto, 2-5 años",
+       "texto": "Corto, 2-5 años",
        "score": 33
       },
       {
-       "texto": " Moderado, 5-15 años",
+       "texto": "Moderado, 5-15 años",
        "score": 67
       },
       {
-       "texto": " Largo, mayor a 15 años",
+       "texto": "Largo, mayor a 15 años",
        "score": 100
       }
      ],
@@ -5681,19 +5681,19 @@
      "texto": "¿Sabes qué accionistas o acreedores te podrían impugnar?",
      "opciones": [
       {
-       "texto": " No, no lo he pensado",
+       "texto": "No, no lo he pensado",
        "score": 0
       },
       {
-       "texto": " Idea vaga",
+       "texto": "Idea vaga",
        "score": 33
       },
       {
-       "texto": " Sí, he identificado riesgos",
+       "texto": "Sí, he identificado riesgos",
        "score": 67
       },
       {
-       "texto": " Sí, tengo defensa estructurada",
+       "texto": "Sí, tengo defensa estructurada",
        "score": 100
       }
      ],
@@ -5707,19 +5707,19 @@
      "texto": "¿Tienes cláusulas de aceleración en tu deuda (prepago)?",
      "opciones": [
       {
-       "texto": " No, penalizadas o sin opción",
+       "texto": "No, penalizadas o sin opción",
        "score": 0
       },
       {
-       "texto": " Sí, pero con penalización",
+       "texto": "Sí, pero con penalización",
        "score": 33
       },
       {
-       "texto": " Sí, sin penalización moderada",
+       "texto": "Sí, sin penalización moderada",
        "score": 67
       },
       {
-       "texto": " Sí, prepago sin costo",
+       "texto": "Sí, prepago sin costo",
        "score": 100
       }
      ],
@@ -5737,19 +5737,19 @@
      "texto": "¿Cuál es el vencimiento promedio de tu deuda?",
      "opciones": [
       {
-       "texto": " Menos de 1 año (concentrado)",
+       "texto": "Menos de 1 año (concentrado)",
        "score": 0
       },
       {
-       "texto": " 1-3 años",
+       "texto": "1-3 años",
        "score": 33
       },
       {
-       "texto": " 3-7 años",
+       "texto": "3-7 años",
        "score": 67
       },
       {
-       "texto": " Más de 7 años (bien distribuido)",
+       "texto": "Más de 7 años (bien distribuido)",
        "score": 100
       }
      ],
@@ -5767,19 +5767,19 @@
      "texto": "¿Has negociado covenant (convenios) con acreedores?",
      "opciones": [
       {
-       "texto": " No, me dictan términos",
+       "texto": "No, me dictan términos",
        "score": 0
       },
       {
-       "texto": " Intenté, con poco éxito",
+       "texto": "Intenté, con poco éxito",
        "score": 33
       },
       {
-       "texto": " Sí, algunos ajustes",
+       "texto": "Sí, algunos ajustes",
        "score": 67
       },
       {
-       "texto": " Sí, términos bien negociados",
+       "texto": "Sí, términos bien negociados",
        "score": 100
       }
      ],

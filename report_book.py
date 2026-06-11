@@ -887,23 +887,25 @@ def build(cli,resp,datos,out,depth="completo",baremo=None):
         rows=[[Paragraph("<b>Pregunta</b>",small),Paragraph("<b>Tu respuesta</b>",small)]]
         bgs=[]; ri=1
         for it in capa["items"]:
-            sc=None
+            sc=None; na=False
             if it["tipo"]=="escala":
                 idx=resp.get(it["id"])
                 if idx is not None:
                     ans=it["opciones"][idx]["texto"]; sc=it["opciones"][idx]["score"]
-                else: ans="\u2014"
+                else: ans=""; na=True
             else:
-                v=datos.get(NUM_MAP.get(it["id"],""),"\u2014"); ans=("%s %s"%(v,it.get("unidad",""))).strip()
-            rows.append([Paragraph(it["texto"],small),Paragraph(ans,small)])
+                v=datos.get(NUM_MAP.get(it["id"],"")); na=(v is None); ans=("%s %s"%(v,it.get("unidad",""))).strip() if v is not None else ""
+            ans_p=Paragraph("<font color='#B5B3A6'>N/A</font>",small) if na else Paragraph(ans,small)
+            rows.append([Paragraph(it["texto"],small),ans_p])
             if sc is not None:
                 col="#E7F6EC" if sc<=25 else ("#FEF9E7" if sc<=50 else ("#FDEBD0" if sc<=75 else "#FAE3E3"))
                 bgs.append(("BACKGROUND",(1,ri),(1,ri),colors.HexColor(col)))
             ri+=1
         t=Table(rows,colWidths=[104*mm,52*mm])
-        t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,-1),0.3,LINE),
-            ("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),3),("BOTTOMPADDING",(0,0),(-1,-1),3),
-            ("LEFTPADDING",(0,0),(-1,-1),6),("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]+bgs))
+        t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,0),0.6,LINE),
+            ("LINEBELOW",(0,1),(-1,-1),0.3,LINE),
+            ("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5),
+            ("LEFTPADDING",(0,0),(-1,-1),7),("RIGHTPADDING",(0,0),(-1,-1),7),("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]+bgs))
         S+=[Paragraph("%s \u00b7 %s"%(capa["code"],capa["nombre"]),h_sub), t]
     doc=SimpleDocTemplate(out,pagesize=A4,topMargin=20*mm,bottomMargin=20*mm,leftMargin=22*mm,rightMargin=22*mm,
                           title="Tu Libro Financiero — ITAP")

@@ -259,25 +259,26 @@ def seccion_arquetipos(rA,rB,nA,nB):
                    "No hay arquetipos mejores ni peores —cada uno aporta algo—, pero cuando dos personas "
                    "operan desde significados distintos, el mismo euro puede querer decir cosas opuestas. Aquí está "
                    "el código de fondo de vuestras decisiones.",body)]
-    def tarjeta(nombre,code):
+    def col_arquetipo(nombre,code):
         if not code:
-            return Paragraph(f"<b>{nombre}</b> no completó las preguntas de arquetipo.",small)
+            return [Paragraph(f"<b>{nombre}</b> no completó las preguntas de arquetipo.",small)]
         m=rb.ARQ_META[code]
-        return KeepTogether([
-            Table([[Paragraph(f"<font color='{m['color']}'><b>{nombre} — {m['nombre']}</b></font><br/>"
-                              f"<font color='#6B7280'>{m['lema']}</font>",
-                    St("at",fontSize=11,leading=15))]],
-                  colWidths=[156*mm],
+        return [
+            Table([[Paragraph(f"<font color='{m['color']}'><b>{nombre}</b><br/>{m['nombre']}</font><br/>"
+                              f"<font color='#7A7A72' size=8>{m['lema']}</font>",St("at",fontSize=10.5,leading=13))]],
+                  colWidths=[74*mm],
                   style=TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.HexColor("#FBF6E0")),
-                    ("LEFTPADDING",(0,0),(-1,-1),10),("RIGHTPADDING",(0,0),(-1,-1),10),
-                    ("TOPPADDING",(0,0),(-1,-1),8),("BOTTOMPADDING",(0,0),(-1,-1),8),
+                    ("LEFTPADDING",(0,0),(-1,-1),9),("RIGHTPADDING",(0,0),(-1,-1),9),
+                    ("TOPPADDING",(0,0),(-1,-1),7),("BOTTOMPADDING",(0,0),(-1,-1),7),
                     ("LINEBEFORE",(0,0),(0,-1),3,colors.HexColor(m['color']))])),
             Spacer(1,2*mm),
-            Paragraph(m['desc'],body),
-            Paragraph(f"<font color='#1D6F42'><b>Lo que aporta:</b></font> {m['luz']}",small),
-            Paragraph(f"<font color='#B91C1C'><b>Su punto ciego:</b></font> {m['sombra']}",small),
-            Spacer(1,4*mm)])
-    out.append(tarjeta(nA,aA)); out.append(tarjeta(nB,aB))
+            Paragraph(m['desc'],St("ad",fontSize=9.3,leading=13,alignment=TA_JUSTIFY)),
+            Paragraph(f"<font color='#1D6F42'><b>Aporta:</b></font> {m['luz']}",St("al",fontSize=8.6,leading=11.5,textColor=GREY)),
+            Paragraph(f"<font color='#B91C1C'><b>Punto ciego:</b></font> {m['sombra']}",St("aj",fontSize=8.6,leading=11.5,textColor=GREY))]
+    out.append(Table([[col_arquetipo(nA,aA), col_arquetipo(nB,aB)]],colWidths=[78*mm,78*mm],
+        style=TableStyle([("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(0,-1),0),
+          ("LEFTPADDING",(1,0),(1,-1),8),("RIGHTPADDING",(0,0),(-1,-1),0),("TOPPADDING",(0,0),(-1,-1),0)])))
+    out.append(Spacer(1,4*mm))
     if aA and aB:
         key=tuple(sorted([aA,aB])); texto,regla=CHOQUE_ARQ[key]
         if aA==aB:
@@ -538,20 +539,23 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                   "Leer esta tabla juntos ya abre conversaciones. <font color=\'#B91C1C\'><b>En rojo</b></font>, "
                   "donde respondisteis en extremos opuestos (vuestros campos de minas); "
                   "<font color=\'#B45309\'>en \u00e1mbar</font>, divergencias moderadas; en blanco, donde est\u00e1is alineados.",body)]
+    def _na(txt, na):
+        return Paragraph("<font color='#B5B3A6'>N/A</font>", small) if na else Paragraph(txt, small)
     for capa in INST["capas"]:
         rows=[[Paragraph("<b>Pregunta</b>",small),Paragraph("<b>%s</b>"%nA,small),Paragraph("<b>%s</b>"%nB,small)]]
         bgs=[]; ri=1
         for it in capa["items"]:
-            sa=sb=None
+            sa=sb=None; na_a=na_b=False
             if it["tipo"]=="escala":
                 ia=rA.get(it["id"]); ib=rB.get(it["id"])
                 if ia is not None: va=it["opciones"][ia]["texto"]; sa=it["opciones"][ia]["score"]
-                else: va="\u2014"
+                else: va=""; na_a=True
                 if ib is not None: vb=it["opciones"][ib]["texto"]; sb=it["opciones"][ib]["score"]
-                else: vb="\u2014"
+                else: vb=""; na_b=True
             else:
-                va=str(dA.get(NUM_MAP.get(it["id"],""),"\u2014")); vb=str(dB.get(NUM_MAP.get(it["id"],""),"\u2014"))
-            rows.append([Paragraph(it["texto"],small),Paragraph(va,small),Paragraph(vb,small)])
+                ga=dA.get(NUM_MAP.get(it["id"],"")); va=str(ga) if ga is not None else ""; na_a=(ga is None)
+                gb=dB.get(NUM_MAP.get(it["id"],"")); vb=str(gb) if gb is not None else ""; na_b=(gb is None)
+            rows.append([Paragraph(it["texto"],small),_na(va,na_a),_na(vb,na_b)])
             if sa is not None and sb is not None:
                 gap=abs(sa-sb)
                 fill="#F6D7D7" if gap>=66 else ("#FBEEDB" if gap>=33 else None)
@@ -559,9 +563,12 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                 if gap>=66: bgs.append(("FONTNAME",(0,ri),(0,ri),"Helvetica-Bold"))
             ri+=1
         t=Table(rows,colWidths=[86*mm,35*mm,35*mm])
-        t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,-1),0.3,LINE),
-            ("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),3),("BOTTOMPADDING",(0,0),(-1,-1),3),
-            ("LEFTPADDING",(0,0),(-1,-1),6),("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]+bgs))
+        t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),
+            ("ROWBACKGROUNDS",(0,1),(-1,-1),[colors.white,colors.HexColor("#FAF8EF")]),
+            ("LINEBELOW",(0,0),(-1,0),0.6,LINE),
+            ("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5),
+            ("LEFTPADDING",(0,0),(-1,-1),7),("RIGHTPADDING",(0,0),(-1,-1),7),
+            ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]+bgs))
         S+=[Paragraph("%s \u00b7 %s"%(capa["code"],capa["nombre"]),h_sub), t]
     doc=SimpleDocTemplate(out,pagesize=A4,topMargin=20*mm,bottomMargin=20*mm,leftMargin=22*mm,rightMargin=22*mm,
                           title="Vuestro Libro Financiero — ITAP")
