@@ -14,13 +14,13 @@ from reportlab.lib.enums import TA_JUSTIFY
 import report_book as rb
 
 INST=rb.INST; CAPAS=rb.CAPAS
-INK=colors.HexColor("#1F2937"); A_COL="#0284C7"; B_COL="#9333EA"
-ACCDK=colors.HexColor("#075985"); GREY=colors.HexColor("#6B7280")
-LIGHT=colors.HexColor("#EAF4FB"); LINE=colors.HexColor("#D5DBE3"); BANDC=rb.BANDC
+INK=colors.HexColor("#262620"); A_COL="#B8860B"; B_COL="#3F3F46"
+ACCDK=colors.HexColor("#1A1A17"); GREY=colors.HexColor("#7A7A72")
+LIGHT=colors.HexColor("#FBF6E0"); LINE=colors.HexColor("#E4E1D5"); BANDC=rb.BANDC
 
 def St(n,**k): k.setdefault("fontName","Helvetica"); k.setdefault("textColor",INK); return ParagraphStyle(n,**k)
 h_sec=St("hs",fontSize=17,leading=21,textColor=ACCDK,fontName="Helvetica-Bold",spaceAfter=8)
-h_sub=St("hu",fontSize=10.5,leading=13,textColor=colors.HexColor("#0284C7"),fontName="Helvetica-Bold",spaceBefore=7,spaceAfter=3)
+h_sub=St("hu",fontSize=10.5,leading=13,textColor=colors.HexColor("#1A1A17"),fontName="Helvetica-Bold",spaceBefore=7,spaceAfter=3)
 body=St("bd",fontSize=10,leading=15,spaceAfter=7,alignment=TA_JUSTIFY)
 small=St("sm",fontSize=8,leading=11,textColor=GREY)
 kick=St("ck",fontSize=8.5,leading=11,textColor=GREY,fontName="Helvetica-Bold")
@@ -172,7 +172,7 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
          Paragraph(f"<b>{salud:.0f}</b>/100 \u2014 salud psicofinanciera global de {pn}.",body)]
     coh=rb.coherencia(salud, rb.fi_metrics(_fill(datos)), _fill(datos))
     if coh:
-        out+=[Spacer(1,3*mm), _callout(coh[0], coh[1], "#0284C7", "#F0F7FC")]
+        out+=[Spacer(1,3*mm), _callout(coh[0], coh[1], "#1A1A17", "#FBF6E0")]
     est=_compartimento(prof, resp or {})
     if est:
         out+=[Spacer(1,3*mm), _callout(est[0], est[1], "#B45309", "#FBF3E8")]
@@ -191,7 +191,7 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
                          colWidths=[42*mm,114*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
     out.append(Paragraph(f"{pn}: lo que revelan sus respuestas",h_sub))
     for ti,tx in rb.insights(prof,trans,fi_hogar):
-        out.append(Paragraph(f"<font color='#0284C7'>&#8226;</font>  <b>{ti}</b>",small))
+        out.append(Paragraph(f"<font color='#1A1A17'>&#8226;</font>  <b>{ti}</b>",small))
         out.append(Paragraph(tx,St("ii",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=6)))
     out.append(PageBreak())
     out.append(Paragraph(f"{pn}: resumen capa por capa",h_sub))
@@ -217,14 +217,14 @@ def seccion_adapta_pareja(pA,pB,nA,nB):
         ti,de,url=rb.ADAPTA[code]
         out.append(Paragraph(f"<font color='{A_COL}'><b>&#8226; {ti}</b></font>",St("pad1",fontSize=11,leading=14,spaceBefore=6,spaceAfter=2)))
         out.append(Paragraph(de,St("pad2",fontSize=10,leading=14,leftIndent=8,spaceAfter=2)))
-        out.append(Paragraph(f"<a href='{url}'><font color='#075985'>Ver c\u00f3mo lo trabajamos &#8594;</font></a>",St("pad3",fontSize=9.5,leading=13,leftIndent=8,spaceAfter=8)))
+        out.append(Paragraph(f"<a href='{url}'><font color='#1A1A17'>Ver c\u00f3mo lo trabajamos &#8594;</font></a>",St("pad3",fontSize=9.5,leading=13,leftIndent=8,spaceAfter=8)))
     out+=[Spacer(1,3*mm),
           Paragraph("Por d\u00f3nde empezamos",h_sub),
           Paragraph("Una conversaci\u00f3n inicial, sin compromiso, los dos. Os escuchamos primero, os proponemos despu\u00e9s.",
                     St("pcta",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=2)),
           Spacer(1,2*mm),
-          Paragraph("<b>Reserva vuestra conversaci\u00f3n:</b> <a href='https://www.adaptafamilyoffice.com/informe'><font color='#0284C7'>adaptafamilyoffice.com</font></a>  &#183;  "
-                    "<b>WhatsApp:</b> <a href='https://wa.me/34683343531'><font color='#0284C7'>+34 683 34 35 31</font></a>  &#183;  info@adaptafamilyoffice.com",
+          Paragraph("<b>Reserva vuestra conversaci\u00f3n:</b> <a href='https://www.adaptafamilyoffice.com/informe'><font color='#1A1A17'>adaptafamilyoffice.com</font></a>  &#183;  "
+                    "<b>WhatsApp:</b> <a href='https://wa.me/34683343531'><font color='#1A1A17'>+34 683 34 35 31</font></a>  &#183;  info@adaptafamilyoffice.com",
                     St("pcta2",fontSize=9.5,leading=14))]
     return out
 
@@ -268,7 +268,7 @@ def seccion_arquetipos(rA,rB,nA,nB):
                               f"<font color='#6B7280'>{m['lema']}</font>",
                     St("at",fontSize=11,leading=15))]],
                   colWidths=[156*mm],
-                  style=TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.HexColor("#F4F7FA")),
+                  style=TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.HexColor("#FBF6E0")),
                     ("LEFTPADDING",(0,0),(-1,-1),10),("RIGHTPADDING",(0,0),(-1,-1),10),
                     ("TOPPADDING",(0,0),(-1,-1),8),("BOTTOMPADDING",(0,0),(-1,-1),8),
                     ("LINEBEFORE",(0,0),(0,-1),3,colors.HexColor(m['color']))])),
@@ -314,7 +314,7 @@ def laboratorio_pareja(rA,rB,pA,pB,nA,nB,dA,dB,hogar,divs):
                 Table([["Firma "+nA,"Firma "+nB]],colWidths=[78*mm,78*mm],
                   style=TableStyle([("LINEABOVE",(0,0),(-1,0),0.6,colors.HexColor("#9CA3AF")),
                     ("TEXTCOLOR",(0,0),(-1,0),colors.HexColor("#9CA3AF")),("FONTSIZE",(0,0),(-1,0),8),
-                    ("TOPPADDING",(0,0),(-1,0),3)]))],"#F4F7FA","#0284C7",ancho=158*mm),
+                    ("TOPPADDING",(0,0),(-1,0),3)]))],"#FBF6E0","#1A1A17",ancho=158*mm),
           Spacer(1,4*mm)]
     # Ej 2: rol cruzado (solo si arquetipos distintos)
     aA,_,_=rb.arquetipo(rA); aB,_,_=rb.arquetipo(rB)
@@ -370,7 +370,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
         Spacer(1,3*mm),
         Paragraph("Diagnóstico<br/>de Pareja",St("c1",fontSize=40,leading=44,fontName="Helvetica-Bold")),
         Spacer(1,5*mm),
-        Table([[""]],colWidths=[58*mm],style=[("LINEBELOW",(0,0),(-1,-1),2.5,colors.HexColor(A_COL))]),
+        Table([[""]],colWidths=[60*mm],style=[("LINEBELOW",(0,0),(-1,-1),4,colors.HexColor("#FDD731"))]),
         Spacer(1,7*mm),
         Paragraph("Dos vidas, una economía. Dónde os sostenéis y dónde chocáis.",St("c2",fontSize=12,textColor=ACCDK)),
         Spacer(1,38*mm),
@@ -400,7 +400,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
            "edad":(dAf["edad"]+dBf["edad"])/2}
     fi_h=rb.fi_metrics(hogar)
     S+=[Paragraph("Vuestro mapa conjunto",h_sec),
-        Table([[Paragraph(f"<font size=40 color='#075985'><b>{compat}</b></font><font size=13 color='#6B7280'>/100</font>",body),
+        Table([[Paragraph(f"<font size=40 color='#1A1A17'><b>{compat}</b></font><font size=13 color='#6B7280'>/100</font>",body),
                 Paragraph(f"<b>Compatibilidad financiera</b><br/><font size=8 color='#6B7280'>Cuanto más alto, más "
                           f"parecida es vuestra forma de vivir el dinero. No es bueno ni malo en sí: las diferencias "
                           f"bien habladas suman.</font>",body)]],

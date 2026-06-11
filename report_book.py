@@ -15,9 +15,10 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 INST=json.load(open("itap_instrumento.json",encoding="utf-8"))
 CAPAS={c["code"]:c for c in INST["capas"]}
 TRANS={"PSIQUE","LIQUIDEZ","VINCULO"}
-INK=colors.HexColor("#1F2937"); ACC=colors.HexColor("#0284C7"); ACCDK=colors.HexColor("#075985")
-GREY=colors.HexColor("#6B7280"); LIGHT=colors.HexColor("#EAF4FB"); LINE=colors.HexColor("#D5DBE3")
-PAPER=colors.HexColor("#FBFCFD"); BANDC=["#15803D","#CA8A04","#EA580C","#B91C1C"]
+INK=colors.HexColor("#262620"); ACC=colors.HexColor("#1A1A17"); ACCDK=colors.HexColor("#020203")
+GREY=colors.HexColor("#7A7A72"); LIGHT=colors.HexColor("#FBF6E0"); LINE=colors.HexColor("#E4E1D5")
+AMARILLO=colors.HexColor("#FDD731"); NEGRO=colors.HexColor("#020203")
+PAPER=colors.HexColor("#FFFFFF"); BANDC=["#1D6F42","#B8860B","#C2710C","#A11B1B"]
 
 # ---------- scoring ----------
 def phi(x): return 0.5*(1+math.erf(x/math.sqrt(2)))
@@ -209,8 +210,8 @@ def radar_png(p,path):
     ax.set_theta_offset(np.pi/2); ax.set_theta_direction(-1); ax.set_ylim(0,100)
     ax.set_yticks([25,50,75]); ax.set_yticklabels(["25","50","75"],color="#9CA3AF",size=8)
     ax.set_xticks(ang[:-1]); ax.set_xticklabels(labels,size=10,color="#1F2937",weight="bold")
-    ax.fill_between(np.linspace(0,2*np.pi,200),0,30,color="#15803D",alpha=0.07)
-    ax.plot(ang,v,color="#0284C7",linewidth=2.3); ax.fill(ang,v,color="#0284C7",alpha=0.20)
+    ax.fill_between(np.linspace(0,2*np.pi,200),0,30,color="#1D6F42",alpha=0.06)
+    ax.plot(ang,v,color="#1A1A17",linewidth=2.3); ax.fill(ang,v,color="#FDD731",alpha=0.30)
     ax.spines["polar"].set_color("#D5DBE3"); ax.grid(color="#E5E7EB")
     plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
 
@@ -276,7 +277,7 @@ def seccion_adapta(p):
         ti,de,url=ADAPTA[code]
         out.append(Paragraph(f"<font color='#0284C7'><b>&#9656; #8226; {ti}</b></font>",St("ad1",fontSize=11,leading=14,spaceBefore=6,spaceAfter=2)))
         out.append(Paragraph(de,St("ad2",fontSize=10,leading=14,leftIndent=8,spaceAfter=2)))
-        out.append(Paragraph(f"<a href='{url}'><font color='#075985'>Ver c\u00f3mo lo trabajamos &#8594;</font></a>",St("ad3",fontSize=9.5,leading=13,leftIndent=8,spaceAfter=8)))
+        out.append(Paragraph(f"<a href='{url}'><font color='#1A1A17'>Ver c\u00f3mo lo trabajamos &#8594;</font></a>",St("ad3",fontSize=9.5,leading=13,leftIndent=8,spaceAfter=8)))
     out+=[Spacer(1,3*mm),
           Paragraph("Por d\u00f3nde empezamos",h_sub),
           Paragraph("Como en todo lo que hacemos en Adapta: una conversaci\u00f3n inicial, sin compromiso. Te escuchamos "
@@ -643,7 +644,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None):
         Spacer(1,3*mm),
         Paragraph("Diagnóstico<br/>Patrimonial",St("cv1",fontSize=40,leading=44,textColor=INK,fontName="Helvetica-Bold")),
         Spacer(1,5*mm),
-        Table([[""]],colWidths=[55*mm],style=[("LINEBELOW",(0,0),(-1,-1),2.5,ACC)]),
+        Table([[""]],colWidths=[60*mm],style=[("LINEBELOW",(0,0),(-1,-1),4,AMARILLO)]),
         Spacer(1,7*mm),
         Paragraph("Una lectura honesta de tu relación con el dinero, capa por capa.",St("cv2",fontSize=12,textColor=ACCDK)),
         Spacer(1,40*mm),
@@ -672,7 +673,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None):
         PageBreak()]
     # resumen + radar
     S+=[Paragraph("El mapa completo",h_sec),
-        Table([[Paragraph(f"<font size=42 color='#075985'><b>{salud:.0f}</b></font>"
+        Table([[Paragraph(f"<font size=42 color='#1A1A17'><b>{salud:.0f}</b></font>"
                           f"<font size=13 color='#6B7280'>/100</font>",body),
                 Paragraph(f"<b>{bl}</b><br/><font size=8 color='#6B7280'>Salud psicofinanciera global · "
                           f"{_pct_frase}</font>",body)]],
