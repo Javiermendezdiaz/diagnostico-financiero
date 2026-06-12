@@ -740,8 +740,8 @@ def seccion_extras(extras):
     for blk in (extras.get("energia"), extras.get("conciliacion"), extras.get("asesor"), extras.get("herencia")):
         if blk:
             ti,tx=blk
-            out+=[Spacer(1,4*mm), Paragraph(ti,h_sub),
-                  Paragraph(tx,St("axh",fontSize=10,leading=14,textColor=INK,backColor=LIGHT,borderPadding=9,spaceBefore=2))]
+            out+=[Spacer(1,5*mm), Paragraph(ti,h_sub), Spacer(1,3*mm),
+                  Paragraph(tx,St("axh",fontSize=10,leading=14,textColor=INK,backColor=LIGHT,borderPadding=7,spaceBefore=0,spaceAfter=0))]
     pa=extras.get("preguntas_asesor")
     if pa:
         out+=[Spacer(1,3*mm), Paragraph("Llévale esto a tu próxima reunión con tu asesor",h_sub),

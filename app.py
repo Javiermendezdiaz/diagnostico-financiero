@@ -34,7 +34,8 @@ def init_db():
         for col, ddl in [("nombre","TEXT"),("pareja_de","TEXT"),("consentimiento","INTEGER"),
                          ("consent_fecha","TEXT"),("consent_version","TEXT"),("notificado","INTEGER"),
                          ("salud","REAL"),("sexo","TEXT"),("pagado","INTEGER"),
-                         ("abiertas","TEXT"),("sintesis","TEXT")]:
+                         ("abiertas","TEXT"),("sintesis","TEXT"),("perfil","TEXT"),("es_v2","INTEGER"),
+                         ("progreso_idx","INTEGER"),("progreso_total","INTEGER"),("last_qid","TEXT"),("progreso_fecha","TEXT")]:
             if col not in cols:
                 c.execute("ALTER TABLE sesiones ADD COLUMN %s %s" % (col, ddl))
 init_db()
@@ -53,12 +54,20 @@ class CompletePayload(BaseModel):
     datos: Optional[Dict[str, float]] = None
     pareja_de: Optional[str] = None
     abiertas: Optional[Dict[str, str]] = {}
+    perfil: Optional[Dict[str, str]] = {}
+    v2: Optional[bool] = False
 
 class BorrarPayload(BaseModel):
     email: str
 
 class NotifyPayload(BaseModel):
     session_id: str
+
+class ProgressPayload(BaseModel):
+    session_id: str
+    idx: Optional[int] = 0
+    total: Optional[int] = 0
+    last_qid: Optional[str] = None
 
 def adaptar_item(it):
     base = {"id": it["id"], "pregunta": it["texto"], "bloque": it.get("faceta", "")}
@@ -174,23 +183,68 @@ def _guardar_salud(session_id, respuestas):
     except Exception:
         return None
 
+def _guardar_salud_v2(session_id, respuestas):
+    try:
+        import score_v2, statistics
+        p = score_v2.perfil_scores(respuestas, rb._cargar_v2()["capas"])
+        salud = round(statistics.mean([v["score"] for v in p.values()]), 1) if p else None
+        if salud is not None:
+            with db() as c:
+                c.execute("UPDATE sesiones SET salud=? WHERE id=?", (float(salud), session_id))
+        return salud
+    except Exception:
+        return None
+
+def _retrato_individual_v2(session_id, respuestas, abiertas, perfil, email=None, nombre=None):
+    try:
+        if not abiertas or not any(str(v).strip() for v in abiertas.values()):
+            return None
+        import ai_sintesis, score_v2, statistics
+        qmap = {a["id"]: a["texto"] for a in _banco_abiertas().get("abiertas", [])}
+        ab = {qmap.get(k, k): v for k, v in abiertas.items() if str(v).strip()}
+        p = score_v2.perfil_scores(respuestas, rb._cargar_v2()["capas"])
+        salud = round(statistics.mean([v["score"] for v in p.values()])) if p else None
+        focos = [p[c]["nombre"] for c in sorted(p, key=lambda c: p[c]["score"], reverse=True)[:3]]
+        arq = score_v2.arq_desde_perfil(perfil or {})
+        arqn = rb.ARQ_META[arq]["nombre"] if arq and arq in rb.ARQ_META else None
+        ctx = {"salud": salud, "focos": focos, "arquetipo": arqn}
+        s = ai_sintesis.sintetizar_individual(ab, ctx)
+        return s.get("retrato") if s else None
+    except Exception:
+        return None
+
 def _cli(email, nombre=None, sexo=None):
     nom = (nombre or "").strip() or (email or "cliente").split("@")[0].replace("."," ").title()
     return {"nombre": nom, "email": email or "", "sexo": sexo or "",
             "fecha": datetime.datetime.now().strftime("%d/%m/%Y")}
 
 def generar_pdf(sid, email, nombre, respuestas, datos, tier, bar=None, sexo=None, sintesis=None):
-    if sintesis is None:
-        try:
-            with db() as c:
-                r = c.execute("SELECT sintesis FROM sesiones WHERE id=?", (sid,)).fetchone()
-            if r and r["sintesis"]:
+    es_v2 = False; perfil = {}
+    try:
+        with db() as c:
+            r = c.execute("SELECT sintesis, perfil, es_v2 FROM sesiones WHERE id=?", (sid,)).fetchone()
+        if r:
+            if sintesis is None and r["sintesis"]:
                 sintesis = r["sintesis"]
-        except Exception:
-            pass
+            es_v2 = bool(r["es_v2"])
+            try: perfil = json.loads(r["perfil"] or "{}")
+            except Exception: perfil = {}
+    except Exception:
+        pass
     out = os.path.join(REPORTS_DIR, "itap_%s.pdf" % sid)
-    rb.build_book(respuestas, datos_completos(datos), _cli(email, nombre, sexo), out,
-                  depth=TIER_DEPTH.get(tier, "completo"), baremo=bar, sintesis=sintesis)
+    d = datos_completos(datos)
+    if es_v2:
+        extras = None
+        try:
+            import score_v2
+            extras = score_v2.computar_extras(respuestas, d, perfil, rb._cargar_v2())
+        except Exception:
+            extras = None
+        rb.build_book_v2(respuestas, d, _cli(email, nombre, sexo), out, perfil_in=perfil,
+                         depth=TIER_DEPTH.get(tier, "completo"), baremo=bar, sintesis=sintesis, extras=extras)
+    else:
+        rb.build_book(respuestas, d, _cli(email, nombre, sexo), out,
+                      depth=TIER_DEPTH.get(tier, "completo"), baremo=bar, sintesis=sintesis)
     return out
 
 def generar_couple(out, arow, brow, sintesis=None):
@@ -235,6 +289,44 @@ def answer(payload: dict):
 def open_answer(payload: dict):
     return {"ok": True}
 
+@app.post("/api/progress")
+def progress(payload: ProgressPayload):
+    try:
+        with db() as c:
+            c.execute("""UPDATE sesiones SET progreso_idx=MAX(COALESCE(progreso_idx,0),?),
+                         progreso_total=?, last_qid=?, progreso_fecha=? WHERE id=?""",
+                      (int(payload.idx or 0), int(payload.total or 0), payload.last_qid,
+                       datetime.datetime.utcnow().isoformat(), payload.session_id))
+        return {"ok": True}
+    except Exception:
+        return {"ok": False}
+
+@app.get("/api/funnel")
+def funnel():
+    if os.environ.get("FUNNEL_KEY"):
+        return {"error": "protegido"}
+    try:
+        with db() as c:
+            rows = c.execute("SELECT tier,respuestas,pagado,progreso_idx,progreso_total,last_qid,creado FROM sesiones").fetchall()
+    except Exception as e:
+        raise HTTPException(500, "Error leyendo funnel: %s" % e)
+    from collections import Counter
+    total = len(rows)
+    def _comp(r): return r["respuestas"] not in (None, "{}", "")
+    completados = sum(1 for r in rows if _comp(r))
+    pagados = sum(1 for r in rows if r["pagado"])
+    aband = [r for r in rows if not _comp(r)]
+    drop = Counter((r["last_qid"] or "(no empezo el test)") for r in aband)
+    bytier = {}
+    for t in (1, 2, 3):
+        tr = [r for r in rows if r["tier"] == t]
+        ct = sum(1 for r in tr if _comp(r))
+        bytier[str(t)] = {"iniciados": len(tr), "completados": ct, "pagados": sum(1 for r in tr if r["pagado"])}
+    return {"iniciados": total, "completados": completados, "pagados": pagados, "abandonos": total - completados,
+            "tasa_finalizacion_pct": round(100.0 * completados / total, 1) if total else 0,
+            "tasa_pago_sobre_completados_pct": round(100.0 * pagados / completados, 1) if completados else 0,
+            "abandono_por_pregunta": dict(drop.most_common(20)), "por_tier": bytier}
+
 @app.post("/api/complete")
 def complete(payload: CompletePayload):
     with db() as c:
@@ -246,9 +338,10 @@ def complete(payload: CompletePayload):
     tier = row["tier"]
     datos = datos_completos(payload.datos)
     with db() as c:
-        c.execute("UPDATE sesiones SET respuestas=?, datos=?, email=?, pareja_de=?, abiertas=? WHERE id=?",
+        c.execute("UPDATE sesiones SET respuestas=?, datos=?, email=?, pareja_de=?, abiertas=?, perfil=?, es_v2=? WHERE id=?",
                   (json.dumps(payload.respuestas), json.dumps(datos), email, payload.pareja_de,
-                   json.dumps(payload.abiertas or {}), payload.session_id))
+                   json.dumps(payload.abiertas or {}), json.dumps(payload.perfil or {}),
+                   1 if payload.v2 else 0, payload.session_id))
     if tier == 3:
         if not payload.pareja_de:
             return {"ok": True, "needs_partner": True, "codigo": payload.session_id}
@@ -270,9 +363,13 @@ def complete(payload: CompletePayload):
         except Exception as e:
             raise HTTPException(500, "Error generando informe de pareja: %s" % e)
         return {"ok": True, "es_pareja": True, "report_url": "/api/report/%s" % payload.session_id}
-    salud = _guardar_salud(payload.session_id, payload.respuestas)
+    if payload.v2:
+        salud = _guardar_salud_v2(payload.session_id, payload.respuestas)
+        retrato = _retrato_individual_v2(payload.session_id, payload.respuestas, payload.abiertas, payload.perfil, email, nombre)
+    else:
+        salud = _guardar_salud(payload.session_id, payload.respuestas)
+        retrato = _retrato_individual(payload.session_id, payload.respuestas, payload.abiertas, row["sexo"], email, nombre)
     bar = baremo(salud)
-    retrato = _retrato_individual(payload.session_id, payload.respuestas, payload.abiertas, row["sexo"], email, nombre)
     if retrato:
         try:
             with db() as c:

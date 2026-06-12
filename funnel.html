@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Embudo · ITAP · Adapta Family Office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--am:#FDD731;--ng:#020203;--cr:#FBF6E0;--gr:#7A7A72;--ln:#E4E1D5;--vd:#1D6F42;--rj:#A11B1B;--am2:#B8860B}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Poppins,system-ui,sans-serif;background:var(--cr);color:var(--ng);padding:28px 18px;max-width:920px;margin:0 auto}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:3px solid var(--am);padding-bottom:14px;margin-bottom:22px;flex-wrap:wrap}
+.brand{font-weight:800;font-size:20px}.brand small{font-weight:600;color:var(--gr);font-size:12px;display:block;margin-top:2px}
+button{font-family:inherit;font-weight:700;background:var(--am);border:none;border-radius:10px;padding:10px 16px;cursor:pointer;font-size:13px}
+button:active{transform:translateY(1px)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--ln);border-radius:14px;padding:16px 14px}
+.kpi .n{font-size:30px;font-weight:800;line-height:1}.kpi .l{font-size:11.5px;color:var(--gr);font-weight:600;margin-top:6px;text-transform:uppercase;letter-spacing:.04em}
+.kpi.am{background:#fff8d6}.kpi.vd .n{color:var(--vd)}
+.rates{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.rate{background:var(--ng);color:#fff;border-radius:14px;padding:16px}
+.rate .n{font-size:26px;font-weight:800;color:var(--am)}.rate .l{font-size:12px;color:#cfcabb;margin-top:4px}
+h2{font-size:15px;font-weight:700;margin:22px 0 12px;border-left:4px solid var(--am);padding-left:10px}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--ln);border-radius:12px;overflow:hidden}
+th,td{text-align:left;padding:10px 12px;font-size:13px;border-bottom:1px solid var(--ln)}
+th{background:#fffbe6;font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;color:#555}
+tr:last-child td{border-bottom:none}
+.bar{height:8px;background:var(--ln);border-radius:6px;overflow:hidden;margin-top:5px}.bar i{display:block;height:100%;background:var(--rj)}
+.muted{color:var(--gr);font-size:12.5px;margin-top:6px}
+.qid{font-weight:600}
+#err{display:none;background:#fdeaea;color:var(--rj);border:1px solid #f3c4c4;border-radius:10px;padding:12px;font-size:13px;margin:10px 0}
+.foot{margin-top:26px;color:var(--gr);font-size:11.5px;text-align:center}
+@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}.rates{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand">▲ ITAP · Embudo<small>Adapta Family Office · datos agregados, sin información personal</small></div>
+  <button onclick="cargar()">↻ Actualizar</button>
+</div>
+<div id="err"></div>
+<div class="kpis">
+  <div class="kpi"><div class="n" id="k_ini">—</div><div class="l">Iniciaron el test</div></div>
+  <div class="kpi"><div class="n" id="k_com">—</div><div class="l">Lo completaron</div></div>
+  <div class="kpi vd"><div class="n" id="k_pag">—</div><div class="l">Pagaron</div></div>
+  <div class="kpi am"><div class="n" id="k_aba">—</div><div class="l">Abandonaron</div></div>
+</div>
+<div class="rates">
+  <div class="rate"><div class="n" id="r_fin">—</div><div class="l">Tasa de finalización (terminan / empiezan)</div></div>
+  <div class="rate"><div class="n" id="r_pag">—</div><div class="l">Tasa de pago (pagan / terminan)</div></div>
+</div>
+
+<h2>¿Dónde se cae la gente?</h2>
+<div class="muted">Última pregunta que vio quien empezó pero no terminó. Donde se acumulan los abandonos, ahí conviene acortar o reescribir.</div>
+<table id="t_drop"><thead><tr><th>Pregunta</th><th style="width:90px">Abandonos</th><th>Peso</th></tr></thead><tbody></tbody></table>
+
+<h2>Por producto</h2>
+<table id="t_tier"><thead><tr><th>Tier</th><th>Iniciaron</th><th>Completaron</th><th>Pagaron</th></tr></thead><tbody></tbody></table>
+
+<div class="foot">ITAP · diagnóstico psicofinanciero · panel interno</div>
+
+<script>
+const API="https://diagnostico-financiero-app.onrender.com";
+const TIER={"1":"Diagnóstico Rápido · 19 €","2":"Informe Avanzado · 39 €","3":"Análisis de Pareja · 54 €"};
+function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+async function cargar(){
+  const err=document.getElementById('err'); err.style.display='none';
+  try{
+    const d=await (await fetch(API+'/api/funnel?cb='+Date.now())).json();
+    if(d.error){throw new Error('El endpoint está protegido (FUNNEL_KEY definida).');}
+    k_ini.textContent=d.iniciados; k_com.textContent=d.completados; k_pag.textContent=d.pagados; k_aba.textContent=d.abandonos;
+    r_fin.textContent=d.tasa_finalizacion_pct+'%'; r_pag.textContent=d.tasa_pago_sobre_completados_pct+'%';
+    const drops=Object.entries(d.abandono_por_pregunta||{}); const max=Math.max(1,...drops.map(x=>x[1]));
+    document.querySelector('#t_drop tbody').innerHTML = drops.length? drops.map(([q,n])=>
+      `<tr><td class="qid">${esc(q)}</td><td>${n}</td><td><div class="bar"><i style="width:${Math.round(100*n/max)}%"></i></div></td></tr>`).join('')
+      : '<tr><td colspan="3" class="muted">Sin abandonos todavía.</td></tr>';
+    document.querySelector('#t_tier tbody').innerHTML = Object.entries(d.por_tier||{}).map(([t,v])=>
+      `<tr><td>${esc(TIER[t]||('Tier '+t))}</td><td>${v.iniciados}</td><td>${v.completados}</td><td>${v.pagados}</td></tr>`).join('');
+  }catch(e){ err.textContent='No se pudo cargar el embudo: '+e.message+' (puede que Render esté despertando; reintenta en unos segundos).'; err.style.display='block'; }
+}
+cargar();
+</script>
+</body>
+</html>
