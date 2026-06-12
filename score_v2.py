@@ -266,6 +266,20 @@ def calcular_herencia(perfil_in):
         return ("Tu herencia futura: si es un pilar, blíndalo hoy","Cuentas con ese patrimonio futuro como pilar — razón de más para protegerlo antes de tiempo. La sucesión es de las pocas cosas que se deciden ANTES o se pagan caro DESPUÉS: según tu comunidad autónoma y el parentesco, la diferencia entre planificar y no hacerlo puede ser enorme. Anticiparlo es proteger el esfuerzo de quien te lo deja.")
     return None
 
+_FOCO_NOM={"C1":"mi relación emocional con el dinero","C2":"mi camino a la libertad financiera","C3":"mi resistencia ante un imprevisto","C4":"la eficiencia de mi gasto","C5":"la protección de mi patrimonio y la herencia","C6":"mi gasto de estatus","C7":"la concentración de mis ingresos","C8":"mi antifragilidad","C9":"el gobierno de mi flujo de caja","C10":"mi salud de deuda","C11":"mi palanca de crecimiento"}
+
+def calcular_preguntas_asesor(perfil_in, p):
+    a=((perfil_in or {}).get("asesor","") or "").lower()
+    if "papeleo" not in a and "impuestos" not in a and "confianza" not in a:
+        return None
+    focos=[_FOCO_NOM.get(c,c) for c in sorted(p,key=lambda c:p[c]["score"],reverse=True)[:2]] if p else ["mi estructura","mi fiscalidad"]
+    qs=["Mi diagnóstico señala como frentes principales %s y %s. ¿Qué plan concreto tenemos para cada uno este trimestre, más allá del papeleo?" % (focos[0], focos[1]),
+        "¿Cuánto pago al año, en total, entre comisiones y gastos de gestión, y cómo lo bajamos?"]
+    h=((perfil_in or {}).get("herencia","") or "").lower()
+    if h and not h.startswith("no"):
+        qs.append("¿Qué hacemos hoy para que una sucesión futura no se lleve en impuestos una parte que aún es evitable?")
+    return qs
+
 def computar_extras(resp, datos, perfil_in, inst=None):
     """Punto de entrada unico. Devuelve dict listo para report_book + arq_code."""
     inst = inst or cargar_inst()
@@ -276,6 +290,7 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "contradicciones": calcular_contradicciones(datos, resp, perfil_in, p),
         "energia": calcular_energia(perfil_in),
         "conciliacion": calcular_conciliacion(perfil_in),
+        "preguntas_asesor": calcular_preguntas_asesor(perfil_in, p),
         "asesor": calcular_asesor(perfil_in),
         "herencia": calcular_herencia(perfil_in),
         "arq_code": arq_desde_perfil(perfil_in),

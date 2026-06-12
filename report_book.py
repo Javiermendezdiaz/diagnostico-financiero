@@ -742,6 +742,12 @@ def seccion_extras(extras):
             ti,tx=blk
             out+=[Spacer(1,4*mm), Paragraph(ti,h_sub),
                   Paragraph(tx,St("axh",fontSize=10,leading=14,textColor=INK,backColor=LIGHT,borderPadding=9,spaceBefore=2))]
+    pa=extras.get("preguntas_asesor")
+    if pa:
+        out+=[Spacer(1,3*mm), Paragraph("Llévale esto a tu próxima reunión con tu asesor",h_sub),
+              Paragraph("Tres preguntas para convertir una cita de papeleo en una de estrategia:",small)]
+        for q in pa:
+            out.append(Paragraph("<font color='#0F766E'>&#9656;</font>  «%s»"%q,St("pqa",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=3)))
     return out
 
 def seccion_coste_inaccion(extras):
@@ -900,7 +906,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   Paragraph("Tu plan de acci\u00f3n",h_sub),
                   Paragraph("Tres pasos, en orden. Empieza por el primero y no pases al siguiente hasta tenerlo en marcha:",small)]
             for a in ACCIONES[code]:
-                cab.append(Paragraph(f"&#8226;  {a}",St("pa",fontSize=10,leading=14,textColor=INK,leftIndent=6,spaceAfter=4)))
+                cab.append(Paragraph(f"<font face='Helvetica'>[   ]</font>  {a}",St("pa",fontSize=10,leading=14,textColor=INK,leftIndent=6,spaceAfter=4)))
             cab+=[Spacer(1,2*mm),
                   Paragraph(f"\u201c{PRINCIPIO[code]}\u201d",St("pr",fontSize=10.5,leading=14,textColor=ACCDK,
                             fontName="Helvetica-Oblique",backColor=LIGHT,borderPadding=8,spaceBefore=2)),
