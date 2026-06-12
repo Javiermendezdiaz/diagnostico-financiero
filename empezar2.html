@@ -72,7 +72,7 @@ a{color:var(--am)}
   <div class="lbl">Tu nombre</div><input id="nombre" placeholder="Nombre">
   <div class="lbl" style="margin-top:12px">Tu email</div><input id="email" type="email" placeholder="tu@email.com">
   <div class="lbl" style="margin-top:12px">Tipo de diagnóstico</div>
-  <select id="tier"><option value="1">Diagnóstico Rápido · 19 €</option><option value="2" selected>Informe Avanzado · 39 €</option><option value="3">Análisis de Pareja · 54 €</option></select>
+  <select id="tier"><option value="1">Diagnóstico Rápido · 19 €</option><option value="2" selected>Informe Avanzado · 39 €</option></select>
   <label class="chk"><input type="checkbox" id="consent"><span>Acepto la <a href="privacidad.html" target="_blank">Política de Privacidad</a> y el tratamiento de mis datos.</span></label>
   <button class="btn" onclick="iniciar()">Comenzar →</button>
 </div>
@@ -105,6 +105,7 @@ a{color:var(--am)}
 <script>
 const API="https://diagnostico-financiero-app.onrender.com";
 const PAREJA=new URLSearchParams(location.search).get('pareja');
+const _qt=new URLSearchParams(location.search).get('tier'); if((_qt==='1'||_qt==='2')&&document.getElementById('tier')) document.getElementById('tier').value=_qt;
 let INST=null, st={email:"",nombre:"",tier:2,sid:null,perfil:{},resp:{},datos:{},abiertas:{},
    cola:[], i:0, tens:[], reportUrl:null, abierta:new Set(), avisoEstres:false};
 
