@@ -71,8 +71,9 @@ def perfil(resp):
     trans={t:(round(statistics.mean(v),1) if v else None) for t,v in tr.items()}
     return out,trans,round(statistics.mean([v["score"] for v in out.values()]),1)
 def fi_metrics(d):
-    fi=d["gasto_mensual"]*12*25; pct=round(100*d["patrimonio"]/fi,1)
-    tasa=round(100*d["ahorro_mensual"]/d["ingreso_mensual"],1)
+    gasto=d.get("gasto_mensual") or 0; ingreso=d.get("ingreso_mensual") or 0
+    fi=gasto*12*25; pct=round(100*d["patrimonio"]/fi,1) if fi else 0.0
+    tasa=round(100*d["ahorro_mensual"]/ingreso,1) if ingreso else 0.0
     r,pv,m,n=0.05/12,d["patrimonio"],d["ahorro_mensual"],0
     while pv<fi and n<1200: pv=pv*(1+r)+m; n+=1
     return fi,pct,tasa,(round(n/12,1) if n<1200 else None)
@@ -88,7 +89,8 @@ QMIDE={
  "C7":"cuánto dependes de una sola fuente de ingresos: tu mayor riesgo oculto.",
  "C8":"si un shock te hunde o puedes salir reforzado de él.",
  "C9":"si gobiernas el dinero que entra y sale, o se te escapa sin saber a dónde.",
- "C10":"el peso y la salud de tu deuda, y si resistiría una caída de ingresos."}
+ "C10":"el peso y la salud de tu deuda, y si resistiría una caída de ingresos.",
+ "C11":"si tu dinero solo se defiende o además construye: tu capacidad real de hacer crecer lo que ya tienes y de acercar la vida que quieres."}
 PASO={
  "C1":"dedica diez minutos a nombrar qué emoción exacta aparece cuando piensas en dinero.",
  "C2":"calcula y anota tu número: gasto anual × 25. Tenerlo a la vista cambia las decisiones.",
@@ -99,7 +101,8 @@ PASO={
  "C7":"identifica una segunda fuente de ingresos posible y da el primer paso esta semana.",
  "C8":"aparta una reserva líquida que solo se usaría para aprovechar una oportunidad.",
  "C9":"monta un presupuesto simple de tres cajas: fijos, variables y ahorro.",
- "C10":"ordena tus deudas por tipo de interés y ataca primero la más cara."}
+ "C10":"ordena tus deudas por tipo de interés y ataca primero la más cara.",
+ "C11":"elige una palanca de crecimiento —una segunda fuente o poner a trabajar tu excedente— y da el primer paso esta semana."}
 
 RIESGO={
  "C1":"Ignorarlo no lo apaga: el estrés financiero sostenido erosiona el sueño, la salud y el juicio. Lo que hoy es incomodidad, mañana es una decisión tomada desde el miedo.",
@@ -111,7 +114,8 @@ RIESGO={
  "C7":"Depender de una sola fuente es vivir sobre una sola pata: el día que falla, falla todo a la vez. Es el riesgo más subestimado de cualquier economía.",
  "C8":"Sin reservas ni opciones, una crisis solo puede hacerte daño. Quien no puede aprovechar el caos, únicamente lo sufre.",
  "C9":"Sin control del flujo, el dinero entra y sale sin rumbo: se ahorra lo que sobra (casi nada) y los imprevistos siempre pillan por sorpresa.",
- "C10":"La deuda mal gestionada crece en silencio con cada subida de tipos. Lo que hoy pagas con holgura, mañana puede asfixiarte."}
+ "C10":"La deuda mal gestionada crece en silencio con cada subida de tipos. Lo que hoy pagas con holgura, mañana puede asfixiarte.",
+ "C11":"Un patrimonio que solo se defiende se queda quieto mientras la vida que quieres se encarece. Sin una palanca de crecimiento, el esfuerzo de hoy no compra el futuro que imaginas: solo sostiene el presente."}
 OPORTUNIDAD={
  "C1":"Trabajar esto te devuelve algo más valioso que dinero: dormir tranquilo y decidir con cabeza, no con ansiedad.",
  "C2":"Tener tu número claro convierte la libertad de un sueño difuso en un objetivo con fecha. Y lo que se mide, se alcanza.",
@@ -122,7 +126,8 @@ OPORTUNIDAD={
  "C7":"Diversificar tus ingresos es construir cimientos: cada nueva fuente te hace más libre y más difícil de tumbar.",
  "C8":"Volverte antifrágil hace que las crisis dejen de darte miedo y empiecen a darte oportunidades. Es el salto de la defensa al ataque.",
  "C9":"Gobernar tu flujo es tomar el mando: sabes a dónde va cada euro y decides tú, no las circunstancias.",
- "C10":"Una deuda sana libera flujo y tranquilidad. Pagar lo caro primero es la inversión con mejor rentabilidad garantizada que existe."}
+ "C10":"Una deuda sana libera flujo y tranquilidad. Pagar lo caro primero es la inversión con mejor rentabilidad garantizada que existe.",
+ "C11":"Pasar de defender a construir cambia el juego: cuando el excedente y el patrimonio trabajan por ti, el tiempo deja de ser tu enemigo y se convierte en tu mayor aliado."}
 ACCIONES={
  "C1":[PASO["C1"],"Pon una hora fija a la semana para mirar tus números; fuera de esa hora, no les des vueltas.","Si el malestar es alto, háblalo con alguien de confianza o un profesional: el dinero también es salud."],
  "C2":[PASO["C2"],"Automatiza una transferencia a inversión el día que cobras, antes de gastar.","Fija una fecha objetivo de libertad y revísala una vez al año."],
@@ -133,7 +138,8 @@ ACCIONES={
  "C7":[PASO["C7"],"Invierte en una habilidad que aumente tu valor fuera de tu empleo actual.","Calcula qué % de tus ingresos depende de una sola fuente y ponte el objetivo de bajarlo."],
  "C8":[PASO["C8"],"Asegúrate de que parte de tu deuda esté a tipo fijo.","Haz una pequeña apuesta de bajo coste y alto potencial cada trimestre."],
  "C9":[PASO["C9"],"Separa tus cuentas: operativa, contingencia e inversión.","Revisa tu flujo una vez al mes, el mismo día, veinte minutos."],
- "C10":[PASO["C10"],"Renegocia o refinancia tu deuda más cara este mes.","Ponle fecha a tu día sin deuda mala y calcula cuánto pagar al mes para llegar."]}
+ "C10":[PASO["C10"],"Renegocia o refinancia tu deuda más cara este mes.","Ponle fecha a tu día sin deuda mala y calcula cuánto pagar al mes para llegar."],
+ "C11":[PASO["C11"],"Pon a trabajar el excedente y el patrimonio dormido con un plan a años vista, no en cuentas a la vista.","Define tu brecha exacta hacia la vida ideal y elige la palanca —ingresos o eficiencia— que más la acorte."]}
 
 PRINCIPIO={
  "C1":"La paz financiera no es tener mucho, es no tener miedo.",
@@ -145,7 +151,8 @@ PRINCIPIO={
  "C7":"Una sola fuente de ingresos es una sola forma de quedarte sin nada.",
  "C8":"El fuerte resiste la crisis; el antifrágil la aprovecha.",
  "C9":"El dinero que no controlas, te controla.",
- "C10":"La deuda barata es una herramienta; la cara, una trampa."}
+ "C10":"La deuda barata es una herramienta; la cara, una trampa.",
+ "C11":"Defender protege lo que tienes; construir es lo único que te acerca a lo que quieres."}
 
 REFLEX={
  "C1":"\u00bfCu\u00e1l es el pensamiento sobre dinero que m\u00e1s se repite en tu cabeza, y es realmente cierto?",
@@ -157,7 +164,8 @@ REFLEX={
  "C7":"Si tu fuente principal de ingresos desapareciera hoy, \u00bfcu\u00e1l es tu plan B real?",
  "C8":"\u00bfLa \u00faltima crisis que viviste te hundi\u00f3 o te ense\u00f1\u00f3 algo que hoy usas?",
  "C9":"\u00bfSabr\u00edas decir, ahora mismo, cu\u00e1nto gastaste el mes pasado?",
- "C10":"\u00bfQu\u00e9 deuda llevas arrastrando que, en el fondo, sabes que deber\u00edas atacar ya?"}
+ "C10":"\u00bfQu\u00e9 deuda llevas arrastrando que, en el fondo, sabes que deber\u00edas atacar ya?",
+ "C11":"\u00bfTu dinero est\u00e1 hoy construyendo la vida que quieres, o solo defendiendo la que ya tienes?"}
 
 def faceta_lectura(score):
     if score<30: return "es una base firme."
@@ -299,7 +307,8 @@ ADAPTA={
  "C7":("Diversificaci\u00f3n y banca privada","Reducimos tu dependencia de una sola fuente y estructuramos tu patrimonio para que no se sostenga sobre una sola pata.","https://www.adaptafamilyoffice.com/casos/banca-privada"),
  "C8":("Estrategia patrimonial antifr\u00e1gil","Estructuramos tu patrimonio para que las crisis dejen de ser una amenaza y empiecen a ser una oportunidad.","https://www.adaptafamilyoffice.com/casos/banca-privada"),
  "C9":("Control de tu flujo de caja","Montamos contigo el sistema para que sepas a d\u00f3nde va cada euro y decidas t\u00fa, no las circunstancias.","https://www.adaptafamilyoffice.com/servicios"),
- "C10":("Planificaci\u00f3n y reestructuraci\u00f3n de hipoteca","Renegociaci\u00f3n, subrogaci\u00f3n y las mejores condiciones que tu perfil permite \u2014 para que la deuda deje de pesar.","https://www.adaptafamilyoffice.com/casos/planificacion-hipoteca")}
+ "C10":("Planificaci\u00f3n y reestructuraci\u00f3n de hipoteca","Renegociaci\u00f3n, subrogaci\u00f3n y las mejores condiciones que tu perfil permite \u2014 para que la deuda deje de pesar.","https://www.adaptafamilyoffice.com/casos/planificacion-hipoteca"),
+ "C11":("Estrategia de crecimiento patrimonial","Ponemos a trabajar tu excedente y tu patrimonio con un plan a años vista — para que tu dinero deje de defenderse y empiece a construir la vida que quieres.","https://www.adaptafamilyoffice.com/casos/banca-privada")}
 
 def seccion_adapta(p):
     out=[PageBreak(), Paragraph("El siguiente paso con Adapta",h_sec),
@@ -668,13 +677,66 @@ def citas_capa(code, resp, k=2, min_score=50):
         if it["tipo"]!="escala": continue
         idx=resp.get(it["id"])
         if idx is None: continue
-        op=it["opciones"][idx]; tag=op.get("tag_narrativo")
+        op=it["opciones"][idx]; tag=op.get("tag_narrativo") or op.get("texto")
         if tag and op["score"]>=min_score:
             out.append((op["score"], it["texto"], tag))
     out.sort(key=lambda x:-x[0])
     return out[:k]
 
-def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None):
+def seccion_extras(extras):
+    """Secciones v2: brecha vital, palancas de crecimiento y contradicciones. Devuelve flowables."""
+    if not extras: return []
+    br=extras.get("brecha"); pal=extras.get("palancas") or []; con=extras.get("contradicciones") or []
+    out=[PageBreak(), Paragraph("Tu brecha y tus palancas de crecimiento",h_sec),
+         Paragraph("Hasta aquí, tu foto. Ahora la pregunta que de verdad mueve un patrimonio: "
+                   "¿cuánto te separa de la vida que dijiste querer, y qué palancas la acortan?",body)]
+    if br:
+        ci=_eur(br["coste_ideal_mes"])
+        if br.get("sin_ingreso"):
+            rc=_eur(br.get("renta_capital_mes",0))
+            if br.get("ingreso_cubre_ideal"):
+                linea=(f"No tienes un ingreso recurrente: tu vida la sostiene tu capital. Al 4% prudente, tu patrimonio "
+                       f"rinde unos <b>{rc}/mes</b> y tu vida ideal pide <b>{ci}/mes</b>: el capital te cubre. "
+                       f"El trabajo ahora es que rente de forma ordenada y no se erosione.")
+            else:
+                linea=(f"No tienes ingreso recurrente: hoy vives de tu capital. Al 4% prudente rendiría unos "
+                       f"<b>{rc}/mes</b>, pero tu vida ideal pide <b>{ci}/mes</b> — faltan <b>{_eur(br['brecha_mes'])}/mes</b>. "
+                       f"A este ritmo consumes principal: el patrimonio mengua en lugar de sostenerte.")
+        else:
+            ing=_eur(br["ingreso_mes"])
+            if br["brecha_mes"]>0:
+                linea=(f"La vida que describes como ideal cuesta <b>{ci}/mes</b>. Hoy ingresas <b>{ing}/mes</b>. "
+                       f"La brecha es de <b>{_eur(br['brecha_mes'])} al mes</b> ({_eur(br['brecha_anual'])} al año): "
+                       f"justo lo que tu modelo actual todavía no genera.")
+            else:
+                linea=(f"Tu vida ideal cuesta <b>{ci}/mes</b> y ya ingresas <b>{ing}/mes</b>: el flujo te da. "
+                       f"La pregunta deja de ser cuánto ganas y pasa a ser a qué velocidad conviertes ese margen en capital.")
+        _na=(f" Para tu vida actual: {_eur(br['numero_actual'])}." if br.get("numero_actual") else "")
+        out+=[Spacer(1,3*mm),
+              _box([Paragraph(linea,St("brx",fontSize=10.5,leading=15)),
+                    Paragraph(f"Tu número de libertad para <b>esa</b> vida (regla 25×): <b>{_eur(br['numero_ideal'])}</b>.{_na}",
+                              St("brx2",fontSize=9.6,leading=14,textColor=GREY,spaceBefore=4))],
+                   "#FBF8EE","#B45309",ancho=160*mm)]
+        mapr={"en rumbo":"Y tú mismo lo lees así: <b>en rumbo</b>. Las matemáticas te acompañan; el trabajo es no desviarte.",
+              "espejismo":"Y tú mismo lo nombras: <b>espejismo</b>. Vives bien el presente mientras el futuro se aleja en silencio.",
+              "vía muerta":"Y tú mismo lo reconoces: <b>vía muerta</b>. Sin cambiar de modelo, esa vida seguirá siendo una fantasía. La buena noticia: el modelo se cambia."}
+        if br.get("reconocimiento") in mapr:
+            out.append(Paragraph(mapr[br["reconocimiento"]],St("brr",fontSize=10,leading=14,spaceBefore=4)))
+    if pal:
+        out+=[Spacer(1,4*mm), Paragraph("Tus palancas de crecimiento",h_sub),
+              Paragraph("No son consejos genéricos: salen de tus propios números. En orden de impacto.",small)]
+        for ti,tx in pal:
+            out.append(Paragraph(f"<font color='#0F766E'>&#9656;</font>  <b>{ti}</b>",St("plt",fontSize=10.5,leading=14,spaceBefore=5)))
+            out.append(Paragraph(tx,St("plx",fontSize=9.7,leading=14,leftIndent=12,spaceAfter=3)))
+    if con:
+        out+=[Spacer(1,4*mm), Paragraph("Lo que no te cuadra (y conviene mirar)",h_sub),
+              Paragraph("Las grietas más caras de un plan viven en la distancia entre lo que dices, lo que sientes y lo que miden tus números. Estas son las tuyas:",small)]
+        for ti,tx in con:
+            out.append(Paragraph(f"<font color='#B91C1C'>&#9656;</font>  <b>{ti}</b>",St("cot",fontSize=10.5,leading=14,spaceBefore=5)))
+            out.append(Paragraph(tx,St("cox",fontSize=9.7,leading=14,leftIndent=12,spaceAfter=3)))
+    return out
+
+def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=None,arq_override=None):
     p,tr,salud=perfil(resp); fi=fi_metrics(datos); radar_png(p,"_radar.png")
     _cohorte=cohorte_txt(cli,datos)
     if baremo and baremo.get("pct") is not None:
@@ -685,7 +747,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None):
         _pct_nota=""
     bi,bl=banda(CAPAS["C1"],salud); S=[]
     coh=coherencia(salud,fi,datos)
-    arq_code,_,_=arquetipo(resp)
+    arq_code = arq_override if arq_override is not None else arquetipo(resp)[0]
     # cover
     S+=[Spacer(1,34*mm),
         Paragraph("TU LIBRO FINANCIERO",St("cv0",fontSize=12,textColor=GREY,fontName=FB)),
@@ -817,6 +879,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None):
                   Paragraph("Para reflexionar",h_sub),
                   Paragraph(REFLEX[code],St("rf",fontSize=10,leading=14,textColor=INK,fontName="Helvetica-Oblique"))]
             S.extend(cab); S.append(PageBreak())
+    if extras: S+=seccion_extras(extras)
     # transversales
     S+=[Paragraph("Lo que cruza todas las capas",h_sec),
         Paragraph("Hay tres corrientes que no viven en un solo capítulo: recorren todo tu perfil. Verlas juntas "
@@ -980,7 +1043,29 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None):
                           title="Tu Libro Financiero — ITAP")
     doc.build(S,onFirstPage=deco,onLaterPages=deco); print("PDF OK ->",out)
 
-def build_book(resp, datos, cli, outpath, depth="completo", baremo=None, sintesis=None):
+def build_book(resp, datos, cli, outpath, depth="completo", baremo=None, sintesis=None, extras=None, arq_override=None):
     """API entrypoint: genera el libro PDF en outpath."""
-    build(cli, resp, datos, outpath, depth, baremo, sintesis=sintesis)
+    build(cli, resp, datos, outpath, depth, baremo, sintesis=sintesis, extras=extras, arq_override=arq_override)
+    return outpath
+
+_INST_V2=None
+def _cargar_v2():
+    global _INST_V2
+    if _INST_V2 is None:
+        _INST_V2=json.load(open("itap_v2.json",encoding="utf-8"))
+    return _INST_V2
+
+def build_book_v2(resp, datos, cli, outpath, perfil_in=None, depth="completo", baremo=None, sintesis=None, extras=None, arq_override=None):
+    global INST, CAPAS
+    inst_v2=_cargar_v2()
+    _bak_inst,_bak_capas=INST,CAPAS
+    INST=inst_v2; CAPAS={c["code"]:c for c in inst_v2["capas"]}
+    try:
+        if arq_override is None and perfil_in:
+            try:
+                import score_v2 as _sv; arq_override=_sv.arq_desde_perfil(perfil_in)
+            except Exception: arq_override=None
+        build(cli, resp, datos, outpath, depth, baremo, sintesis=sintesis, extras=extras, arq_override=arq_override)
+    finally:
+        INST=_bak_inst; CAPAS=_bak_capas
     return outpath
