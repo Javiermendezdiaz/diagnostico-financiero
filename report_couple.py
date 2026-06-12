@@ -356,7 +356,7 @@ def laboratorio_pareja(rA,rB,pA,pB,nA,nB,dA,dB,hogar,divs):
           Spacer(1,3*mm)]
     return out
 
-def build_couple(rA,dA,cliA,rB,dB,cliB,out):
+def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None):
     pA,trA,saludA=rb.perfil(rA); pB,trB,saludB=rb.perfil(rB)
     nA=(cliA["nombre"].split()[0] if (cliA.get("nombre") or "").strip() else "Persona A")
     nB=(cliB["nombre"].split()[0] if (cliB.get("nombre") or "").strip() else "Persona B")
@@ -504,6 +504,16 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out):
                     colWidths=[26*mm,130*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),3),("VALIGN",(0,0),(-1,-1),"TOP")])]
         S.append(KeepTogether(card)); S.append(Spacer(1,4*mm))
     S+=[PageBreak()]
+    # cruce semantico de pareja (sintesis IA de las abiertas)
+    if sintesis and str(sintesis).strip():
+        S+=[Paragraph("Análisis de asimetría y brecha de comunicación",h_sec),
+            Paragraph("Esta lectura cruza lo que cada uno escribió en sus respuestas abiertas: dónde vuestros relatos "
+                      "coinciden, dónde chocan, y qué revela eso de la conversación que tenéis pendiente.",small),
+            Spacer(1,2*mm)]
+        for _par in [x for x in str(sintesis).replace("\r","").split("\n") if x.strip()]:
+            _e=_par.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+            S.append(Paragraph(_e,body))
+        S+=[PageBreak()]
     # guion de conversacion
     S+=[Paragraph("Vuestro guion de conversación",h_sec),
         Paragraph("Sentaos sin móviles, treinta minutos. Recorred estas preguntas por turnos: primero uno explica "

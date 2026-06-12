@@ -120,6 +120,30 @@ def _retrato_individual(session_id, respuestas, abiertas, sexo=None, email=None,
     except Exception:
         return None
 
+def _friccion_pareja(id_a, id_b):
+    """Sintesis IA del cruce de las abiertas de ambos miembros. str o None. Nunca lanza."""
+    try:
+        with db() as c:
+            ra = c.execute("SELECT nombre,abiertas FROM sesiones WHERE id=?", (id_a,)).fetchone()
+            rbb = c.execute("SELECT nombre,abiertas FROM sesiones WHERE id=?", (id_b,)).fetchone()
+        if not ra or not rbb:
+            return None
+        qmap = {a["id"]: a["texto"] for a in _banco_abiertas().get("abiertas", [])}
+        def _ab(row):
+            try:
+                d = json.loads(row["abiertas"] or "{}")
+            except Exception:
+                d = {}
+            return {qmap.get(k, k): v for k, v in d.items() if str(v).strip()}
+        aa, ab = _ab(ra), _ab(rbb)
+        if not aa and not ab:
+            return None
+        import ai_sintesis
+        s = ai_sintesis.sintetizar_pareja(aa, ab, nombres={"a": ra["nombre"], "b": rbb["nombre"]})
+        return s.get("friccion") if s else None
+    except Exception:
+        return None
+
 def datos_completos(d):
     d = dict(d or {})
     d.setdefault("gasto_mensual", 2000); d.setdefault("ingreso_mensual", 3000)
@@ -169,9 +193,15 @@ def generar_pdf(sid, email, nombre, respuestas, datos, tier, bar=None, sexo=None
                   depth=TIER_DEPTH.get(tier, "completo"), baremo=bar, sintesis=sintesis)
     return out
 
-def generar_couple(out, arow, brow):
+def generar_couple(out, arow, brow, sintesis=None):
+    if sintesis is None:
+        try:
+            if "sintesis" in brow.keys() and brow["sintesis"]:
+                sintesis = brow["sintesis"]
+        except Exception:
+            pass
     rc.build_couple(json.loads(arow["respuestas"]), datos_completos(json.loads(arow["datos"])), _cli(arow["email"], arow["nombre"]),
-                    json.loads(brow["respuestas"]), datos_completos(json.loads(brow["datos"])), _cli(brow["email"], brow["nombre"]), out)
+                    json.loads(brow["respuestas"]), datos_completos(json.loads(brow["datos"])), _cli(brow["email"], brow["nombre"]), out, sintesis=sintesis)
 
 @app.get("/")
 def health():
@@ -227,9 +257,16 @@ def complete(payload: CompletePayload):
             brow = c.execute("SELECT email,nombre,respuestas,datos FROM sesiones WHERE id=?", (payload.session_id,)).fetchone()
         if not arow or arow["respuestas"] in (None, "{}"):
             raise HTTPException(409, "Tu pareja todavia no ha terminado su cuestionario.")
+        fric = _friccion_pareja(payload.pareja_de, payload.session_id)
+        if fric:
+            try:
+                with db() as c:
+                    c.execute("UPDATE sesiones SET sintesis=? WHERE id=?", (fric, payload.session_id))
+            except Exception:
+                pass
         out = os.path.join(REPORTS_DIR, "itap_%s.pdf" % payload.session_id)
         try:
-            generar_couple(out, arow, brow)
+            generar_couple(out, arow, brow, sintesis=fric)
         except Exception as e:
             raise HTTPException(500, "Error generando informe de pareja: %s" % e)
         return {"ok": True, "es_pareja": True, "report_url": "/api/report/%s" % payload.session_id}
@@ -282,7 +319,7 @@ def report(session_id: str):
     path = os.path.join(REPORTS_DIR, "itap_%s.pdf" % session_id)
     if not os.path.exists(path):
         with db() as c:
-            row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo FROM sesiones WHERE id=?", (session_id,)).fetchone()
+            row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis FROM sesiones WHERE id=?", (session_id,)).fetchone()
         if not row or row["respuestas"] in (None, "{}"):
             raise HTTPException(404, "Informe no encontrado")
         try:
@@ -303,7 +340,7 @@ def _asegurar_pdf(session_id):
     if os.path.exists(path):
         return path
     with db() as c:
-        row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo FROM sesiones WHERE id=?", (session_id,)).fetchone()
+        row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis FROM sesiones WHERE id=?", (session_id,)).fetchone()
     if not row or row["respuestas"] in (None, "{}"):
         return None
     try:
