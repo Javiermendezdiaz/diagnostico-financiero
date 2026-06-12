@@ -1,0 +1,46 @@
+{
+  "_doc": "Banco de preguntas ABIERTAS de alto rendimiento (modelo híbrido). Se sirven escalonadas por tier: Tier 1 → 3, Tier 2 → 6, Tier 3 → 8 (las 2 últimas, de percepción de la pareja, solo Tier 3). Breves y opcionales: 'una frase basta'. Alimentan la síntesis con IA, NO el scoring.",
+  "config_tier": { "1": 3, "2": 6, "3": 8 },
+  "abiertas": [
+    {
+      "id": "AB-1", "tema": "C1 · Relación emocional", "tier_min": 1, "opcional": true,
+      "texto": "¿Cuál es el pensamiento sobre el dinero que más se repite en tu cabeza?",
+      "hint": "La frase que aparece sola, sin que la llames. Una línea basta."
+    },
+    {
+      "id": "AB-2", "tema": "C4/C6 · Gasto y sentido", "tier_min": 1, "opcional": true,
+      "texto": "¿En qué gastas que, en el fondo, sabes que no te hace más feliz?",
+      "hint": "Sin juzgarte. Solo nómbralo."
+    },
+    {
+      "id": "AB-3", "tema": "Transversal · Miedo", "tier_min": 1, "opcional": true,
+      "texto": "¿De qué tienes miedo que pase, con el dinero, si no cambias nada?",
+      "hint": "El escenario que prefieres no mirar."
+    },
+    {
+      "id": "AB-4", "tema": "C2 · Libertad", "tier_min": 2, "opcional": true,
+      "texto": "Si el dinero no fuera un problema, ¿cómo serían tus días dentro de cinco años?",
+      "hint": "Descríbelo en presente, como si ya estuviera pasando."
+    },
+    {
+      "id": "AB-5", "tema": "C1/C9 · Guion heredado", "tier_min": 2, "opcional": true,
+      "texto": "¿Qué relación tuvieron tus padres con el dinero, y cuánto se parece a la tuya?",
+      "hint": "El guion que aprendiste antes de poder elegirlo."
+    },
+    {
+      "id": "AB-6", "tema": "C3/C8 · Resiliencia", "tier_min": 2, "opcional": true,
+      "texto": "¿Qué es lo peor que crees que podría pasarte económicamente, y qué harías?",
+      "hint": "Tu peor escenario, y tu plan real ante él."
+    },
+    {
+      "id": "AB-7", "tema": "Pareja · Percepción del otro", "tier_min": 3, "opcional": true, "solo_pareja": true,
+      "texto": "¿Cuál crees que es el mayor miedo financiero de tu pareja?",
+      "hint": "Lo que tú intuyes, aunque no lo hayáis hablado."
+    },
+    {
+      "id": "AB-8", "tema": "Pareja · Conversación evitada", "tier_min": 3, "opcional": true, "solo_pareja": true,
+      "texto": "¿Qué conversación sobre dinero llevas tiempo evitando tener con tu pareja?",
+      "hint": "La que sabes que toca, y aplazas."
+    }
+  ]
+}

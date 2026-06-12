@@ -33,7 +33,8 @@ def init_db():
         cols = [r["name"] for r in c.execute("PRAGMA table_info(sesiones)")]
         for col, ddl in [("nombre","TEXT"),("pareja_de","TEXT"),("consentimiento","INTEGER"),
                          ("consent_fecha","TEXT"),("consent_version","TEXT"),("notificado","INTEGER"),
-                         ("salud","REAL"),("sexo","TEXT"),("pagado","INTEGER")]:
+                         ("salud","REAL"),("sexo","TEXT"),("pagado","INTEGER"),
+                         ("abiertas","TEXT"),("sintesis","TEXT")]:
             if col not in cols:
                 c.execute("ALTER TABLE sesiones ADD COLUMN %s %s" % (col, ddl))
 init_db()
@@ -51,6 +52,7 @@ class CompletePayload(BaseModel):
     respuestas: Dict[str, int] = {}
     datos: Optional[Dict[str, float]] = None
     pareja_de: Optional[str] = None
+    abiertas: Optional[Dict[str, str]] = {}
 
 class BorrarPayload(BaseModel):
     email: str
@@ -87,6 +89,37 @@ def items_para_tier(tier):
     arq = [adaptar_arq(it) for it in rb.INST.get("arquetipo", [])] if tier in (2, 3) else []
     return seeds + out + arq
 
+def _banco_abiertas():
+    try:
+        p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "banco_abiertas.json")
+        return json.load(open(p, encoding="utf-8"))
+    except Exception:
+        return {"config_tier": {}, "abiertas": []}
+
+def abiertas_para_tier(tier):
+    b = _banco_abiertas()
+    n = int(b.get("config_tier", {}).get(str(tier), 0))
+    out = [a for a in b.get("abiertas", []) if a.get("tier_min", 1) <= tier]
+    return out[:n] if n else []
+
+def _retrato_individual(session_id, respuestas, abiertas, sexo=None, email=None, nombre=None):
+    """Calcula el retrato narrativo con IA. Devuelve str o None. Nunca lanza excepcion."""
+    try:
+        if not abiertas or not any(str(v).strip() for v in abiertas.values()):
+            return None
+        import ai_sintesis
+        qmap = {a["id"]: a["texto"] for a in _banco_abiertas().get("abiertas", [])}
+        ab = {qmap.get(k, k): v for k, v in abiertas.items() if str(v).strip()}
+        p, tr, salud = rb.perfil(respuestas)
+        focos = [rb.CAPAS[c]["nombre"] for c in sorted(rb.CAPAS, key=lambda c: p[c]["score"], reverse=True)[:3]]
+        arq = rb.arquetipo(respuestas)[0]
+        arqn = rb.ARQ_META[arq]["nombre"] if arq and arq in rb.ARQ_META else None
+        ctx = {"salud": round(salud), "focos": focos, "arquetipo": arqn}
+        s = ai_sintesis.sintetizar_individual(ab, ctx)
+        return s.get("retrato") if s else None
+    except Exception:
+        return None
+
 def datos_completos(d):
     d = dict(d or {})
     d.setdefault("gasto_mensual", 2000); d.setdefault("ingreso_mensual", 3000)
@@ -122,10 +155,18 @@ def _cli(email, nombre=None, sexo=None):
     return {"nombre": nom, "email": email or "", "sexo": sexo or "",
             "fecha": datetime.datetime.now().strftime("%d/%m/%Y")}
 
-def generar_pdf(sid, email, nombre, respuestas, datos, tier, bar=None, sexo=None):
+def generar_pdf(sid, email, nombre, respuestas, datos, tier, bar=None, sexo=None, sintesis=None):
+    if sintesis is None:
+        try:
+            with db() as c:
+                r = c.execute("SELECT sintesis FROM sesiones WHERE id=?", (sid,)).fetchone()
+            if r and r["sintesis"]:
+                sintesis = r["sintesis"]
+        except Exception:
+            pass
     out = os.path.join(REPORTS_DIR, "itap_%s.pdf" % sid)
     rb.build_book(respuestas, datos_completos(datos), _cli(email, nombre, sexo), out,
-                  depth=TIER_DEPTH.get(tier, "completo"), baremo=bar)
+                  depth=TIER_DEPTH.get(tier, "completo"), baremo=bar, sintesis=sintesis)
     return out
 
 def generar_couple(out, arow, brow):
@@ -140,7 +181,7 @@ def health():
 @app.get("/api/questions/{tier}")
 def questions(tier: int):
     items = items_para_tier(tier)
-    return {"questions": items, "total_preguntas": len(items)}
+    return {"questions": items, "total_preguntas": len(items), "abiertas": abiertas_para_tier(tier)}
 
 @app.post("/api/start")
 def start(payload: StartPayload):
@@ -175,8 +216,9 @@ def complete(payload: CompletePayload):
     tier = row["tier"]
     datos = datos_completos(payload.datos)
     with db() as c:
-        c.execute("UPDATE sesiones SET respuestas=?, datos=?, email=?, pareja_de=? WHERE id=?",
-                  (json.dumps(payload.respuestas), json.dumps(datos), email, payload.pareja_de, payload.session_id))
+        c.execute("UPDATE sesiones SET respuestas=?, datos=?, email=?, pareja_de=?, abiertas=? WHERE id=?",
+                  (json.dumps(payload.respuestas), json.dumps(datos), email, payload.pareja_de,
+                   json.dumps(payload.abiertas or {}), payload.session_id))
     if tier == 3:
         if not payload.pareja_de:
             return {"ok": True, "needs_partner": True, "codigo": payload.session_id}
@@ -193,8 +235,15 @@ def complete(payload: CompletePayload):
         return {"ok": True, "es_pareja": True, "report_url": "/api/report/%s" % payload.session_id}
     salud = _guardar_salud(payload.session_id, payload.respuestas)
     bar = baremo(salud)
+    retrato = _retrato_individual(payload.session_id, payload.respuestas, payload.abiertas, row["sexo"], email, nombre)
+    if retrato:
+        try:
+            with db() as c:
+                c.execute("UPDATE sesiones SET sintesis=? WHERE id=?", (retrato, payload.session_id))
+        except Exception:
+            pass
     try:
-        generar_pdf(payload.session_id, email, nombre, payload.respuestas, datos, tier, bar, row["sexo"])
+        generar_pdf(payload.session_id, email, nombre, payload.respuestas, datos, tier, bar, row["sexo"], sintesis=retrato)
     except Exception as e:
         raise HTTPException(500, "Error generando informe: %s" % e)
     return {"ok": True, "report_url": "/api/report/%s" % payload.session_id}

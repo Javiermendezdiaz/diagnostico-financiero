@@ -115,7 +115,7 @@ const NUM_MAP = { "C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro
 const params = new URLSearchParams(location.search);
 const PAREJA_DE = params.get('pareja');
 const TIER_PARAM = params.get('tier');
-let st = { email:"", nombre:"", tier:2, sessionId:null, preguntas:[], respuestas:{}, datos:{}, i:0, reportUrl:null, codigo:null };
+let st = { email:"", nombre:"", tier:2, sessionId:null, preguntas:[], respuestas:{}, respuestasAbiertas:{}, datos:{}, i:0, reportUrl:null, codigo:null };
 
 if (PAREJA_DE) {
 document.getElementById('banner-pareja').style.display='block';
@@ -141,6 +141,7 @@ const r = await fetch(`${API_URL}/api/start`,{method:'POST',headers:{'Content-Ty
 st.sessionId = (await r.json()).session_id;
 const q = await (await fetch(`${API_URL}/api/questions/${st.tier}`)).json();
 st.preguntas = q.questions || [];
+(q.abiertas||[]).forEach(a=>st.preguntas.push({id:a.id,pregunta:a.texto,tipo:'abierta',hint:a.hint||''}));
 if(!st.preguntas.length) throw new Error('sin preguntas');
 localStorage.setItem('itap', JSON.stringify({sessionId:st.sessionId,email:st.email,tier:st.tier}));
 st.i = 0; paso('step-cuestionario'); pintar();
@@ -160,6 +161,14 @@ const inp = document.createElement('input'); inp.type='number'; inp.id='num'; in
 inp.value = st.datos[NUM_MAP[p.id]] ?? '';
 cont.appendChild(inp);
 const u = document.createElement('div'); u.className='unidad'; u.textContent = p.unidad?('Unidad: '+p.unidad):''; cont.appendChild(u);
+} else if(p.tipo === 'abierta'){
+btnNum.style.display='block';
+const ta = document.createElement('textarea'); ta.id='abierta'; ta.rows=4;
+ta.placeholder = p.hint || 'Una frase basta. Puedes saltarla.';
+ta.style.cssText = 'width:100%;padding:12px;border-radius:10px;border:1px solid #e4e1d5;font-size:15px;font-family:inherit;box-sizing:border-box;';
+ta.value = st.respuestasAbiertas[p.id] || '';
+cont.appendChild(ta);
+const u2 = document.createElement('div'); u2.className='unidad'; u2.textContent='Opcional · puedes saltarla'; cont.appendChild(u2);
 } else {
 btnNum.style.display='none';
 (p.opciones||[]).forEach((op,idx)=>{
@@ -181,6 +190,9 @@ if(p.tipo === 'numerica'){
 const v = document.getElementById('num').value;
 if(v===''){ alert('Introduce un número'); return; }
 st.datos[NUM_MAP[p.id]] = parseFloat(v);
+} else if(p.tipo === 'abierta'){
+const ta = document.getElementById('abierta');
+if(ta && ta.value.trim()) st.respuestasAbiertas[p.id] = ta.value.trim();
 }
 st.i++;
 while(st.i < st.preguntas.length && !_activa(st.preguntas[st.i])) st.i++;
@@ -190,7 +202,7 @@ if(st.i < st.preguntas.length) pintar(); else finalizar();
 async function finalizar(){
 paso('step-generando');
 try{
-const body = {session_id:st.sessionId,email:st.email,respuestas:st.respuestas,datos:st.datos};
+const body = {session_id:st.sessionId,email:st.email,respuestas:st.respuestas,datos:st.datos,abiertas:st.respuestasAbiertas};
 if(PAREJA_DE) body.pareja_de = PAREJA_DE;
 const r = await fetch(`${API_URL}/api/complete`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
 if(r.status===409){ alert('Tu pareja todavía no ha terminado su cuestionario. Inténtalo cuando haya acabado.'); paso('step-registro'); return; }

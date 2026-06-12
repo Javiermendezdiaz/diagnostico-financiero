@@ -1,8 +1,10 @@
-fastapi
-uvicorn[standard]
+﻿fastapi
+uvicorn
+sqlalchemy
+python-dotenv
 pydantic
 reportlab
 matplotlib
-numpy
-python-dotenv
 stripe
+aiohttp
+anthropic

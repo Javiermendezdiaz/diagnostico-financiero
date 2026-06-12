@@ -674,7 +674,7 @@ def citas_capa(code, resp, k=2, min_score=50):
     out.sort(key=lambda x:-x[0])
     return out[:k]
 
-def build(cli,resp,datos,out,depth="completo",baremo=None):
+def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None):
     p,tr,salud=perfil(resp); fi=fi_metrics(datos); radar_png(p,"_radar.png")
     _cohorte=cohorte_txt(cli,datos)
     if baremo and baremo.get("pct") is not None:
@@ -850,6 +850,15 @@ def build(cli,resp,datos,out,depth="completo",baremo=None):
         S+=[Paragraph(f"<font color='#0284C7'>&#8226;</font>  <b>{ti}</b>",body),
             Paragraph(tx,St("ix",fontSize=9.6,leading=14,leftIndent=12,spaceAfter=9))]
     S+=[PageBreak()]
+    # retrato en tus palabras (sintesis IA de las preguntas abiertas)
+    if sintesis and str(sintesis).strip():
+        S+=[Paragraph("Tu retrato, en tus palabras",h_sec),
+            Paragraph("Esta lectura nace de lo que tú mismo escribiste en tus respuestas abiertas, cruzado con lo que dicen tus números.",small),
+            Spacer(1,2*mm)]
+        for _par in [x for x in str(sintesis).replace("\r","").split("\n") if x.strip()]:
+            _e=_par.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+            S.append(Paragraph(_e,body))
+        S+=[PageBreak()]
     # plan
     S+=[Paragraph("Tu plan de acción",h_sec),
         Paragraph("Ordenado por impacto: si solo pudieras mover una palanca esta semana, empieza por la primera.",body)]
@@ -971,7 +980,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None):
                           title="Tu Libro Financiero — ITAP")
     doc.build(S,onFirstPage=deco,onLaterPages=deco); print("PDF OK ->",out)
 
-def build_book(resp, datos, cli, outpath, depth="completo", baremo=None):
+def build_book(resp, datos, cli, outpath, depth="completo", baremo=None, sintesis=None):
     """API entrypoint: genera el libro PDF en outpath."""
-    build(cli, resp, datos, outpath, depth, baremo)
+    build(cli, resp, datos, outpath, depth, baremo, sintesis=sintesis)
     return outpath
