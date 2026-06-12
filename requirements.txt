@@ -5,6 +5,7 @@ python-dotenv
 pydantic
 reportlab
 matplotlib
+numpy
 stripe
 aiohttp
-anthropic
+anth

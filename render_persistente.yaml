@@ -1,0 +1,22 @@
+# Configuración de Render CON persistencia durable.
+# Para activarla: en Render, sube el servicio a un plan de pago (Starter, ~7 $/mes),
+# añade un disco y la variable de entorno. Puedes pegar este bloque como render.yaml
+# (Blueprint) o configurarlo a mano en el panel. El código ya soporta ITAP_DATA_DIR
+# de forma retrocompatible: si la variable no existe, sigue funcionando (efímero).
+services:
+  - type: web
+    name: diagnostico-financiero
+    env: python
+    plan: starter              # de "free" a "starter" (de pago) — requerido para tener disco
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app:app --host 0.0.0.0 --port $PORT"
+    disk:
+      name: itap-data
+      mountPath: /var/data     # disco persistente: sobrevive a redespliegues y reinicios
+      sizeGB: 1
+    envVars:
+      - key: ITAP_DATA_DIR
+        value: /var/data       # la base de datos y los PDF se guardan aquí, de forma durable
+      # Recuerda mantener también, ya configuradas en el panel:
+      #   ANTHROPIC_API_KEY, ITAP_AI_MODEL, STRIPE_WEBHOOK_SECRET, RESEND_API_KEY, RESEND_FROM
+      #   (opcional) FUNNEL_KEY  -> si la defines, protege /api/funnel
