@@ -69,7 +69,13 @@
        "score": 100
       }
      ],
-     "tier1": true
+     "tier1": true,
+     "mostrar_si": {
+      "campo": "invierte",
+      "valor_not_in": [
+       "No, nada invertido"
+      ]
+     }
     },
     {
      "id": "C1-02",
@@ -578,6 +584,12 @@
      "activa_si": {
       "capa": "C2",
       "min_score": 35
+     },
+     "mostrar_si": {
+      "campo": "invierte",
+      "valor_not_in": [
+       "No, nada invertido"
+      ]
      }
     },
     {
@@ -605,6 +617,12 @@
      "activa_si": {
       "capa": "C2",
       "min_score": 35
+     },
+     "mostrar_si": {
+      "campo": "invierte",
+      "valor_not_in": [
+       "No, nada invertido"
+      ]
      }
     },
     {
@@ -709,6 +727,12 @@
      "activa_si": {
       "capa": "C2",
       "min_score": 35
+     },
+     "mostrar_si": {
+      "campo": "invierte",
+      "valor_not_in": [
+       "No, nada invertido"
+      ]
      }
     },
     {
@@ -735,6 +759,12 @@
      "activa_si": {
       "capa": "C2",
       "min_score": 35
+     },
+     "mostrar_si": {
+      "campo": "invierte",
+      "valor_not_in": [
+       "No, nada invertido"
+      ]
      }
     },
     {
@@ -3107,6 +3137,18 @@
     "Tengo empresa propia (SL u otra)",
     "Rentista, jubilado o vivo de mi patrimonio",
     "Mezcla de varias"
+   ]
+  },
+  {
+   "id": "SD-7",
+   "tipo": "opcion",
+   "campo": "invierte",
+   "texto": "¿Tienes parte de tu dinero invertido (fondos, acciones, inmuebles en alquiler, criptomonedas…)?",
+   "ayuda": "Nos dice si tiene sentido preguntarte por mercados y carteras.",
+   "opciones": [
+    "No, nada invertido",
+    "Sí, una parte",
+    "Sí, una parte importante de mi patrimonio"
    ]
   },
   {
