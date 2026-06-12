@@ -3222,6 +3222,19 @@
    ]
   },
   {
+   "id": "SD-11",
+   "tipo": "opcion",
+   "campo": "conciliacion",
+   "texto": "¿Cómo está afectando tu situación financiera y laboral a tu conciliación familiar?",
+   "ayuda": "Para quien tiene familia, el dinero compra sobre todo una cosa: tiempo y tranquilidad para los suyos.",
+   "opciones": [
+    "Presencia física, ausencia mental: estoy con ellos pero mi cabeza sigue en el trabajo; me cuesta desconectar",
+    "Ausencia total: trabajo tantas horas que me pierdo momentos clave con mis hijos o mi pareja",
+    "Equilibrio: separo el dinero y el trabajo de mi vida familiar; ese tiempo es sagrado"
+   ],
+   "mostrar_si": {"campo": "dependientes", "valor_not_in": ["No, de nadie"]}
+  },
+  {
    "id": "SEED-DEUDA",
    "tipo": "opcion",
    "campo": "deuda",

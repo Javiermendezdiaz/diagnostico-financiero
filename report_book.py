@@ -734,7 +734,7 @@ def seccion_extras(extras):
         for ti,tx in con:
             out.append(Paragraph(f"<font color='#B91C1C'>&#9656;</font>  <b>{ti}</b>",St("cot",fontSize=10.5,leading=14,spaceBefore=5)))
             out.append(Paragraph(tx,St("cox",fontSize=9.7,leading=14,leftIndent=12,spaceAfter=3)))
-    for blk in (extras.get("energia"), extras.get("asesor"), extras.get("herencia")):
+    for blk in (extras.get("energia"), extras.get("conciliacion"), extras.get("asesor"), extras.get("herencia")):
         if blk:
             ti,tx=blk
             out+=[Spacer(1,4*mm), Paragraph(ti,h_sub),

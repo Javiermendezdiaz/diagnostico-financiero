@@ -247,6 +247,16 @@ def calcular_energia(perfil_in):
         return ("Tu energía y tu tiempo: tienes el tiempo, no la calma","No disfrutas de desconectar porque no confías en tu estructura: cuando no miras los números, asumes que se desmoronan. La solución no es vigilar más, es un cuadro de mando que te deje cerrar el portátil sabiendo, con certeza, que todo sigue en su sitio. La tranquilidad se construye con sistema, no con vigilancia.")
     return None
 
+def calcular_conciliacion(perfil_in):
+    c=(perfil_in or {}).get("conciliacion","") or ""; cl=c.lower()
+    if "ausencia mental" in cl:
+        return ("Tu conciliación: presente de cuerpo, ausente de cabeza","Caes en el error del proveedor absoluto: crees que cumplir con el dinero justifica estar ausente con la cabeza. Cenar con tus hijos mientras revisas el correo o le das vueltas a un problema de dinero es el peor de los dos mundos: ni produces ni generas recuerdos. Tu desorden de sistema no te cuesta solo euros — te cuesta presencia. Un primer paso medible: bloquea una tarde esta semana, sin móvil de trabajo.")
+    if "ausencia total" in cl:
+        return ("Tu conciliación: en números rojos donde más duele","Estás cambiando los años que no vuelven por apagar fuegos que un buen sistema resolvería sin ti. Tu negocio debería trabajar para tu familia, no tu familia pagar el precio de tu negocio. La prioridad de tu plan no es facturar más: es recuperar horas para los tuyos, porque ese es el patrimonio que no se reconstruye.")
+    if "equilibrio" in cl:
+        return ("Tu conciliación: has blindado lo importante","Has protegido lo que de verdad importa. Este informe no toca ese equilibrio: se enfoca en optimizar tus ingresos y proteger tu patrimonio —fiscalidad, herencia— para que ese espacio que has construido con tu familia no lo amenace nunca un imprevisto financiero.")
+    return None
+
 def calcular_herencia(perfil_in):
     h=(perfil_in or {}).get("herencia","") or ""; hl=h.lower()
     if hl.startswith("no") or "solo de mis ingresos" in hl: return None
@@ -265,6 +275,7 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "palancas": calcular_palancas(datos, p, perfil_in, resp),
         "contradicciones": calcular_contradicciones(datos, resp, perfil_in, p),
         "energia": calcular_energia(perfil_in),
+        "conciliacion": calcular_conciliacion(perfil_in),
         "asesor": calcular_asesor(perfil_in),
         "herencia": calcular_herencia(perfil_in),
         "arq_code": arq_desde_perfil(perfil_in),
