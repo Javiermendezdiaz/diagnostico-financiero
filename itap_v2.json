@@ -476,6 +476,7 @@
    ],
    "facetas": {
     "numero_fi": "Numero fi",
+    "coste_inversion": "Coste de tu inversión",
     "inversion": "Inversion",
     "plan": "Plan",
     "expectativa_rentab": "Expectativa rentab",
@@ -825,6 +826,21 @@
       "capa": "C2",
       "min_score": 35
      }
+    },
+    {
+     "id": "C2-14",
+     "faceta": "coste_inversion",
+     "tipo": "escala",
+     "dimensiones": "LIQUIDEZ",
+     "texto": "De lo que tienes invertido, ¿sabes cuánto pagas al año en comisiones?",
+     "nivel": "nucleo",
+     "opciones": [
+      {"texto": "Sí, y son bajas: en torno al 0,5% anual o menos.", "score": 0},
+      {"texto": "Más o menos; rondan el 1-1,5% anual.", "score": 50},
+      {"texto": "No lo sé, o está en el banco de siempre (probablemente altas).", "score": 100}
+     ],
+     "ayuda": "Un 1,5% anual de comisiones puede comerse un tercio de tu rentabilidad a largo plazo.",
+     "mostrar_si": {"campo": "invierte", "valor_not_in": ["No, nada invertido"]}
     }
    ],
    "cribadores": [
@@ -2798,7 +2814,8 @@
     "palanca_ingresos": "Palanca ingresos",
     "palanca_rentabilidad": "Palanca rentabilidad",
     "palanca_tecnologia": "Palanca tecnologia",
-    "palanca_entorno": "Palanca entorno"
+    "palanca_entorno": "Palanca entorno",
+    "liquidez_sociedad": "Liquidez en sociedad"
    },
    "items": [
     {
@@ -3069,6 +3086,21 @@
       "capa": "C11",
       "min_score": 35
      }
+    },
+    {
+     "id": "C11-11",
+     "faceta": "liquidez_sociedad",
+     "tipo": "escala",
+     "dimensiones": "LIQUIDEZ",
+     "texto": "El dinero que genera tu empresa, ¿llega a tu patrimonio personal o se queda atrapado dentro de la sociedad?",
+     "nivel": "nucleo",
+     "opciones": [
+      {"texto": "Tengo una estrategia clara para sacarlo de forma fiscalmente eficiente.", "score": 0},
+      {"texto": "Voy sacando lo justo para vivir, sin un plan pensado.", "score": 50},
+      {"texto": "Se acumula dentro y no sé cómo sacarlo sin un buen palo fiscal.", "score": 100}
+     ],
+     "ayuda": "Mucho patrimonio de empresarios vive secuestrado en su propia sociedad, sin trabajar ni dar tranquilidad.",
+     "mostrar_si": {"campo": "perfil_laboral", "valor_in": ["Tengo empresa propia (SL u otra)", "Mezcla de varias"]}
     }
    ],
    "cribadores": [
@@ -3149,6 +3181,44 @@
     "No, nada invertido",
     "Sí, una parte",
     "Sí, una parte importante de mi patrimonio"
+   ]
+  },
+  {
+   "id": "SD-8",
+   "tipo": "opcion",
+   "campo": "asesor",
+   "texto": "¿Cómo es el respaldo de tu asesoría o gestoría en tus decisiones estratégicas?",
+   "ayuda": "No es lo mismo tener quien te lleva los impuestos que quien te ayuda a decidir.",
+   "opciones": [
+    "No tengo asesor: lo gestiono todo yo",
+    "Tengo asesor, pero solo para papeleo e impuestos",
+    "Tengo un asesor de confianza con el que decido la estrategia"
+   ]
+  },
+  {
+   "id": "SD-10",
+   "tipo": "opcion",
+   "campo": "energia",
+   "texto": "¿Cómo es hoy tu relación entre el trabajo y el tiempo libre?",
+   "ayuda": "El dinero no es solo cuánto ganas, es a qué precio de energía y vida lo ganas.",
+   "opciones": [
+    "Amo lo que hago, pero opero por inercia: si no estoy encima, todo se frena (me falta sistema, no ganas)",
+    "Estoy quemado: demasiadas horas en tareas que odio, sin tiempo libre real para mi vida o mi familia",
+    "Tengo tiempo libre, pero no lo disfruto: desconectar me da culpa o miedo de que algo se tuerza",
+    "Tengo un sistema que funciona sin mí y desconecto sin culpa"
+   ],
+   "mostrar_si": {"campo": "perfil_laboral", "valor_not_in": ["Rentista, jubilado o vivo de mi patrimonio"]}
+  },
+  {
+   "id": "SD-9",
+   "tipo": "opcion",
+   "campo": "herencia",
+   "texto": "¿Prevés recibir alguna inyección de capital extraordinario a medio/largo plazo (herencia, venta de patrimonio familiar…)?",
+   "ayuda": "Cambia tu horizonte y tu planificación fiscal; conviene mirarlo con tacto y antelación.",
+   "opciones": [
+    "No: lo que construya dependerá solo de mis ingresos y activos actuales",
+    "Sí, probable, pero prefiero no contar con ello en mi planificación",
+    "Sí, y cuento con ese patrimonio como un pilar para mi tranquilidad o retiro"
    ]
   },
   {
@@ -3250,6 +3320,14 @@
    "unidad": "€",
    "texto": "¿Cuál es tu patrimonio neto aproximado?",
    "ayuda": "Patrimonio neto = todo lo que tienes menos todo lo que debes."
+  },
+  {
+   "id": "NUM-5",
+   "campo": "horas_semana",
+   "unidad": "horas/semana",
+   "texto": "¿Cuántas horas reales dedicas a la semana a generar tus ingresos (todo incluido)?",
+   "ayuda": "Con esto y tu ingreso calculamos lo que vale de verdad tu hora.",
+   "mostrar_si": {"campo": "perfil_laboral", "valor_not_in": ["Rentista, jubilado o vivo de mi patrimonio"]}
   }
  ],
  "seeds": [

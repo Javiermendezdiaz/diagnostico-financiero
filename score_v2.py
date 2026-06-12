@@ -101,7 +101,7 @@ def calcular_brecha(datos, resp, perfil_in):
     return base_out
 
 
-def calcular_palancas(datos, p, perfil_in):
+def calcular_palancas(datos, p, perfil_in, resp=None):
     """Palancas ofensivas, todas derivadas de datos reales. Devuelve lista de (titulo, texto)."""
     ingreso = _num(datos, "ingreso_mensual")
     gasto = _num(datos, "gasto_mensual")
@@ -146,6 +146,26 @@ def calcular_palancas(datos, p, perfil_in):
         out.append(("Tu motor de ingresos depende de una sola pieza",
                     "Tu mayor riesgo —y a la vez tu mayor palanca— es que casi todo tu ingreso viene de una sola "
                     "fuente. Diversificarlo no solo te protege: abre la vía de crecimiento que hoy no existe."))
+
+    horas = _num(datos, "horas_semana")
+    if horas and ingreso:
+        ph = ingreso / (horas * 4.33)
+        if ph < 25 and horas >= 40:
+            out.append(("Tu hora vale menos de lo que crees",
+                        "Dedicas unas %.0f horas a la semana para ingresar %s al mes: tu hora sale a unos %s. A ese "
+                        "precio, la palanca no es meter más horas — es subir el valor de cada una: precio, "
+                        "posicionamiento o delegar lo que no rinde." % (horas, _eur(ingreso), _eur(ph))))
+    if resp and resp.get("C11-11") == 2:
+        out.append(("Tienes patrimonio secuestrado en tu sociedad",
+                    "El dinero que genera tu empresa se queda dentro sin un plan para llegar a tu patrimonio personal. "
+                    "Es capital tuyo que ni trabaja para ti ni te da tranquilidad: ordenar la salida —vía dividendos, "
+                    "nómina o estructura, con criterio fiscal— es de las palancas más rentables que tienes."))
+    if resp and resp.get("C2-14") == 2 and patrimonio >= 10000:
+        coste = patrimonio * 0.015
+        out.append(("Tus comisiones te comen la rentabilidad en silencio",
+                    "No saber qué pagas casi siempre significa pagar de más. Sobre tu patrimonio, una comisión típica "
+                    "de banco (~1,5%%) son unos %s al año — y a 20 años, por interés compuesto, puede costarte cerca "
+                    "de un tercio de lo que habrías acumulado. Saber el dato y bajarlo es rentabilidad garantizada." % _eur(coste)))
 
     if not out:
         out.append(("Tu base permite pasar a la ofensiva",
@@ -205,14 +225,48 @@ def calcular_contradicciones(datos, resp, perfil_in, p):
     return out
 
 
+def calcular_asesor(perfil_in):
+    a=(perfil_in or {}).get("asesor","") or ""
+    if not a: return None
+    al=a.lower()
+    if "no tengo" in al:
+        return ("Tu cobertura asesora: vas sin red","Lo llevas todo tú: tiene mérito y te da control, pero también un punto ciego estructural. Nadie audita tus decisiones con ojos externos, y los sesgos propios no se ven desde dentro. Tu mayor coste no son los impuestos: es decidir sin un sistema que valide la jugada antes de moverla.")
+    if "papeleo" in al or "impuestos" in al:
+        return ("Tu cobertura asesora: gestoría, no estrategia","Tienes una gestoría, no un estratega. Cumplir con Hacienda es obligatorio, pero no hace crecer tu patrimonio. Que sientas que vas a ciegas teniendo asesor es la señal: pagas por estar en regla, no por claridad sobre a dónde vas. Son dos servicios distintos, y el segundo es el que mueve la aguja.")
+    if "confianza" in al:
+        return ("Tu cobertura asesora: un activo que conviene exprimir","Tener un asesor de confianza es un activo enorme; no lo sueltes. Este informe no compite con él: te da munición. Lleva a tu próxima reunión las métricas y preguntas que este diagnóstico ha destapado —tu brecha, tus palancas, tus puntos ciegos— y conviértelas en una conversación de estrategia, no de papeleo.")
+    return None
+
+def calcular_energia(perfil_in):
+    e=(perfil_in or {}).get("energia","") or ""; el=e.lower()
+    if "opero por inercia" in el or "me falta sistema" in el:
+        return ("Tu energía y tu tiempo: apasionado, pero atado","Disfrutar de tu trabajo es tu mayor activo, pero lo has convertido en tu prisión. Si tu presencia es obligatoria para que entre el dinero, no tienes un negocio ni un sistema patrimonial: tienes un trabajo muy bien pagado. El objetivo no es que trabajes menos, es que pases de operar a dirigir.")
+    if "quemado" in el:
+        return ("Tu energía y tu tiempo: en zona de agotamiento","Tu falta de tiempo libre no es un problema de agenda, es de diseño: cada hora apagando fuegos operativos es una hora que le robas a la estrategia — y eso se paga caro. La prioridad no es aguantar más, es soltar y delegar lo que te quema, para que tu negocio deje de depender de tu desgaste.")
+    if "no lo disfruto" in el or "desconectar me da culpa" in el:
+        return ("Tu energía y tu tiempo: tienes el tiempo, no la calma","No disfrutas de desconectar porque no confías en tu estructura: cuando no miras los números, asumes que se desmoronan. La solución no es vigilar más, es un cuadro de mando que te deje cerrar el portátil sabiendo, con certeza, que todo sigue en su sitio. La tranquilidad se construye con sistema, no con vigilancia.")
+    return None
+
+def calcular_herencia(perfil_in):
+    h=(perfil_in or {}).get("herencia","") or ""; hl=h.lower()
+    if hl.startswith("no") or "solo de mis ingresos" in hl: return None
+    if "prefiero no contar" in hl or "probable" in hl:
+        return ("Tu herencia futura: prudente no depender, caro no planificar","Haces bien en no construir tu plan sobre una herencia. Pero «ignorarla» tiene un coste oculto: una sucesión sin preparar puede dejar, según tu comunidad autónoma y el parentesco, desde casi nada hasta una mordida muy seria. No depender de ella es sano; no planificarla es lo caro. Son cosas distintas.")
+    if "pilar" in hl or "cuento con" in hl:
+        return ("Tu herencia futura: si es un pilar, blíndalo hoy","Cuentas con ese patrimonio futuro como pilar — razón de más para protegerlo antes de tiempo. La sucesión es de las pocas cosas que se deciden ANTES o se pagan caro DESPUÉS: según tu comunidad autónoma y el parentesco, la diferencia entre planificar y no hacerlo puede ser enorme. Anticiparlo es proteger el esfuerzo de quien te lo deja.")
+    return None
+
 def computar_extras(resp, datos, perfil_in, inst=None):
     """Punto de entrada unico. Devuelve dict listo para report_book + arq_code."""
     inst = inst or cargar_inst()
     p = perfil_scores(resp, inst["capas"])
     return {
         "brecha": calcular_brecha(datos, resp, perfil_in),
-        "palancas": calcular_palancas(datos, p, perfil_in),
+        "palancas": calcular_palancas(datos, p, perfil_in, resp),
         "contradicciones": calcular_contradicciones(datos, resp, perfil_in, p),
+        "energia": calcular_energia(perfil_in),
+        "asesor": calcular_asesor(perfil_in),
+        "herencia": calcular_herencia(perfil_in),
         "arq_code": arq_desde_perfil(perfil_in),
         "_p": p,
     }

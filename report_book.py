@@ -440,7 +440,7 @@ def cashflow_waterfall(datos, path):
     return libre
 
 def proyeccion_chart(datos, path, r=0.05):
-    edad=int(datos.get("edad",40)); meta_edad=65
+    edad=int(datos.get("edad",40)); meta_edad=max(65, edad+5)
     anos=max(meta_edad-edad,1)
     pat=datos.get("patrimonio",0); aho=datos.get("ahorro_mensual",0)*12
     import matplotlib.pyplot as plt
@@ -734,6 +734,11 @@ def seccion_extras(extras):
         for ti,tx in con:
             out.append(Paragraph(f"<font color='#B91C1C'>&#9656;</font>  <b>{ti}</b>",St("cot",fontSize=10.5,leading=14,spaceBefore=5)))
             out.append(Paragraph(tx,St("cox",fontSize=9.7,leading=14,leftIndent=12,spaceAfter=3)))
+    for blk in (extras.get("energia"), extras.get("asesor"), extras.get("herencia")):
+        if blk:
+            ti,tx=blk
+            out+=[Spacer(1,4*mm), Paragraph(ti,h_sub),
+                  Paragraph(tx,St("axh",fontSize=10,leading=14,textColor=INK,backColor=LIGHT,borderPadding=9,spaceBefore=2))]
     return out
 
 def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=None,arq_override=None):
