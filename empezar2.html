@@ -46,9 +46,20 @@ a{color:var(--am)}
 .scan.on .ln{animation:sw 1.1s ease-in-out infinite}
 @keyframes sw{0%{transform:translateX(-55%);opacity:.2}50%{opacity:1}100%{transform:translateX(55%);opacity:.2}}
 .scan h4{font-size:15px;font-weight:700;text-align:center}.scan .vd{font-size:13px;text-align:center;margin-top:10px;line-height:1.45;font-weight:600}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:80;padding:20px}
+.modal.on{display:flex}
+.modal .box{background:var(--pa);border:1px solid var(--am);border-radius:16px;max-width:420px;padding:26px;text-align:center;animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h3{font-size:17px;font-weight:700;margin-bottom:10px}.modal p{color:var(--gr);font-size:14px;line-height:1.5;margin-bottom:18px}.modal b{color:var(--am)}
 </style></head>
 <body>
 <div class="toast" id="toast"></div>
+<div class="modal" id="modal"><div class="box">
+  <div style="font-size:30px;margin-bottom:6px">🛡️</div>
+  <h3>Estamos viendo puntos de tensión</h3>
+  <p id="modalP"></p>
+  <button class="btn" id="modalBtn">Continuar</button>
+</div></div>
 <div class="wrap"><div class="card">
 <div class="scan" id="scan"><h4 id="scanT">Analizando…</h4><div class="ln"></div><div class="vd" id="scanV"></div></div>
 <div class="head"><div class="logo">▲ <b>ADAPTA</b> <span style="color:var(--am);font-size:11px">family office</span></div>
@@ -95,7 +106,7 @@ a{color:var(--am)}
 const API="https://diagnostico-financiero-app.onrender.com";
 const PAREJA=new URLSearchParams(location.search).get('pareja');
 let INST=null, st={email:"",nombre:"",tier:2,sid:null,perfil:{},resp:{},datos:{},abiertas:{},
-   cola:[], i:0, tens:[], reportUrl:null};
+   cola:[], i:0, tens:[], reportUrl:null, abierta:new Set(), avisoEstres:false};
 
 async function iniciar(){
   st.nombre=nombre.value.trim(); st.email=email.value.trim(); st.tier=parseInt(tier.value);
@@ -135,12 +146,14 @@ function aplica(q){
   return true;
 }
 function abrirProfundizacion(cap){
+  if(st.abierta.has(cap)) return;          // CANDADO: abrir una sola vez por capa (evita bucle)
   const c=INST.capas.find(x=>x.code===cap); if(!c) return;
   const crib=c.items.filter(it=>it.nivel==='nucleo'&&st.resp[it.id]!=null);
   if(!crib.length) return;
   const mean=crib.reduce((a,it)=>a+it.opciones[st.resp[it.id]].score,0)/crib.length;
   const umbral=(INST.meta&&INST.meta.umbral_profundizacion)||35;
   if(mean<umbral) return;
+  st.abierta.add(cap);                     // marcar antes de insertar
   let ins=st.i+1;
   c.items.filter(it=>it.nivel==='profundizacion').forEach(it=>st.cola.splice(ins++,0,{...it,_b:c.nombre,_cap:cap}));
 }
@@ -240,6 +253,17 @@ function contNum(){
   }
   avanzar(q);
 }
+function capaMean(cap){
+  const c=INST.capas.find(x=>x.code===cap); if(!c) return 0;
+  const crib=c.items.filter(it=>it.nivel==='nucleo'&&st.resp[it.id]!=null);
+  if(!crib.length) return 0;
+  return crib.reduce((a,it)=>a+it.opciones[st.resp[it.id]].score,0)/crib.length;
+}
+function popupEstres(cb){
+  document.getElementById('modalP').innerHTML='Estamos detectando algunos focos de tensión importantes en tu perfil. Tranquilo: al terminar recibirás un <b>informe detallado con un plan de acción, paso a paso</b>, para resolver cada uno. Seguimos.';
+  const m=document.getElementById('modal'); m.classList.add('on');
+  document.getElementById('modalBtn').onclick=()=>{ m.classList.remove('on'); cb(); };
+}
 function avanzar(q){
   let scanCapa=null;
   if(q._cap && q._cap[0]==='C'){
@@ -251,7 +275,9 @@ function avanzar(q){
     }
   }
   st.i++;
-  if(scanCapa) escaner(scanCapa, pintar); else pintar();
+  const next=()=>{ if(scanCapa) escaner(scanCapa, pintar); else pintar(); };
+  if(scanCapa && !st.avisoEstres && capaMean(scanCapa)>=51){ st.avisoEstres=true; return popupEstres(next); }
+  next();
 }
 function atras(){ if(st.i<=0)return; st.i--; while(st.i>0 && !aplica(st.cola[st.i])) st.i--; pintar(); }
 
