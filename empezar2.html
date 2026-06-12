@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diagnóstico Psicofinanciero · Adapta Family Office</title>
+<style>
+:root{--am:#FDD731;--ng:#0a0a0b;--pa:#141417;--gr:#9ca3af;--bd:#26262b;--tx:#f4f4f5}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--ng);color:var(--tx);min-height:100vh;display:flex;justify-content:center;padding:20px}
+.wrap{width:100%;max-width:600px}
+.card{background:var(--pa);border:1px solid var(--bd);border-radius:18px;overflow:hidden}
+.head{text-align:center;padding:22px 22px 16px;border-bottom:2px solid var(--am)}
+.logo{font-weight:800;letter-spacing:.5px;font-size:20px}.logo b{color:var(--am)}
+.head p{color:var(--gr);font-size:13px;margin-top:6px}
+.body{padding:24px}
+.step{display:none}.step.active{display:block}
+.bar{height:7px;background:var(--bd);border-radius:99px;overflow:hidden;margin-bottom:8px}
+.bar>i{display:block;height:100%;background:var(--am);width:0;border-radius:99px;transition:width .35s ease}
+.kick{color:var(--am);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:14px 0 4px}
+.qnum{color:var(--gr);font-size:12px;margin-bottom:14px}
+.qtext{font-size:19px;font-weight:700;line-height:1.35;margin-bottom:6px}
+.ayuda{color:var(--gr);font-size:13px;line-height:1.4;margin-bottom:16px}
+.opt{display:block;width:100%;text-align:left;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);
+  padding:15px 16px;border-radius:12px;font-size:15px;font-weight:600;line-height:1.35;margin-bottom:11px;cursor:pointer;transition:.15s;font-family:inherit}
+.opt:hover{border-color:var(--am);background:#222227}
+input,select{width:100%;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);padding:14px;border-radius:12px;font-size:16px;font-family:inherit}
+textarea{width:100%;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);padding:13px;border-radius:12px;font-size:15px;font-family:inherit;resize:vertical}
+.lbl{font-size:13px;color:var(--gr);margin-bottom:7px}
+.btn{background:var(--am);color:#000;border:none;padding:14px 22px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;width:100%;margin-top:6px}
+.btn:disabled{opacity:.5}
+.back{background:none;border:none;color:var(--gr);font-size:13px;cursor:pointer;margin-top:14px;padding:4px;font-family:inherit}
+.spin{width:42px;height:42px;border:4px solid var(--bd);border-top-color:var(--am);border-radius:50%;animation:r 1s linear infinite;margin:30px auto}
+@keyframes r{to{transform:rotate(360deg)}}
+.center{text-align:center;padding:14px 0}
+.chk{display:flex;gap:10px;align-items:flex-start;margin:14px 0;font-size:13px;color:var(--gr)}
+.chk input{width:auto;margin-top:2px}
+a{color:var(--am)}
+</style></head>
+<body><div class="wrap"><div class="card">
+<div class="head"><div class="logo">▲ <b>ADAPTA</b> <span style="color:var(--am);font-size:11px">family office</span></div>
+<p>Diagnóstico psicofinanciero · adaptativo</p></div>
+<div class="body">
+
+<div id="s-reg" class="step active">
+  <div class="kick">Tu informe a medida</div>
+  <p style="font-size:15px;line-height:1.5;margin-bottom:18px">Un diagnóstico que <b>se adapta a ti</b>: si todo va bien, son pocas preguntas; si algo aprieta, profundiza justo ahí. 8-12 minutos.</p>
+  <div class="lbl">Tu nombre</div><input id="nombre" placeholder="Nombre">
+  <div class="lbl" style="margin-top:12px">Tu email</div><input id="email" type="email" placeholder="tu@email.com">
+  <div class="lbl" style="margin-top:12px">Tipo de diagnóstico</div>
+  <select id="tier"><option value="1">Diagnóstico Rápido · 19 €</option><option value="2" selected>Informe Avanzado · 39 €</option><option value="3">Análisis de Pareja · 54 €</option></select>
+  <label class="chk"><input type="checkbox" id="consent"><span>Acepto la <a href="privacidad.html" target="_blank">Política de Privacidad</a> y el tratamiento de mis datos.</span></label>
+  <button class="btn" onclick="iniciar()">Comenzar →</button>
+</div>
+
+<div id="s-load" class="step center"><div class="spin"></div><p style="color:var(--gr)">Preparando tu diagnóstico…</p></div>
+
+<div id="s-q" class="step">
+  <div class="bar"><i id="bar"></i></div>
+  <div class="qnum" id="bloque"></div>
+  <div class="qtext" id="qtext"></div>
+  <div class="ayuda" id="ayuda" style="display:none"></div>
+  <div id="opts"></div>
+  <button class="btn" id="cont" style="display:none" onclick="contNum()">Siguiente →</button>
+  <button class="back" id="atras" style="display:none" onclick="atras()">← Atrás</button>
+</div>
+
+<div id="s-gen" class="step center"><div class="spin"></div>
+  <p style="font-size:16px;font-weight:600;margin-bottom:6px">Analizando tu perfil…</p>
+  <p style="color:var(--gr);font-size:13px;line-height:1.5">Claude Opus está leyendo tu brecha y tus palancas y redactando tu manual de operaciones. Esto tarda unos segundos.</p></div>
+
+<div id="s-done" class="step center">
+  <div style="font-size:40px;margin:10px">✓</div>
+  <p style="font-size:17px;font-weight:700;margin-bottom:8px">Diagnóstico completado</p>
+  <p id="doneTxt" style="color:var(--gr);font-size:14px;line-height:1.5"></p>
+  <button class="btn" id="dl" style="display:none;margin-top:18px" onclick="descargar()">Descargar mi informe</button>
+</div>
+
+</div></div></div>
+<script>
+const API="https://diagnostico-financiero-app.onrender.com";
+const PAREJA=new URLSearchParams(location.search).get('pareja');
+let INST=null, st={email:"",nombre:"",tier:2,sid:null,perfil:{},resp:{},datos:{},abiertas:{},
+   cola:[], i:0, capaTotales:{}, reportUrl:null};
+
+async function iniciar(){
+  st.nombre=nombre.value.trim(); st.email=email.value.trim(); st.tier=parseInt(tier.value);
+  if(PAREJA) st.tier=3;
+  if(!st.nombre){alert('Pon tu nombre');return}
+  if(!st.email){alert('Pon tu email');return}
+  if(!consent.checked){alert('Debes aceptar la Política de Privacidad');return}
+  show('s-load');
+  try{
+    INST=await (await fetch('itap_v2.json?v='+Date.now())).json();
+    const r=await fetch(API+'/api/start',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:st.email,nombre:st.nombre,tier:st.tier,sexo:'',consentimiento:true})});
+    st.sid=(await r.json()).session_id;
+    construirCola();
+    show('s-q'); st.i=0; pintar();
+  }catch(e){console.error(e);alert('No se pudo cargar. Reintenta.');show('s-reg')}
+}
+
+// ---- Motor adaptativo: construye la cola inicial (intake + cribadores) ----
+function construirCola(){
+  st.cola=[];
+  INST.sociodemografico.forEach(q=>st.cola.push({...q,_b:'Sobre ti',_cap:'SD'}));
+  INST.vision_brecha.forEach(q=>st.cola.push({...q,_b:'Tu vida ideal',_cap:'VIS'}));
+  INST.numericas_financieras.forEach(q=>st.cola.push({...q,tipo:'numerica',_b:'Tus números',_cap:'NUM'}));
+  INST.capas.forEach(c=>{
+    c.items.filter(it=>it.nivel==='nucleo').forEach(it=>st.cola.push({...it,_b:c.nombre,_cap:c.code}));
+  });
+}
+function emostrar(ms){
+  if(!ms)return true; const v=st.perfil[ms.campo];
+  if(ms.valor_in) return ms.valor_in.includes(v);
+  if(ms.valor_not_in) return !ms.valor_not_in.includes(v);
+  if(ms.min!=null && v!=null) return parseInt(v)>=ms.min;
+  if(ms.max!=null && v!=null) return parseInt(v)<=ms.max;
+  return true;
+}
+function aplica(q){
+  if(!emostrar(q.mostrar_si)) return false;
+  if(q.depende_de){ const sd=st.resp['SEED-DEUDA']; if(sd==null||sd<q.depende_de.min_idx) return false; }
+  return true;
+}
+// tras terminar los cribadores de una capa, inyecta su profundización si capa_score>=umbral
+function abrirProfundizacion(cap){
+  const c=INST.capas.find(x=>x.code===cap); if(!c) return;
+  const crib=c.items.filter(it=>it.nivel==='nucleo'&&st.resp[it.id]!=null);
+  if(!crib.length) return;
+  const mean=crib.reduce((a,it)=>a+it.opciones[st.resp[it.id]].score,0)/crib.length;
+  const umbral=(INST.meta&&INST.meta.umbral_profundizacion)||35;
+  if(mean<umbral) return;
+  const profs=c.items.filter(it=>it.nivel==='profundizacion');
+  // insertar justo después de la posición actual, en orden
+  let ins=st.i+1;
+  profs.forEach(it=>{ st.cola.splice(ins++,0,{...it,_b:c.nombre,_cap:cap}); });
+}
+
+function pintar(){
+  // saltar las que no aplican
+  while(st.i<st.cola.length && !aplica(st.cola[st.i])) st.i++;
+  if(st.i>=st.cola.length){ return finalizar(); }
+  const q=st.cola[st.i];
+  // progreso POR BLOQUE (capa), nunca retrocede
+  document.getElementById('bloque').textContent = q._b;
+  progreso(q);
+  qtext.textContent=q.texto||q.pregunta;
+  const ay=document.getElementById('ayuda');
+  if(q.ayuda){ay.textContent=q.ayuda;ay.style.display='block'}else ay.style.display='none';
+  const cont=document.getElementById('cont'); const opts=document.getElementById('opts'); opts.innerHTML='';
+  document.getElementById('atras').style.display = st.i>0?'inline-block':'none';
+  if(q.tipo==='numerica'){
+    cont.style.display='block';
+    const inp=document.createElement('input');inp.type='number';inp.id='num';inp.placeholder=q.unidad||'';
+    inp.value = st.datos[q.campo] ?? ''; opts.appendChild(inp);
+  } else {
+    cont.style.display='none';
+    (q.opciones||[]).forEach((op,idx)=>{
+      const b=document.createElement('button');b.className='opt';b.textContent=op.texto||op;
+      b.onclick=()=>elegir(q,idx); opts.appendChild(b);
+    });
+  }
+}
+function progreso(q){
+  // % = bloques completados / bloques totales, suavizado dentro del bloque
+  const orden=['SD','VIS','NUM',...INST.capas.map(c=>c.code)];
+  const idx=orden.indexOf(q._cap);
+  const pct=Math.round(((idx + 0.5)/orden.length)*100);
+  document.getElementById('bar').style.width=Math.min(98,pct)+'%';
+}
+function elegir(q,idx){
+  if(q.campo) st.perfil[q.campo]=(q.opciones[idx].texto||q.opciones[idx]);
+  if(q.id) st.resp[q.id]=idx;
+  if(q.id==='SEED-DEUDA') st.resp['SEED-DEUDA']=idx;
+  if(q.arq!==undefined && q.opciones[idx].arq) st.perfil['vida_ideal_arq']=q.opciones[idx].arq;
+  avanzar(q);
+}
+function contNum(){
+  const q=st.cola[st.i]; const v=document.getElementById('num').value;
+  if(v===''){alert('Introduce un número');return}
+  if(q.campo) st.datos[q.campo]=parseFloat(v);
+  avanzar(q);
+}
+function avanzar(q){
+  // ¿es el último cribador de su capa? entonces abrir profundización
+  if(q._cap && q._cap.startsWith('C')){
+    const sig=st.cola[st.i+1];
+    const finCapa = !sig || sig._cap!==q._cap;
+    if(finCapa) abrirProfundizacion(q._cap);
+  }
+  st.i++; pintar();
+}
+function atras(){ if(st.i<=0)return; st.i--; while(st.i>0 && !aplica(st.cola[st.i])) st.i--; pintar(); }
+
+async function finalizar(){
+  show('s-gen');
+  try{
+    const body={session_id:st.sid,email:st.email,respuestas:st.resp,datos:st.datos,
+      abiertas:st.abiertas, perfil:st.perfil, v2:true};
+    if(PAREJA) body.pareja_de=PAREJA;
+    const r=await fetch(API+'/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    st.reportUrl=d.report_url;
+    show('s-done');
+    document.getElementById('doneTxt').textContent = d.needs_partner
+      ? 'Comparte tu código con tu pareja para que complete su parte.'
+      : 'Tu informe está listo. Si has pagado, ya puedes descargarlo.';
+    if(d.report_url){document.getElementById('dl').style.display='inline-block';}
+  }catch(e){console.error(e);show('s-done');document.getElementById('doneTxt').textContent='Hubo un problema al procesar. Reintenta.';}
+}
+function descargar(){ if(st.reportUrl) location.href=API+st.reportUrl; }
+function show(id){document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+</script></body></html>
