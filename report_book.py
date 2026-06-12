@@ -11,6 +11,24 @@ from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table, Tab
                                 Image, PageBreak, Flowable, KeepTogether)
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+import os as _os
+_FD=_os.path.join(_os.path.dirname(_os.path.abspath(__file__)),"fonts")
+try:
+    for _n,_f in [("Poppins","Poppins-Regular.ttf"),("Poppins-Bold","Poppins-Bold.ttf"),
+                  ("Poppins-Medium","Poppins-Medium.ttf"),("Poppins-Light","Poppins-Light.ttf")]:
+        pdfmetrics.registerFont(TTFont(_n,_os.path.join(_FD,_f)))
+    pdfmetrics.registerFontFamily("Poppins",normal="Poppins",bold="Poppins-Bold")
+    import matplotlib.font_manager as _fm
+    for _w in ("Regular","Medium","Bold","Light"):
+        _fm.fontManager.addfont(_os.path.join(_FD,"Poppins-%s.ttf"%_w))
+    matplotlib.rcParams["font.family"]="Poppins"
+    _POPP=True
+except Exception:
+    _POPP=False
+FR=("Poppins" if _POPP else "Helvetica")
+FB=("Poppins-Bold" if _POPP else "Helvetica-Bold")
 
 INST=json.load(open("itap_instrumento.json",encoding="utf-8"))
 CAPAS={c["code"]:c for c in INST["capas"]}
@@ -206,21 +224,37 @@ def plan(p):
 def radar_png(p,path):
     labels=[c for c in CAPAS]; vals=[p[c]["score"] for c in CAPAS]
     N=len(labels); ang=np.linspace(0,2*np.pi,N,endpoint=False).tolist(); ang+=ang[:1]; v=vals+vals[:1]
-    fig,ax=plt.subplots(figsize=(5.6,5.6),subplot_kw=dict(polar=True))
+    m=sum(vals)/len(vals)
+    # tono del poligono segun tension global: oro aristocratico -> ambar -> terracota
+    fill = "#E8C861" if m<35 else ("#D99A2B" if m<58 else "#B5563C")
+    fig,ax=plt.subplots(figsize=(5.8,5.8),subplot_kw=dict(polar=True))
     ax.set_theta_offset(np.pi/2); ax.set_theta_direction(-1); ax.set_ylim(0,100)
-    ax.set_yticks([25,50,75]); ax.set_yticklabels(["25","50","75"],color="#9CA3AF",size=8)
-    ax.set_xticks(ang[:-1]); ax.set_xticklabels(labels,size=10,color="#1F2937",weight="bold")
-    ax.fill_between(np.linspace(0,2*np.pi,200),0,30,color="#1D6F42",alpha=0.06)
-    ax.plot(ang,v,color="#1A1A17",linewidth=2.3); ax.fill(ang,v,color="#FDD731",alpha=0.30)
-    ax.spines["polar"].set_color("#D5DBE3"); ax.grid(color="#E5E7EB")
-    plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
+    # anillos concentricos finos, sin rejilla dura
+    ax.grid(False); ax.spines["polar"].set_visible(False)
+    th=np.linspace(0,2*np.pi,240)
+    for r in (25,50,75,100):
+        ax.plot(th,[r]*len(th),color="#E4E1D5",linewidth=0.8,zorder=1)
+    # radios suaves
+    for a in ang[:-1]:
+        ax.plot([a,a],[0,100],color="#EEEBE0",linewidth=0.7,zorder=1)
+    # nucleo saludable
+    ax.fill_between(th,0,30,color="#1D6F42",alpha=0.05,zorder=1)
+    ax.set_yticks([25,50,75]); ax.set_yticklabels(["25","50","75"],color="#B9B5A6",size=7.5)
+    ax.set_xticks(ang[:-1]); ax.set_xticklabels(labels,size=10.5,color="#262620")
+    ax.tick_params(axis='x',pad=9)
+    # poligono: doble relleno para profundidad + linea grafito + vertices
+    ax.fill(ang,v,color=fill,alpha=0.16,zorder=2)
+    ax.fill(ang,v,color=fill,alpha=0.34,zorder=3)
+    ax.plot(ang,v,color="#1A1A17",linewidth=2.2,zorder=4)
+    ax.scatter(ang[:-1],vals,s=22,color="#1A1A17",zorder=5,edgecolors="white",linewidths=1.0)
+    plt.tight_layout(); fig.savefig(path,dpi=160,transparent=True); plt.close(fig)
 
 class Chip(Flowable):
     def __init__(s,t,c,w=92,h=14): s.t=t; s.c=colors.HexColor(c); s.w=w; s.h=h; Flowable.__init__(s)
     def wrap(s,*a): return (s.w,s.h)
     def draw(s):
         c=s.canv; c.setFillColor(s.c); c.roundRect(0,0,s.w,s.h,3,fill=1,stroke=0)
-        c.setFillColor(colors.white); c.setFont("Helvetica-Bold",7.5); c.drawCentredString(s.w/2,s.h/2-2.6,s.t)
+        c.setFillColor(colors.white); c.setFont(FB,7.5); c.drawCentredString(s.w/2,s.h/2-2.6,s.t)
 class Bar(Flowable):
     def __init__(s,val,w=160,h=9): s.v=val; s.w=w; s.h=h; Flowable.__init__(s)
     def wrap(s,*a): return (s.w*mm if s.w<10 else s.w,s.h)
@@ -229,16 +263,16 @@ class Bar(Flowable):
         col=BANDC[3] if s.v>=76 else BANDC[2] if s.v>=51 else BANDC[1] if s.v>=26 else BANDC[0]
         c.setFillColor(colors.HexColor(col)); c.roundRect(0,0,max(3,W*s.v/100),s.h,2,fill=1,stroke=0)
 
-def St(n,**k): k.setdefault("fontName","Helvetica"); k.setdefault("textColor",INK); return ParagraphStyle(n,**k)
-h_book=St("hb",fontSize=15,leading=19,textColor=ACCDK,fontName="Helvetica-Bold",spaceAfter=2)
-h_sec=St("hs",fontSize=17,leading=21,textColor=ACCDK,fontName="Helvetica-Bold",spaceAfter=8)
-h_sub=St("hu",fontSize=10.5,leading=13,textColor=ACC,fontName="Helvetica-Bold",spaceBefore=7,spaceAfter=3)
+def St(n,**k): k.setdefault("fontName",FR); k.setdefault("textColor",INK); return ParagraphStyle(n,**k)
+h_book=St("hb",fontSize=15,leading=19,textColor=ACCDK,fontName=FB,spaceAfter=2)
+h_sec=St("hs",fontSize=17,leading=21,textColor=ACCDK,fontName=FB,spaceAfter=8)
+h_sub=St("hu",fontSize=10.5,leading=13,textColor=ACC,fontName=FB,spaceBefore=7,spaceAfter=3)
 body=St("bd",fontSize=10,leading=15,spaceAfter=7,alignment=TA_JUSTIFY)
 small=St("sm",fontSize=8,leading=11,textColor=GREY)
-cap_kicker=St("ck",fontSize=8.5,leading=11,textColor=GREY,fontName="Helvetica-Bold")
+cap_kicker=St("ck",fontSize=8.5,leading=11,textColor=GREY,fontName=FB)
 
 def deco(cv,doc):
-    cv.saveState(); cv.setFillColor(GREY); cv.setFont("Helvetica",7)
+    cv.saveState(); cv.setFillColor(GREY); cv.setFont(FR,7)
     cv.drawCentredString(A4[0]/2,12*mm,f"Tu Libro Financiero · Adapta Family Office   ·   {doc.page}")
     cv.setStrokeColor(LINE); cv.setLineWidth(0.5); cv.line(22*mm,16*mm,A4[0]-22*mm,16*mm); cv.restoreState()
 
@@ -626,6 +660,20 @@ def cohorte_txt(cli, datos):
     else: rango = "de 60 o m\u00e1s"
     return "%s %s" % (grupo, rango)
 
+def citas_capa(code, resp, k=2, min_score=50):
+    """Devuelve las opciones que el cliente eligio con mayor disfuncion y frase diagnostica,
+    para que el informe cite su conducta real en vez de texto generico de banda."""
+    capa=CAPAS[code]; out=[]
+    for it in capa["items"]:
+        if it["tipo"]!="escala": continue
+        idx=resp.get(it["id"])
+        if idx is None: continue
+        op=it["opciones"][idx]; tag=op.get("tag_narrativo")
+        if tag and op["score"]>=min_score:
+            out.append((op["score"], it["texto"], tag))
+    out.sort(key=lambda x:-x[0])
+    return out[:k]
+
 def build(cli,resp,datos,out,depth="completo",baremo=None):
     p,tr,salud=perfil(resp); fi=fi_metrics(datos); radar_png(p,"_radar.png")
     _cohorte=cohorte_txt(cli,datos)
@@ -640,9 +688,9 @@ def build(cli,resp,datos,out,depth="completo",baremo=None):
     arq_code,_,_=arquetipo(resp)
     # cover
     S+=[Spacer(1,34*mm),
-        Paragraph("TU LIBRO FINANCIERO",St("cv0",fontSize=12,textColor=GREY,fontName="Helvetica-Bold")),
+        Paragraph("TU LIBRO FINANCIERO",St("cv0",fontSize=12,textColor=GREY,fontName=FB)),
         Spacer(1,3*mm),
-        Paragraph("Diagnóstico<br/>Patrimonial",St("cv1",fontSize=40,leading=44,textColor=INK,fontName="Helvetica-Bold")),
+        Paragraph("Diagnóstico<br/>Patrimonial",St("cv1",fontSize=40,leading=44,textColor=INK,fontName=FB)),
         Spacer(1,5*mm),
         Table([[""]],colWidths=[60*mm],style=[("LINEBELOW",(0,0),(-1,-1),4,AMARILLO)]),
         Spacer(1,7*mm),
@@ -650,7 +698,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None):
         Spacer(1,40*mm),
         Paragraph(f"Perfil  \u00b7  <b>{cohorte_txt(cli,datos).capitalize()}</b>",St("cvn",fontSize=12)),
         Paragraph(cli["email"],small), Paragraph(cli["fecha"],small),
-        Spacer(1,3*mm), Paragraph(("Diagnóstico Rápido · Tier 1" if depth=="esencial" else "Informe Avanzado · Tier 2"),St("cvt",fontSize=9.5,textColor=ACC,fontName="Helvetica-Bold")),
+        Spacer(1,3*mm), Paragraph(("Diagnóstico Rápido · Tier 1" if depth=="esencial" else "Informe Avanzado · Tier 2"),St("cvt",fontSize=9.5,textColor=ACC,fontName=FB)),
         Spacer(1,16*mm),
         Paragraph(f"DOCUMENTO CONFIDENCIAL · REF {report_id(cli.get('email') or 'ITAP',cli['fecha'])} · USO PRIVADO",
                   St("cvr",fontSize=7.5,textColor=GREY,fontName="Helvetica")),
@@ -726,6 +774,18 @@ def build(cli,resp,datos,out,depth="completo",baremo=None):
              Spacer(1,3*mm),
              Paragraph("Qu\u00e9 significa para ti",h_sub),
              Paragraph(interpretar(pc["nombre"],pc["score"],pc["banda"],pc["bi"],pc["peor"]),body)]
+        _cit=citas_capa(code,resp)
+        if _cit:
+            cab.append(Paragraph("Lo que reconociste",h_sub))
+            _qs=St("cq",fontSize=9,leading=12,textColor=GREY,fontName=FR)
+            _ts=St("ct",fontSize=10.5,leading=14,textColor=ACCDK,fontName=FB,spaceBefore=1)
+            for _sc,_q,_tag in _cit:
+                _inner=[Paragraph(f"<i>\u00ab{_q}\u00bb</i>",_qs),Paragraph(_tag,_ts)]
+                cab.append(Table([[_inner]],colWidths=[156*mm],
+                    style=[("LINEBEFORE",(0,0),(0,-1),2.6,AMARILLO),("BACKGROUND",(0,0),(-1,-1),LIGHT),
+                           ("LEFTPADDING",(0,0),(-1,-1),9),("RIGHTPADDING",(0,0),(-1,-1),9),
+                           ("TOPPADDING",(0,0),(-1,-1),7),("BOTTOMPADDING",(0,0),(-1,-1),7)]))
+                cab.append(Spacer(1,2*mm))
         if depth=="esencial":
             cab+=[Paragraph("Tu siguiente paso",h_sub),
                   Paragraph(f"&#8226;  {ACCIONES[code][0]}",St("ps",fontSize=10,leading=14,textColor=INK,leftIndent=4,backColor=LIGHT,borderPadding=6,spaceBefore=2)),
@@ -806,7 +866,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None):
                ["Tasa de ahorro actual",f"{fi[2]} %"],
                ["Años estimados a la libertad","más de 100" if fi[3] is None else f"{fi[3]} años"]],
               colWidths=[105*mm,55*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
-              ("FONTNAME",(1,0),(1,-1),"Helvetica-Bold"),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
+              ("FONTNAME",(1,0),(1,-1),FB),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
               ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)])),
         PageBreak()]
     S+=cuadro_financiero(p,datos,fi)
@@ -905,7 +965,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None):
         t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,0),0.6,LINE),
             ("LINEBELOW",(0,1),(-1,-1),0.3,LINE),
             ("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5),
-            ("LEFTPADDING",(0,0),(-1,-1),7),("RIGHTPADDING",(0,0),(-1,-1),7),("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]+bgs))
+            ("LEFTPADDING",(0,0),(-1,-1),7),("RIGHTPADDING",(0,0),(-1,-1),7),("FONTNAME",(0,0),(-1,0),FB)]+bgs))
         S+=[Paragraph("%s \u00b7 %s"%(capa["code"],capa["nombre"]),h_sub), t]
     doc=SimpleDocTemplate(out,pagesize=A4,topMargin=20*mm,bottomMargin=20*mm,leftMargin=22*mm,rightMargin=22*mm,
                           title="Tu Libro Financiero — ITAP")

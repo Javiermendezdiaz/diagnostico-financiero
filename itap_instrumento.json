@@ -95,19 +95,23 @@
      "opciones": [
       {
        "texto": "Tranquilidad, todo bajo control",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Relación regulada: la cuenta informa, no juzga."
       },
       {
        "texto": "Neutral, es solo una herramienta",
-       "score": 25
+       "score": 25,
+       "tag_narrativo": "Vínculo funcional con el dato financiero."
       },
       {
        "texto": "Cierta ansiedad o incomodidad",
-       "score": 50
+       "score": 50,
+       "tag_narrativo": "Evitación leve: miras, pero el dato incomoda."
       },
       {
        "texto": "Pánico, evito mirar",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Evitación financiera activa: el síntoma psicológico precede al numérico."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -121,19 +125,23 @@
      "opciones": [
       {
        "texto": "1-3: No me preocupa",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Tolerancia sana a la incertidumbre."
       },
       {
        "texto": "4-5: Algo de inquietud",
-       "score": 35
+       "score": 35,
+       "tag_narrativo": "Inquietud normal, dentro de rango."
       },
       {
        "texto": "6-7: Bastante miedo",
-       "score": 65
+       "score": 65,
+       "tag_narrativo": "Miedo elevado que condiciona decisiones."
       },
       {
        "texto": "8-10: Terror absoluto",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Terror financiero: el miedo, no el dato, gobierna tus elecciones."
       }
      ],
      "dimensiones": "PSIQUE·LIQUIDEZ",
@@ -147,19 +155,23 @@
      "opciones": [
       {
        "texto": "Nunca",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Sueño financieramente protegido."
       },
       {
        "texto": "1-2 veces",
-       "score": 25
+       "score": 25,
+       "tag_narrativo": "Ansiedad nocturna ocasional."
       },
       {
        "texto": "3-4 veces",
-       "score": 50
+       "score": 50,
+       "tag_narrativo": "El dinero ya invade tu descanso varias noches por semana."
       },
       {
        "texto": "Todos los días",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Insomnio financiero crónico: el cuerpo somatiza la tensión a diario."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -173,19 +185,23 @@
      "opciones": [
       {
        "texto": "Nunca, comunicación sana",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Comunicación financiera sana en casa."
       },
       {
        "texto": "Ocasionalmente",
-       "score": 30
+       "score": 30,
+       "tag_narrativo": "Roces puntuales, manejables."
       },
       {
        "texto": "Regularmente",
-       "score": 65
+       "score": 65,
+       "tag_narrativo": "El dinero es un foco recurrente de tensión relacional."
       },
       {
        "texto": "Es fuente constante de conflicto",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Conflicto financiero permanente: el dinero erosiona el vínculo."
       }
      ],
      "dimensiones": "PSIQUE·VINCULO",
@@ -199,19 +215,23 @@
      "opciones": [
       {
        "texto": "No, disfruto mi trabajo y tengo control",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Trabajas con sentido y margen de control."
       },
       {
        "texto": "A veces siento presión",
-       "score": 35
+       "score": 35,
+       "tag_narrativo": "Presión laboral intermitente."
       },
       {
        "texto": "Frecuentemente",
-       "score": 70
+       "score": 70,
+       "tag_narrativo": "Sensación frecuente de trabajar sin libertad."
       },
       {
        "texto": "Siempre, es una prisión",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Vives el trabajo como condena: ingreso sin propósito percibido."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -225,19 +245,23 @@
      "opciones": [
       {
        "texto": "Rara vez, tomo decisiones",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Decides; la incertidumbre no te bloquea."
       },
       {
        "texto": "A veces",
-       "score": 25
+       "score": 25,
+       "tag_narrativo": "Aplazamientos ocasionales."
       },
       {
        "texto": "Frecuentemente",
-       "score": 60
+       "score": 60,
+       "tag_narrativo": "Parálisis frecuente ante decisiones financieras."
       },
       {
        "texto": "Constantemente, estoy paralizado",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Bloqueo decisional: el miedo paraliza la acción patrimonial."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -251,19 +275,23 @@
      "opciones": [
       {
        "texto": "0-2 horas",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Mente financiera tranquila."
       },
       {
        "texto": "3-8 horas",
-       "score": 30
+       "score": 30,
+       "tag_narrativo": "Preocupación contenida."
       },
       {
        "texto": "9-20 horas",
-       "score": 65
+       "score": 65,
+       "tag_narrativo": "Rumiación financiera significativa que drena foco."
       },
       {
        "texto": "Más de 20 horas (pensamiento invasivo)",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Pensamiento invasivo: el dinero te roba más de 20 horas/mes de energía mental."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -277,19 +305,23 @@
      "opciones": [
       {
        "texto": "No, hablo naturalmente",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Hablas de dinero sin pudor."
       },
       {
        "texto": "Ocasionalmente",
-       "score": 20
+       "score": 20,
+       "tag_narrativo": "Reserva social ocasional."
       },
       {
        "texto": "Frecuentemente",
-       "score": 55
+       "score": 55,
+       "tag_narrativo": "Evitas el tema con frecuencia."
       },
       {
        "texto": "Siempre, me avergüenza",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Vergüenza financiera: el dinero es un tabú que ocultas."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -303,19 +335,23 @@
      "opciones": [
       {
        "texto": "No, mi salud es buena",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Sin huella física del estrés financiero."
       },
       {
        "texto": "Leve impacto",
-       "score": 30
+       "score": 30,
+       "tag_narrativo": "Impacto físico leve."
       },
       {
        "texto": "Impacto notable",
-       "score": 65
+       "score": 65,
+       "tag_narrativo": "El estrés financiero ya marca tu cuerpo."
       },
       {
        "texto": "Problema serio",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Daño físico serio: la tensión económica se volvió un problema de salud."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -329,19 +365,23 @@
      "opciones": [
       {
        "texto": "Alegría y oportunidad",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Lees el capital como oportunidad."
       },
       {
        "texto": "Alivio",
-       "score": 25
+       "score": 25,
+       "tag_narrativo": "Alivio ante el respiro económico."
       },
       {
        "texto": "Pánico sobre qué hacer",
-       "score": 60
+       "score": 60,
+       "tag_narrativo": "El capital te genera más angustia que alivio."
       },
       {
        "texto": "Miedo de perderlo o que sea una trampa",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Desconfianza ante la abundancia: ni el dinero a favor te tranquiliza."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -355,19 +395,23 @@
      "opciones": [
       {
        "texto": "Nunca",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Estabilidad laboral sin fuga mental."
       },
       {
        "texto": "Ocasionalmente",
-       "score": 30
+       "score": 30,
+       "tag_narrativo": "Pensamiento de salida ocasional."
       },
       {
        "texto": "Regularmente lo pienso",
-       "score": 70
+       "score": 70,
+       "tag_narrativo": "Fantasía de huida laboral recurrente."
       },
       {
        "texto": "Es mi obsesión",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Obsesión por escapar: el trabajo se volvió insostenible en tu cabeza."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -381,19 +425,23 @@
      "opciones": [
       {
        "texto": "No, protejo esas áreas",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Proteges sueño, cuerpo y vínculos."
       },
       {
        "texto": "Ocasionalmente",
-       "score": 35
+       "score": 35,
+       "tag_narrativo": "Sacrificios ocasionales."
       },
       {
        "texto": "Frecuentemente",
-       "score": 70
+       "score": 70,
+       "tag_narrativo": "Sacrificas salud y relaciones con frecuencia."
       },
       {
        "texto": "Es el precio que pago",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Has normalizado pagar con tu vida el precio del dinero."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -407,19 +455,23 @@
      "opciones": [
       {
        "texto": "No, disfruto sin culpa",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Disfrutas tu dinero sin culpa."
       },
       {
        "texto": "A veces siento culpa",
-       "score": 35
+       "score": 35,
+       "tag_narrativo": "Culpa intermitente al gastarte."
       },
       {
        "texto": "Frecuentemente",
-       "score": 70
+       "score": 70,
+       "tag_narrativo": "Culpa frecuente aunque puedas permitírtelo."
       },
       {
        "texto": "Siempre",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Culpa crónica: no te permites disfrutar lo que ganas."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -433,19 +485,23 @@
      "opciones": [
       {
        "texto": "Raramente",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Transparencia financiera con los tuyos."
       },
       {
        "texto": "Ocasionalmente",
-       "score": 30
+       "score": 30,
+       "tag_narrativo": "Ocultaciones ocasionales."
       },
       {
        "texto": "Regularmente",
-       "score": 65
+       "score": 65,
+       "tag_narrativo": "Mientes sobre tu dinero con regularidad."
       },
       {
        "texto": "Es una costumbre",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "El ocultamiento financiero se volvió hábito."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -459,19 +515,23 @@
      "opciones": [
       {
        "texto": "Nunca",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Sin episodios de pánico financiero."
       },
       {
        "texto": "Una o dos veces",
-       "score": 40
+       "score": 40,
+       "tag_narrativo": "Episodios aislados de ansiedad aguda."
       },
       {
        "texto": "Varios episodios",
-       "score": 75
+       "score": 75,
+       "tag_narrativo": "Varios episodios de ansiedad severa por dinero."
       },
       {
        "texto": "Regularmente",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Crisis de pánico recurrentes: señal de alarma clínica."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -485,19 +545,23 @@
      "opciones": [
       {
        "texto": "Proactiva, planeo",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Gobiernas con plan, no con sustos."
       },
       {
        "texto": "Mayormente proactiva",
-       "score": 25
+       "score": 25,
+       "tag_narrativo": "Gestión mayormente proactiva."
       },
       {
        "texto": "Mitad y mitad",
-       "score": 50
+       "score": 50,
+       "tag_narrativo": "A medio camino entre plan y reacción."
       },
       {
        "texto": "Completamente reactiva",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Gestión puramente reactiva: solo actúas en crisis."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -511,19 +575,23 @@
      "opciones": [
       {
        "texto": "No, son independientes",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Tu valía no depende de tu saldo."
       },
       {
        "texto": "Algo conectado",
-       "score": 35
+       "score": 35,
+       "tag_narrativo": "Identidad algo atada al dinero."
       },
       {
        "texto": "Bastante conectado",
-       "score": 70
+       "score": 70,
+       "tag_narrativo": "Tu autoestima cotiza con tu cuenta."
       },
       {
        "texto": "Completamente",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Identidad fusionada: tu valor sube y baja con tu saldo."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -537,19 +605,23 @@
      "opciones": [
       {
        "texto": "Resuelto, respiro fácil",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "Llegas a fin de mes con holgura."
       },
       {
        "texto": "Más o menos, con sustos",
-       "score": 35
+       "score": 35,
+       "tag_narrativo": "Mes a mes con algún susto."
       },
       {
        "texto": "Lucha constante",
-       "score": 70
+       "score": 70,
+       "tag_narrativo": "Cada mes es una lucha sostenida."
       },
       {
        "texto": "Caos total",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Caos financiero permanente mes a mes."
       }
      ],
      "dimensiones": "PSIQUE·LIQUIDEZ",
@@ -563,19 +635,23 @@
      "opciones": [
       {
        "texto": "Ya estoy en terapia",
-       "score": 100
+       "score": 100,
+       "tag_narrativo": "Ya buscas apoyo profesional para la carga financiera."
       },
       {
        "texto": "Lo he considerado",
-       "score": 60
+       "score": 60,
+       "tag_narrativo": "Reconoces que la carga merece apoyo profesional."
       },
       {
        "texto": "Nunca lo consideré",
-       "score": 20
+       "score": 20,
+       "tag_narrativo": "No has contemplado apoyo externo."
       },
       {
        "texto": "No lo necesito",
-       "score": 0
+       "score": 0,
+       "tag_narrativo": "No percibes necesidad de apoyo."
       }
      ],
      "dimensiones": "PSIQUE",
@@ -589,19 +665,23 @@
      "opciones": [
       {
        "texto": "Sí, bien financiado",
-       "score": 100
+       "score": 0,
+       "tag_narrativo": "Colchón sólido: 3-6 meses de respaldo."
       },
       {
        "texto": "Parcialmente",
-       "score": 60
+       "score": 40,
+       "tag_narrativo": "Colchón parcial, aún insuficiente."
       },
       {
        "texto": "Muy poco",
-       "score": 25
+       "score": 75,
+       "tag_narrativo": "Reserva mínima: expuesto a cualquier golpe."
       },
       {
        "texto": "No tengo",
-       "score": 0
+       "score": 100,
+       "tag_narrativo": "Sin colchón: un solo imprevisto te descabalga."
       }
      ],
      "dimensiones": "PSIQUE",
