@@ -172,6 +172,8 @@ def faceta_lectura(score):
     if score<51: return "va bien, con recorrido de mejora."
     if score<76: return "empieza a pesar; conviene atenderla."
     return "es un punto crítico de esta área."
+def _sevcol(sc):
+    return "#1D6F42" if sc<30 else ("#B8860B" if sc<51 else ("#C2710C" if sc<76 else "#A11B1B"))
 def _vidx(code, n=3):
     return sum(ord(c) for c in (code or "x")) % n
 def segundo_parrafo(bi, code=""):
@@ -230,7 +232,8 @@ def plan(p):
 
 # ---------- radar ----------
 def radar_png(p,path):
-    labels=[c for c in CAPAS]; vals=[p[c]["score"] for c in CAPAS]
+    SHORT={"C1":"Agotamiento","C2":"Libertad","C3":"Resistencia","C4":"Estilo de vida","C5":"Protección","C6":"Estatus","C7":"Concentración","C8":"Antifragilidad","C9":"Flujo de caja","C10":"Deuda","C11":"Crecimiento"}
+    labels=[SHORT.get(c,c) for c in CAPAS]; vals=[p[c]["score"] for c in CAPAS]
     N=len(labels); ang=np.linspace(0,2*np.pi,N,endpoint=False).tolist(); ang+=ang[:1]; v=vals+vals[:1]
     m=sum(vals)/len(vals)
     # tono del poligono segun tension global: oro aristocratico -> ambar -> terracota
@@ -248,7 +251,7 @@ def radar_png(p,path):
     # nucleo saludable
     ax.fill_between(th,0,30,color="#1D6F42",alpha=0.05,zorder=1)
     ax.set_yticks([25,50,75]); ax.set_yticklabels(["25","50","75"],color="#B9B5A6",size=7.5)
-    ax.set_xticks(ang[:-1]); ax.set_xticklabels(labels,size=10.5,color="#262620")
+    ax.set_xticks(ang[:-1]); ax.set_xticklabels(labels,size=8,color="#262620")
     ax.tick_params(axis='x',pad=9)
     # poligono: doble relleno para profundidad + linea grafito + vertices
     ax.fill(ang,v,color=fill,alpha=0.16,zorder=2)
@@ -741,6 +744,27 @@ def seccion_extras(extras):
                   Paragraph(tx,St("axh",fontSize=10,leading=14,textColor=INK,backColor=LIGHT,borderPadding=9,spaceBefore=2))]
     return out
 
+def seccion_coste_inaccion(extras):
+    if not extras: return []
+    br=extras.get("brecha"); items=[]
+    if br and (br.get("brecha_mes") or 0)>0:
+        items.append("Cada mes en tu modelo actual, la vida que dijiste querer se aleja <b>%s</b> — son <b>%s al año</b> que tu trayectoria todavía no genera." % (_eur(br["brecha_mes"]), _eur(br["brecha_anual"])))
+    if extras.get("herencia"):
+        items.append("Una sucesión sin planificar puede dejar a los tuyos una factura fiscal que <b>hoy todavía es evitable</b>; cuanto más tarde se mira, menos margen queda.")
+    if extras.get("asesor"):
+        a=extras["asesor"][0].lower()
+        if "gestoría" in a or "sin red" in a:
+            items.append("Cada trimestre con asesoría que solo hace papeleo es optimización que se queda sin hacer: dinero que se va en impuestos o comisiones por falta de un plan, no de capacidad.")
+    if extras.get("conciliacion"):
+        items.append("Y el coste que no aparece en ninguna cuenta: cada semana sin cambiar el sistema es tiempo de presencia con los tuyos — el único capital que no se reconstruye.")
+    if not items: return []
+    out=[PageBreak(), Paragraph("El coste de no hacer nada",h_sec),
+         Paragraph("Un diagnóstico sin acción es solo información cara. Esto es lo que te cuesta, en concreto, cada mes que el cuadro sigue igual:",body)]
+    for it in items:
+        out.append(Paragraph("<font color='#A11B1B'>&#9656;</font>  "+it,St("ci",fontSize=10.5,leading=15,leftIndent=6,spaceAfter=7)))
+    out.append(Paragraph("La buena noticia: nada de esto es una condena. Se mueve con las decisiones ordenadas que tienes en las páginas anteriores — no con suerte, con método. El primer paso es hoy.",St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=4)))
+    return out
+
 def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=None,arq_override=None):
     p,tr,salud=perfil(resp); fi=fi_metrics(datos); radar_png(p,"_radar.png")
     _cohorte=cohorte_txt(cli,datos)
@@ -863,7 +887,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             facs=CAPAS[code]["facetas"]
             for f,sc in pc["facetas"].items():
                 cab.append(Table([[Paragraph(f"<b>{facs.get(f,f)}</b>",small),Bar(sc,w=46*mm),
-                                    Paragraph(f"<font color='#6B7280'>{sc:.0f} \u00b7 {faceta_lectura(sc)}</font>",small)]],
+                                    Paragraph(f"<font color='{_sevcol(sc)}'><b>{sc:.0f}</b> \u00b7 {faceta_lectura(sc)}</font>",small)]],
                                  colWidths=[66*mm,48*mm,42*mm],
                                  style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),
                                         ("LEFTPADDING",(1,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
@@ -1014,6 +1038,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         Paragraph("Instrumento de 10 capas con dimensiones psicométricas de polaridad consistente. Los percentiles "
                   "se calibran empíricamente frente a la cohorte real de respondentes; mientras la muestra de tu grupo crece, se indican como provisionales. Herramienta "
                   "de autoconocimiento; no sustituye asesoramiento profesional individualizado.",small)]
+    if extras: S+=seccion_coste_inaccion(extras)
     S+=seccion_adapta(p)
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
