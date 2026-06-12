@@ -194,9 +194,9 @@ def segundo_parrafo(bi, code=""):
 
 def interpretar(nombre,s,bl,bi,peor):
     nl=nombre.lower()
-    if bi==0: return (f"En {nl} estás en terreno sólido (score {s:.0f}, «{bl}»). Es una de tus fortalezas. "
+    if bi==0: return (f"En {nl} estás en terreno sólido (salud {100-s:.0f}/100, «{bl}»). Es una de tus fortalezas. "
                       f"No la des por garantizada: lo que hoy va bien también se cuida.")
-    if bi==1: return (f"En {nl} vas bien, con margen (score {s:.0f}, «{bl}»). El punto que más pesa ahora es "
+    if bi==1: return (f"En {nl} vas bien, con margen (salud {100-s:.0f}/100, «{bl}»). El punto que más pesa ahora es "
                       f"«{peor}»; ahí tienes la mejora más fácil y rentable.")
     cierre2=["pesa de fondo y, sin atención, va contagiando al resto de tu economía.",
              "todavía no duele, pero ya te está restando margen sin que lo notes.",
@@ -204,8 +204,8 @@ def interpretar(nombre,s,bl,bi,peor):
     cierre3=["es uno de los primeros frentes donde intervenir: el retorno de actuar aquí es inmediato.",
              "no admite más demora: cada mes que pasa, el agujero se ensancha solo.",
              "es la palanca que más te cambia el cuadro si la atacas ya."]
-    if bi==2: return (f"{nombre} muestra sobrecarga (score {s:.0f}, «{bl}»), sobre todo en «{peor}». {cierre2[_vidx(nombre)]}")
-    return (f"{nombre} está en zona crítica (score {s:.0f}, «{bl}»), en especial en «{peor}». {cierre3[_vidx(nombre)]}")
+    if bi==2: return (f"{nombre} muestra sobrecarga (salud {100-s:.0f}/100, «{bl}»), sobre todo en «{peor}». {cierre2[_vidx(nombre)]}")
+    return (f"{nombre} está en zona crítica (salud {100-s:.0f}/100, «{bl}»), en especial en «{peor}». {cierre3[_vidx(nombre)]}")
 
 def insights(p,tr,fi):
     o=[]
@@ -234,7 +234,8 @@ def plan(p):
 def radar_png(p,path):
     SHORT={"C1":"Agotamiento","C2":"Libertad","C3":"Resistencia","C4":"Estilo de vida","C5":"Protección","C6":"Estatus","C7":"Concentración","C8":"Antifragilidad","C9":"Flujo de caja","C10":"Deuda","C11":"Crecimiento"}
     labels=[SHORT.get(c,c) for c in CAPAS]; vals=[p[c]["score"] for c in CAPAS]
-    N=len(labels); ang=np.linspace(0,2*np.pi,N,endpoint=False).tolist(); ang+=ang[:1]; v=vals+vals[:1]
+    vsal=[100-x for x in vals]
+    N=len(labels); ang=np.linspace(0,2*np.pi,N,endpoint=False).tolist(); ang+=ang[:1]; v=vsal+vsal[:1]
     m=sum(vals)/len(vals)
     # tono del poligono segun tension global: oro aristocratico -> ambar -> terracota
     fill = "#E8C861" if m<35 else ("#D99A2B" if m<58 else "#B5563C")
@@ -249,7 +250,7 @@ def radar_png(p,path):
     for a in ang[:-1]:
         ax.plot([a,a],[0,100],color="#EEEBE0",linewidth=0.7,zorder=1)
     # nucleo saludable
-    ax.fill_between(th,0,30,color="#1D6F42",alpha=0.05,zorder=1)
+    ax.fill_between(th,70,100,color="#1D6F42",alpha=0.06,zorder=1)
     ax.set_yticks([25,50,75]); ax.set_yticklabels(["25","50","75"],color="#B9B5A6",size=7.5)
     ax.set_xticks(ang[:-1]); ax.set_xticklabels(labels,size=8,color="#262620")
     ax.tick_params(axis='x',pad=9)
@@ -257,7 +258,7 @@ def radar_png(p,path):
     ax.fill(ang,v,color=fill,alpha=0.16,zorder=2)
     ax.fill(ang,v,color=fill,alpha=0.34,zorder=3)
     ax.plot(ang,v,color="#1A1A17",linewidth=2.2,zorder=4)
-    ax.scatter(ang[:-1],vals,s=22,color="#1A1A17",zorder=5,edgecolors="white",linewidths=1.0)
+    ax.scatter(ang[:-1],vsal,s=22,color="#1A1A17",zorder=5,edgecolors="white",linewidths=1.0)
     plt.tight_layout(); fig.savefig(path,dpi=160,transparent=True); plt.close(fig)
 
 class Chip(Flowable):
@@ -271,8 +272,9 @@ class Bar(Flowable):
     def wrap(s,*a): return (s.w*mm if s.w<10 else s.w,s.h)
     def draw(s):
         c=s.canv; W=s.w; c.setFillColor(colors.HexColor("#EEF2F6")); c.roundRect(0,0,W,s.h,2,fill=1,stroke=0)
-        col=BANDC[3] if s.v>=76 else BANDC[2] if s.v>=51 else BANDC[1] if s.v>=26 else BANDC[0]
-        c.setFillColor(colors.HexColor(col)); c.roundRect(0,0,max(3,W*s.v/100),s.h,2,fill=1,stroke=0)
+        h=100-s.v
+        col=BANDC[0] if h>=75 else BANDC[1] if h>=50 else BANDC[2] if h>=25 else BANDC[3]
+        c.setFillColor(colors.HexColor(col)); c.roundRect(0,0,max(3,W*h/100),s.h,2,fill=1,stroke=0)
 
 def St(n,**k): k.setdefault("fontName",FR); k.setdefault("textColor",INK); return ParagraphStyle(n,**k)
 h_book=St("hb",fontSize=15,leading=19,textColor=ACCDK,fontName=FB,spaceAfter=2)
@@ -818,7 +820,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         PageBreak()]
     # resumen + radar
     S+=[Paragraph("El mapa completo",h_sec),
-        Table([[Paragraph(f"<font size=42 color='#1A1A17'><b>{salud:.0f}</b></font>"
+        Table([[Paragraph(f"<font size=42 color='#1A1A17'><b>{100-salud:.0f}</b></font>"
                           f"<font size=13 color='#6B7280'>/100</font>",body),
                 Paragraph(f"<b>{bl}</b><br/><font size=8 color='#6B7280'>Salud psicofinanciera global · "
                           f"{_pct_frase}</font>",body)]],
@@ -831,7 +833,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                      f"<font color='#B91C1C'><b>Tu punto ciego:</b></font> {ARQ_META[arq_code]['sombra']}",
                      St("aq",fontSize=9.2,leading=13,textColor=GREY,spaceAfter=4))] if arq_code else []),
         Spacer(1,2*mm),
-        Paragraph("Cuanto más cerca del centro está cada capa en este mapa, más sana. La zona verde central es el "
+        Paragraph("Cuanto más llena y hacia el borde está cada capa, más sana. El anillo verde exterior es el "
                   "territorio saludable. Antes de entrar capítulo a capítulo, esta es tu silueta completa:",body),
         Image("_radar.png",width=122*mm,height=122*mm,hAlign="CENTER"),
         PageBreak()]
@@ -843,14 +845,14 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                       "poner el foco. El resto del libro desarrolla cada punto.",body),
             Paragraph("Tus tres fortalezas",h_sub)]
         for c in fort:
-            S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({p[c]['score']:.0f}/100). {OPORTUNIDAD[c]}",
+            S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({100-p[c]['score']:.0f}/100). {OPORTUNIDAD[c]}",
                      St("ef",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
         S.append(Paragraph("Tus tres focos",h_sub))
         for c in foco:
-            S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({p[c]['score']:.0f}/100). {RIESGO[c]}",
+            S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({100-p[c]['score']:.0f}/100). {RIESGO[c]}",
                      St("ec",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
         S+=[Spacer(1,3*mm),
-            Paragraph(f"En una frase: tu salud psicofinanciera global es de <b>{salud:.0f}/100</b> "
+            Paragraph(f"En una frase: tu salud psicofinanciera global es de <b>{100-salud:.0f}/100</b>"
                       f"({_pct_frase}{_pct_nota}). No es una condena ni un trofeo: es tu punto "
                       "de partida, y se mueve.",body),
             PageBreak()]
@@ -864,7 +866,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
              Paragraph("Qu\u00e9 mide",h_sub),
              Paragraph(f"Este cap\u00edtulo mide {QMIDE[code]}",body),
              Paragraph("Tu resultado",h_sub),
-             Table([[Paragraph(f"<b>{pc['score']:.0f}</b>/100",body),
+             Table([[Paragraph(f"<b>{100-pc['score']:.0f}</b>/100",body),
                      Chip(pc["banda"],BANDC[pc["bi"]],w=96,h=14)]],
                    colWidths=[60*mm,40*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),
              Bar(pc["score"],w=160*mm/1),
@@ -893,7 +895,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             facs=CAPAS[code]["facetas"]
             for f,sc in pc["facetas"].items():
                 cab.append(Table([[Paragraph(f"<b>{facs.get(f,f)}</b>",small),Bar(sc,w=46*mm),
-                                    Paragraph(f"<font color='{_sevcol(sc)}'><b>{sc:.0f}</b> \u00b7 {faceta_lectura(sc)}</font>",small)]],
+                                    Paragraph(f"<font color='{_sevcol(sc)}'><b>{100-sc:.0f}</b> \u00b7 {faceta_lectura(sc)}</font>",small)]],
                                  colWidths=[66*mm,48*mm,42*mm],
                                  style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),
                                         ("LEFTPADDING",(1,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
@@ -933,7 +935,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         return "es un foco importante que cruza varias \u00e1reas a la vez."
     for t in ("PSIQUE","LIQUIDEZ","VINCULO"):
         val=tr[t]; tt,dd=desc[t]
-        vtxt=("%s"%val) if val is not None else "\u2014"
+        vtxt=("%s"%round(100-val)) if val is not None else "\u2014"
         S+=[Paragraph(tt,h_sub),
             Table([[Paragraph(f"<b>{vtxt}</b>/100",body),Bar(val or 0,w=120*mm)]],
                   colWidths=[28*mm,124*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),

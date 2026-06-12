@@ -11,8 +11,15 @@ import report_couple as rc
 app = FastAPI(title="ITAP")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False,
                    allow_methods=["*"], allow_headers=["*"])
-REPORTS_DIR = tempfile.gettempdir()
-DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "itap_sessions.db")
+_DATA_DIR = (os.environ.get("ITAP_DATA_DIR") or "").strip()
+if _DATA_DIR:
+    try:
+        os.makedirs(_DATA_DIR, exist_ok=True)
+    except Exception:
+        _DATA_DIR = ""
+REPORTS_DIR = _DATA_DIR or tempfile.gettempdir()
+DB = os.path.join(_DATA_DIR, "itap_sessions.db") if _DATA_DIR \
+    else os.path.join(os.path.dirname(os.path.abspath(__file__)), "itap_sessions.db")
 TIER_LIMIT = {1: 60, 2: 1000, 3: 1000}
 TIER_DEPTH = {1: "esencial", 2: "completo", 3: "completo"}
 PRIVACIDAD_VERSION = "1.0"
