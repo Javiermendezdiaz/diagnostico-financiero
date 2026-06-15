@@ -92,6 +92,9 @@ a{color:var(--am)}
   <div class="pl"><i>▸</i><span>No hay respuestas buenas ni malas. Hay respuestas <b>verdaderas</b> — son las únicas que te sirven.</span></div>
   <div class="pl"><i>▸</i><span>Tómate tu tiempo. Las preguntas que más incomodan suelen ser las que más revelan.</span></div>
   <p style="font-size:13px;line-height:1.5;color:var(--gr);margin-top:8px">Lo que respondas es tuyo y confidencial. Cuanto más honesto seas, más preciso será tu diagnóstico.</p>
+  <div id="parejaNote" style="display:none;margin-top:12px;padding:12px 14px;border-left:3px solid var(--am);background:#1c1c20;border-radius:8px;font-size:13px;line-height:1.5">
+    <b style="color:var(--am)">En pareja, ojo con las cifras:</b> habla siempre de <b>tus</b> números individuales, no de los de los dos juntos. Tus ingresos, lo que <b>tú</b> pagas de los gastos, tu patrimonio. Nosotros los sumamos para ver vuestro hogar. Si compartís un gasto (alquiler, etc.), declara solo <b>la parte que pones tú</b>.
+  </div>
   <button class="btn" onclick="arrancarTest()">Acepto. Empecemos →</button>
 </div>
 
@@ -139,6 +142,7 @@ async function iniciar(){
       body:JSON.stringify({email:st.email,nombre:st.nombre,tier:st.tier,sexo:'',consentimiento:true})});
     st.sid=(await r.json()).session_id;
     construirCola();
+    if(PAREJA){const pn=document.getElementById('parejaNote');if(pn)pn.style.display='block';}
     show('s-pacto');
   }catch(e){console.error(e);alert('No se pudo cargar. Reintenta.');show('s-reg')}
 }

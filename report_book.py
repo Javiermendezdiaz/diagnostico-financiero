@@ -356,6 +356,29 @@ try:
 except Exception:
     NumberedCanvas=None
 
+from reportlab.platypus import Flowable as _Flowable
+class DarkPage(_Flowable):
+    """Pagina oscura full-bleed (azul prusia) para contraportada institucional / separadores."""
+    def __init__(self, numero="", titulo="", sub="", legal=""):
+        _Flowable.__init__(self); self.numero=numero; self.titulo=titulo; self.sub=sub; self.legal=legal; self.w=0; self.h=0
+    def wrap(self, aw, ah): self.w=aw; self.h=ah; return aw, ah
+    def draw(self):
+        c=self.canv; c.saveState()
+        c.setFillColor(colors.HexColor("#0F1E33")); c.rect(-22*mm, -20*mm, A4[0], A4[1], fill=1, stroke=0)
+        cx=self.w/2.0
+        if self.numero:
+            c.setFillColor(colors.HexColor("#1C3257")); c.setFont(FB,150)
+            c.drawCentredString(cx, self.h-150*mm, self.numero)
+        c.setFillColor(colors.HexColor("#FDD731")); c.setFont(FB,22)
+        c.drawCentredString(cx, self.h/2.0+6*mm, self.titulo or "▲ ADAPTA")
+        if self.sub:
+            c.setFillColor(colors.HexColor("#C9D2E0")); c.setFont(FR,11)
+            c.drawCentredString(cx, self.h/2.0-6*mm, self.sub)
+        if self.legal:
+            c.setFillColor(colors.HexColor("#6B7A92")); c.setFont(FR,7.5)
+            c.drawCentredString(cx, 14*mm, self.legal)
+        c.restoreState()
+
 def deco(cv,doc):
     cv.saveState()
     # Fondo hueso/papel de alto gramaje (lectura descansada, menos fatiga)
@@ -528,32 +551,48 @@ def cashflow_waterfall(datos, path):
     return libre
 
 def proyeccion_chart(datos, path, r=0.05):
-    edad=int(datos.get("edad",40)); meta_edad=max(EDAD_JUBILACION, edad+5)
-    anos=max(meta_edad-edad,1)
-    pat=datos.get("patrimonio",0); aho=datos.get("ahorro_mensual",0)*12
     import matplotlib.pyplot as plt
+    edad=int(datos.get("edad",40)); meta_edad=max(EDAD_JUBILACION, edad+5); anos=max(meta_edad-edad,1)
+    pat=datos.get("patrimonio",0) or 0; aho=(datos.get("ahorro_mensual",0) or 0)*12
+    ing=datos.get("ingreso_mensual",0) or 0; gas=datos.get("gasto_mensual",0) or 0
+    superavit=max(0,(ing-gas))*12; inv=datos.get("inversiones_liquidas"); colch=datos.get("colchon_liquido") or 0
     xs=list(range(edad,meta_edad+1))
-    def proy(extra):
-        v=pat; out=[v]
-        for _ in range(anos):
-            v=v*(1+r)+aho+extra; out.append(v)
+    def grow(cap0,aport):
+        v=cap0; out=[v]
+        for _ in range(anos): v=v*(1+r)+aport; out.append(v)
         return out
-    base=proy(0); mejora=proy(0.05*datos.get("ingreso_mensual",0)*12)  # +5pp del ingreso anual
-    fig,ax=plt.subplots(figsize=(6.4,3.0))
-    ax.plot(xs,base,color="#0284C7",linewidth=2.2,label="Si sigues igual")
-    ax.plot(xs,mejora,color="#1D6F42",linewidth=2.2,linestyle="--",label="Si ahorras 5 puntos más")
-    ax.fill_between(xs,base,mejora,color="#1D6F42",alpha=0.08)
-    ax.scatter([meta_edad],[base[-1]],color="#0284C7",zorder=5)
-    ax.scatter([meta_edad],[mejora[-1]],color="#1D6F42",zorder=5)
-    ax.annotate(_eur(base[-1]),(meta_edad,base[-1]),ha="right",va="top",size=8,color="#0284C7",weight="bold")
-    ax.annotate(_eur(mejora[-1]),(meta_edad,mejora[-1]),ha="right",va="bottom",size=8,color="#1D6F42",weight="bold")
+    fig,ax=plt.subplots(figsize=(6.4,3.2))
+    if inv is not None:
+        inv=inv or 0; parado=max(0,colch-gas*6)
+        e1=[v+parado for v in grow(inv,aho)]          # Inaccion: solo lo invertido trabaja; parado plano
+        e2=[v+parado for v in grow(inv,superavit)]     # Optimizar flujo: invierte el superavit real
+        e3=grow(inv+parado,superavit)                  # Completa: tambien pone a trabajar lo parado
+        ax.plot(xs,e1,color="#9A3B2E",lw=2.0,label="Inacción (como hoy)")
+        ax.plot(xs,e2,color="#B8860B",lw=2.0,ls="--",label="Optimizar tu flujo")
+        ax.plot(xs,e3,color="#1D6F42",lw=2.4,label="Estrategia completa")
+        ax.fill_between(xs,e1,e3,color="#1D6F42",alpha=0.06)
+        for ser,col,va in [(e1,"#9A3B2E","top"),(e3,"#1D6F42","bottom")]:
+            ax.scatter([meta_edad],[ser[-1]],color=col,zorder=5)
+            ax.annotate(_eur(ser[-1]),(meta_edad,ser[-1]),ha="right",va=va,size=8,color=col,weight="bold")
+        lo,hi,modo=e1[-1],e3[-1],"3"
+        titulo="Tres caminos para tu patrimonio (sobre tu liquidez invertible, al 5%/año)"
+    else:
+        base=grow(pat,aho); mejora=grow(pat,0.05*ing*12)
+        ax.plot(xs,base,color="#0284C7",lw=2.2,label="Si sigues igual")
+        ax.plot(xs,mejora,color="#1D6F42",lw=2.2,ls="--",label="Si ahorras 5 puntos más")
+        ax.fill_between(xs,base,mejora,color="#1D6F42",alpha=0.08)
+        for ser,col,va in [(base,"#0284C7","top"),(mejora,"#1D6F42","bottom")]:
+            ax.scatter([meta_edad],[ser[-1]],color=col,zorder=5)
+            ax.annotate(_eur(ser[-1]),(meta_edad,ser[-1]),ha="right",va=va,size=8,color=col,weight="bold")
+        lo,hi,modo=base[-1],mejora[-1],"2"
+        titulo="Tu patrimonio proyectado a la jubilación (estimación al 5%/año)"
     ax.set_xlabel("Edad",size=8,color="#6B7280"); ax.tick_params(labelsize=7,colors="#9CA3AF")
-    ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False); ax.spines["left"].set_color("#D5DBE3")
-    ax.spines["bottom"].set_color("#D5DBE3")
+    ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_color("#D5DBE3"); ax.spines["bottom"].set_color("#D5DBE3"); ax.grid(False)
     ax.legend(fontsize=8,frameon=False,loc="upper left")
-    ax.set_title("Tu patrimonio proyectado a la jubilación (estimación al 5%/año)",size=10,color="#1F2937",weight="bold",pad=8)
+    ax.set_title(titulo,size=10,color="#1F2937",weight="bold",pad=8)
     plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
-    return base[-1],mejora[-1],meta_edad
+    return lo,hi,meta_edad,modo
 
 def donut_asignacion(asig, path):
     """Donut HONESTO de asignacion del patrimonio: solo lo que el cliente declara (NUM-13)."""
@@ -652,13 +691,19 @@ def cuadro_financiero(p, datos, fi):
             f"preserve su valor es de las decisiones más rentables y menos arriesgadas que tienes sobre la mesa.</font>",
             St("tp",fontSize=10.5,leading=15))],"#FBF3E8","#B45309",ancho=160*mm))
     out.append(PageBreak())
-    f65,m65,_=proyeccion_chart(datos,"_proy.png")
+    f65,m65,medad,modo=proyeccion_chart(datos,"_proy.png")
+    if modo=="3":
+        narr=(f"Si dejas tu dinero como hoy, a los {medad} rondarías los <b>{_eur(f65)}</b>. Poniendo a trabajar tu "
+              f"liquidez ociosa e invirtiendo tu excedente real, llegarías a <b>{_eur(m65)}</b>. Esa diferencia "
+              f"—<b>{_eur(m65-f65)}</b>— no es suerte ni mercado: es el coste de no decidir. (Estimación al 5% anual sobre "
+              f"tu liquidez invertible, sin contar tu vivienda; orientativa, no una promesa.)")
+    else:
+        narr=(f"Si mantienes tu ritmo actual, a los {medad} rondarías los <b>{_eur(f65)}</b>. Subiendo tu ahorro cinco "
+              f"puntos, esa cifra sube a <b>{_eur(m65)}</b>: la diferencia entre ambas líneas es, literalmente, el precio de "
+              f"no decidir. (Estimación a un 5% anual; orientativa, no una promesa de rentabilidad.)")
     out+=[KeepTogether([Paragraph("Hacia dónde vas",h_sub),
           Image("_proy.png",width=160*mm,height=75*mm,hAlign="CENTER")]),
-          Paragraph(f"Si mantienes tu ritmo actual, a los 65 rondarías los <b>{_eur(f65)}</b>. Subiendo tu ahorro "
-                    f"cinco puntos, esa cifra sube a <b>{_eur(m65)}</b>: la diferencia entre ambas líneas es, literalmente, "
-                    f"el precio de no decidir. (Estimación a un 5% anual; orientativa, no una promesa de rentabilidad.)",body),
-          PageBreak()]
+          Paragraph(narr,body), PageBreak()]
     return out
 
 def laboratorio_individual(p, datos, fi, salud, resp):
@@ -1295,6 +1340,9 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             ("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5),
             ("LEFTPADDING",(0,0),(-1,-1),7),("RIGHTPADDING",(0,0),(-1,-1),7),("FONTNAME",(0,0),(-1,0),FB)]+bgs))
         S+=[Paragraph("%s \u00b7 %s"%(capa["code"],capa["nombre"]),h_sub), t]
+    S+=[PageBreak(), DarkPage(titulo="▲ ADAPTA  ·  family office",
+        sub="Tu Libro Financiero · Documento confidencial",
+        legal="Adapta Family Office · Herramienta de autoconocimiento financiero; no constituye asesoramiento personalizado regulado. Las estimaciones son orientativas. © 2026.")]
     global CLIENTE_NOMBRE; CLIENTE_NOMBRE=(cli.get("nombre") or "")
     doc=SimpleDocTemplate(out,pagesize=A4,topMargin=22*mm,bottomMargin=20*mm,leftMargin=22*mm,rightMargin=22*mm,
                           title="Tu Libro Financiero — ITAP")

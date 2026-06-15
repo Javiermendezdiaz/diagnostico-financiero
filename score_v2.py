@@ -187,12 +187,14 @@ def calcular_palancas(datos, p, perfil_in, resp=None):
                         "precio, la palanca no es meter más horas — es subir el valor de cada una: precio, "
                         "posicionamiento o delegar lo que no rinde." % (horas, _eur(ingreso), _eur(ph))))
 
-    # 6) Dinero atrapado en la sociedad (S.L.)
+    # 6) Eficiencia de flujos societarios (S.L.) — empresario, no asalariado
     if resp and resp.get("C11-11") == 2:
-        out.append(("Tienes patrimonio secuestrado en tu sociedad",
-                    "El dinero que genera tu empresa se queda dentro sin un plan para llegar a tu patrimonio personal. "
-                    "Es capital tuyo que ni trabaja para ti ni te da tranquilidad: ordenar la salida —vía dividendos, "
-                    "nómina o estructura, con criterio fiscal— es de las palancas más rentables que tienes."))
+        out.append(("Tu palanca no es un sueldo: es la eficiencia de tu sociedad",
+                    "El motor que genera tu excedente se queda atrapado dentro de la empresa por el miedo al impacto "
+                    "fiscal del reparto. Tu reto no es 'ganar más', sino diseñar una pasarela eficiente entre tu sociedad "
+                    "y tu patrimonio personal: optimizar el Impuesto de Sociedades y planificar extracciones —dividendos, "
+                    "nómina, estructura— que maximicen tu liquidez neta sin regalar dinero a Hacienda. Es de las palancas "
+                    "más rentables que existen, y solo está al alcance de quien tiene empresa, como tú."))
 
     # 7) Comisiones de inversión que erosionan la rentabilidad en silencio
     if resp and resp.get("C2-14") == 2 and patrimonio >= 10000:
