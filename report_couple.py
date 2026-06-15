@@ -87,7 +87,8 @@ CHOQUE={
  "C7":"{debil} siente el riesgo de depender de una sola fuente; {fuerte} lo minimiza. Si el ingreso principal lo aporta quien menos lo teme, la casa puede estar m\u00e1s expuesta de lo que cree.",
  "C8":"{fuerte} ve oportunidad donde {debil} ve amenaza. En una crisis, esa diferencia de temperamento puede ser vuestra mayor fuerza \u2014uno protege, otro aprovecha\u2014 o vuestra peor pelea, si no os repart\u00eds los roles a prop\u00f3sito.",
  "C9":"{fuerte} cree tener el flujo bajo control; {debil} no. Cuando uno gobierna el dinero y el otro lo padece, el que no mira acaba dependiendo de la vigilancia del que s\u00ed: un reparto injusto que termina pasando factura.",
- "C10":"La deuda os pesa distinto: {debil} la siente encima, {fuerte} la lleva ligera. Si quien convive con la tensi\u00f3n es quien menos margen tiene, cualquier inversi\u00f3n que proponga {fuerte} chocar\u00e1 con un freno que ni siquiera entiende."}
+ "C10":"La deuda os pesa distinto: {debil} la siente encima, {fuerte} la lleva ligera. Si quien convive con la tensi\u00f3n es quien menos margen tiene, cualquier inversi\u00f3n que proponga {fuerte} chocar\u00e1 con un freno que ni siquiera entiende.",
+ "C11":"{fuerte} ve la palanca de crecer \u2014segundas fuentes, poner el dinero a trabajar\u2014 como algo natural; {debil}, como un riesgo que prefiere no tocar. Si uno empuja para construir y el otro frena por miedo, la casa se queda quieta justo donde m\u00e1s podr\u00eda avanzar. No es que uno tenga raz\u00f3n: es que el acelerador y el freno a\u00fan no se han puesto de acuerdo."}
 SOMBRA={
  "C1":"Los dos llev\u00e1is el dinero con tensi\u00f3n a la vez. El problema no es de compatibilidad: es que cuando ambos os agot\u00e1is en lo mismo, no queda nadie sereno que sostenga la casa. Hay que romper el bucle entre los dos, no esperar a que el otro mejore.",
  "C2":"Ninguno tiene a\u00fan un rumbo claro hacia la libertad. No es un choque, es un vac\u00edo compartido: nadie est\u00e1 poniendo el destino. Vuestra tarea no es negociar, es decidir juntos a d\u00f3nde vais.",
@@ -98,7 +99,8 @@ SOMBRA={
  "C7":"Ambos depend\u00e9is en exceso de pocas fuentes. La casa entera se sostiene sobre patas fr\u00e1giles y ninguno diversifica. Es un riesgo estructural que solo se ve cuando ya ha fallado.",
  "C8":"Ninguno est\u00e1 preparado para aprovechar una crisis; ambos solo podr\u00edais sufrirla. Convertir eso en una ventaja conjunta es de las palancas m\u00e1s rentables que ten\u00e9is.",
  "C9":"A los dos se os escapa el control del flujo. Si nadie mira a d\u00f3nde va el dinero, decide la inercia por vosotros. Montar el sistema juntos es urgente.",
- "C10":"La deuda os pesa a ambos. Sin un plan com\u00fan, cada uno la gestiona a ciegas y el conjunto se tensa. Ponedla toda sobre la mesa, sin secretos, y haced un \u00fanico plan."}
+ "C10":"La deuda os pesa a ambos. Sin un plan com\u00fan, cada uno la gestiona a ciegas y el conjunto se tensa. Ponedla toda sobre la mesa, sin secretos, y haced un \u00fanico plan.",
+ "C11":"A ninguno de los dos le sobra energ\u00eda para construir: ambos est\u00e1is en modo defensa, no ataque. No es un choque, es un techo compartido \u2014 mientras los dos solo protej\u00e1is, nadie pondr\u00e1 el patrimonio a crecer. La palanca est\u00e1 sin tocar en las dos manos."}
 
 def comparar_capa(code,a,b,nA,nB):
     nm=CAPAS[code]["nombre"]; g=abs(a-b)
@@ -107,9 +109,9 @@ def comparar_capa(code,a,b,nA,nB):
         return (f"{nm} es terreno firme para los dos ({a:.0f} y {b:.0f}). Es de vuestras fortalezas compartidas: "
                 f"apoyaos aqu\u00ed cuando otras \u00e1reas aprieten.")
     if a>=51 and b>=51:
-        return SOMBRA[code]
+        return SOMBRA.get(code, f"{nm} os pesa a los dos a la vez: es un frente compartido, no un desencuentro. Atajadlo juntos, no esperéis a que el otro mejore.")
     if g>=30:
-        return CHOQUE[code].format(fuerte=fuerte,debil=debil)
+        return CHOQUE.get(code, "{debil} lo vive con más tensión que {fuerte}. Esa diferencia, hablada, se convierte en complemento; callada, en reproche silencioso.").format(fuerte=fuerte,debil=debil)
     return (f"{nm} est\u00e1 bastante equilibrado entre vosotros ({a:.0f} y {b:.0f}): diferencias peque\u00f1as que se "
             f"resuelven hablando, sin necesidad de un gran acuerdo.")
 
@@ -124,7 +126,8 @@ def paso_pareja(code):
      "C7":"mirad cuánto depende la casa de un solo sueldo y si eso os deja tranquilos.",
      "C8":"definid qué haríais juntos si llegara una gran oportunidad mañana.",
      "C9":"montad un presupuesto de hogar de tres cajas y revisadlo una vez al mes, los dos.",
-     "C10":"poned toda la deuda de ambos sobre la mesa, sin secretos, y haced un único plan."}.get(code,"")
+     "C10":"poned toda la deuda de ambos sobre la mesa, sin secretos, y haced un único plan.",
+     "C11":"elegid juntos UNA palanca de crecimiento para este año —una segunda fuente, poner a trabajar un ahorro parado— y repartíos quién la lidera."}.get(code,"")
 
 def _fill(d):
     d=dict(d or {}); d.setdefault("gasto_mensual",2000); d.setdefault("ingreso_mensual",3000)
@@ -357,9 +360,13 @@ def laboratorio_pareja(rA,rB,pA,pB,nA,nB,dA,dB,hogar,divs):
     return out
 
 def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None):
-    pA,trA,saludA=rb.perfil(rA); pB,trB,saludB=rb.perfil(rB)
+    global INST, CAPAS
+    _iv2=rb._cargar_v2(); _c2={c["code"]:c for c in _iv2["capas"]}
+    rb.INST=_iv2; rb.CAPAS=_c2; INST=_iv2; CAPAS=_c2          # el libro de pareja se puntúa sobre el instrumento v2
     nA=(cliA["nombre"].split()[0] if (cliA.get("nombre") or "").strip() else "Persona A")
     nB=(cliB["nombre"].split()[0] if (cliB.get("nombre") or "").strip() else "Persona B")
+    rb.CLIENTE_NOMBRE="%s & %s"%(nA,nB)                       # evita que se filtre el nombre de un informe anterior
+    pA,trA,saludA=rb.perfil(rA); pB,trB,saludB=rb.perfil(rB)
     gaps=[abs(pA[c]["score"]-pB[c]["score"]) for c in CAPAS]
     compat=max(0,round(100-statistics.mean(gaps)))
     divs=divergencias_item(rA,rB)
@@ -583,9 +590,12 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None):
             ("LEFTPADDING",(0,0),(-1,-1),7),("RIGHTPADDING",(0,0),(-1,-1),7),
             ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]+bgs))
         S+=[Paragraph("%s \u00b7 %s"%(capa["code"],capa["nombre"]),h_sub), t]
-    doc=SimpleDocTemplate(out,pagesize=A4,topMargin=20*mm,bottomMargin=20*mm,leftMargin=22*mm,rightMargin=22*mm,
+    doc=SimpleDocTemplate(out,pagesize=A4,topMargin=22*mm,bottomMargin=20*mm,leftMargin=22*mm,rightMargin=22*mm,
                           title="Vuestro Libro Financiero — ITAP")
-    doc.build(S,onFirstPage=rb.deco,onLaterPages=rb.deco); print("PDF PAREJA OK ->",out)
+    doc._cliente="%s & %s"%(nA,nB)
+    if getattr(rb,"NumberedCanvas",None): doc.build(S,onFirstPage=rb.deco,onLaterPages=rb.deco,canvasmaker=rb.NumberedCanvas)
+    else: doc.build(S,onFirstPage=rb.deco,onLaterPages=rb.deco)
+    print("PDF PAREJA OK ->",out)
 
 if __name__=="__main__":
     sevA={"C1":0.40,"C2":0.72,"C3":0.66,"C4":0.58,"C5":0.50,"C6":0.62,"C7":0.70,"C8":0.55,"C9":0.55,"C10":0.68}

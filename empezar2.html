@@ -72,12 +72,13 @@ a{color:var(--am)}
 <div class="body">
 
 <div id="s-reg" class="step active">
-  <div class="kick">Tu informe a medida</div>
-  <p style="font-size:15px;line-height:1.5;margin-bottom:18px">Un diagnóstico que <b>se adapta a ti</b>: si todo va bien, son pocas preguntas; si algo aprieta, profundiza justo ahí. Y reacciona a cada respuesta. 8-12 minutos.</p>
+  <div class="kick">Diagnóstico psicofinanciero · Adapta</div>
+  <p style="font-size:15px;line-height:1.55;margin-bottom:16px"><b>No es un test. Es un espejo.</b> La lectura más honesta que te van a hacer sobre tu dinero — y, probablemente, una de las mejores inversiones de tu vida: lo que no se mide, se paga en silencio. Se adapta a ti y reacciona a cada respuesta. <b>8-12 min.</b></p>
   <div class="lbl">Tu nombre</div><input id="nombre" placeholder="Nombre">
   <div class="lbl" style="margin-top:12px">Tu email</div><input id="email" type="email" placeholder="tu@email.com">
-  <div class="lbl" style="margin-top:12px">Tipo de diagnóstico</div>
-  <select id="tier"><option value="1">Diagnóstico Rápido · 19 €</option><option value="2" selected>Informe Avanzado · 39 €</option></select>
+  <div class="lbl" style="margin-top:12px">Elige tu diagnóstico</div>
+  <select id="tier" onchange="descTier()"><option value="1">Rápido · 19 €</option><option value="2" selected>Avanzado · 39 €</option><option value="3">Pareja · 54 €</option></select>
+  <div id="tierDesc" style="margin-top:10px;padding:11px 13px;border-left:3px solid var(--am);background:#1c1c20;border-radius:8px;font-size:13px;line-height:1.5"></div>
   <label class="chk"><input type="checkbox" id="consent"><span>Acepto la <a href="privacidad.html" target="_blank">Política de Privacidad</a> y el tratamiento de mis datos.</span></label>
   <button class="btn" onclick="iniciar()">Comenzar →</button>
 </div>
@@ -125,7 +126,7 @@ a{color:var(--am)}
 <script>
 const API="https://diagnostico-financiero-app.onrender.com";
 const PAREJA=new URLSearchParams(location.search).get('pareja');
-const _qt=new URLSearchParams(location.search).get('tier'); if((_qt==='1'||_qt==='2')&&document.getElementById('tier')) document.getElementById('tier').value=_qt;
+const _qt=new URLSearchParams(location.search).get('tier'); if((_qt==='1'||_qt==='2'||_qt==='3')&&document.getElementById('tier')) document.getElementById('tier').value=_qt; try{descTier();}catch(e){}
 let INST=null, st={email:"",nombre:"",tier:2,sid:null,perfil:{},resp:{},datos:{},abiertas:{},
    cola:[], i:0, tens:[], reportUrl:null, abierta:new Set(), avisoEstres:false};
 
@@ -148,6 +149,13 @@ async function iniciar(){
   }catch(e){console.error(e);alert('No se pudo cargar. Reintenta.');show('s-reg')}
 }
 function arrancarTest(){ show('s-q'); st.i=0; pintar(); }
+function descTier(){
+  const el=document.getElementById('tier'), box=document.getElementById('tierDesc'); if(!el||!box) return;
+  const D={'1':'<b style="color:var(--am)">Para quien quiere la verdad, ya.</b> Una radiografía sin anestesia de tu relación con el dinero. Ideal si empiezas, si nunca te han dicho la verdad sobre tus números, o si quieres claridad sin rodeos.',
+   '2':'<b style="color:var(--am)">Para quien va en serio.</b> Tienes patrimonio, deudas, una empresa o decisiones reales sobre la mesa. El manual de operaciones completo: tu brecha, tus palancas, tu proyección y tu contrato contigo mismo.',
+   '3':'<b style="color:var(--am)">Para quien comparte vida y cuentas.</b> Cruza vuestros dos diagnósticos y pone sobre la mesa la conversación de dinero que lleváis tiempo evitando — antes de que se convierta en el problema.'};
+  box.innerHTML=D[el.value]||'';
+}
 const REFLEX=["Sin prisa. Responde por cómo es, no por cómo te gustaría que fuera.",
   "No hay respuesta correcta. Solo la verdadera.",
   "Tómate un segundo. La respuesta honesta es la que de verdad te sirve.",

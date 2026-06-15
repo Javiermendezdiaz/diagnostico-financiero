@@ -139,12 +139,12 @@ def calcular_palancas(datos, p, perfil_in, resp=None):
         tasa_real = round(100 * max(0.0, superavit) / ingreso)
         tasa_consc = round(100 * ahorro / ingreso)
         if gap >= max(200, ingreso * 0.08):
-            out.append(("Tu problema no es ahorrar poco: es no decidir dónde va el excedente",
-                        "Cada mes te sobran %s sobre tus gastos, pero solo %s tienen un destino fijo: hay %s al mes "
-                        "en un limbo, ni gastados ni invertidos. Tu tasa de ahorro REAL es del %d%%, no el %d%% que "
-                        "parece. No necesitas apretarte el cinturón — necesitas automatizar el destino de ese excedente "
-                        "el día 1 de cada mes, antes de que se evapore en el goteo del día a día o lo erosione la inflación." % (
-                        _eur(superavit), _eur(ahorro), _eur(gap), tasa_real, tasa_consc)))
+            out.append(("Tus números dicen que sobra dinero cada mes: ¿dónde está?",
+                        "Según lo que has declarado, entran %s más de lo que gastas, y solo %s tiene un destino fijo: tu tasa "
+                        "de ahorro podría ser del %d%%, no el %d%% que parece. Pero seamos honestos: si no ves ese excedente, "
+                        "no asumas que sobra — casi siempre se va en lo que el presupuesto mensual no recoge (impuestos "
+                        "trimestrales, imprevistos, gastos sueltos). El trabajo no es recortar, es hacer visible a dónde va "
+                        "cada euro y decidir tú su destino." % (_eur(superavit), _eur(ahorro), tasa_real, tasa_consc)))
         elif tasa_consc < 10:
             out.append(("Tu tijera de ahorro está casi cerrada",
                         "Ahorras un %d%% de lo que ingresas (%s al mes) y tu gasto se come casi todo el ingreso. Es la "
@@ -187,8 +187,8 @@ def calcular_palancas(datos, p, perfil_in, resp=None):
                         "precio, la palanca no es meter más horas — es subir el valor de cada una: precio, "
                         "posicionamiento o delegar lo que no rinde." % (horas, _eur(ingreso), _eur(ph))))
 
-    # 6) Eficiencia de flujos societarios (S.L.) — empresario, no asalariado
-    if resp and resp.get("C11-11") == 2:
+    # 6) Eficiencia de flujos societarios (S.L.) — SOLO empresarios reales (defensa: nunca a un asalariado)
+    if resp and resp.get("C11-11") == 2 and _es_empresario(perfil_in):
         out.append(("Tu palanca no es un sueldo: es la eficiencia de tu sociedad",
                     "El motor que genera tu excedente se queda atrapado dentro de la empresa por el miedo al impacto "
                     "fiscal del reparto. Tu reto no es 'ganar más', sino diseñar una pasarela eficiente entre tu sociedad "
@@ -210,9 +210,9 @@ def calcular_palancas(datos, p, perfil_in, resp=None):
         pp = 100 * rp / ingreso
         if rp == 0:
             out.append(("Hoy no tienes ni un euro que entre sin tu tiempo",
-                        "Todo tu ingreso depende de que tú estés ahí. Mi vida —y la de casi todos los que llegan lejos— "
-                        "cambió cuando dejé de tener una sola fuente: una renta de alquiler, dividendos, intereses o un "
-                        "ingreso que no exige tus horas. No hace falta empezar grande; hace falta empezar. La primera "
+                        "Todo tu ingreso depende de que tú estés presente. Quienes llegan lejos casi siempre comparten una "
+                        "cosa: dejaron de depender de una sola fuente —una renta de alquiler, dividendos, intereses o un "
+                        "ingreso que no exige sus horas. No hace falta empezar grande; hace falta empezar. La primera "
                         "fuente pasiva es la que más cuesta y la que más libera."))
         elif pp < 30:
             out.append(("Tus rentas pasivas ya empujan: ahora amplíalas",

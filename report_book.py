@@ -387,7 +387,7 @@ def deco(cv,doc):
     # Cabecera editorial (desde la pagina 2): cliente | firma
     if doc.page>1:
         cv.setFillColor(GREY); cv.setFont(FR,7)
-        cv.drawString(22*mm,A4[1]-12*mm,((CLIENTE_NOMBRE or "Tu Libro Financiero")[:42]).upper())
+        cv.drawString(22*mm,A4[1]-12*mm,((getattr(doc,"_cliente",None) or CLIENTE_NOMBRE or "Tu Libro Financiero")[:42]).upper())
         cv.drawRightString(A4[0]-22*mm,A4[1]-12*mm,"ADAPTA FAMILY OFFICE")
         cv.setStrokeColor(LINE); cv.setLineWidth(0.4); cv.line(22*mm,A4[1]-14*mm,A4[0]-22*mm,A4[1]-14*mm)
     # Pie: nota confidencial (el numero de pagina lo pone NumberedCanvas)
@@ -578,7 +578,7 @@ def proyeccion_chart(datos, path, r=0.05):
         lo,hi,modo=e1[-1],e3[-1],"3"
         titulo="Tres caminos para tu patrimonio (sobre tu liquidez invertible, al 5%/año)"
     else:
-        base=grow(pat,aho); mejora=grow(pat,0.05*ing*12)
+        base=grow(pat,aho); mejora=grow(pat,aho+0.05*ing*12)  # ahorro ACTUAL + 5 puntos extra (no sustituir)
         ax.plot(xs,base,color="#0284C7",lw=2.2,label="Si sigues igual")
         ax.plot(xs,mejora,color="#1D6F42",lw=2.2,ls="--",label="Si ahorras 5 puntos más")
         ax.fill_between(xs,base,mejora,color="#1D6F42",alpha=0.08)
@@ -1347,6 +1347,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     global CLIENTE_NOMBRE; CLIENTE_NOMBRE=(cli.get("nombre") or "")
     doc=SimpleDocTemplate(out,pagesize=A4,topMargin=22*mm,bottomMargin=20*mm,leftMargin=22*mm,rightMargin=22*mm,
                           title="Tu Libro Financiero — ITAP")
+    doc._cliente=(cli.get("nombre") or "")
     if NumberedCanvas: doc.build(S,onFirstPage=deco,onLaterPages=deco,canvasmaker=NumberedCanvas)
     else: doc.build(S,onFirstPage=deco,onLaterPages=deco)
     print("PDF OK ->",out)
