@@ -72,9 +72,10 @@ def perfil(resp):
     return out,trans,round(statistics.mean([v["score"] for v in out.values()]),1)
 def fi_metrics(d):
     gasto=d.get("gasto_mensual") or 0; ingreso=d.get("ingreso_mensual") or 0
-    fi=gasto*12*25; pct=round(100*d["patrimonio"]/fi,1) if fi else 0.0
-    tasa=round(100*d["ahorro_mensual"]/ingreso,1) if ingreso else 0.0
-    r,pv,m,n=0.05/12,d["patrimonio"],d["ahorro_mensual"],0
+    pat=d.get("patrimonio") or 0; aho=d.get("ahorro_mensual") or 0
+    fi=gasto*12*25; pct=round(100*pat/fi,1) if fi else 0.0
+    tasa=round(100*aho/ingreso,1) if ingreso else 0.0
+    r,pv,m,n=0.05/12,pat,aho,0
     while pv<fi and n<1200: pv=pv*(1+r)+m; n+=1
     return fi,pct,tasa,(round(n/12,1) if n<1200 else None)
 
