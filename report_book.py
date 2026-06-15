@@ -234,7 +234,7 @@ def plan(p):
 def radar_png(p,path):
     SHORT={"C1":"Agotamiento","C2":"Libertad","C3":"Resistencia","C4":"Estilo de vida","C5":"Protección","C6":"Estatus","C7":"Concentración","C8":"Antifragilidad","C9":"Flujo de caja","C10":"Deuda","C11":"Crecimiento"}
     labels=[SHORT.get(c,c) for c in CAPAS]; vals=[p[c]["score"] for c in CAPAS]
-    vsal=[100-x for x in vals]
+    vsal=[100-x for x in vals]  # el radar se dibuja sobre SALUD (borde/lleno = sano), no sobre tension
     N=len(labels); ang=np.linspace(0,2*np.pi,N,endpoint=False).tolist(); ang+=ang[:1]; v=vsal+vsal[:1]
     m=sum(vals)/len(vals)
     # tono del poligono segun tension global: oro aristocratico -> ambar -> terracota
@@ -272,7 +272,7 @@ class Bar(Flowable):
     def wrap(s,*a): return (s.w*mm if s.w<10 else s.w,s.h)
     def draw(s):
         c=s.canv; W=s.w; c.setFillColor(colors.HexColor("#EEF2F6")); c.roundRect(0,0,W,s.h,2,fill=1,stroke=0)
-        h=100-s.v
+        h=100-s.v  # se dibuja SALUD (alto=bien): barra llena y verde = sano
         col=BANDC[0] if h>=75 else BANDC[1] if h>=50 else BANDC[2] if h>=25 else BANDC[3]
         c.setFillColor(colors.HexColor(col)); c.roundRect(0,0,max(3,W*h/100),s.h,2,fill=1,stroke=0)
 
@@ -313,7 +313,7 @@ ADAPTA={
  "C8":("Estrategia patrimonial antifr\u00e1gil","Estructuramos tu patrimonio para que las crisis dejen de ser una amenaza y empiecen a ser una oportunidad.","https://www.adaptafamilyoffice.com/casos/banca-privada"),
  "C9":("Control de tu flujo de caja","Montamos contigo el sistema para que sepas a d\u00f3nde va cada euro y decidas t\u00fa, no las circunstancias.","https://www.adaptafamilyoffice.com/servicios"),
  "C10":("Planificaci\u00f3n y reestructuraci\u00f3n de hipoteca","Renegociaci\u00f3n, subrogaci\u00f3n y las mejores condiciones que tu perfil permite \u2014 para que la deuda deje de pesar.","https://www.adaptafamilyoffice.com/casos/planificacion-hipoteca"),
- "C11":("Estrategia de crecimiento patrimonial","Ponemos a trabajar tu excedente y tu patrimonio con un plan a años vista — para que tu dinero deje de defenderse y empiece a construir la vida que quieres.","https://www.adaptafamilyoffice.com/casos/banca-privada")}
+ "C11":("Estrategia de crecimiento patrimonial","Ponemos a trabajar tu excedente y tu patrimonio con un plan a a\u00f1os vista \u2014 para que tu dinero deje de defenderse y empiece a construir la vida que quieres.","https://www.adaptafamilyoffice.com/casos/banca-privada")}
 
 def seccion_adapta(p):
     out=[PageBreak(), Paragraph("El siguiente paso con Adapta",h_sec),
@@ -739,6 +739,20 @@ def seccion_extras(extras):
         for ti,tx in con:
             out.append(Paragraph(f"<font color='#B91C1C'>&#9656;</font>  <b>{ti}</b>",St("cot",fontSize=10.5,leading=14,spaceBefore=5)))
             out.append(Paragraph(tx,St("cox",fontSize=9.7,leading=14,leftIndent=12,spaceAfter=3)))
+    rt=extras.get("ratios") or []
+    if rt:
+        _RC={"verde":"#1D6F42","ambar":"#B8860B","rojo":"#A11B1B","info":"#7A7A72"}
+        out+=[Spacer(1,5*mm), Paragraph("Tus ratios financieros",h_sub),
+              Paragraph("Las cifras que un buen asesor mira primero. Cada una con su umbral y qué hacer si se cruza. El color es el semáforo: verde sano, ámbar a vigilar, rojo a actuar.",small)]
+        _rows=[]
+        for r in rt:
+            _rows.append([Paragraph("<b>%s</b>"%r["nombre"],small),
+                          Paragraph("<font color='%s'><b>%s</b></font>"%(_RC.get(r["estado"],"#7A7A72"),r["valor"]),small),
+                          Paragraph("<font color='#6B7280'>%s</font>"%r["accion"],small)])
+        _rt=Table(_rows,colWidths=[50*mm,38*mm,72*mm])
+        _rt.setStyle(TableStyle([("VALIGN",(0,0),(-1,-1),"TOP"),("LINEBELOW",(0,0),(-1,-1),0.3,LINE),
+            ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6),("LEFTPADDING",(0,0),(-1,-1),2),("RIGHTPADDING",(0,0),(-1,-1),6)]))
+        out+=[_rt]
     for blk in (extras.get("energia"), extras.get("conciliacion"), extras.get("asesor"), extras.get("herencia")):
         if blk:
             ti,tx=blk
@@ -753,6 +767,7 @@ def seccion_extras(extras):
     return out
 
 def seccion_coste_inaccion(extras):
+    """Cierre de alto impacto: cuantifica el coste de no actuar con numeros REALES del cliente."""
     if not extras: return []
     br=extras.get("brecha"); items=[]
     if br and (br.get("brecha_mes") or 0)>0:
@@ -770,7 +785,8 @@ def seccion_coste_inaccion(extras):
          Paragraph("Un diagnóstico sin acción es solo información cara. Esto es lo que te cuesta, en concreto, cada mes que el cuadro sigue igual:",body)]
     for it in items:
         out.append(Paragraph("<font color='#A11B1B'>&#9656;</font>  "+it,St("ci",fontSize=10.5,leading=15,leftIndent=6,spaceAfter=7)))
-    out.append(Paragraph("La buena noticia: nada de esto es una condena. Se mueve con las decisiones ordenadas que tienes en las páginas anteriores — no con suerte, con método. El primer paso es hoy.",St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=4)))
+    out.append(Paragraph("La buena noticia: nada de esto es una condena. Se mueve con las decisiones ordenadas que tienes en las páginas anteriores — no con suerte, con método. El primer paso es hoy.",
+               St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=4)))
     return out
 
 def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=None,arq_override=None):
@@ -833,6 +849,9 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                      f"<font color='#B91C1C'><b>Tu punto ciego:</b></font> {ARQ_META[arq_code]['sombra']}",
                      St("aq",fontSize=9.2,leading=13,textColor=GREY,spaceAfter=4))] if arq_code else []),
         Spacer(1,2*mm),
+        *([_box([Paragraph("<font color='#9A6A00'><b>&#9656;  Tu siguiente mejor acción</b></font>",St("sau1",fontSize=11.5,leading=15,fontName=FB)),
+                 Paragraph(extras["accion_unica"],St("sau2",fontSize=10.5,leading=15,spaceBefore=2,textColor=INK))],
+                "#FFF8E1","#B45309",ancho=160*mm), Spacer(1,4*mm)] if (extras and extras.get("accion_unica")) else []),
         Paragraph("Cuanto más llena y hacia el borde está cada capa, más sana. El anillo verde exterior es el "
                   "territorio saludable. Antes de entrar capítulo a capítulo, esta es tu silueta completa:",body),
         Image("_radar.png",width=122*mm,height=122*mm,hAlign="CENTER"),
@@ -1086,6 +1105,7 @@ def build_book(resp, datos, cli, outpath, depth="completo", baremo=None, sintesi
     build(cli, resp, datos, outpath, depth, baremo, sintesis=sintesis, extras=extras, arq_override=arq_override)
     return outpath
 
+# ---------- v2: libro sobre el instrumento adaptativo ----------
 _INST_V2=None
 def _cargar_v2():
     global _INST_V2
@@ -1094,15 +1114,19 @@ def _cargar_v2():
     return _INST_V2
 
 def build_book_v2(resp, datos, cli, outpath, perfil_in=None, depth="completo", baremo=None, sintesis=None, extras=None, arq_override=None):
+    """Genera el libro usando el instrumento v2 (11 capas adaptativas) + secciones brecha/palancas.
+    Reutiliza todo el render existente intercambiando INST/CAPAS de forma temporal y segura."""
     global INST, CAPAS
     inst_v2=_cargar_v2()
-    _bak_inst,_bak_capas=INST,CAPAS
+    _bak_inst, _bak_capas = INST, CAPAS
     INST=inst_v2; CAPAS={c["code"]:c for c in inst_v2["capas"]}
     try:
         if arq_override is None and perfil_in:
             try:
-                import score_v2 as _sv; arq_override=_sv.arq_desde_perfil(perfil_in)
-            except Exception: arq_override=None
+                import score_v2 as _sv
+                arq_override=_sv.arq_desde_perfil(perfil_in)
+            except Exception:
+                arq_override=None
         build(cli, resp, datos, outpath, depth, baremo, sintesis=sintesis, extras=extras, arq_override=arq_override)
     finally:
         INST=_bak_inst; CAPAS=_bak_capas

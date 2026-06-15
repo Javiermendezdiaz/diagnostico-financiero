@@ -11,6 +11,9 @@ import report_couple as rc
 app = FastAPI(title="ITAP")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False,
                    allow_methods=["*"], allow_headers=["*"])
+# Persistencia: si ITAP_DATA_DIR apunta a un disco persistente (Render disk), la base de datos
+# y los PDF sobreviven a redespliegues y reinicios. Sin esa variable, cae al comportamiento previo
+# (efimero), de modo que el cambio es 100% retrocompatible.
 _DATA_DIR = (os.environ.get("ITAP_DATA_DIR") or "").strip()
 if _DATA_DIR:
     try:
@@ -61,7 +64,7 @@ class CompletePayload(BaseModel):
     datos: Optional[Dict[str, float]] = None
     pareja_de: Optional[str] = None
     abiertas: Optional[Dict[str, str]] = {}
-    perfil: Optional[Dict[str, str]] = {}
+    perfil: Optional[Dict[str, object]] = {}
     v2: Optional[bool] = False
 
 class BorrarPayload(BaseModel):
@@ -203,6 +206,7 @@ def _guardar_salud_v2(session_id, respuestas):
         return None
 
 def _retrato_individual_v2(session_id, respuestas, abiertas, perfil, email=None, nombre=None):
+    """Retrato narrativo IA para v2: contexto (salud, focos, arquetipo) desde el motor v2."""
     try:
         if not abiertas or not any(str(v).strip() for v in abiertas.values()):
             return None
@@ -298,6 +302,7 @@ def open_answer(payload: dict):
 
 @app.post("/api/progress")
 def progress(payload: ProgressPayload):
+    """Marca hasta donde ha llegado el usuario, para ver donde se cae quien no termina."""
     try:
         with db() as c:
             c.execute("""UPDATE sesiones SET progreso_idx=MAX(COALESCE(progreso_idx,0),?),
@@ -310,8 +315,9 @@ def progress(payload: ProgressPayload):
 
 @app.get("/api/funnel")
 def funnel():
+    """Embudo agregado (sin datos personales): inicio -> progreso -> finalizacion -> pago + abandono por pregunta."""
     if os.environ.get("FUNNEL_KEY"):
-        return {"error": "protegido"}
+        return {"error": "protegido"}  # placeholder; si se define clave, usar /api/funnel?key=
     try:
         with db() as c:
             rows = c.execute("SELECT tier,respuestas,pagado,progreso_idx,progreso_total,last_qid,creado FROM sesiones").fetchall()
@@ -329,10 +335,14 @@ def funnel():
         tr = [r for r in rows if r["tier"] == t]
         ct = sum(1 for r in tr if _comp(r))
         bytier[str(t)] = {"iniciados": len(tr), "completados": ct, "pagados": sum(1 for r in tr if r["pagado"])}
-    return {"iniciados": total, "completados": completados, "pagados": pagados, "abandonos": total - completados,
-            "tasa_finalizacion_pct": round(100.0 * completados / total, 1) if total else 0,
-            "tasa_pago_sobre_completados_pct": round(100.0 * pagados / completados, 1) if completados else 0,
-            "abandono_por_pregunta": dict(drop.most_common(20)), "por_tier": bytier}
+    return {
+        "iniciados": total, "completados": completados, "pagados": pagados,
+        "abandonos": total - completados,
+        "tasa_finalizacion_pct": round(100.0 * completados / total, 1) if total else 0,
+        "tasa_pago_sobre_completados_pct": round(100.0 * pagados / completados, 1) if completados else 0,
+        "abandono_por_pregunta": dict(drop.most_common(20)),
+        "por_tier": bytier,
+    }
 
 @app.post("/api/complete")
 def complete(payload: CompletePayload):

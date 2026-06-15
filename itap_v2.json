@@ -835,12 +835,26 @@
      "texto": "De lo que tienes invertido, ¿sabes cuánto pagas al año en comisiones?",
      "nivel": "nucleo",
      "opciones": [
-      {"texto": "Sí, y son bajas: en torno al 0,5% anual o menos.", "score": 0},
-      {"texto": "Más o menos; rondan el 1-1,5% anual.", "score": 50},
-      {"texto": "No lo sé, o está en el banco de siempre (probablemente altas).", "score": 100}
+      {
+       "texto": "Sí, y son bajas: en torno al 0,5% anual o menos.",
+       "score": 0
+      },
+      {
+       "texto": "Más o menos; rondan el 1-1,5% anual.",
+       "score": 50
+      },
+      {
+       "texto": "No lo sé, o está en el banco de siempre (probablemente altas).",
+       "score": 100
+      }
      ],
      "ayuda": "Un 1,5% anual de comisiones puede comerse un tercio de tu rentabilidad a largo plazo.",
-     "mostrar_si": {"campo": "invierte", "valor_not_in": ["No, nada invertido"]}
+     "mostrar_si": {
+      "campo": "invierte",
+      "valor_not_in": [
+       "No, nada invertido"
+      ]
+     }
     }
    ],
    "cribadores": [
@@ -2815,7 +2829,10 @@
     "palanca_rentabilidad": "Palanca rentabilidad",
     "palanca_tecnologia": "Palanca tecnologia",
     "palanca_entorno": "Palanca entorno",
-    "liquidez_sociedad": "Liquidez en sociedad"
+    "liquidez_sociedad": "Liquidez en sociedad",
+    "div_nomina": "Nómina vs dividendos",
+    "optim_is": "Optimización del IS",
+    "sucesion_empresa": "Sucesión de la empresa"
    },
    "items": [
     {
@@ -3095,11 +3112,71 @@
      "texto": "El dinero que genera tu empresa, ¿llega a tu patrimonio personal o se queda atrapado dentro de la sociedad?",
      "nivel": "nucleo",
      "opciones": [
-      {"texto": "Tengo una estrategia clara para sacarlo de forma fiscalmente eficiente.", "score": 0},
-      {"texto": "Voy sacando lo justo para vivir, sin un plan pensado.", "score": 50},
-      {"texto": "Se acumula dentro y no sé cómo sacarlo sin un buen palo fiscal.", "score": 100}
+      {
+       "texto": "Tengo una estrategia clara para sacarlo de forma fiscalmente eficiente.",
+       "score": 0
+      },
+      {
+       "texto": "Voy sacando lo justo para vivir, sin un plan pensado.",
+       "score": 50
+      },
+      {
+       "texto": "Se acumula dentro y no sé cómo sacarlo sin un buen palo fiscal.",
+       "score": 100
+      }
      ],
      "ayuda": "Mucho patrimonio de empresarios vive secuestrado en su propia sociedad, sin trabajar ni dar tranquilidad.",
+     "mostrar_si": {
+      "campo": "perfil_laboral",
+      "valor_in": [
+       "Tengo empresa propia (SL u otra)",
+       "Mezcla de varias"
+      ]
+     }
+    },
+    {
+     "id": "C11-12",
+     "faceta": "div_nomina",
+     "tipo": "escala",
+     "dimensiones": "LIQUIDEZ",
+     "texto": "¿Cómo decides cuánto sacar de tu empresa entre nómina y dividendos?",
+     "nivel": "nucleo",
+     "opciones": [
+      {"texto": "Con un plan: optimizo nómina, dividendos y gastos con criterio fiscal cada año.", "score": 0},
+      {"texto": "Más o menos por costumbre; sé que podría hacerse mejor.", "score": 50},
+      {"texto": "Saco lo que necesito sin pensar en la factura fiscal; ya lo verá la gestoría.", "score": 100}
+     ],
+     "ayuda": "La combinación nómina/dividendos mal planificada deja mucho dinero en impuestos evitables.",
+     "mostrar_si": {"campo": "perfil_laboral", "valor_in": ["Tengo empresa propia (SL u otra)", "Mezcla de varias"]}
+    },
+    {
+     "id": "C11-13",
+     "faceta": "optim_is",
+     "tipo": "escala",
+     "dimensiones": "LIQUIDEZ",
+     "texto": "Tu sociedad, ¿aprovecha de forma activa la fiscalidad disponible (reinversión, deducciones, estructura), o paga \"lo que toca\"?",
+     "nivel": "nucleo",
+     "opciones": [
+      {"texto": "Tenemos una estrategia fiscal proactiva, revisada cada año antes del cierre.", "score": 0},
+      {"texto": "Aprovechamos algo, pero sé que dejamos optimización sin hacer.", "score": 50},
+      {"texto": "Pagamos lo que sale; nadie planifica el impuesto antes de que llegue.", "score": 100}
+     ],
+     "ayuda": "Planificar el Impuesto de Sociedades antes del cierre es de las palancas más rentables de un empresario.",
+     "mostrar_si": {"campo": "perfil_laboral", "valor_in": ["Tengo empresa propia (SL u otra)", "Mezcla de varias"]}
+    },
+    {
+     "id": "C11-14",
+     "faceta": "sucesion_empresa",
+     "tipo": "escala",
+     "dimensiones": "VINCULO",
+     "texto": "Si mañana faltaras o quisieras salir, ¿está tu empresa preparada para transmitirse o venderse sin destruir valor?",
+     "nivel": "nucleo",
+     "opciones": [
+      {"texto": "Sí: hay plan de sucesión/salida, protocolo y la empresa no depende solo de mí.", "score": 0},
+      {"texto": "A medias; he pensado en ello pero no está montado.", "score": 50},
+      {"texto": "Nada: si yo falto, el valor de la empresa se evapora.", "score": 100}
+     ],
+     "ayuda": "Una empresa que depende por completo de su dueño vale mucho menos de lo que crees el día que hay que transmitirla.",
      "mostrar_si": {"campo": "perfil_laboral", "valor_in": ["Tengo empresa propia (SL u otra)", "Mezcla de varias"]}
     }
    ],
@@ -3161,8 +3238,9 @@
    "id": "SD-6",
    "tipo": "opcion",
    "campo": "perfil_laboral",
+   "multi": true,
    "texto": "¿Cómo generas tus ingresos principales hoy?",
-   "ayuda": "Tu forma de tributar y tu riesgo cambian por completo según esto.",
+   "ayuda": "Marca todas las que apliquen. Tu forma de tributar y tu riesgo cambian por completo según esto.",
    "opciones": [
     "Empleado por cuenta ajena",
     "Autónomo / profesional",
@@ -3207,7 +3285,12 @@
     "Tengo tiempo libre, pero no lo disfruto: desconectar me da culpa o miedo de que algo se tuerza",
     "Tengo un sistema que funciona sin mí y desconecto sin culpa"
    ],
-   "mostrar_si": {"campo": "perfil_laboral", "valor_not_in": ["Rentista, jubilado o vivo de mi patrimonio"]}
+   "mostrar_si": {
+    "campo": "perfil_laboral",
+    "valor_not_in": [
+     "Rentista, jubilado o vivo de mi patrimonio"
+    ]
+   }
   },
   {
    "id": "SD-9",
@@ -3232,7 +3315,12 @@
     "Ausencia total: trabajo tantas horas que me pierdo momentos clave con mis hijos o mi pareja",
     "Equilibrio: separo el dinero y el trabajo de mi vida familiar; ese tiempo es sagrado"
    ],
-   "mostrar_si": {"campo": "dependientes", "valor_not_in": ["No, de nadie"]}
+   "mostrar_si": {
+    "campo": "dependientes",
+    "valor_not_in": [
+     "No, de nadie"
+    ]
+   }
   },
   {
    "id": "SEED-DEUDA",
@@ -3340,7 +3428,72 @@
    "unidad": "horas/semana",
    "texto": "¿Cuántas horas reales dedicas a la semana a generar tus ingresos (todo incluido)?",
    "ayuda": "Con esto y tu ingreso calculamos lo que vale de verdad tu hora.",
-   "mostrar_si": {"campo": "perfil_laboral", "valor_not_in": ["Rentista, jubilado o vivo de mi patrimonio"]}
+   "mostrar_si": {
+    "campo": "perfil_laboral",
+    "valor_not_in": [
+     "Rentista, jubilado o vivo de mi patrimonio"
+    ]
+   }
+  },
+  {
+   "id": "NUM-6",
+   "campo": "colchon_liquido",
+   "unidad": "€",
+   "texto": "¿Cuánto tienes ahora mismo en dinero disponible de verdad (cuentas, ahorro líquido), sin contar inversiones ni vivienda?",
+   "ayuda": "Es tu colchón real ante un imprevisto: la base del fondo de emergencia."
+  },
+  {
+   "id": "NUM-7",
+   "campo": "coste_vivienda",
+   "unidad": "€/mes",
+   "texto": "¿Cuánto pagas al mes por tu vivienda (hipoteca o alquiler)? Pon 0 si no pagas.",
+   "ayuda": "Para ver cuánto pesa el techo sobre tus ingresos."
+  },
+  {
+   "id": "NUM-8",
+   "campo": "cuota_deuda",
+   "unidad": "€/mes",
+   "texto": "Sumando TODAS tus cuotas mensuales de deuda (hipoteca, préstamos, tarjetas, financiaciones), ¿cuánto pagas al mes?",
+   "ayuda": "Mide tu carga de deuda sobre los ingresos (DTI).",
+   "mostrar_si": {
+    "campo": "deuda",
+    "valor_not_in": [
+     "No tengo ninguna deuda"
+    ]
+   }
+  },
+  {
+   "id": "NUM-9",
+   "campo": "deuda_total",
+   "unidad": "€",
+   "texto": "¿Cuál es el total de lo que debes hoy (hipoteca + préstamos + tarjetas)?",
+   "ayuda": "Para medir tu apalancamiento sobre el patrimonio.",
+   "mostrar_si": {
+    "campo": "deuda",
+    "valor_not_in": [
+     "No tengo ninguna deuda"
+    ]
+   }
+  },
+  {
+   "id": "NUM-10",
+   "campo": "pct_vivienda",
+   "unidad": "%",
+   "texto": "Aproximadamente, ¿qué % de tu patrimonio está concentrado en un solo activo (normalmente tu vivienda)?",
+   "ayuda": "Demasiada concentración en un activo es un riesgo silencioso."
+  },
+  {
+   "id": "NUM-11",
+   "campo": "pension_estimada",
+   "unidad": "€/mes",
+   "texto": "Si tienes una estimación, ¿qué pensión pública crees que cobrarás al jubilarte? Pon 0 si no lo sabes.",
+   "ayuda": "Para estimar la brecha entre tu pensión y tu coste de vida.",
+   "mostrar_si": {
+    "campo": "perfil_laboral",
+    "valor_not_in": [
+     "Rentista, jubilado o vivo de mi patrimonio"
+    ]
+   }
   }
  ],
  "seeds": [

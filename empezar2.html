@@ -25,6 +25,7 @@ body{font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;ba
 .opt{display:block;width:100%;text-align:left;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);
   padding:15px 16px;border-radius:12px;font-size:15px;font-weight:600;line-height:1.35;margin-bottom:11px;cursor:pointer;transition:.15s;font-family:inherit}
 .opt:hover{border-color:var(--am);background:#222227}
+.opt.sel{border-color:var(--am);background:#2b2a16;box-shadow:inset 4px 0 0 var(--am)}
 input,select{width:100%;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);padding:14px;border-radius:12px;font-size:16px;font-family:inherit}
 .lbl{font-size:13px;color:var(--gr);margin-bottom:7px}
 .btn{background:var(--am);color:#000;border:none;padding:14px 22px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;width:100%;margin-top:6px}
@@ -72,7 +73,7 @@ a{color:var(--am)}
   <div class="lbl">Tu nombre</div><input id="nombre" placeholder="Nombre">
   <div class="lbl" style="margin-top:12px">Tu email</div><input id="email" type="email" placeholder="tu@email.com">
   <div class="lbl" style="margin-top:12px">Tipo de diagnóstico</div>
-  <select id="tier"><option value="1">Diagnóstico Rápido · 19 €</option><option value="2" selected>Informe Avanzado · 39 €</option><option value="3">Análisis de Pareja · 54 €</option></select>
+  <select id="tier"><option value="1">Diagnóstico Rápido · 19 €</option><option value="2" selected>Informe Avanzado · 39 €</option></select>
   <label class="chk"><input type="checkbox" id="consent"><span>Acepto la <a href="privacidad.html" target="_blank">Política de Privacidad</a> y el tratamiento de mis datos.</span></label>
   <button class="btn" onclick="iniciar()">Comenzar →</button>
 </div>
@@ -105,6 +106,7 @@ a{color:var(--am)}
 <script>
 const API="https://diagnostico-financiero-app.onrender.com";
 const PAREJA=new URLSearchParams(location.search).get('pareja');
+const _qt=new URLSearchParams(location.search).get('tier'); if((_qt==='1'||_qt==='2')&&document.getElementById('tier')) document.getElementById('tier').value=_qt;
 let INST=null, st={email:"",nombre:"",tier:2,sid:null,perfil:{},resp:{},datos:{},abiertas:{},
    cola:[], i:0, tens:[], reportUrl:null, abierta:new Set(), avisoEstres:false};
 
@@ -134,6 +136,11 @@ function construirCola(){
 }
 function emostrar(ms){
   if(!ms)return true; const v=st.perfil[ms.campo];
+  if(Array.isArray(v)){
+    if(ms.valor_in) return v.some(x=>ms.valor_in.includes(x));
+    if(ms.valor_not_in) return v.some(x=>!ms.valor_not_in.includes(x));
+    return true;
+  }
   if(ms.valor_in) return ms.valor_in.includes(v);
   if(ms.valor_not_in) return !ms.valor_not_in.includes(v);
   if(ms.min!=null && v!=null) return parseInt(v)>=ms.min;
@@ -182,12 +189,24 @@ function pintar(){
   const cont=document.getElementById('cont'); const opts=document.getElementById('opts'); opts.innerHTML='';
   document.getElementById('atras').style.display = st.i>0?'inline-block':'none';
   if(q.tipo==='numerica'){
-    cont.style.display='block';
+    cont.style.display='block'; cont.textContent='Siguiente →'; cont.onclick=()=>contNum();
     const inp=document.createElement('input');inp.type='number';inp.id='num';inp.placeholder=q.unidad||'';
     inp.value = st.datos[q.campo] ?? ''; opts.appendChild(inp);
+  } else if(q.multi){
+    cont.style.display='block'; cont.textContent='Continuar →'; cont.onclick=()=>contMulti(q);
+    const sel=new Set(); q._sel=sel;
+    (q.opciones||[]).forEach((op,idx)=>{
+      const b=document.createElement('button');b.className='opt';b.textContent=op.texto||op;
+      b.onclick=()=>{ if(sel.has(idx)){sel.delete(idx);b.classList.remove('sel');}else{sel.add(idx);b.classList.add('sel');} };
+      opts.appendChild(b);
+    });
   } else {
     cont.style.display='none';
-    (q.opciones||[]).forEach((op,idx)=>{
+    let order=(q.opciones||[]).map((_,i)=>i);
+    const scored=(q.opciones&&q.opciones[0]&&q.opciones[0].score!=null);
+    if(scored && q.orden_fijo!==true){ for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];} }
+    order.forEach(idx=>{
+      const op=q.opciones[idx];
       const b=document.createElement('button');b.className='opt';b.textContent=op.texto||op;
       b.onclick=()=>elegir(q,idx); opts.appendChild(b);
     });
@@ -235,6 +254,14 @@ function elegir(q,idx){
   if(q.arq!==undefined && q.opciones[idx].arq) st.perfil['vida_ideal_arq']=q.opciones[idx].arq;
   const op=q.opciones[idx];
   if(op.score!=null){ st.tens.push(op.score); actualizarTension(); toast(op.score, op.tag_narrativo); }
+  avanzar(q);
+}
+function contMulti(q){
+  const sel=q._sel||new Set();
+  if(sel.size===0){alert('Elige al menos una opción');return}
+  const arr=[...sel].map(i=>(q.opciones[i].texto||q.opciones[i]));
+  if(q.campo) st.perfil[q.campo]=arr;
+  if(q.id) st.resp[q.id]=[...sel];
   avanzar(q);
 }
 function contNum(){
