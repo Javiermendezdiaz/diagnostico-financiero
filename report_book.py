@@ -327,6 +327,15 @@ body=St("bd",fontSize=10,leading=15,spaceAfter=7,alignment=TA_JUSTIFY)
 small=St("sm",fontSize=8,leading=11,textColor=GREY)
 cap_kicker=St("ck",fontSize=8.5,leading=11,textColor=GREY,fontName=FB)
 
+import re as _re
+def _limpiar_txt(t):
+    """Plancha erratas de picado: espacio tras puntuacion+mayuscula, colapsa dobles espacios,
+    quita signos huerfanos. No inventa: solo corrige separaciones y espacios."""
+    if not t: return t
+    t=_re.sub(r'([.;,:!?])([A-Za-zÁÉÍÓÚÑáéíóúñ])', r'\1 \2', t)
+    t=_re.sub(r'\s{2,}', ' ', t)
+    return t.strip()
+
 CLIENTE_NOMBRE=""
 try:
     from reportlab.pdfgen.canvas import Canvas as _RLCanvas
@@ -545,6 +554,25 @@ def proyeccion_chart(datos, path, r=0.05):
     ax.set_title("Tu patrimonio proyectado a la jubilación (estimación al 5%/año)",size=10,color="#1F2937",weight="bold",pad=8)
     plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
     return base[-1],mejora[-1],meta_edad
+
+def donut_asignacion(asig, path):
+    """Donut HONESTO de asignacion del patrimonio: solo lo que el cliente declara (NUM-13)."""
+    import matplotlib.pyplot as plt
+    pares=[("Líquido parado", asig.get("parado",0), "#C2710C"),
+           ("Invertido y realizable", asig.get("realizable_invertido",0), "#0F766E"),
+           ("Resto (vivienda, negocio, ilíquido)", asig.get("resto",0), "#9CA3AF")]
+    pares=[(l,max(0,v),c) for l,v,c in pares if v and v>0]
+    if not pares: return False
+    tot=sum(v for _,v,_ in pares)
+    fig,ax=plt.subplots(figsize=(6.0,2.9))
+    ax.pie([v for _,v,_ in pares],colors=[c for _,_,c in pares],startangle=90,counterclock=False,
+           wedgeprops=dict(width=0.40,edgecolor="white",linewidth=2))
+    ax.text(0,0,_eur(tot),ha="center",va="center",fontsize=11.5,weight="bold",color="#1A1A17")
+    ax.legend([f"{l}  ·  {_eur(v)}  ({v/tot*100:.0f}%)" for l,v,_ in pares],
+              loc="center left",bbox_to_anchor=(1.0,0.5),frameon=False,fontsize=8.6)
+    ax.set(aspect="equal"); plt.tight_layout()
+    fig.savefig(path,dpi=150,transparent=True,bbox_inches="tight"); plt.close(fig)
+    return True
 
 def tapon_coste(datos, real=0.025):
     """Coste de oportunidad de la liquidez parada por encima de un colchon de 6 meses.
@@ -846,6 +874,12 @@ def seccion_extras(extras):
               Spacer(1,2*mm),
               _box([Paragraph("Activos <b>%s</b> &#8722; Deuda <b>%s</b> = Fortuna neta <b>%s</b>%s"%(_eur(fnt["activos"]),_eur(fnt["pasivos"]),_eur(fnt["neta"]),cm),
                               St("fnt",fontSize=10.5,leading=15))],"#F4F7F5","#0F766E",ancho=160*mm)]
+        if fnt.get("asignacion") and donut_asignacion(fnt["asignacion"],"_donut.png"):
+            out+=[Spacer(1,4*mm), Paragraph("Cómo está repartido tu patrimonio",h_sub),
+                  Paragraph("Solo con lo que has declarado, sin suponer nada:",small),
+                  Image("_donut.png",width=152*mm,height=60*mm,hAlign="CENTER")]
+            if fnt.get("resistencia_meses"):
+                out.append(Paragraph("Tu <b>músculo de resistencia</b> —colchón inmediato más lo que rescatarías en días— cubre <b>%g meses</b> de gastos. No estás desprotegido; lo que conviene ajustar es cuánto tienes en líquido inmediato." % fnt["resistencia_meses"], St("mr",fontSize=9.7,leading=14,spaceBefore=3)))
     dt=extras.get("deuda_tipo")
     if dt:
         out+=[Spacer(1,5*mm), Paragraph(dt[0],h_sub), Spacer(1,2*mm),
@@ -1247,21 +1281,26 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 else: ans=""; na=True
             else:
                 v=datos.get(NUM_MAP.get(it["id"],"")); na=(v is None); ans=("%s %s"%(v,it.get("unidad",""))).strip() if v is not None else ""
-            ans_p=Paragraph("<font color='#B5B3A6'>N/A</font>",small) if na else Paragraph(ans,small)
-            rows.append([Paragraph(it["texto"],small),ans_p])
+            ans_p=Paragraph("<font color='#B5B3A6'>N/A</font>",small) if na else Paragraph("<i>%s</i>"%_limpiar_txt(ans),small)
+            rows.append([Paragraph("<font color='#33415C'>%s</font>"%_limpiar_txt(it["texto"]),small),ans_p])
             if sc is not None:
                 col="#E7F6EC" if sc<=25 else ("#FEF9E7" if sc<=50 else ("#FDEBD0" if sc<=75 else "#FAE3E3"))
                 bgs.append(("BACKGROUND",(1,ri),(1,ri),colors.HexColor(col)))
+            elif ri%2==0:
+                bgs.append(("BACKGROUND",(0,ri),(0,ri),colors.HexColor("#F4F2EC")))
             ri+=1
-        t=Table(rows,colWidths=[104*mm,52*mm])
+        t=Table(rows,colWidths=[104*mm,52*mm],repeatRows=1)
         t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,0),0.6,LINE),
             ("LINEBELOW",(0,1),(-1,-1),0.3,LINE),
             ("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5),
             ("LEFTPADDING",(0,0),(-1,-1),7),("RIGHTPADDING",(0,0),(-1,-1),7),("FONTNAME",(0,0),(-1,0),FB)]+bgs))
         S+=[Paragraph("%s \u00b7 %s"%(capa["code"],capa["nombre"]),h_sub), t]
-    doc=SimpleDocTemplate(out,pagesize=A4,topMargin=20*mm,bottomMargin=20*mm,leftMargin=22*mm,rightMargin=22*mm,
+    global CLIENTE_NOMBRE; CLIENTE_NOMBRE=(cli.get("nombre") or "")
+    doc=SimpleDocTemplate(out,pagesize=A4,topMargin=22*mm,bottomMargin=20*mm,leftMargin=22*mm,rightMargin=22*mm,
                           title="Tu Libro Financiero — ITAP")
-    doc.build(S,onFirstPage=deco,onLaterPages=deco); print("PDF OK ->",out)
+    if NumberedCanvas: doc.build(S,onFirstPage=deco,onLaterPages=deco,canvasmaker=NumberedCanvas)
+    else: doc.build(S,onFirstPage=deco,onLaterPages=deco)
+    print("PDF OK ->",out)
 
 def build_book(resp, datos, cli, outpath, depth="completo", baremo=None, sintesis=None, extras=None, arq_override=None):
     """API entrypoint: genera el libro PDF en outpath."""
