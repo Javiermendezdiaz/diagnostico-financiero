@@ -176,36 +176,79 @@ def _sevcol(sc):
     return "#1D6F42" if sc<30 else ("#B8860B" if sc<51 else ("#C2710C" if sc<76 else "#A11B1B"))
 def _vidx(code, n=3):
     return sum(ord(c) for c in (code or "x")) % n
+_CONSEJO2={
+ "C1":"No es cuestión de aguantar más, sino de ponerle límites al ruido financiero para que tu cabeza descanse.",
+ "C2":"No te falta capacidad, te falta un plan con fecha: ponle número y calendario a tu libertad.",
+ "C3":"Tu defensa flojea por diseño, no por falta de medios: monta el colchón antes que cualquier inversión.",
+ "C4":"El gasto no se controla con fuerza de voluntad, sino con topes automáticos: ponlos y olvídate.",
+ "C5":"Aquí el riesgo es de papeles, no de dinero: ordena la protección y dormirás distinto.",
+ "C6":"El impulso de aparentar se doma con reglas, no con culpa: 72 horas de pausa antes de comprar.",
+ "C7":"No dependas de tu voluntad para diversificar: fíjate un objetivo de % por fuente y muévelo.",
+ "C8":"La antifragilidad se construye con pequeñas apuestas, no con un gran salto: empieza por una.",
+ "C9":"Aquí el problema no es de capacidad, es de sistema: automatiza el destino del dinero el día 1.",
+ "C10":"La deuda no se vence con un sacrificio puntual, sino con un plan de amortización que no dependa de ti.",
+ "C11":"Tu palanca no necesita esfuerzo extra, necesita una decisión: elige una y actívala este trimestre."}
+_CONSEJO3={
+ "C1":"Es lo primero a atender: el desgaste con el dinero contamina todas las demás decisiones.",
+ "C2":"Cada año a este ritmo aleja tu meta; reordenar el flujo ahora vale más que cualquier rentabilidad.",
+ "C3":"Sin colchón estás a un imprevisto de una crisis: es la prioridad cero, por encima de todo.",
+ "C4":"La fuga de estilo de vida es el agujero más caro y más fácil de tapar: actúa este mes.",
+ "C5":"La protección no espera al imprevisto: lo que no blindes hoy, lo pagan los tuyos mañana.",
+ "C6":"El gasto de imagen te está costando libertad medible: recórtalo y redirígelo ya.",
+ "C7":"Tu única fuente es tu mayor vulnerabilidad: abrir una segunda es lo más urgente que tienes.",
+ "C8":"Eres frágil ante un golpe: convertir esa fragilidad en holgura es la jugada que no admite espera.",
+ "C9":"Recupera el mando del flujo antes que nada: sin él, el resto del plan se deshace solo.",
+ "C10":"Tu deuda es el frente que más drena: atacar la más cara es tu mejor inversión garantizada.",
+ "C11":"Tienes potencia sin usar: activarla ahora es lo que más cambia tu trayectoria."}
 def segundo_parrafo(bi, code=""):
     V={0:["Mantén lo que funciona: revísalo de vez en cuando para que no se deteriore sin avisar.",
           "Aquí no hay nada que arreglar, solo que proteger: la fortaleza descuidada se oxida.",
           "Es terreno ganado. Tu único trabajo es no darlo por sentado."],
        1:["Tienes una base buena; un ajuste pequeño y sostenido te lleva al nivel más alto sin grandes sacrificios.",
           "Estás cerca de la zona óptima: pulir este punto es de las mejoras más rentables que puedes hacer.",
-          "Con poco esfuerzo bien dirigido, esta área pasa de buena a excelente."],
-       2:["No hace falta una revolución, sino constancia: un hábito repetido tres meses mueve esta cifra de forma visible.",
-          "Aquí el problema no es de capacidad, es de sistema: ponle un automatismo y deja de depender de tu fuerza de voluntad.",
-          "Está pidiendo atención, no rescate: un cambio concreto y medible la endereza en un trimestre."],
-       3:["Es de las áreas a las que dar prioridad: el coste de no actuar crece con el tiempo; el de actuar, se paga una vez.",
-          "Esto es un frente abierto. Cuanto antes lo cierres, menos te cuesta — y deja de drenar al resto.",
-          "Aquí es donde más rinde tu energía ahora mismo: el retorno de intervenir es inmediato."]}
+          "Con poco esfuerzo bien dirigido, esta área pasa de buena a excelente."]}
+    if bi==2: return _CONSEJO2.get(code,"Está pidiendo atención, no rescate: un cambio concreto y medible la endereza en un trimestre.")
+    if bi==3: return _CONSEJO3.get(code,"Es un frente abierto: cuanto antes lo cierres, menos te cuesta y deja de drenar al resto.")
     return V[bi][_vidx(code)]
 
 
-def interpretar(nombre,s,bl,bi,peor):
+# Cierres ÚNICOS por capa (premium: cero repeticiones entre capítulos)
+CIERRE2={
+ "C1":"tu cabeza carga con un peso que el dinero no debería darte; descargarla es lo primero.",
+ "C2":"tu libertad avanza, pero a un ritmo más lento del que tu esfuerzo merece.",
+ "C3":"hoy un golpe te haría tambalear más de lo que tu patrimonio sugiere; ahí está el frente.",
+ "C4":"tu estilo de vida se infla un punto cada año sin que lo decidas, y eso sostenido pesa.",
+ "C5":"lo que no está blindado hoy es justo lo que más duele el día del imprevisto.",
+ "C6":"parte de tu gasto financia una imagen, no tu vida; recuperarlo es dinero y cabeza a la vez.",
+ "C7":"depender de una sola fuente es el riesgo que no se ve hasta que falla; conviene moverlo antes.",
+ "C8":"ante un shock saldrías a flote, pero raspando; un poco de holgura cambia ese margen.",
+ "C9":"tu dinero entra y sale sin que lleves el mando del todo, y ahí se te escapa el control.",
+ "C10":"tu deuda aún no aprieta, pero ya te resta aire que podrías usar para construir.",
+ "C11":"tu mayor palanca sigue sin activar: cada mes que no la tocas es crecimiento que no llega."}
+CIERRE3={
+ "C1":"es el primer frente: sin calma con el dinero, ninguna otra pieza encaja.",
+ "C2":"a este ritmo la libertad no llega; es la prioridad que más mueve tu horizonte.",
+ "C3":"estás expuesto: un imprevisto serio hoy te forzaría a decisiones malas y caras.",
+ "C4":"la deriva ya te come ingresos; cerrarla es la mejora más rápida que tienes.",
+ "C5":"es urgente: lo que no protejas ahora lo paga quien menos debería, el peor día.",
+ "C6":"el gasto de aparentar te está costando libertad real; cortarlo libera mucho, y ya.",
+ "C7":"tu ingreso cuelga de un hilo; diversificarlo es lo más urgente de todo el cuadro.",
+ "C8":"un shock hoy te hundiría; pasar de la fragilidad a la holgura no admite demora.",
+ "C9":"sin gobierno del flujo, todo lo demás se desordena solo; empieza por aquí.",
+ "C10":"tu deuda drena el resto de tu economía; es el agujero que hay que tapar primero.",
+ "C11":"tienes capacidad de sobra sin usar; activarla ahora es lo que más te cambia el cuadro."}
+
+def interpretar(nombre,s,bl,bi,peor,code=None):
     nl=nombre.lower()
     if bi==0: return (f"En {nl} estás en terreno sólido (salud {100-s:.0f}/100, «{bl}»). Es una de tus fortalezas. "
                       f"No la des por garantizada: lo que hoy va bien también se cuida.")
     if bi==1: return (f"En {nl} vas bien, con margen (salud {100-s:.0f}/100, «{bl}»). El punto que más pesa ahora es "
                       f"«{peor}»; ahí tienes la mejora más fácil y rentable.")
-    cierre2=["pesa de fondo y, sin atención, va contagiando al resto de tu economía.",
-             "todavía no duele, pero ya te está restando margen sin que lo notes.",
-             "es el tipo de tensión que, ignorada, se normaliza — y normalizar el problema es lo caro."]
-    cierre3=["es uno de los primeros frentes donde intervenir: el retorno de actuar aquí es inmediato.",
-             "no admite más demora: cada mes que pasa, el agujero se ensancha solo.",
-             "es la palanca que más te cambia el cuadro si la atacas ya."]
-    if bi==2: return (f"{nombre} muestra sobrecarga (salud {100-s:.0f}/100, «{bl}»), sobre todo en «{peor}». {cierre2[_vidx(nombre)]}")
-    return (f"{nombre} está en zona crítica (salud {100-s:.0f}/100, «{bl}»), en especial en «{peor}». {cierre3[_vidx(nombre)]}")
+    if bi==2:
+        c=CIERRE2.get(code,"todavía no duele, pero ya te está restando margen sin que lo notes.")
+        return (f"{nombre} muestra sobrecarga (salud {100-s:.0f}/100, «{bl}»), sobre todo en «{peor}»: {c}")
+    c=CIERRE3.get(code,"no admite más demora: cada mes que pasa, el agujero se ensancha solo.")
+    return (f"{nombre} está en zona crítica (salud {100-s:.0f}/100, «{bl}»), en especial en «{peor}»: {c}")
 
 def insights(p,tr,fi):
     o=[]
@@ -232,7 +275,7 @@ def plan(p):
 
 # ---------- radar ----------
 def radar_png(p,path):
-    SHORT={"C1":"Agotamiento","C2":"Libertad","C3":"Resistencia","C4":"Estilo de vida","C5":"Protección","C6":"Estatus","C7":"Concentración","C8":"Antifragilidad","C9":"Flujo de caja","C10":"Deuda","C11":"Crecimiento"}
+    SHORT={"C1":"Salud emocional","C2":"Libertad","C3":"Resistencia","C4":"Control del gasto","C5":"Protección","C6":"Gasto con sentido","C7":"Diversificación","C8":"Antifragilidad","C9":"Eficiencia de flujo","C10":"Salud de deuda","C11":"Crecimiento"}
     labels=[SHORT.get(c,c) for c in CAPAS]; vals=[p[c]["score"] for c in CAPAS]
     vsal=[100-x for x in vals]  # el radar se dibuja sobre SALUD (borde/lleno = sano), no sobre tension
     N=len(labels); ang=np.linspace(0,2*np.pi,N,endpoint=False).tolist(); ang+=ang[:1]; v=vsal+vsal[:1]
@@ -423,7 +466,7 @@ def cashflow_waterfall(datos, path):
     base-=aho; pasos.append(("Ahorro",-aho,"#1D6F42",base))
     # barras
     x=range(len(pasos)+1)
-    labels=["Ingreso","Gastos","Ahorro","Sin asignar"]
+    labels=["Ingreso","Gastos","Ahorro","Sin destino"]
     # ingreso
     ax.bar(0,ing,color="#0F766E",width=0.6)
     ax.bar(1,gas,bottom=ing-gas,color="#C2710C",width=0.6)
@@ -473,13 +516,15 @@ def proyeccion_chart(datos, path, r=0.05):
     return base[-1],mejora[-1],meta_edad
 
 def tapon_coste(datos, real=0.025):
-    """Coste de oportunidad estimado de la liquidez parada por encima de un colchon de 6 meses."""
-    gas=datos.get("gasto_mensual",0); pat=datos.get("patrimonio",0)
-    colchon=gas*6
-    exceso=max(pat-colchon,0)
+    """Coste de oportunidad de la liquidez parada por encima de un colchon de 6 meses.
+    Usa el COLCHON LIQUIDO declarado, nunca el patrimonio neto (que puede estar invertido
+    o ser iliquido). Asumir que el patrimonio es efectivo es justo el bug que destruye credibilidad."""
+    gas=datos.get("gasto_mensual",0); colch=datos.get("colchon_liquido")
+    if not colch or not gas: return None
+    sano=gas*6
+    exceso=max(colch-sano,0)
     if exceso < 5000: return None
-    coste=exceso*real
-    return exceso, coste
+    return exceso, exceso*real
 
 def foda(p):
     orden=sorted(CAPAS,key=lambda c:p[c]["score"])
@@ -962,7 +1007,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
              Bar(pc["score"],w=160*mm/1),
              Spacer(1,3*mm),
              Paragraph("Qu\u00e9 significa para ti",h_sub),
-             Paragraph(interpretar(pc["nombre"],pc["score"],pc["banda"],pc["bi"],pc["peor"]),body)]
+             Paragraph(interpretar(pc["nombre"],pc["score"],pc["banda"],pc["bi"],pc["peor"],code),body)]
         _cit=citas_capa(code,resp)
         if _cit:
             cab.append(Paragraph("Lo que reconociste",h_sub))
@@ -1052,11 +1097,17 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     # plan
     S+=[Paragraph("Tu plan de acción",h_sec),
         Paragraph("Ordenado por impacto: si solo pudieras mover una palanca esta semana, empieza por la primera.",body)]
-    rows=[[Paragraph("<b>#</b>",small),Paragraph("<b>Foco</b>",small),Paragraph("<b>Severidad</b>",small)]]
-    for i,(val,code,d) in enumerate(plan(p),1):
-        rows.append([Paragraph(str(i),small),Paragraph(f"[{code}] {d}",small),
+    rows=[[Paragraph("<b>#</b>",small),Paragraph("<b>Área de impacto</b>",small),Paragraph("<b>Tu siguiente acción</b>",small),Paragraph("<b>Severidad</b>",small)]]
+    _AREA={"C1":"Bienestar financiero","C2":"Libertad financiera","C3":"Resistencia ante shocks","C4":"Control del gasto","C5":"Protección patrimonial","C6":"Gasto con sentido","C7":"Diversificación de ingresos","C8":"Antifragilidad","C9":"Gobierno del flujo","C10":"Salud de la deuda","C11":"Palanca de crecimiento"}
+    _vistos=set(); _i=0
+    for val,code,d in plan(p):
+        if code in _vistos: continue
+        _vistos.add(code); _i+=1
+        _acc=ACCIONES.get(code,["",d]); _acc=_acc[1] if len(_acc)>1 else d
+        rows.append([Paragraph(str(_i),small),Paragraph(f"<b>{_AREA.get(code,code)}</b>",small),
+                     Paragraph(_acc,small),
                      Chip(f"{val:.0f}/100","#B91C1C" if val>=75 else "#EA580C",w=46,h=13)])
-    pt=Table(rows,colWidths=[10*mm,120*mm,30*mm]); pt.setStyle(TableStyle([
+    pt=Table(rows,colWidths=[8*mm,40*mm,82*mm,30*mm]); pt.setStyle(TableStyle([
         ("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
         ("VALIGN",(0,0),(-1,-1),"MIDDLE"),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
     S+=[pt,Spacer(1,5*mm),Paragraph("Tus números de libertad",h_sub),

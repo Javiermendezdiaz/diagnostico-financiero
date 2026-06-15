@@ -132,19 +132,28 @@ def calcular_palancas(datos, p, perfil_in, resp=None):
     invierte = (perfil_in or {}).get("invierte", "")
     out = []
 
-    # 1) Tasa de ahorro y la tijera ingreso-gasto
+    # 1) Flujo de caja: tasa real vs consciente y el excedente sin destino
     if ingreso:
-        tasa = round(100 * ahorro / ingreso, 1)
-        tijera = ingreso - (gasto or 0)
-        if tasa < 10:
+        superavit = ingreso - (gasto or 0)
+        gap = max(0.0, superavit - ahorro)
+        tasa_real = round(100 * max(0.0, superavit) / ingreso)
+        tasa_consc = round(100 * ahorro / ingreso)
+        if gap >= max(200, ingreso * 0.08):
+            out.append(("Tu problema no es ahorrar poco: es no decidir dónde va el excedente",
+                        "Cada mes te sobran %s sobre tus gastos, pero solo %s tienen un destino fijo: hay %s al mes "
+                        "en un limbo, ni gastados ni invertidos. Tu tasa de ahorro REAL es del %d%%, no el %d%% que "
+                        "parece. No necesitas apretarte el cinturón — necesitas automatizar el destino de ese excedente "
+                        "el día 1 de cada mes, antes de que se evapore en el goteo del día a día o lo erosione la inflación." % (
+                        _eur(superavit), _eur(ahorro), _eur(gap), tasa_real, tasa_consc)))
+        elif tasa_consc < 10:
             out.append(("Tu tijera de ahorro está casi cerrada",
-                        "Ahorras un %s%% de lo que ingresas (%s al mes). Es la palanca de mayor impacto: "
-                        "cada punto que la subas adelanta tu libertad años, no meses. Antes de buscar más "
-                        "rentabilidad, ensancha esta tijera." % (("%g" % tasa), _eur(ahorro))))
+                        "Ahorras un %d%% de lo que ingresas (%s al mes) y tu gasto se come casi todo el ingreso. Es la "
+                        "palanca de mayor impacto: cada punto que la subas adelanta tu libertad años, no meses. Antes de "
+                        "buscar más rentabilidad, ensancha esta tijera." % (tasa_consc, _eur(ahorro))))
         else:
             out.append(("Tu tijera de ahorro ya trabaja a tu favor",
-                        "Ahorras un %s%% de tus ingresos (%s/mes). Mantén ese hábito y dirige el excedente a "
-                        "que el dinero genere dinero: el siguiente salto es de eficiencia, no de esfuerzo." % (("%g" % tasa), _eur(ahorro))))
+                        "Ahorras un %d%% de tus ingresos (%s/mes) y lo diriges a un destino. Mantén ese hábito y haz que "
+                        "ese excedente genere dinero: el siguiente salto es de eficiencia, no de esfuerzo." % (tasa_consc, _eur(ahorro))))
 
     # 2) Coste de oportunidad del patrimonio parado
     if patrimonio >= 10000 and ("No, nada" in invierte or invierte == "" or "nada invertido" in invierte.lower()):
@@ -410,9 +419,17 @@ def calcular_ratios(datos, perfil_in):
             "Construye tu colchón hasta 3-6 meses de gastos en una cuenta remunerada antes de invertir." if m < 3 else
             ("Llévalo hacia los 6 meses: es lo que te da poder para decir que no." if m < 6 else "Sólido. No dejes parado más de lo necesario."))
     if ing:
-        t = 100 * ahorro / ing
-        add("Tasa de ahorro", "%.0f%%" % t, "verde" if t >= 20 else ("ambar" if t >= 10 else "rojo"),
-            "Automatiza el ahorro el día de cobro y audita tus tres mayores gastos fijos." if t < 20 else "Gran ritmo; dirige el excedente a que el dinero genere dinero.")
+        sup = max(0.0, ing - (gasto or 0))
+        t_real = 100 * sup / ing
+        t_consc = 100 * ahorro / ing
+        gap = max(0.0, sup - ahorro)
+        if gap >= max(200, ing * 0.08):
+            add("Tasa de ahorro", "%.0f%% real · %.0f%% con destino" % (t_real, t_consc),
+                "verde" if t_real >= 20 else ("ambar" if t_real >= 10 else "rojo"),
+                "Tu capacidad es alta; el problema es que %s/mes no tienen destino. Automatiza ese excedente el día 1, no recortes." % _eur(gap))
+        else:
+            add("Tasa de ahorro", "%.0f%%" % t_consc, "verde" if t_consc >= 20 else ("ambar" if t_consc >= 10 else "rojo"),
+                "Automatiza el ahorro el día de cobro y audita tus tres mayores gastos fijos." if t_consc < 20 else "Gran ritmo; dirige el excedente a que el dinero genere dinero.")
     if cvm is not None and ing:
         cv = 100 * cvm / ing
         add("Carga de vivienda", "%.0f%% de tus ingresos" % cv, "verde" if cv < 30 else ("ambar" if cv < 40 else "rojo"),
