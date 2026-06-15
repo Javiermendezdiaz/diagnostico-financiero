@@ -519,7 +519,7 @@ def cashflow_waterfall(datos, path):
     return libre
 
 def proyeccion_chart(datos, path, r=0.05):
-    edad=int(datos.get("edad",40)); meta_edad=max(65, edad+5)
+    edad=int(datos.get("edad",40)); meta_edad=max(EDAD_JUBILACION, edad+5)
     anos=max(meta_edad-edad,1)
     pat=datos.get("patrimonio",0); aho=datos.get("ahorro_mensual",0)*12
     import matplotlib.pyplot as plt
@@ -542,7 +542,7 @@ def proyeccion_chart(datos, path, r=0.05):
     ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False); ax.spines["left"].set_color("#D5DBE3")
     ax.spines["bottom"].set_color("#D5DBE3")
     ax.legend(fontsize=8,frameon=False,loc="upper left")
-    ax.set_title("Tu patrimonio proyectado a los 65 (estimación al 5%/año)",size=10,color="#1F2937",weight="bold",pad=8)
+    ax.set_title("Tu patrimonio proyectado a la jubilación (estimación al 5%/año)",size=10,color="#1F2937",weight="bold",pad=8)
     plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
     return base[-1],mejora[-1],meta_edad
 
@@ -733,6 +733,15 @@ def glosario(p, datos, fi):
             "Tu checklist de herencia y blindaje tiene huecos: es de lo que más tranquilidad da cerrar.",
             "Barato de resolver, caragísimo de ignorar. El día que hace falta, ya no hay margen."))
     return g[:8]
+
+EDAD_JUBILACION = 67  # referencia ordinaria (2026: 66a10m si <38a3m cotizados, 65 si mas; 67 objetivo 2027)
+
+def _edad_txt(datos):
+    try: e = int(float(datos.get("edad") or 0))
+    except Exception: e = 0
+    if e <= 0: return "Tu perfil"
+    aj = max(0, EDAD_JUBILACION - e)
+    return ("%d años  ·  a %d de la edad ordinaria de jubilación" % (e, aj)) if aj > 0 else "%d años" % e
 
 def cohorte_txt(cli, datos):
     """Texto de cohorte por sexo y edad para los percentiles."""
@@ -958,7 +967,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         Spacer(1,7*mm),
         Paragraph("Una lectura honesta de tu relación con el dinero, capa por capa.",St("cv2",fontSize=12,textColor=ACCDK)),
         Spacer(1,40*mm),
-        Paragraph(f"Perfil  \u00b7  <b>{cohorte_txt(cli,datos).capitalize()}</b>",St("cvn",fontSize=12)),
+        Paragraph(f"Perfil  \u00b7  <b>{_edad_txt(datos)}</b>",St("cvn",fontSize=12)),
         Paragraph(cli["email"],small), Paragraph(cli["fecha"],small),
         Spacer(1,3*mm), Paragraph(("Diagnóstico Rápido · Tier 1" if depth=="esencial" else "Informe Avanzado · Tier 2"),St("cvt",fontSize=9.5,textColor=ACC,fontName=FB)),
         Spacer(1,16*mm),
@@ -984,11 +993,11 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     # resumen + radar
     S+=[Paragraph("El mapa completo",h_sec),
         Table([[Paragraph(f"<font size=42 color='#1A1A17'><b>{100-salud:.0f}</b></font>"
-                          f"<font size=13 color='#6B7280'>/100</font>",body),
+                          f"<font size=13 color='#6B7280'>/100</font>",St("bignum",fontSize=42,leading=46)),
                 Paragraph(f"<b>{bl}</b><br/><font size=8 color='#6B7280'>Salud psicofinanciera global · "
                           f"{_pct_frase}</font>",body)]],
               colWidths=[42*mm,118*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),
-        *([Spacer(1,4*mm),Paragraph(coh[0],h_sub),Paragraph(coh[1],St("coh",fontSize=10,leading=14,backColor=LIGHT,borderPadding=10,textColor=INK,spaceBefore=4,spaceAfter=4))] if coh else []),
+        *([Spacer(1,5*mm),Paragraph(coh[0],h_sub),Spacer(1,3*mm),Paragraph(coh[1],St("coh",fontSize=10,leading=14,backColor=LIGHT,borderPadding=8,textColor=INK,spaceBefore=0,spaceAfter=0))] if coh else []),
         *([Spacer(1,4*mm),
            Paragraph(f"Tu arquetipo del dinero: {ARQ_META[arq_code]['nombre']}",h_sub),
            Paragraph(f"<i>{ARQ_META[arq_code]['lema']}</i> {ARQ_META[arq_code]['desc']}",body),
