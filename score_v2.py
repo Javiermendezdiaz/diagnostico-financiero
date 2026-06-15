@@ -561,13 +561,16 @@ def calcular_compromiso(datos, perfil_in, brecha, p):
     # MODO CRISIS: agotamiento clínico (C1 alto) + presión financiera real -> estabilizar, no exigir cifras.
     gasto = _num(datos, "gasto_mensual"); colch = _num(datos, "colchon_liquido")
     cuota = _num(datos, "cuota_deuda"); ahorro_m = _num0(datos, "ahorro_mensual") or 0
+    inv_liq = _num0(datos, "inversiones_liquidas")
     c1 = (p or {}).get("C1", {}).get("score", 0)
     meses = (colch / gasto) if (colch and gasto) else None
+    realizable_meses = (((colch or 0) + (inv_liq or 0)) / gasto) if gasto else None
     tasa = (100 * ahorro_m / ingreso) if ingreso else 100
     dti = (100 * cuota / ingreso) if (cuota and ingreso) else 0
     presion = ((meses is not None and meses < 3) or (tasa < 10) or (dti >= 35)
                or bool(ingreso and gasto and gasto >= ingreso * 0.95))
-    if (c1 >= 65) and presion:
+    tiene_recursos = (realizable_meses is not None and realizable_meses >= 6)  # puede realizar 6+ meses: no es crisis de recursos
+    if (c1 >= 65) and presion and not tiene_recursos:
         return {"crisis": True, "objetivo_ingresos": None, "numero_libertad": None, "plazo_anios": None, "edad": edad,
                 "reglas": [
                     "Voy a frenar la bola de la deuda más cara antes que ninguna otra cosa.",
