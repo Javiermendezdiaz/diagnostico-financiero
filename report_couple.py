@@ -384,9 +384,10 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None):
         PageBreak()]
     # apertura
     S+=[Paragraph("Antes de empezar",h_sec),
-        Paragraph(f"{nA} y {nB}: el dinero es la primera causa de conflicto en las parejas, y casi nunca porque "
-                  "falte —sino porque cada uno lo vive distinto y no se habla. Este libro pone esas diferencias "
-                  "sobre la mesa, sin juicio, para que dejen de operar en silencio.",body),
+        Paragraph(f"{nA} y {nB}: el dinero es una de las causas más citadas de ruptura en las parejas — y casi "
+                  "nunca por cuánto hay, sino porque cada uno lo vive distinto y no se habla. La grieta no la abre "
+                  "la falta de dinero: la abre la diferencia callada. Este libro pone esas diferencias sobre la "
+                  "mesa, sin juicio, para que dejen de operar en silencio.",body),
         Paragraph("No mide quién lo hace mejor. Mide dónde estáis alineados (vuestra fuerza conjunta) y dónde "
                   "divergís (vuestros focos de fricción). Al final encontraréis un guion para hablarlo.",body),
         Paragraph("Leedlo juntos. Esa es la mitad del valor.",body),
@@ -491,7 +492,9 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None):
     # focos de friccion (item-level)
     S+=[Paragraph("Vuestros focos de fricción",h_sec),
         Paragraph("Las preguntas concretas donde respondisteis casi en extremos opuestos. Aquí es donde el dinero "
-                  "se convierte en discusión sin que sepáis por qué. Priorizamos las de vínculo y transparencia.",body)]
+                  "se convierte en discusión sin que sepáis por qué. Priorizamos las de vínculo y transparencia.",body),
+        Paragraph("Cada una de estas diferencias, callada, erosiona; nombrada y entendida, se desactiva. No son "
+                  "amenazas: son las conversaciones que aún no habéis tenido — y tenerlas es, justamente, la vacuna.",body)]
     if not divs:
         S+=[Paragraph("Apenas hay divergencias marcadas: vuestra forma de ver el dinero está muy alineada. "
                       "Vuestro trabajo es de afinación, no de reconciliación.",body)]
