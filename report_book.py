@@ -753,6 +753,39 @@ def seccion_extras(extras):
         _rt.setStyle(TableStyle([("VALIGN",(0,0),(-1,-1),"TOP"),("LINEBELOW",(0,0),(-1,-1),0.3,LINE),
             ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6),("LEFTPADDING",(0,0),(-1,-1),2),("RIGHTPADDING",(0,0),(-1,-1),6)]))
         out+=[_rt]
+    fnt=extras.get("fortuna_neta")
+    if fnt:
+        cm=(" &#183; colchón de <b>%g meses</b> de gastos" % fnt["colchon_meses"]) if fnt.get("colchon_meses") else ""
+        out+=[Spacer(1,5*mm), Paragraph("Tu fortuna neta hoy",h_sub),
+              Paragraph("El número maestro: lo que de verdad es tuyo cuando restas todo lo que debes. Es la cifra que conviene recalcular cada seis meses.",small),
+              Spacer(1,2*mm),
+              _box([Paragraph("Activos <b>%s</b> &#8722; Deuda <b>%s</b> = Fortuna neta <b>%s</b>%s"%(_eur(fnt["activos"]),_eur(fnt["pasivos"]),_eur(fnt["neta"]),cm),
+                              St("fnt",fontSize=10.5,leading=15))],"#F4F7F5","#0F766E",ancho=160*mm)]
+    dt=extras.get("deuda_tipo")
+    if dt:
+        out+=[Spacer(1,5*mm), Paragraph(dt[0],h_sub), Spacer(1,2*mm),
+              Paragraph(dt[1],St("dtx",fontSize=10,leading=14,textColor=INK,backColor=LIGHT,borderPadding=7,spaceBefore=0,spaceAfter=0))]
+    pr=extras.get("presupuesto")
+    if pr:
+        out+=[Spacer(1,5*mm), Paragraph("Tu presupuesto: el marco",h_sub),
+              Paragraph("No te pedimos las cuarenta categorías de tu vida — ese cuadro de mando lo construimos contigo en Adapta. Esto es el marco desde tus cifras: dónde está tu dinero y dónde debería estar.",small)]
+        lin="De tus <b>%s/mes</b> de gasto: vivienda <b>%s</b>"%(_eur(pr["gasto"]),_eur(pr["vivienda"]))
+        if pr["deuda"]: lin+=", deuda <b>%s</b>"%_eur(pr["deuda"])
+        lin+=", y el resto de tu vida <b>%s</b>."%_eur(pr["resto"])
+        out.append(Paragraph(lin,St("prl",fontSize=9.7,leading=14,spaceBefore=3)))
+        if pr.get("recomendado"):
+            rc=pr["recomendado"]
+            out.append(Paragraph("Marco de referencia 50/30/20 sobre tus ingresos: necesidades ~<b>%s</b>, deseos ~<b>%s</b>, y a construir patrimonio ~<b>%s</b>/mes. Una brújula, no una jaula."%(_eur(rc["necesidades"]),_eur(rc["deseos"]),_eur(rc["ahorro"])),St("prr",fontSize=9.7,leading=14,spaceBefore=3)))
+        if pr.get("empresario"):
+            out.append(Paragraph("<font color='#B45309'>&#9656;</font>  <b>Separa familia y negocio.</b> Tu cuota de autónomos, tus tributos y la gestoría <b>no son gasto de vida familiar</b>: mezclarlos distorsiona tu coste de vida real y tu verdadera capacidad de ahorro. Dos cuentas, dos presupuestos, siempre.",St("pre",fontSize=9.7,leading=14,spaceBefore=4,leftIndent=4)))
+    out+=[Spacer(1,5*mm), Paragraph("Tu marco de inversión",h_sub),
+          Paragraph("Principios, no productos. Qué recomendar en concreto es trabajo de tu asesor en Adapta — y depende de tu situación. Lo que no cambia son las reglas:",small)]
+    for _pp in ["Primero el colchón, después invertir: nunca inviertas el dinero que podrías necesitar en 6 meses.",
+                "Aporta de forma periódica y automática: la constancia bate al cronómetro (nadie acierta el momento exacto).",
+                "Diversifica por clases de activo: no dependas de una sola pieza, por buena que parezca hoy.",
+                "Vigila las comisiones: un punto al año, compuesto a 20 años, se come cerca de un tercio de lo que habrías acumulado.",
+                "Piensa en décadas y no vendas por miedo: el peor enemigo de tu rentabilidad eres tú en un mal día."]:
+        out.append(Paragraph("<font color='#0F766E'>&#9656;</font>  %s"%_pp,St("miv",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=2)))
     for blk in (extras.get("energia"), extras.get("conciliacion"), extras.get("asesor"), extras.get("herencia")):
         if blk:
             ti,tx=blk
@@ -765,6 +798,44 @@ def seccion_extras(extras):
         for q in pa:
             out.append(Paragraph("<font color='#0F766E'>&#9656;</font>  «%s»"%q,St("pqa",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=3)))
     return out
+
+def seccion_compromiso(extras):
+    """Cierre: protocolo de revisión a 6 meses + Contrato contigo mismo (firma presente/futuro)."""
+    if not extras: return []
+    cmp=extras.get("compromiso")
+    out=[PageBreak(), Paragraph("Tu revisión a 6 meses",h_sec),
+         Paragraph("Un patrimonio no se gestiona una vez: se revisa. Cada seis meses, sin excepciones, "
+                   "siéntate treinta minutos y recalcula. Esto es lo que se mira:",body), Spacer(1,2*mm)]
+    for t in ["Tu fortuna neta: activos menos deudas. ¿Subió o bajó respecto a hace seis meses?",
+              "Tus ingresos y tus gastos: cuánto entró, cuánto salió y cuánto convertiste en patrimonio.",
+              "El desarrollo de tus inversiones: ¿hacen lo que esperabas? ¿Qué comisiones pagaste?",
+              "Tus objetivos: ¿siguen siendo los mismos o la vida pide ajustarlos?",
+              "Tu tasa de cumplimiento: del plan que te marcaste, ¿qué porcentaje hiciste de verdad?"]:
+        out.append(Paragraph("<font face='Helvetica'>[   ]</font>  %s"%t,St("rv6",fontSize=9.8,leading=14,leftIndent=8,spaceAfter=3)))
+    out.append(Paragraph("Lo que no se mide, no se gobierna. Lo que no se revisa, se deteriora en silencio.",St("rv6n",fontSize=9.5,leading=13,textColor=GREY,spaceBefore=3)))
+    if cmp:
+        out+=[Spacer(1,7*mm), Paragraph("Contrato contigo mismo",h_sec),
+              Paragraph("Un diagnóstico cambia algo solo cuando se vuelve decisión. Esto no es un deseo: es un compromiso, escrito con tus propios números.",body)]
+        inner=[Paragraph("<b>YO, HOY, DECIDO</b> que mi libertad financiera no será fruto del azar, sino de disciplina, estrategia y visión a largo plazo.",St("c0",fontSize=10.5,leading=15))]
+        metas=[]
+        if cmp.get("objetivo_ingresos"): metas.append("Mis ingresos medios serán, como mínimo, de <b>%s/mes</b>."%_eur(cmp["objetivo_ingresos"]))
+        if cmp.get("numero_libertad"):
+            pl=(" — mi horizonte: <b>%d años</b>"%cmp["plazo_anios"]) if cmp.get("plazo_anios") else ""
+            metas.append("Mi número de libertad es <b>%s</b>%s. Cada decisión me acerca o me aleja de él."%(_eur(cmp["numero_libertad"]),pl))
+        if metas:
+            inner.append(Paragraph("<font color='#B45309'><b>MIS OBJETIVOS IRRENUNCIABLES</b></font>",St("c1",fontSize=9.8,leading=14,spaceBefore=7)))
+            for m in metas: inner.append(Paragraph("&#9656;  %s"%m,St("c2",fontSize=9.7,leading=14,leftIndent=8,spaceAfter=1)))
+        inner.append(Paragraph("<font color='#B45309'><b>MIS REGLAS NO NEGOCIABLES</b></font>",St("c3",fontSize=9.8,leading=14,spaceBefore=7)))
+        for r in (cmp.get("reglas") or []):
+            inner.append(Paragraph("&#9656;  %s"%r,St("c4",fontSize=9.7,leading=14,leftIndent=8,spaceAfter=1)))
+        inner.append(Paragraph("No habrá excusas. Mi futuro dependerá de mis decisiones presentes. La disciplina de hoy es la libertad de mañana.",St("c5",fontSize=9.7,leading=14,spaceBefore=7)))
+        out+=[Spacer(1,3*mm), _box(inner,"#FBF8EE","#B45309",ancho=164*mm)]
+        firmas=Table([[Paragraph("________________________<br/><font size=8 color='#6B7280'>MI YO PRESENTE</font>",small),
+                       Paragraph("________________________<br/><font size=8 color='#6B7280'>MI YO FUTURO</font>",small)]],colWidths=[80*mm,80*mm])
+        firmas.setStyle(TableStyle([("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),14),("ALIGN",(0,0),(-1,-1),"CENTER")]))
+        out+=[Spacer(1,6*mm),firmas]
+    return out
+
 
 def seccion_coste_inaccion(extras):
     """Cierre de alto impacto: cuantifica el coste de no actuar con numeros REALES del cliente."""
@@ -1066,6 +1137,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   "se calibran empíricamente frente a la cohorte real de respondentes; mientras la muestra de tu grupo crece, se indican como provisionales. Herramienta "
                   "de autoconocimiento; no sustituye asesoramiento profesional individualizado.",small)]
     if extras: S+=seccion_coste_inaccion(extras)
+    if extras: S+=seccion_compromiso(extras)
     S+=seccion_adapta(p)
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}

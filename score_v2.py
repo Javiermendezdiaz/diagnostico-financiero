@@ -70,6 +70,25 @@ def _num(d, k):
         return None
 
 
+def _num0(d, k):
+    """Como _num pero admite 0 como valor legítimo (p.ej. rentas pasivas = 0)."""
+    try:
+        x = float(d.get(k))
+        return x if x >= 0 else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _perfil_laboral_txt(perfil_in):
+    pl = (perfil_in or {}).get("perfil_laboral")
+    return " ".join(pl) if isinstance(pl, list) else (pl or "")
+
+
+def _es_empresario(perfil_in):
+    t = _perfil_laboral_txt(perfil_in).lower()
+    return ("empresa" in t) or ("utónom" in t) or ("autonom" in t)
+
+
 def calcular_brecha(datos, resp, perfil_in):
     """Brecha vital: lo que cuesta la vida ideal frente a lo que hoy ingresas/acumulas."""
     ingreso = _num(datos, "ingreso_mensual")
@@ -173,6 +192,41 @@ def calcular_palancas(datos, p, perfil_in, resp=None):
                     "No saber qué pagas casi siempre significa pagar de más. Sobre tu patrimonio, una comisión típica "
                     "de banco (~1,5%%) son unos %s al año — y a 20 años, por interés compuesto, puede costarte cerca "
                     "de un tercio de lo que habrías acumulado. Saber el dato y bajarlo es rentabilidad garantizada." % _eur(coste)))
+
+    # 8) Rentas pasivas: subir ingresos sin vender más tiempo
+    rp = _num0(datos, "renta_pasiva")
+    if ingreso and rp is not None:
+        pp = 100 * rp / ingreso
+        if rp == 0:
+            out.append(("Hoy no tienes ni un euro que entre sin tu tiempo",
+                        "Todo tu ingreso depende de que tú estés ahí. Mi vida —y la de casi todos los que llegan lejos— "
+                        "cambió cuando dejé de tener una sola fuente: una renta de alquiler, dividendos, intereses o un "
+                        "ingreso que no exige tus horas. No hace falta empezar grande; hace falta empezar. La primera "
+                        "fuente pasiva es la que más cuesta y la que más libera."))
+        elif pp < 30:
+            out.append(("Tus rentas pasivas ya empujan: ahora amplíalas",
+                        "Un %s%% de lo que ingresas ya no depende de tu tiempo (%s/mes). Esa es la palanca correcta: "
+                        "reinvierte lo que generan para que crezcan solas, hasta que un día cubran tu coste de vida. "
+                        "Ese es el punto exacto donde el trabajo deja de ser obligatorio y pasa a ser elección." % (("%g" % round(pp, 1)), _eur(rp))))
+
+    # 9) Vas con retraso respecto a tu meta y eres conservador: el coste de la prudencia excesiva (gobernado por el horizonte)
+    edad = _num(datos, "edad")
+    detras = bool(coste_ideal and ingreso and coste_ideal > ingreso)
+    conservador = ("nada" in invierte.lower()) or (invierte == "")
+    if detras and conservador:
+        if edad and edad >= 55:
+            out.append(("Vas con retraso y el margen de tiempo se acorta",
+                        "Tu meta pide más de lo que hoy generas y tu horizonte ya no es largo. Aquí la respuesta NO es "
+                        "asumir más riesgo para recuperar — cerca de la meta es justo cuando más se pierde. Tus palancas "
+                        "reales son tres: subir lo que aportas, ajustar la meta a lo posible y rentabilizar tu ahorro "
+                        "con prudencia, sin exponerlo a un susto que no te daría tiempo a recuperar."))
+        else:
+            out.append(("Ir con retraso y ser conservador no caben juntos",
+                        "Tu vida ideal pide más de lo que hoy generas y tu dinero no está invertido. Cuando vas por "
+                        "detrás de tu meta y tienes años por delante, el mayor riesgo deja de ser el mercado y pasa a "
+                        "ser la inacción: el dinero parado no recupera el terreno perdido. No es licencia para apostar "
+                        "—es poner tu ahorro a trabajar con un plan acorde a tu plazo—, pero a tu horizonte el exceso de "
+                        "prudencia es el riesgo más caro que corres."))
 
     if not out:
         out.append(("Tu base permite pasar a la ofensiva",
@@ -378,6 +432,14 @@ def calcular_ratios(datos, perfil_in):
         ac = pat / (gasto * 12)
         add("Independencia financiera", "%.1f años de vida cubiertos" % ac, "verde" if ac >= 25 else ("ambar" if ac >= 10 else "rojo"),
             "Proyecta tu hito de libertad y las palancas que lo acercan.")
+    rp = _num0(datos, "renta_pasiva")
+    if rp is not None and ing:
+        pp = 100 * rp / ing
+        add("Ingresos pasivos", "%.0f%% de tus ingresos" % pp,
+            "verde" if pp >= 30 else ("ambar" if pp >= 10 else "info"),
+            "Hoy casi todo lo que ingresas depende de tu tiempo. Tu siguiente frontera es construir una fuente que trabaje sin ti." if pp < 10 else
+            ("Ya tienes rentas que no dependen de tu tiempo: el objetivo es ampliarlas hasta que cubran tu coste de vida." if pp < 30 else
+             "Tus rentas pasivas ya sostienen una parte real de tu vida. Protégelas y sigue componiendo."))
     if pension is not None and pension > 0 and gasto:
         gap = gasto - pension
         if gap > 0:
@@ -402,13 +464,95 @@ def calcular_accion_unica(ratios, p):
     return "Empieza por el primer movimiento de tu plan de acción y no pases al siguiente hasta tenerlo en marcha."
 
 
+def calcular_fortuna_neta(datos):
+    """Foto de fortuna neta: patrimonio (ya neto) = activos - pasivos, y colchón en meses.
+    El cuadro de mando semestral vivo es de Adapta; aquí damos solo la foto y el hábito."""
+    pat = _num(datos, "patrimonio")
+    if pat is None:
+        return None
+    deuda = _num(datos, "deuda_total") or 0
+    gasto = _num(datos, "gasto_mensual")
+    colch = _num(datos, "colchon_liquido")
+    meses = round(colch / gasto, 1) if (colch and gasto) else None
+    return {"neta": pat, "activos": pat + deuda, "pasivos": deuda, "colchon_meses": meses}
+
+
+def calcular_deuda_tipo(resp, datos):
+    """Lee C10-07 (¿la deuda te quita o te da dinero?) y la nombra palanca/neutra/freno."""
+    v = resp.get("C10-07")
+    if v is None:
+        return None
+    if v == 0:
+        return ("Tu deuda, hoy, es una palanca",
+                "En conjunto tu deuda te da dinero: financia activos que rinden más de lo que te cuesta. Bien usada, "
+                "la deuda barata es una herramienta de crecimiento, no un peso. Tu tarea es de vigilancia: que su coste "
+                "siga por debajo de lo que renta, y no confundirla nunca con la deuda de consumo.")
+    if v == 1:
+        return ("Tu deuda, hoy, es neutra: tú decides su dirección",
+                "Ni te hunde ni te impulsa. Ese es justo el punto de bifurcación: puedes convertirla en palanca —que "
+                "financie algo que rinde— o dejar que derive en freno. La diferencia no la marca la deuda, la marcas tú "
+                "con para qué la usas.")
+    return ("Tu deuda, hoy, es un freno",
+            "Tu deuda te quita dinero: es consumo que pagas con intereses, sin nada que rinda detrás. Es lo primero que "
+            "hay que desactivar, empezando por la más cara, porque cada euro de intereses es un euro que no construye tu "
+            "libertad. No es una cuestión moral: es la rentabilidad más segura que existe.")
+
+
+def calcular_presupuesto(datos, perfil_in):
+    """Marco de presupuesto a partir de lo conocido. Para empresarios, separa familia/negocio.
+    El dashboard vivo (casa/negocio, fijo/variable) es deliverable de Adapta; aquí, el marco."""
+    gasto = _num(datos, "gasto_mensual")
+    if not gasto:
+        return None
+    ing = _num(datos, "ingreso_mensual")
+    viv = _num(datos, "coste_vivienda") or 0
+    cuota = _num(datos, "cuota_deuda") or 0
+    resto = max(0.0, gasto - viv - cuota)
+    rec = None
+    if ing:
+        rec = {"necesidades": round(ing * 0.50), "deseos": round(ing * 0.30), "ahorro": round(ing * 0.20)}
+    return {"gasto": gasto, "ingreso": ing, "vivienda": viv, "deuda": cuota, "resto": resto,
+            "empresario": _es_empresario(perfil_in), "recomendado": rec}
+
+
+def calcular_compromiso(datos, perfil_in, brecha, p):
+    """Contrato contigo mismo: objetivos con los propios números del cliente + reglas a su medida."""
+    coste_ideal = _num(datos, "coste_vida_ideal")
+    ingreso = _num(datos, "ingreso_mensual")
+    edad = _num(datos, "edad") or _num(perfil_in or {}, "edad")
+    objetivo_ing = coste_ideal or (round(ingreso * 1.3) if ingreso else None)
+    numero = (brecha or {}).get("numero_ideal") if brecha else None
+    if not numero and coste_ideal:
+        numero = coste_ideal * 12 * 25
+    reglas = ["Construir activos que generen ingresos recurrentes, no solo cambiar mi tiempo por dinero.",
+              "Revisar mi fortuna neta, mis ingresos y mis gastos cada 6 meses, sin excepciones ni autoengaños."]
+    rp = _num0(datos, "renta_pasiva")
+    if ingreso and (rp is None or (100 * rp / ingreso) < 30):
+        reglas.append("Crear o ampliar al menos una fuente de ingresos que no dependa de mi tiempo.")
+    ahorro = _num(datos, "ahorro_mensual") or 0
+    if ingreso and (100 * ahorro / ingreso) < 20:
+        reglas.append("Automatizar mi ahorro el día de cobro, antes de gastar.")
+    invierte = (perfil_in or {}).get("invierte", "") or ""
+    if "nada" in invierte.lower() or invierte == "":
+        reglas.append("Poner mi patrimonio a trabajar con un plan, en lugar de dejarlo parado.")
+    else:
+        reglas.append("Invertir de forma constante, reinvertir los beneficios y no vender por miedo.")
+    if _es_empresario(perfil_in):
+        reglas.append("Separar siempre las cuentas de mi familia y las de mi negocio.")
+    reglas.append("Pensar en décadas, no en meses: la disciplina de hoy es la libertad de mañana.")
+    plazo = int(max(5, 65 - edad)) if edad else None
+    return {"objetivo_ingresos": objetivo_ing, "numero_libertad": numero,
+            "plazo_anios": plazo, "edad": edad, "reglas": reglas[:6]}
+
+
 def computar_extras(resp, datos, perfil_in, inst=None):
     """Punto de entrada unico. Devuelve dict listo para report_book + arq_code."""
     inst = inst or cargar_inst()
     p = perfil_scores(resp, inst["capas"])
     ratios = calcular_ratios(datos, perfil_in)
+    brecha = calcular_brecha(datos, resp, perfil_in)
     return {
-        "brecha": calcular_brecha(datos, resp, perfil_in),
+        "brecha": brecha,
         "ratios": ratios,
         "accion_unica": calcular_accion_unica(ratios, p),
         "palancas": calcular_palancas(datos, p, perfil_in, resp),
@@ -418,6 +562,10 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "preguntas_asesor": calcular_preguntas_asesor(perfil_in, p),
         "asesor": calcular_asesor(perfil_in),
         "herencia": calcular_herencia(perfil_in),
+        "fortuna_neta": calcular_fortuna_neta(datos),
+        "deuda_tipo": calcular_deuda_tipo(resp, datos),
+        "presupuesto": calcular_presupuesto(datos, perfil_in),
+        "compromiso": calcular_compromiso(datos, perfil_in, brecha, p),
         "arq_code": arq_desde_perfil(perfil_in),
         "_p": p,
     }

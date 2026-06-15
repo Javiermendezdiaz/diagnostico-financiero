@@ -52,6 +52,10 @@ a{color:var(--am)}
 .modal .box{background:var(--pa);border:1px solid var(--am);border-radius:16px;max-width:420px;padding:26px;text-align:center;animation:pop .25s ease}
 @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
 .modal h3{font-size:17px;font-weight:700;margin-bottom:10px}.modal p{color:var(--gr);font-size:14px;line-height:1.5;margin-bottom:18px}.modal b{color:var(--am)}
+.pacto h3{font-size:19px;font-weight:800;margin-bottom:6px}
+.pacto .pl{display:flex;gap:9px;margin:12px 0;font-size:14px;line-height:1.45;color:var(--tx)}.pacto .pl b{color:var(--am)}
+.pacto .pl i{color:var(--am);font-style:normal;font-weight:800}
+.reflex{color:var(--gr);font-size:12px;font-style:italic;margin:14px 0 2px;padding-left:11px;border-left:2px solid var(--bd);min-height:16px}
 </style></head>
 <body>
 <div class="toast" id="toast"></div>
@@ -80,6 +84,17 @@ a{color:var(--am)}
 
 <div id="s-load" class="step center"><div class="spin"></div><p style="color:var(--gr)">Preparando tu diagnóstico…</p></div>
 
+<div id="s-pacto" class="step pacto">
+  <div class="kick">Antes de empezar</div>
+  <h3>Un pacto de honestidad</h3>
+  <p style="font-size:14px;line-height:1.5;color:var(--gr);margin-bottom:4px">Esto no es un examen. Es un espejo. Y un espejo solo sirve si no le mientes.</p>
+  <div class="pl"><i>▸</i><span>Responde por <b>cómo es</b> tu vida, no por cómo te gustaría que fuera.</span></div>
+  <div class="pl"><i>▸</i><span>No hay respuestas buenas ni malas. Hay respuestas <b>verdaderas</b> — son las únicas que te sirven.</span></div>
+  <div class="pl"><i>▸</i><span>Tómate tu tiempo. Las preguntas que más incomodan suelen ser las que más revelan.</span></div>
+  <p style="font-size:13px;line-height:1.5;color:var(--gr);margin-top:8px">Lo que respondas es tuyo y confidencial. Cuanto más honesto seas, más preciso será tu diagnóstico.</p>
+  <button class="btn" onclick="arrancarTest()">Acepto. Empecemos →</button>
+</div>
+
 <div id="s-q" class="step">
   <div class="bar"><i id="bar"></i></div>
   <div class="tens"><span class="lbl2" id="tensLbl" style="color:#7ee3ad">Estructura eficiente</span><div class="tbar"><i id="tbar" style="background:#1f7a4d"></i></div></div>
@@ -87,6 +102,7 @@ a{color:var(--am)}
   <div class="qtext" id="qtext"></div>
   <div class="ayuda" id="ayuda" style="display:none"></div>
   <div id="opts"></div>
+  <div class="reflex" id="reflex"></div>
   <button class="btn" id="cont" style="display:none" onclick="contNum()">Siguiente →</button>
   <button class="back" id="atras" style="display:none" onclick="atras()">← Atrás</button>
 </div>
@@ -123,9 +139,15 @@ async function iniciar(){
       body:JSON.stringify({email:st.email,nombre:st.nombre,tier:st.tier,sexo:'',consentimiento:true})});
     st.sid=(await r.json()).session_id;
     construirCola();
-    show('s-q'); st.i=0; pintar();
+    show('s-pacto');
   }catch(e){console.error(e);alert('No se pudo cargar. Reintenta.');show('s-reg')}
 }
+function arrancarTest(){ show('s-q'); st.i=0; pintar(); }
+const REFLEX=["Sin prisa. Responde por cómo es, no por cómo te gustaría que fuera.",
+  "No hay respuesta correcta. Solo la verdadera.",
+  "Tómate un segundo. La respuesta honesta es la que de verdad te sirve.",
+  "Esto es un espejo, no un examen. Mírate sin filtro.",
+  "Cuanto más sincero seas, más preciso será tu diagnóstico."];
 
 function construirCola(){
   st.cola=[];
@@ -186,6 +208,7 @@ function pintar(){
   qtext.textContent=q.texto||q.pregunta;
   const ay=document.getElementById('ayuda');
   if(q.ayuda){ay.textContent=q.ayuda;ay.style.display='block'}else ay.style.display='none';
+  const rf=document.getElementById('reflex'); if(rf) rf.textContent=REFLEX[st.i % REFLEX.length];
   const cont=document.getElementById('cont'); const opts=document.getElementById('opts'); opts.innerHTML='';
   document.getElementById('atras').style.display = st.i>0?'inline-block':'none';
   if(q.tipo==='numerica'){

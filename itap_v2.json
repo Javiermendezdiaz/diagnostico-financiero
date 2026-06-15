@@ -2870,11 +2870,11 @@
      "faceta": "activo_latente",
      "tipo": "escala",
      "dimensiones": "PSIQUE",
-     "texto": "¿Cuál es tu mayor activo latente: eso que, si le dedicaras un mes a fondo, te cambiaría los ingresos?",
+     "texto": "¿Cuál es tu mayor activo latente: una afición, un talento, un conocimiento o un contacto que, si le dedicaras un mes a fondo, te cambiaría los ingresos?",
      "nivel": "nucleo",
      "opciones": [
       {
-       "texto": "Habilidades o contactos que podría monetizar ya como asesor o por mi cuenta.",
+       "texto": "Sí: una afición, talento o red de contactos que podría convertir en ingresos ya mismo.",
        "score": 0
       },
       {
@@ -3494,6 +3494,13 @@
      "Rentista, jubilado o vivo de mi patrimonio"
     ]
    }
+  },
+  {
+   "id": "NUM-12",
+   "campo": "renta_pasiva",
+   "unidad": "€/mes",
+   "texto": "¿Cuánto ingresas al mes de fuentes que NO dependen de tu trabajo activo (alquileres, dividendos, intereses, royalties, un negocio que funciona sin ti)? Pon 0 si ninguna.",
+   "ayuda": "Cada euro que entra sin tu tiempo es un euro de libertad real. Es la vía de subir ingresos sin vender más horas."
   }
  ],
  "seeds": [
