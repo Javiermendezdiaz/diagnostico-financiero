@@ -169,10 +169,10 @@ REFLEX={
  "C11":"\u00bfTu dinero est\u00e1 hoy construyendo la vida que quieres, o solo defendiendo la que ya tienes?"}
 
 def faceta_lectura(score):
-    if score<30: return "es una base firme."
-    if score<51: return "va bien, con recorrido de mejora."
-    if score<76: return "empieza a pesar; conviene atenderla."
-    return "es un punto crítico de esta área."
+    if score<30: return "base firme"
+    if score<51: return "con margen"
+    if score<76: return "a vigilar"
+    return "punto crítico"
 def _sevcol(sc):
     return "#1D6F42" if sc<30 else ("#B8860B" if sc<51 else ("#C2710C" if sc<76 else "#9A3B2E"))
 def _vidx(code, n=3):
@@ -979,9 +979,14 @@ def seccion_compromiso(extras):
         out.append(Paragraph("<font face='Helvetica'>[   ]</font>  %s"%t,St("rv6",fontSize=9.8,leading=14,leftIndent=8,spaceAfter=3)))
     out.append(Paragraph("Lo que no se mide, no se gobierna. Lo que no se revisa, se deteriora en silencio.",St("rv6n",fontSize=9.5,leading=13,textColor=GREY,spaceBefore=3)))
     if cmp:
-        out+=[Spacer(1,7*mm), Paragraph("Contrato contigo mismo",h_sec),
-              Paragraph("Un diagnóstico cambia algo solo cuando se vuelve decisión. Esto no es un deseo: es un compromiso, escrito con tus propios números.",body)]
-        inner=[Paragraph("<b>YO, HOY, DECIDO</b> que mi libertad financiera no será fruto del azar, sino de disciplina, estrategia y visión a largo plazo.",St("c0",fontSize=10.5,leading=15))]
+        if cmp.get("crisis"):
+            out+=[Spacer(1,7*mm), Paragraph("Tu compromiso: primero, recuperar el aire",h_sec),
+                  Paragraph("Hoy no toca firmar grandes cifras ni horizontes a décadas. Toca estabilizar. Este es tu compromiso —tres pasos, ni uno más— para volver a tener el control y la calma. El resto llegará cuando estés en tierra firme.",body)]
+            inner=[Paragraph("<b>YO, HOY, DECIDO</b> dejar de exigirme y empezar a sostenerme: recuperar el control de mi mes y mi descanso, antes que cualquier meta lejana.",St("c0",fontSize=10.5,leading=15))]
+        else:
+            out+=[Spacer(1,7*mm), Paragraph("Contrato contigo mismo",h_sec),
+                  Paragraph("Un diagnóstico cambia algo solo cuando se vuelve decisión. Esto no es un deseo: es un compromiso, escrito con tus propios números.",body)]
+            inner=[Paragraph("<b>YO, HOY, DECIDO</b> que mi libertad financiera no será fruto del azar, sino de disciplina, estrategia y visión a largo plazo.",St("c0",fontSize=10.5,leading=15))]
         metas=[]
         if cmp.get("objetivo_ingresos"): metas.append("Mis ingresos medios serán, como mínimo, de <b>%s/mes</b>."%_eur(cmp["objetivo_ingresos"]))
         if cmp.get("numero_libertad"):
@@ -990,10 +995,10 @@ def seccion_compromiso(extras):
         if metas:
             inner.append(Paragraph("<font color='#B45309'><b>MIS OBJETIVOS IRRENUNCIABLES</b></font>",St("c1",fontSize=9.8,leading=14,spaceBefore=7)))
             for m in metas: inner.append(Paragraph("&#9656;  %s"%m,St("c2",fontSize=9.7,leading=14,leftIndent=8,spaceAfter=1)))
-        inner.append(Paragraph("<font color='#B45309'><b>MIS REGLAS NO NEGOCIABLES</b></font>",St("c3",fontSize=9.8,leading=14,spaceBefore=7)))
+        inner.append(Paragraph("<font color='#B45309'><b>%s</b></font>"%("MIS TRES PASOS" if cmp.get("crisis") else "MIS REGLAS NO NEGOCIABLES"),St("c3",fontSize=9.8,leading=14,spaceBefore=7)))
         for r in (cmp.get("reglas") or []):
             inner.append(Paragraph("&#9656;  %s"%r,St("c4",fontSize=9.7,leading=14,leftIndent=8,spaceAfter=1)))
-        inner.append(Paragraph("No habrá excusas. Mi futuro dependerá de mis decisiones presentes. La disciplina de hoy es la libertad de mañana.",St("c5",fontSize=9.7,leading=14,spaceBefore=7)))
+        inner.append(Paragraph(("Un paso cada vez. No se trata de hacerlo perfecto, sino de no rendirme: sostener estos tres, hoy, es suficiente." if cmp.get("crisis") else "No habrá excusas. Mi futuro dependerá de mis decisiones presentes. La disciplina de hoy es la libertad de mañana."),St("c5",fontSize=9.7,leading=14,spaceBefore=7)))
         out+=[Spacer(1,3*mm), _box(inner,"#FBF8EE","#B45309",ancho=164*mm)]
         firmas=Table([[Paragraph("________________________<br/><font size=8 color='#6B7280'>MI YO PRESENTE</font>",small),
                        Paragraph("________________________<br/><font size=8 color='#6B7280'>MI YO FUTURO</font>",small)]],colWidths=[80*mm,80*mm])
@@ -1071,8 +1076,12 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   "apóyate también en un profesional de confianza.",small),
         PageBreak()]
     # resumen + radar
-    S+=[Paragraph("El mapa completo",h_sec),
-        Table([[Paragraph(f"<font size=42 color='#1A1A17'><b>{100-salud:.0f}</b></font>"
+    S+=[Paragraph("El mapa completo",h_sec)]
+    if extras and extras.get("crisis"):
+        S+=[_box([Paragraph("<font color='#7A5A00'><b>&#9656;  Primero, lo primero</b></font>",St("cri1",fontSize=11,leading=15,fontName=FB)),
+                  Paragraph("Tus respuestas dicen que ahora mismo el dinero te pesa de verdad —en el sueño, en la cabeza, en el día a día. Este informe no va a sumarte presión: antes de cualquier plan a años vista, su único objetivo es ayudarte a recuperar el aire y el control del mes. Un paso cada vez.",St("cri2",fontSize=10,leading=15,spaceBefore=2,textColor=INK))],
+                 "#FBF3E8","#B45309",ancho=160*mm), Spacer(1,3*mm)]
+    S+=[Table([[Paragraph(f"<font size=42 color='#1A1A17'><b>{100-salud:.0f}</b></font>"
                           f"<font size=13 color='#6B7280'>/100</font>",St("bignum",fontSize=42,leading=46)),
                 Paragraph(f"<b>{bl}</b><br/><font size=8 color='#6B7280'>Salud psicofinanciera global · "
                           f"{_pct_frase}</font>",body)]],

@@ -558,6 +558,22 @@ def calcular_compromiso(datos, perfil_in, brecha, p):
     coste_ideal = _num(datos, "coste_vida_ideal")
     ingreso = _num(datos, "ingreso_mensual")
     edad = _num(datos, "edad") or _num(perfil_in or {}, "edad")
+    # MODO CRISIS: agotamiento clínico (C1 alto) + presión financiera real -> estabilizar, no exigir cifras.
+    gasto = _num(datos, "gasto_mensual"); colch = _num(datos, "colchon_liquido")
+    cuota = _num(datos, "cuota_deuda"); ahorro_m = _num0(datos, "ahorro_mensual") or 0
+    c1 = (p or {}).get("C1", {}).get("score", 0)
+    meses = (colch / gasto) if (colch and gasto) else None
+    tasa = (100 * ahorro_m / ingreso) if ingreso else 100
+    dti = (100 * cuota / ingreso) if (cuota and ingreso) else 0
+    presion = ((meses is not None and meses < 3) or (tasa < 10) or (dti >= 35)
+               or bool(ingreso and gasto and gasto >= ingreso * 0.95))
+    if (c1 >= 65) and presion:
+        return {"crisis": True, "objetivo_ingresos": None, "numero_libertad": None, "plazo_anios": None, "edad": edad,
+                "reglas": [
+                    "Voy a frenar la bola de la deuda más cara antes que ninguna otra cosa.",
+                    "Voy a separar mi dinero en tres cajas —lo justo para vivir, un colchón mínimo y el resto— para recuperar el control del mes.",
+                    "Voy a cuidar mi descanso y mi cabeza: ningún plan funciona sobre el agotamiento, y mi salud es parte del plan.",
+                    "Voy a revisar estos tres pasos cada mes, sin exigirme cifras que hoy no me corresponden."]}
     objetivo_ing = coste_ideal or (round(ingreso * 1.3) if ingreso else None)
     numero = (brecha or {}).get("numero_ideal") if brecha else None
     if not numero and coste_ideal:
@@ -579,7 +595,7 @@ def calcular_compromiso(datos, perfil_in, brecha, p):
         reglas.append("Separar siempre las cuentas de mi familia y las de mi negocio.")
     reglas.append("Pensar en décadas, no en meses: la disciplina de hoy es la libertad de mañana.")
     plazo = int(max(5, 65 - edad)) if edad else None
-    return {"objetivo_ingresos": objetivo_ing, "numero_libertad": numero,
+    return {"crisis": False, "objetivo_ingresos": objetivo_ing, "numero_libertad": numero,
             "plazo_anios": plazo, "edad": edad, "reglas": reglas[:6]}
 
 
@@ -589,7 +605,9 @@ def computar_extras(resp, datos, perfil_in, inst=None):
     p = perfil_scores(resp, inst["capas"])
     ratios = calcular_ratios(datos, perfil_in)
     brecha = calcular_brecha(datos, resp, perfil_in)
+    compromiso = calcular_compromiso(datos, perfil_in, brecha, p)
     return {
+        "crisis": bool(compromiso.get("crisis")),
         "brecha": brecha,
         "ratios": ratios,
         "accion_unica": calcular_accion_unica(ratios, p),
@@ -603,7 +621,7 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "fortuna_neta": calcular_fortuna_neta(datos),
         "deuda_tipo": calcular_deuda_tipo(resp, datos),
         "presupuesto": calcular_presupuesto(datos, perfil_in),
-        "compromiso": calcular_compromiso(datos, perfil_in, brecha, p),
+        "compromiso": compromiso,
         "arq_code": arq_desde_perfil(perfil_in),
         "_p": p,
     }
