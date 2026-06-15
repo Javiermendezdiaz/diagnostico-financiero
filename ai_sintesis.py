@@ -11,7 +11,7 @@ informe se genera con normalidad SIN la sección de IA. Nunca lanzan excepción.
 """
 import os, re
 
-MODELO = os.environ.get("ITAP_AI_MODEL", "claude-sonnet-4-6")
+MODELO = os.environ.get("ITAP_AI_MODEL", "claude-opus-4-8")
 MAX_TOKENS = int(os.environ.get("ITAP_AI_MAX_TOKENS", "750"))
 
 _GUARDRAIL = (
