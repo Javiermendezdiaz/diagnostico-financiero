@@ -138,6 +138,7 @@ async function iniciar(){
   show('s-load');
   try{
     INST=await (await fetch('itap_v2.json?v='+Date.now())).json();
+    try{ const _qq=await (await fetch(API+'/api/questions/'+st.tier)).json(); INST._abiertas=_qq.abiertas||[]; }catch(e){ INST._abiertas=[]; }
     const r=await fetch(API+'/api/start',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({email:st.email,nombre:st.nombre,tier:st.tier,sexo:'',consentimiento:true})});
     st.sid=(await r.json()).session_id;
@@ -159,6 +160,7 @@ function construirCola(){
   INST.vision_brecha.forEach(q=>st.cola.push({...q,_b:'Tu vida ideal',_cap:'VIS'}));
   INST.numericas_financieras.forEach(q=>st.cola.push({...q,tipo:'numerica',_b:'Tus números',_cap:'NUM'}));
   INST.capas.forEach(c=>c.items.filter(it=>it.nivel==='nucleo').forEach(it=>st.cola.push({...it,_b:c.nombre,_cap:c.code})));
+  (INST._abiertas||[]).forEach(q=>st.cola.push({...q,tipo:'abierta',_b:'En tus palabras',_cap:'OPEN',ayuda:'Sin filtro y sin prisa. Esto es lo que Claude leerá para escribir tu retrato.'}));
 }
 function emostrar(ms){
   if(!ms)return true; const v=st.perfil[ms.campo];
@@ -219,6 +221,11 @@ function pintar(){
     cont.style.display='block'; cont.textContent='Siguiente →'; cont.onclick=()=>contNum();
     const inp=document.createElement('input');inp.type='number';inp.id='num';inp.placeholder=q.unidad||'';
     inp.value = st.datos[q.campo] ?? ''; opts.appendChild(inp);
+  } else if(q.tipo==='abierta'){
+    cont.style.display='block'; cont.textContent='Continuar →'; cont.onclick=()=>contAbierta(q);
+    const ta=document.createElement('textarea');ta.id='abierta';ta.rows=4;ta.placeholder='Escribe lo que te salga, sin filtro…';
+    ta.style.cssText='width:100%;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);padding:14px;border-radius:12px;font-size:15px;font-family:inherit;line-height:1.5;resize:vertical';
+    ta.value = st.abiertas[q.id] || ''; opts.appendChild(ta);
   } else if(q.multi){
     cont.style.display='block'; cont.textContent='Continuar →'; cont.onclick=()=>contMulti(q);
     const sel=new Set(); q._sel=sel;
@@ -240,7 +247,7 @@ function pintar(){
   }
 }
 function progreso(q){
-  const orden=['SD','VIS','NUM',...INST.capas.map(c=>c.code)];
+  const orden=['SD','VIS','NUM',...INST.capas.map(c=>c.code),'OPEN'];
   const idx=orden.indexOf(q._cap);
   document.getElementById('bar').style.width=Math.min(98,Math.round(((idx+0.5)/orden.length)*100))+'%';
 }
@@ -291,6 +298,7 @@ function contMulti(q){
   if(q.id) st.resp[q.id]=[...sel];
   avanzar(q);
 }
+function contAbierta(q){ const t=(document.getElementById('abierta').value||'').trim(); if(q.id) st.abiertas[q.id]=t; avanzar(q); }
 function contNum(){
   const q=st.cola[st.i]; const v=document.getElementById('num').value;
   if(v===''){alert('Introduce un número');return}
