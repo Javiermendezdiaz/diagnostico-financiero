@@ -36,7 +36,7 @@ TRANS={"PSIQUE","LIQUIDEZ","VINCULO"}
 INK=colors.HexColor("#262620"); ACC=colors.HexColor("#1A1A17"); ACCDK=colors.HexColor("#020203")
 GREY=colors.HexColor("#7A7A72"); LIGHT=colors.HexColor("#FBF6E0"); LINE=colors.HexColor("#E4E1D5")
 AMARILLO=colors.HexColor("#FDD731"); NEGRO=colors.HexColor("#020203")
-PAPER=colors.HexColor("#FFFFFF"); BANDC=["#1D6F42","#B8860B","#C2710C","#A11B1B"]
+PAPER=colors.HexColor("#FFFFFF"); BANDC=["#1D6F42","#B8860B","#C2710C","#9A3B2E"]
 
 # ---------- scoring ----------
 def phi(x): return 0.5*(1+math.erf(x/math.sqrt(2)))
@@ -173,7 +173,7 @@ def faceta_lectura(score):
     if score<76: return "empieza a pesar; conviene atenderla."
     return "es un punto crítico de esta área."
 def _sevcol(sc):
-    return "#1D6F42" if sc<30 else ("#B8860B" if sc<51 else ("#C2710C" if sc<76 else "#A11B1B"))
+    return "#1D6F42" if sc<30 else ("#B8860B" if sc<51 else ("#C2710C" if sc<76 else "#9A3B2E"))
 def _vidx(code, n=3):
     return sum(ord(c) for c in (code or "x")) % n
 _CONSEJO2={
@@ -327,10 +327,41 @@ body=St("bd",fontSize=10,leading=15,spaceAfter=7,alignment=TA_JUSTIFY)
 small=St("sm",fontSize=8,leading=11,textColor=GREY)
 cap_kicker=St("ck",fontSize=8.5,leading=11,textColor=GREY,fontName=FB)
 
+CLIENTE_NOMBRE=""
+try:
+    from reportlab.pdfgen.canvas import Canvas as _RLCanvas
+    class NumberedCanvas(_RLCanvas):
+        """Doble pasada: permite imprimir 'NN / TOTAL' porque al guardar ya sabe el total."""
+        def __init__(self,*a,**k):
+            _RLCanvas.__init__(self,*a,**k); self._saved=[]
+        def showPage(self):
+            self._saved.append(dict(self.__dict__)); self._startPage()
+        def save(self):
+            n=len(self._saved)
+            for st in self._saved:
+                self.__dict__.update(st)
+                self.saveState(); self.setFont(FR,7.5); self.setFillColor(GREY)
+                self.drawRightString(A4[0]-22*mm,12*mm,"%02d / %02d"%(self._pageNumber,n)); self.restoreState()
+                _RLCanvas.showPage(self)
+            _RLCanvas.save(self)
+except Exception:
+    NumberedCanvas=None
+
 def deco(cv,doc):
-    cv.saveState(); cv.setFillColor(GREY); cv.setFont(FR,7)
-    cv.drawCentredString(A4[0]/2,12*mm,f"Tu Libro Financiero · Adapta Family Office   ·   {doc.page}")
-    cv.setStrokeColor(LINE); cv.setLineWidth(0.5); cv.line(22*mm,16*mm,A4[0]-22*mm,16*mm); cv.restoreState()
+    cv.saveState()
+    # Fondo hueso/papel de alto gramaje (lectura descansada, menos fatiga)
+    cv.setFillColor(colors.HexColor("#FDFBF7")); cv.rect(0,0,A4[0],A4[1],fill=1,stroke=0)
+    # Cabecera editorial (desde la pagina 2): cliente | firma
+    if doc.page>1:
+        cv.setFillColor(GREY); cv.setFont(FR,7)
+        cv.drawString(22*mm,A4[1]-12*mm,((CLIENTE_NOMBRE or "Tu Libro Financiero")[:42]).upper())
+        cv.drawRightString(A4[0]-22*mm,A4[1]-12*mm,"ADAPTA FAMILY OFFICE")
+        cv.setStrokeColor(LINE); cv.setLineWidth(0.4); cv.line(22*mm,A4[1]-14*mm,A4[0]-22*mm,A4[1]-14*mm)
+    # Pie: nota confidencial (el numero de pagina lo pone NumberedCanvas)
+    cv.setFillColor(GREY); cv.setFont(FR,7)
+    cv.drawCentredString(A4[0]/2,12*mm,"Documento confidencial · Adapta Family Office")
+    cv.setStrokeColor(LINE); cv.setLineWidth(0.5); cv.line(22*mm,16*mm,A4[0]-22*mm,16*mm)
+    cv.restoreState()
 
 def faceta_table(code, pc):
     facs = CAPAS[code]["facetas"]
@@ -472,7 +503,7 @@ def cashflow_waterfall(datos, path):
     ax.bar(1,gas,bottom=ing-gas,color="#C2710C",width=0.6)
     ax.bar(2,aho,bottom=ing-gas-aho,color="#1D6F42",width=0.6)
     libre=ing-gas-aho
-    ax.bar(3,abs(libre),bottom=min(libre,0),color="#94A3B8" if libre>=0 else "#B91C1C",width=0.6)
+    ax.bar(3,abs(libre),bottom=min(libre,0),color="#94A3B8" if libre>=0 else "#9A3B2E",width=0.6)
     for i,(lab,val) in enumerate(zip(labels,[ing,gas,aho,abs(libre)])):
         ax.text(i,val if i==0 else 0,"",ha="center")
     ax.set_xticks(range(4)); ax.set_xticklabels(labels,size=9,color="#374151")
@@ -480,7 +511,7 @@ def cashflow_waterfall(datos, path):
     ax.annotate(_eur(gas),(1,ing-gas/2),ha="center",va="center",size=8.5,color="white",weight="bold")
     ax.annotate(_eur(aho),(2,ing-gas-aho/2),ha="center",va="center",size=8.5,color="white",weight="bold")
     ax.annotate(_eur(abs(libre)),(3,abs(libre)),ha="center",va="bottom",size=8.5,
-                color="#475569" if libre>=0 else "#B91C1C",weight="bold")
+                color="#475569" if libre>=0 else "#9A3B2E",weight="bold")
     ax.set_ylim(0,ing*1.15); ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
     ax.spines["left"].set_color("#D5DBE3"); ax.tick_params(axis="y",labelsize=7,colors="#9CA3AF")
     ax.set_title("De cada euro que entra, a dónde va",size=10,color="#1F2937",weight="bold",pad=8)
@@ -564,7 +595,7 @@ def cuadro_financiero(p, datos, fi):
          Paragraph("FODA financiero",h_sub)]
     fort,debi,oport,amen=foda(p)
     F=[Paragraph("<b><font color='#1D6F42'>Fortalezas</font></b>",small)]+[Paragraph("&#8226; "+n,small) for _,n in fort]
-    D=[Paragraph("<b><font color='#B91C1C'>Debilidades</font></b>",small)]+[Paragraph("&#8226; "+n,small) for _,n in debi]
+    D=[Paragraph("<b><font color='#9A3B2E'>Debilidades</font></b>",small)]+[Paragraph("&#8226; "+n,small) for _,n in debi]
     O=[Paragraph("<b><font color='#0284C7'>Oportunidades</font></b>",small)]+[Paragraph("&#8226; "+t,small) for t in oport]
     A=[Paragraph("<b><font color='#B45309'>Amenazas</font></b>",small)]+[Paragraph("&#8226; "+t,small) for t in amen]
     out.append(Table([[F,O],[D,A]],colWidths=[80*mm,80*mm],
@@ -782,11 +813,11 @@ def seccion_extras(extras):
         out+=[Spacer(1,4*mm), Paragraph("Lo que no te cuadra (y conviene mirar)",h_sub),
               Paragraph("Las grietas más caras de un plan viven en la distancia entre lo que dices, lo que sientes y lo que miden tus números. Estas son las tuyas:",small)]
         for ti,tx in con:
-            out.append(Paragraph(f"<font color='#B91C1C'>&#9656;</font>  <b>{ti}</b>",St("cot",fontSize=10.5,leading=14,spaceBefore=5)))
+            out.append(Paragraph(f"<font color='#9A3B2E'>&#9656;</font>  <b>{ti}</b>",St("cot",fontSize=10.5,leading=14,spaceBefore=5)))
             out.append(Paragraph(tx,St("cox",fontSize=9.7,leading=14,leftIndent=12,spaceAfter=3)))
     rt=extras.get("ratios") or []
     if rt:
-        _RC={"verde":"#1D6F42","ambar":"#B8860B","rojo":"#A11B1B","info":"#7A7A72"}
+        _RC={"verde":"#1D6F42","ambar":"#B8860B","rojo":"#9A3B2E","info":"#7A7A72"}
         out+=[Spacer(1,5*mm), Paragraph("Tus ratios financieros",h_sub),
               Paragraph("Las cifras que un buen asesor mira primero. Cada una con su umbral y qué hacer si se cruza. El color es el semáforo: verde sano, ámbar a vigilar, rojo a actuar.",small)]
         _rows=[]
@@ -900,7 +931,7 @@ def seccion_coste_inaccion(extras):
     out=[PageBreak(), Paragraph("El coste de no hacer nada",h_sec),
          Paragraph("Un diagnóstico sin acción es solo información cara. Esto es lo que te cuesta, en concreto, cada mes que el cuadro sigue igual:",body)]
     for it in items:
-        out.append(Paragraph("<font color='#A11B1B'>&#9656;</font>  "+it,St("ci",fontSize=10.5,leading=15,leftIndent=6,spaceAfter=7)))
+        out.append(Paragraph("<font color='#9A3B2E'>&#9656;</font>  "+it,St("ci",fontSize=10.5,leading=15,leftIndent=6,spaceAfter=7)))
     out.append(Paragraph("La buena noticia: nada de esto es una condena. Se mueve con las decisiones ordenadas que tienes en las páginas anteriores — no con suerte, con método. El primer paso es hoy.",
                St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=4)))
     return out
@@ -962,7 +993,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
            Paragraph(f"Tu arquetipo del dinero: {ARQ_META[arq_code]['nombre']}",h_sub),
            Paragraph(f"<i>{ARQ_META[arq_code]['lema']}</i> {ARQ_META[arq_code]['desc']}",body),
            Paragraph(f"<font color='#1D6F42'><b>Lo que te aporta:</b></font> {ARQ_META[arq_code]['luz']}  "
-                     f"<font color='#B91C1C'><b>Tu punto ciego:</b></font> {ARQ_META[arq_code]['sombra']}",
+                     f"<font color='#9A3B2E'><b>Tu punto ciego:</b></font> {ARQ_META[arq_code]['sombra']}",
                      St("aq",fontSize=9.2,leading=13,textColor=GREY,spaceAfter=4))] if arq_code else []),
         Spacer(1,2*mm),
         *([_box([Paragraph("<font color='#9A6A00'><b>&#9656;  Tu siguiente mejor acción</b></font>",St("sau1",fontSize=11.5,leading=15,fontName=FB)),
@@ -1106,7 +1137,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         _acc=ACCIONES.get(code,["",d]); _acc=_acc[1] if len(_acc)>1 else d
         rows.append([Paragraph(str(_i),small),Paragraph(f"<b>{_AREA.get(code,code)}</b>",small),
                      Paragraph(_acc,small),
-                     Chip(f"{val:.0f}/100","#B91C1C" if val>=75 else "#EA580C",w=46,h=13)])
+                     Chip(f"{val:.0f}/100","#9A3B2E" if val>=75 else "#EA580C",w=46,h=13)])
     pt=Table(rows,colWidths=[8*mm,40*mm,82*mm,30*mm]); pt.setStyle(TableStyle([
         ("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
         ("VALIGN",(0,0),(-1,-1),"MIDDLE"),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5)]))

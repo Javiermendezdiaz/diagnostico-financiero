@@ -3501,6 +3501,13 @@
    "unidad": "€/mes",
    "texto": "¿Cuánto ingresas al mes de fuentes que NO dependen de tu trabajo activo (alquileres, dividendos, intereses, royalties, un negocio que funciona sin ti)? Pon 0 si ninguna.",
    "ayuda": "Cada euro que entra sin tu tiempo es un euro de libertad real. Es la vía de subir ingresos sin vender más horas."
+  },
+  {
+   "id": "NUM-13",
+   "campo": "inversiones_liquidas",
+   "unidad": "€",
+   "texto": "Sin contar tu vivienda habitual, ¿cuánto de tu patrimonio está en inversiones que podrías rescatar o vender en pocos días (fondos, acciones, ETFs, depósitos)? Pon 0 si nada.",
+   "ayuda": "Nos dice cuánto de tu patrimonio es realmente realizable ante un imprevisto y cuánto está trabajando, no parado. Sin este dato no asumimos que tu patrimonio esté ni invertido ni parado."
   }
  ],
  "seeds": [

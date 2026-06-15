@@ -413,11 +413,18 @@ def calcular_ratios(datos, perfil_in):
     deuda = _num(datos, "deuda_total"); pctv = _num(datos, "pct_vivienda"); pension = _num(datos, "pension_estimada")
     R = []
     def add(n, v, e, a): R.append({"nombre": n, "valor": v, "estado": e, "accion": a})
+    inv_liq = _num0(datos, "inversiones_liquidas")
     if colchon is not None and gasto:
         m = colchon / gasto
-        add("Fondo de emergencia", "%.1f meses" % m, "verde" if m >= 6 else ("ambar" if m >= 3 else "rojo"),
+        add("Fondo de emergencia", "%.1f meses en líquido inmediato" % m, "verde" if m >= 6 else ("ambar" if m >= 3 else "rojo"),
             "Construye tu colchón hasta 3-6 meses de gastos en una cuenta remunerada antes de invertir." if m < 3 else
             ("Llévalo hacia los 6 meses: es lo que te da poder para decir que no." if m < 6 else "Sólido. No dejes parado más de lo necesario."))
+        if inv_liq is not None and inv_liq > 0:
+            mr = (colchon + inv_liq) / gasto
+            add("Músculo de resistencia total", "%.0f meses realizables" % mr,
+                "verde" if mr >= 12 else ("ambar" if mr >= 6 else "rojo"),
+                ("Sumando lo que rescatarías en días, tu resistencia real es muy superior a tu colchón inmediato: no estás desprotegido, solo tienes poco en líquido inmediato." if m < 3
+                 else "Tu colchón inmediato más lo realizable te dan un margen amplio ante cualquier imprevisto."))
     if ing:
         sup = max(0.0, ing - (gasto or 0))
         t_real = 100 * sup / ing
@@ -490,8 +497,20 @@ def calcular_fortuna_neta(datos):
     deuda = _num(datos, "deuda_total") or 0
     gasto = _num(datos, "gasto_mensual")
     colch = _num(datos, "colchon_liquido")
+    inv_liq = _num0(datos, "inversiones_liquidas")
     meses = round(colch / gasto, 1) if (colch and gasto) else None
-    return {"neta": pat, "activos": pat + deuda, "pasivos": deuda, "colchon_meses": meses}
+    out = {"neta": pat, "activos": pat + deuda, "pasivos": deuda, "colchon_meses": meses}
+    # Musculo de resistencia TOTAL: colchon liquido + inversiones realizables en dias.
+    # Resuelve el falso "estas desprotegido" cuando hay patrimonio realizable.
+    if inv_liq is not None:
+        realizable = (colch or 0) + inv_liq
+        out["realizable"] = realizable
+        out["resistencia_meses"] = round(realizable / gasto, 1) if gasto else None
+        # Asignacion para el donut (sin suposiciones: solo lo declarado)
+        parado = colch or 0
+        resto = max(0.0, pat - parado - inv_liq)  # vivienda, negocio, inmuebles, iliquido
+        out["asignacion"] = {"parado": parado, "realizable_invertido": inv_liq, "resto": resto}
+    return out
 
 
 def calcular_deuda_tipo(resp, datos):
