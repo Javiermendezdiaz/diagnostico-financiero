@@ -792,7 +792,8 @@
      "mostrar_si": {
       "campo": "perfil_laboral",
       "valor_not_in": [
-       "Rentista, jubilado o vivo de mi patrimonio"
+       "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
+       "Jubilado / pensionista"
       ]
      },
      "activa_si": {
@@ -1195,7 +1196,8 @@
      "mostrar_si": {
       "campo": "perfil_laboral",
       "valor_not_in": [
-       "Rentista, jubilado o vivo de mi patrimonio"
+       "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
+       "Jubilado / pensionista"
       ]
      }
     },
@@ -2861,7 +2863,8 @@
      "mostrar_si": {
       "campo": "perfil_laboral",
       "valor_not_in": [
-       "Rentista, jubilado o vivo de mi patrimonio"
+       "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
+       "Jubilado / pensionista"
       ]
      }
     },
@@ -2964,7 +2967,8 @@
      "mostrar_si": {
       "campo": "perfil_laboral",
       "valor_not_in": [
-       "Rentista, jubilado o vivo de mi patrimonio"
+       "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
+       "Jubilado / pensionista"
       ]
      },
      "activa_si": {
@@ -3245,7 +3249,8 @@
     "Empleado por cuenta ajena",
     "Autónomo / profesional",
     "Tengo empresa propia (SL u otra)",
-    "Rentista, jubilado o vivo de mi patrimonio",
+    "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
+    "Jubilado / pensionista",
     "Mezcla de varias"
    ]
   },
@@ -3288,7 +3293,8 @@
    "mostrar_si": {
     "campo": "perfil_laboral",
     "valor_not_in": [
-     "Rentista, jubilado o vivo de mi patrimonio"
+     "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
+       "Jubilado / pensionista"
     ]
    }
   },
@@ -3431,7 +3437,8 @@
    "mostrar_si": {
     "campo": "perfil_laboral",
     "valor_not_in": [
-     "Rentista, jubilado o vivo de mi patrimonio"
+     "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
+       "Jubilado / pensionista"
     ]
    }
   },
@@ -3491,7 +3498,8 @@
    "mostrar_si": {
     "campo": "perfil_laboral",
     "valor_not_in": [
-     "Rentista, jubilado o vivo de mi patrimonio"
+     "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
+       "Jubilado / pensionista"
     ]
    }
   },

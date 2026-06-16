@@ -298,11 +298,14 @@ def radar_png(p,path):
     ax.set_yticks([25,50,75]); ax.set_yticklabels(["25","50","75"],color="#B9B5A6",size=7.5)
     ax.set_xticks(ang[:-1]); ax.set_xticklabels(labels,size=8,color="#262620")
     ax.tick_params(axis='x',pad=9)
+    # silueta de referencia tenue (salud 50) para que SIEMPRE haya forma legible, aun en perfiles muy bajos
+    ref=[50]*len(ang)
+    ax.plot(ang,ref,color="#C9C4B4",linewidth=0.9,linestyle=(0,(4,3)),zorder=2)
     # poligono: doble relleno para profundidad + linea grafito + vertices
-    ax.fill(ang,v,color=fill,alpha=0.16,zorder=2)
-    ax.fill(ang,v,color=fill,alpha=0.34,zorder=3)
-    ax.plot(ang,v,color="#1A1A17",linewidth=2.2,zorder=4)
-    ax.scatter(ang[:-1],vsal,s=22,color="#1A1A17",zorder=5,edgecolors="white",linewidths=1.0)
+    ax.fill(ang,v,color=fill,alpha=0.16,zorder=3)
+    ax.fill(ang,v,color=fill,alpha=0.40,zorder=4)
+    ax.plot(ang,v,color="#1A1A17",linewidth=2.4,zorder=5)
+    ax.scatter(ang[:-1],vsal,s=30,color="#1A1A17",zorder=6,edgecolors="white",linewidths=1.1)
     plt.tight_layout(); fig.savefig(path,dpi=160,transparent=True); plt.close(fig)
 
 class Chip(Flowable):
@@ -854,7 +857,14 @@ def seccion_extras(extras):
     out=[PageBreak(), Paragraph("Tu brecha y tus palancas de crecimiento",h_sec),
          Paragraph("Hasta aquí, tu foto. Ahora la pregunta que de verdad mueve un patrimonio: "
                    "¿cuánto te separa de la vida que dijiste querer, y qué palancas la acortan?",body)]
-    if br:
+    if br and extras.get("crisis"):
+        out+=[Spacer(1,3*mm),
+              Paragraph("Una nota antes de seguir: hoy no toca medir la distancia hasta tu vida ideal ni tu número de "
+                        "libertad a décadas — eso, ahora, solo añadiría peso. Cuando recuperes el control del mes "
+                        "(colchón, deuda, calma), esta brecha será una conversación útil y hasta motivadora. Hoy tu única "
+                        "meta es estabilizar; lo demás llegará desde tierra firme.",
+                        St("brc",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=8))]
+    elif br:
         ci=_eur(br["coste_ideal_mes"])
         if br.get("sin_ingreso"):
             rc=_eur(br.get("renta_capital_mes",0))
@@ -1338,11 +1348,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 v=datos.get(NUM_MAP.get(it["id"],"")); na=(v is None); ans=("%s %s"%(v,it.get("unidad",""))).strip() if v is not None else ""
             ans_p=Paragraph("<font color='#B5B3A6'>N/A</font>",small) if na else Paragraph("<i>%s</i>"%_limpiar_txt(ans),small)
             rows.append([Paragraph("<font color='#33415C'>%s</font>"%_limpiar_txt(it["texto"]),small),ans_p])
-            if sc is not None:
-                col="#E7F6EC" if sc<=25 else ("#FEF9E7" if sc<=50 else ("#FDEBD0" if sc<=75 else "#FAE3E3"))
-                bgs.append(("BACKGROUND",(1,ri),(1,ri),colors.HexColor(col)))
-            elif ri%2==0:
-                bgs.append(("BACKGROUND",(0,ri),(0,ri),colors.HexColor("#F4F2EC")))
+            if ri%2==0:
+                bgs.append(("BACKGROUND",(0,ri),(-1,ri),colors.HexColor("#F7F5EE")))
             ri+=1
         t=Table(rows,colWidths=[104*mm,52*mm],repeatRows=1)
         t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,0),0.6,LINE),

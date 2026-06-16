@@ -502,6 +502,14 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None):
                   "se convierte en discusión sin que sepáis por qué. Priorizamos las de vínculo y transparencia.",body),
         Paragraph("Cada una de estas diferencias, callada, erosiona; nombrada y entendida, se desactiva. No son "
                   "amenazas: son las conversaciones que aún no habéis tenido — y tenerlas es, justamente, la vacuna.",body)]
+    S+=[Spacer(1,2*mm), rb._box([
+        Paragraph("<b>Por qué el dinero rompe parejas</b>",St("mec0",fontSize=10.5,leading=14,fontName="Helvetica-Bold")),
+        Paragraph("Casi nunca es una gran pelea. Es una diferencia pequeña que no se habla —cómo se gasta, cuánto se guarda, "
+                  "qué da miedo— y que se repite cada mes en mil decisiones minúsculas. Cada vez, uno cede y el otro ni se "
+                  "entera. Esa cesión callada se vuelve reproche; el reproche, distancia; y la distancia, «ya no hablamos de "
+                  "dinero». El dinero no es la causa: es el escenario donde se representa todo lo demás. Por eso ponerlo en "
+                  "palabras hoy vale más que cualquier cifra.",St("mec1",fontSize=9.7,leading=14,spaceBefore=2,textColor=INK))],
+        "#FBF3E8","#B45309",ancho=160*mm), Spacer(1,3*mm)]
     if not divs:
         S+=[Paragraph("Apenas hay divergencias marcadas: vuestra forma de ver el dinero está muy alineada. "
                       "Vuestro trabajo es de afinación, no de reconciliación.",body)]

@@ -89,6 +89,14 @@ def _es_empresario(perfil_in):
     return ("empresa" in t) or ("utónom" in t) or ("autonom" in t)
 
 
+def _es_rentista(perfil_in):
+    """Vive del rendimiento de su capital (NO pensión, NO trabajo activo). Si además trabaja, no es rentista puro."""
+    t = _perfil_laboral_txt(perfil_in).lower()
+    rent = ("rentista" in t) or ("vivo de las rentas" in t)
+    activo = ("empleado" in t) or ("utónom" in t) or ("autonom" in t) or ("empresa" in t)
+    return rent and not activo
+
+
 def calcular_brecha(datos, resp, perfil_in):
     """Brecha vital: lo que cuesta la vida ideal frente a lo que hoy ingresas/acumulas."""
     ingreso = _num(datos, "ingreso_mensual")
@@ -122,8 +130,47 @@ def calcular_brecha(datos, resp, perfil_in):
     return base_out
 
 
+def _palancas_rentista(datos, p, perfil_in, resp=None):
+    """Lente del rentista: el problema no es crecer ingresos, es que el capital dure, rente y resista la inflación."""
+    pat = _num(datos, "patrimonio") or 0.0
+    gasto = _num(datos, "gasto_mensual")
+    out = []
+    if pat > 0 and gasto:
+        retiro = 100 * (gasto * 12) / pat
+        if retiro > 4.5:
+            out.append(("Estás consumiendo tu capital, no solo sus frutos",
+                        "Tu coste de vida (%s/año) es un %g%% de tu patrimonio. Por encima del 4%% sostenido no vives de las "
+                        "rentas: te comes el principal, y a este ritmo el capital mengua. La prioridad no es crecer, es ajustar "
+                        "el retiro o hacer que tu capital rente más." % (_eur(gasto * 12), round(retiro, 1))))
+        elif retiro < 3:
+            out.append(("Tu capital aguanta de sobra: la pregunta es si trabaja",
+                        "Vives con holgura sobre tu patrimonio (un %g%% de retiro al año, por debajo del 4%% prudente). El riesgo "
+                        "ya no es quedarte corto: es que ese capital rente poco o pierda contra la inflación. Tu palanca es la "
+                        "eficiencia, no el ahorro." % round(retiro, 1)))
+        else:
+            out.append(("Vives de tus rentas, justo en el filo del 4%",
+                        "Tu retiro ronda el 4%% de tu patrimonio: el límite clásico de sostenibilidad. Funciona, pero sin margen "
+                        "— un mal año de mercado o un repunte de inflación puede romperlo. Conviene un colchón y reglas de retiro flexibles."))
+    out.append(("Tu mayor enemigo no es el mercado: es la inflación",
+                "Para quien vive de rentas, el riesgo silencioso es que tus ingresos compren cada año un poco menos. Una renta "
+                "que no se actualiza pierde poder de compra sin que se note. Asegúrate de que parte de tu capital crezca con la "
+                "inflación, no solo de que rente hoy."))
+    if p.get("C7", {}).get("score", 0) >= 50:
+        out.append(("Tus rentas dependen de pocas piezas",
+                    "Si tu patrimonio renta a través de uno o dos activos —un alquiler, un solo fondo—, un problema en cualquiera "
+                    "(un inquilino que falla, un sector que cae) te toca el sustento entero. Diversificar las fuentes de renta es, "
+                    "para un rentista, lo que diversificar ingresos es para quien trabaja."))
+    out.append(("La fiscalidad de tus rentas es tu palanca silenciosa",
+                "Vivir del capital tiene un margen fiscal que casi nadie aprovecha: cómo y cuándo materializas rentas, la "
+                "estructura desde la que cobras, el orden en que vendes. Optimizarlo puede valer más que un punto de "
+                "rentabilidad — y es justo el terreno de un family office."))
+    return out
+
+
 def calcular_palancas(datos, p, perfil_in, resp=None):
     """Palancas ofensivas, todas derivadas de datos reales. Devuelve lista de (titulo, texto)."""
+    if _es_rentista(perfil_in):
+        return _palancas_rentista(datos, p, perfil_in, resp)
     ingreso = _num(datos, "ingreso_mensual")
     gasto = _num(datos, "gasto_mensual")
     ahorro = _num(datos, "ahorro_mensual") or 0.0
@@ -577,6 +624,15 @@ def calcular_compromiso(datos, perfil_in, brecha, p):
                     "Voy a separar mi dinero en tres cajas —lo justo para vivir, un colchón mínimo y el resto— para recuperar el control del mes.",
                     "Voy a cuidar mi descanso y mi cabeza: ningún plan funciona sobre el agotamiento, y mi salud es parte del plan.",
                     "Voy a revisar estos tres pasos cada mes, sin exigirme cifras que hoy no me corresponden."]}
+    if _es_rentista(perfil_in):
+        return {"crisis": False, "rentista": True, "objetivo_ingresos": None, "numero_libertad": None,
+                "plazo_anios": None, "edad": edad,
+                "reglas": [
+                    "Mantener mi tasa de retiro en torno al 4% para no consumir el principal.",
+                    "Asegurar que parte de mi capital crezca con la inflación, no solo que rente hoy.",
+                    "Diversificar mis fuentes de renta para no depender de un solo activo.",
+                    "Optimizar la fiscalidad y el orden en que materializo mis rentas.",
+                    "Revisar mi patrimonio y mi tasa de retiro cada seis meses, sin excepciones."]}
     objetivo_ing = coste_ideal or (round(ingreso * 1.3) if ingreso else None)
     numero = (brecha or {}).get("numero_ideal") if brecha else None
     if not numero and coste_ideal:
@@ -611,6 +667,7 @@ def computar_extras(resp, datos, perfil_in, inst=None):
     compromiso = calcular_compromiso(datos, perfil_in, brecha, p)
     return {
         "crisis": bool(compromiso.get("crisis")),
+        "rentista": bool(compromiso.get("rentista")) or _es_rentista(perfil_in),
         "brecha": brecha,
         "ratios": ratios,
         "accion_unica": calcular_accion_unica(ratios, p),
