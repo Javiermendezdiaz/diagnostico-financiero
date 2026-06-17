@@ -389,11 +389,7 @@ def complete(payload: CompletePayload):
                     c.execute("UPDATE sesiones SET sintesis=? WHERE id=?", (fric, payload.session_id))
             except Exception:
                 pass
-        out = os.path.join(REPORTS_DIR, "itap_%s.pdf" % payload.session_id)
-        try:
-            generar_couple(out, arow, brow, sintesis=fric)
-        except Exception as e:
-            raise HTTPException(500, "Error generando informe de pareja: %s" % e)
+        # El PDF de pareja se genera de forma diferida en /api/report (tras el pago).
         return {"ok": True, "es_pareja": True, "report_url": "/api/report/%s" % payload.session_id}
     if payload.v2:
         salud = _guardar_salud_v2(payload.session_id, payload.respuestas)
@@ -408,10 +404,8 @@ def complete(payload: CompletePayload):
                 c.execute("UPDATE sesiones SET sintesis=? WHERE id=?", (retrato, payload.session_id))
         except Exception:
             pass
-    try:
-        generar_pdf(payload.session_id, email, nombre, payload.respuestas, datos, tier, bar, row["sexo"], sintesis=retrato)
-    except Exception as e:
-        raise HTTPException(500, "Error generando informe: %s" % e)
+    # El PDF NO se genera aqui: seria trabajo pesado antes del pago y bloquea el worker.
+    # Se genera de forma diferida en /api/report (tras el pago). El retrato IA ya quedo guardado.
     return {"ok": True, "report_url": "/api/report/%s" % payload.session_id,
             "teaser": _teaser(datos, salud)}
 
