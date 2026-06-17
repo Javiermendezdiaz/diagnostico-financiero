@@ -32,8 +32,8 @@ RESEND_FROM = os.environ.get("RESEND_FROM", "ITAP <itap@adaptafamilyoffice.com>"
 NOTIFY_EMAIL = os.environ.get("NOTIFY_EMAIL", "javier@mendezconsultoria.com")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_SECRET_KEY = (os.environ.get("STRIPE_SECRET_KEY", "")
-                     or os.environ.get("STRIPE_API_KEY_PROD", "")
-                     or os.environ.get("STRIPE_API_KEY", "")).strip()
+                     or os.environ.get("STRIPE_API_KEY", "")
+                     or os.environ.get("STRIPE_API_KEY_PROD", "")).strip()
 # URL publica de la web (para volver tras el checkout). Por defecto, GitHub Pages.
 PUBLIC_BASE_URL = (os.environ.get("PUBLIC_BASE_URL", "").strip()
                    or "https://javiermendezdiaz.github.io/diagnostico-financiero/empezar2.html")

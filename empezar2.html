@@ -113,7 +113,7 @@ a{color:var(--am)}
 
 <div id="s-gen" class="step center"><div class="spin"></div>
   <p style="font-size:16px;font-weight:600;margin-bottom:6px">Analizando tu perfil…</p>
-  <p style="color:var(--gr);font-size:13px;line-height:1.5">Claude Opus está leyendo tus respuestas, una a una, y redactando tu retrato personal. Puede tardar hasta medio minuto — merece la espera.</p></div>
+  <p style="color:var(--gr);font-size:13px;line-height:1.5">Nuestro motor de diagnóstico está leyendo tus respuestas, una a una, y redactando tu retrato personal. Puede tardar hasta medio minuto — merece la espera.</p></div>
 
 <div id="s-done" class="step center">
   <div id="doneIcon" style="font-size:40px;margin:6px">✓</div>
@@ -190,7 +190,7 @@ function construirCola(){
   INST.vision_brecha.forEach(q=>st.cola.push({...q,_b:'Tu vida ideal',_cap:'VIS'}));
   INST.numericas_financieras.forEach(q=>st.cola.push({...q,tipo:'numerica',_b:'Tus números',_cap:'NUM'}));
   INST.capas.forEach(c=>c.items.filter(it=>it.nivel==='nucleo').forEach(it=>st.cola.push({...it,_b:c.nombre,_cap:c.code})));
-  (INST._abiertas||[]).forEach(q=>st.cola.push({...q,tipo:'abierta',_b:'En tus palabras',_cap:'OPEN',ayuda:'Sin filtro y sin prisa. Esto es lo que Claude leerá para escribir tu retrato.'}));
+  (INST._abiertas||[]).forEach(q=>st.cola.push({...q,tipo:'abierta',_b:'En tus palabras',_cap:'OPEN',ayuda:'Sin filtro y sin prisa. Esto es lo que se analiza para escribir tu retrato.'}));
 }
 function emostrar(ms){
   if(!ms)return true; const v=st.perfil[ms.campo];
