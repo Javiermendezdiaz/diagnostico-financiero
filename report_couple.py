@@ -19,7 +19,7 @@ ACCDK=colors.HexColor("#1A1A17"); GREY=colors.HexColor("#7A7A72")
 LIGHT=colors.HexColor("#FBF6E0"); LINE=colors.HexColor("#E4E1D5"); BANDC=rb.BANDC
 
 def St(n,**k): k.setdefault("fontName","Helvetica"); k.setdefault("textColor",INK); return ParagraphStyle(n,**k)
-h_sec=St("hs",fontSize=17,leading=21,textColor=ACCDK,fontName="Helvetica-Bold",spaceAfter=8)
+h_sec=St("hs",fontSize=20,leading=24,textColor=ACCDK,fontName=rb.SB,spaceAfter=8)
 h_sub=St("hu",fontSize=10.5,leading=13,textColor=colors.HexColor("#1A1A17"),fontName="Helvetica-Bold",spaceBefore=7,spaceAfter=3)
 body=St("bd",fontSize=10,leading=15,spaceAfter=7,alignment=TA_JUSTIFY)
 small=St("sm",fontSize=8,leading=11,textColor=GREY)
@@ -359,7 +359,7 @@ def laboratorio_pareja(rA,rB,pA,pB,nA,nB,dA,dB,hogar,divs):
           Spacer(1,3*mm)]
     return out
 
-def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None):
+def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=None):
     global INST, CAPAS
     _iv2=rb._cargar_v2(); _c2={c["code"]:c for c in _iv2["capas"]}
     rb.INST=_iv2; rb.CAPAS=_c2; INST=_iv2; CAPAS=_c2          # el libro de pareja se puntúa sobre el instrumento v2
@@ -372,8 +372,20 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None):
     divs=divergencias_item(rA,rB)
     dual_radar(pA,pB,"_dualradar.png")
     S=[]
-    # cover
-    S+=[Spacer(1,32*mm),
+    _hero_done=False
+    try:
+        if getattr(rb,"_LEGADO_OK",False):
+            import legado_pages as _lp
+            _dAf=_fill(dA); _dBf=_fill(dB)
+            _hog={"gasto_mensual":_dAf["gasto_mensual"]+_dBf["gasto_mensual"],"ingreso_mensual":_dAf["ingreso_mensual"]+_dBf["ingreso_mensual"],"ahorro_mensual":_dAf["ahorro_mensual"]+_dBf["ahorro_mensual"],"patrimonio":_dAf["patrimonio"]+_dBf["patrimonio"],"edad":(_dAf["edad"]+_dBf["edad"])/2}
+            _hn=rb.fi_metrics(_hog)[0]
+            for _pg in _lp.pareja_hero(nA,nB,cliA,dA,dB,pA,pB,_hn,cliA.get("fecha",""),perfilA=perfilA,perfilB=perfilB):
+                S+=[rb.FullBleedImage(_pg), PageBreak()]
+            _hero_done=True
+    except Exception:
+        _hero_done=False
+    # cover (fallback si no hay Legado)
+    if not _hero_done: S+=[Spacer(1,32*mm),
         Paragraph("VUESTRO LIBRO FINANCIERO",St("c0",fontSize=12,textColor=GREY,fontName="Helvetica-Bold")),
         Spacer(1,3*mm),
         Paragraph("Diagnóstico<br/>de Pareja",St("c1",fontSize=40,leading=44,fontName="Helvetica-Bold")),

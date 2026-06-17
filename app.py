@@ -265,8 +265,14 @@ def generar_couple(out, arow, brow, sintesis=None):
                 sintesis = brow["sintesis"]
         except Exception:
             pass
+    def _pf(row):
+        try:
+            return json.loads(row["perfil"] or "{}") if ("perfil" in row.keys() and row["perfil"]) else {}
+        except Exception:
+            return {}
     rc.build_couple(json.loads(arow["respuestas"]), datos_completos(json.loads(arow["datos"])), _cli(arow["email"], arow["nombre"]),
-                    json.loads(brow["respuestas"]), datos_completos(json.loads(brow["datos"])), _cli(brow["email"], brow["nombre"]), out, sintesis=sintesis)
+                    json.loads(brow["respuestas"]), datos_completos(json.loads(brow["datos"])), _cli(brow["email"], brow["nombre"]), out, sintesis=sintesis,
+                    perfilA=_pf(arow), perfilB=_pf(brow))
 
 @app.get("/")
 def health():
@@ -363,8 +369,8 @@ def complete(payload: CompletePayload):
         if not payload.pareja_de:
             return {"ok": True, "needs_partner": True, "codigo": payload.session_id}
         with db() as c:
-            arow = c.execute("SELECT email,nombre,respuestas,datos FROM sesiones WHERE id=?", (payload.pareja_de,)).fetchone()
-            brow = c.execute("SELECT email,nombre,respuestas,datos FROM sesiones WHERE id=?", (payload.session_id,)).fetchone()
+            arow = c.execute("SELECT email,nombre,respuestas,datos,perfil FROM sesiones WHERE id=?", (payload.pareja_de,)).fetchone()
+            brow = c.execute("SELECT email,nombre,respuestas,datos,perfil FROM sesiones WHERE id=?", (payload.session_id,)).fetchone()
         if not arow or arow["respuestas"] in (None, "{}"):
             raise HTTPException(409, "Tu pareja todavia no ha terminado su cuestionario.")
         fric = _friccion_pareja(payload.pareja_de, payload.session_id)
@@ -433,13 +439,13 @@ def report(session_id: str):
     path = os.path.join(REPORTS_DIR, "itap_%s.pdf" % session_id)
     if not os.path.exists(path):
         with db() as c:
-            row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis FROM sesiones WHERE id=?", (session_id,)).fetchone()
+            row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis,perfil FROM sesiones WHERE id=?", (session_id,)).fetchone()
         if not row or row["respuestas"] in (None, "{}"):
             raise HTTPException(404, "Informe no encontrado")
         try:
             if row["pareja_de"]:
                 with db() as c:
-                    arow = c.execute("SELECT email,nombre,respuestas,datos FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
+                    arow = c.execute("SELECT email,nombre,respuestas,datos,perfil FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
                 generar_couple(path, arow, row)
             else:
                 _resp = json.loads(row["respuestas"])
@@ -454,13 +460,13 @@ def _asegurar_pdf(session_id):
     if os.path.exists(path):
         return path
     with db() as c:
-        row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis FROM sesiones WHERE id=?", (session_id,)).fetchone()
+        row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis,perfil FROM sesiones WHERE id=?", (session_id,)).fetchone()
     if not row or row["respuestas"] in (None, "{}"):
         return None
     try:
         if row["pareja_de"]:
             with db() as c:
-                arow = c.execute("SELECT email,nombre,respuestas,datos FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
+                arow = c.execute("SELECT email,nombre,respuestas,datos,perfil FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
             generar_couple(path, arow, row)
         else:
             generar_pdf(session_id, row["email"], row["nombre"], json.loads(row["respuestas"]), json.loads(row["datos"]), row["tier"])

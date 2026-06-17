@@ -31,21 +31,21 @@
     }
    ],
    "facetas": {
-    "reaccion_riesgo": "Reaccion riesgo",
-    "somatizacion": "Somatizacion",
+    "reaccion_riesgo": "Reacción al riesgo",
+    "somatizacion": "Somatización",
     "insomnio": "Insomnio",
     "culpa": "Culpa",
-    "comparacion": "Comparacion",
-    "rumiacion": "Rumiacion",
+    "comparacion": "Comparación",
+    "rumiacion": "Rumiación",
     "control": "Control",
     "libertad": "Libertad",
     "vergüenza_social": "Vergüenza social",
     "conflicto_pareja": "Conflicto pareja",
-    "evitacion": "Evitacion",
-    "panico": "Panico",
+    "evitacion": "Evitación",
+    "panico": "Pánico",
     "identidad": "Identidad",
     "miedo_futuro": "Miedo futuro",
-    "alineacion_pareja": "Alineacion pareja"
+    "alineacion_pareja": "Alineación pareja"
    },
    "items": [
     {
@@ -475,18 +475,18 @@
     }
    ],
    "facetas": {
-    "numero_fi": "Numero fi",
+    "numero_fi": "Número fi",
     "coste_inversion": "Coste de tu inversión",
-    "inversion": "Inversion",
+    "inversion": "Inversión",
     "plan": "Plan",
-    "expectativa_rentab": "Expectativa rentab",
-    "diversificacion": "Diversificacion",
-    "automatizacion": "Automatizacion",
+    "expectativa_rentab": "Expectativa rentab.",
+    "diversificacion": "Diversificación",
+    "automatizacion": "Automatización",
     "progreso": "Progreso",
     "conocimiento": "Conocimiento",
-    "delegacion": "Delegacion",
+    "delegacion": "Delegación",
     "volatilidad": "Volatilidad",
-    "jubilacion": "Jubilacion",
+    "jubilacion": "Jubilación",
     "trayectoria": "Trayectoria"
    },
    "items": [
@@ -895,7 +895,7 @@
     "fondo_existe": "Fondo existe",
     "flexibilidad": "Flexibilidad",
     "dependientes_protegidos": "Dependientes protegidos",
-    "inflacion": "Inflacion",
+    "inflacion": "Inflación",
     "red_apoyo": "Red apoyo",
     "seguros": "Seguros",
     "plan_b_crisis": "Plan b crisis"
@@ -1163,7 +1163,7 @@
     "creep_ingreso": "Creep ingreso",
     "conciencia_gasto": "Conciencia gasto",
     "suscripciones": "Suscripciones",
-    "ahorro_evolucion": "Ahorro evolucion",
+    "ahorro_evolucion": "Ahorro evolución",
     "gasto_sin_sentido": "Gasto sin sentido",
     "impulso": "Impulso",
     "suelo_irrenunciable": "Suelo irrenunciable",
@@ -1437,13 +1437,13 @@
     }
    ],
    "facetas": {
-    "sucesion": "Sucesion",
+    "sucesion": "Sucesión",
     "blindaje_profesional": "Blindaje profesional",
     "mapa_patrimonial": "Mapa patrimonial",
     "pareja_protegida": "Pareja protegida",
     "seguro_vida": "Seguro vida",
-    "revision_legal": "Revision legal",
-    "optimizacion_fiscal": "Optimizacion fiscal",
+    "revision_legal": "Revisión legal",
+    "optimizacion_fiscal": "Optimización fiscal",
     "poder_preventivo": "Poder preventivo"
    },
    "items": [
@@ -1690,11 +1690,11 @@
    ],
    "facetas": {
     "precio_estatus": "Precio estatus",
-    "validacion": "Validacion",
+    "validacion": "Validación",
     "oculto": "Oculto",
     "prescindible": "Prescindible",
     "exito": "Exito",
-    "comparacion_circulo": "Comparacion circulo",
+    "comparacion_circulo": "Comparación circulo",
     "deuda_imagen": "Deuda imagen"
    },
    "items": [
@@ -1910,7 +1910,7 @@
     "amenaza_sector": "Amenaza sector",
     "segunda_fuente": "Segunda fuente",
     "empleabilidad": "Empleabilidad",
-    "concentracion_geografica": "Concentracion geografica"
+    "concentracion_geografica": "Concentración geografica"
    },
    "items": [
     {
@@ -2370,7 +2370,7 @@
     "irregularidad": "Irregularidad",
     "margen_mensual": "Margen mensual",
     "anticipa_grandes": "Anticipa grandes",
-    "revision": "Revision"
+    "revision": "Revisión"
    },
    "items": [
     {
@@ -2579,7 +2579,7 @@
     }
    ],
    "facetas": {
-    "relacion_deuda": "Relacion deuda",
+    "relacion_deuda": "Relación deuda",
     "carga_cuota": "Carga cuota",
     "tipos": "Tipos",
     "trayectoria": "Trayectoria",
@@ -2824,12 +2824,12 @@
     "precio_hora": "Precio hora",
     "activo_latente": "Activo latente",
     "tijera": "Tijera",
-    "automatizacion_compromiso": "Automatizacion compromiso",
+    "automatizacion_compromiso": "Automatización compromiso",
     "techo_ingresos": "Techo ingresos",
-    "negociacion": "Negociacion",
+    "negociacion": "Negociación",
     "palanca_ingresos": "Palanca ingresos",
     "palanca_rentabilidad": "Palanca rentabilidad",
-    "palanca_tecnologia": "Palanca tecnologia",
+    "palanca_tecnologia": "Palanca tecnología",
     "palanca_entorno": "Palanca entorno",
     "liquidez_sociedad": "Liquidez en sociedad",
     "div_nomina": "Nómina vs dividendos",
@@ -3146,12 +3146,27 @@
      "texto": "¿Cómo decides cuánto sacar de tu empresa entre nómina y dividendos?",
      "nivel": "nucleo",
      "opciones": [
-      {"texto": "Con un plan: optimizo nómina, dividendos y gastos con criterio fiscal cada año.", "score": 0},
-      {"texto": "Más o menos por costumbre; sé que podría hacerse mejor.", "score": 50},
-      {"texto": "Saco lo que necesito sin pensar en la factura fiscal; ya lo verá la gestoría.", "score": 100}
+      {
+       "texto": "Con un plan: optimizo nómina, dividendos y gastos con criterio fiscal cada año.",
+       "score": 0
+      },
+      {
+       "texto": "Más o menos por costumbre; sé que podría hacerse mejor.",
+       "score": 50
+      },
+      {
+       "texto": "Saco lo que necesito sin pensar en la factura fiscal; ya lo verá la gestoría.",
+       "score": 100
+      }
      ],
      "ayuda": "La combinación nómina/dividendos mal planificada deja mucho dinero en impuestos evitables.",
-     "mostrar_si": {"campo": "perfil_laboral", "valor_in": ["Tengo empresa propia (SL u otra)", "Mezcla de varias"]}
+     "mostrar_si": {
+      "campo": "perfil_laboral",
+      "valor_in": [
+       "Tengo empresa propia (SL u otra)",
+       "Mezcla de varias"
+      ]
+     }
     },
     {
      "id": "C11-13",
@@ -3161,12 +3176,27 @@
      "texto": "Tu sociedad, ¿aprovecha de forma activa la fiscalidad disponible (reinversión, deducciones, estructura), o paga \"lo que toca\"?",
      "nivel": "nucleo",
      "opciones": [
-      {"texto": "Tenemos una estrategia fiscal proactiva, revisada cada año antes del cierre.", "score": 0},
-      {"texto": "Aprovechamos algo, pero sé que dejamos optimización sin hacer.", "score": 50},
-      {"texto": "Pagamos lo que sale; nadie planifica el impuesto antes de que llegue.", "score": 100}
+      {
+       "texto": "Tenemos una estrategia fiscal proactiva, revisada cada año antes del cierre.",
+       "score": 0
+      },
+      {
+       "texto": "Aprovechamos algo, pero sé que dejamos optimización sin hacer.",
+       "score": 50
+      },
+      {
+       "texto": "Pagamos lo que sale; nadie planifica el impuesto antes de que llegue.",
+       "score": 100
+      }
      ],
      "ayuda": "Planificar el Impuesto de Sociedades antes del cierre es de las palancas más rentables de un empresario.",
-     "mostrar_si": {"campo": "perfil_laboral", "valor_in": ["Tengo empresa propia (SL u otra)", "Mezcla de varias"]}
+     "mostrar_si": {
+      "campo": "perfil_laboral",
+      "valor_in": [
+       "Tengo empresa propia (SL u otra)",
+       "Mezcla de varias"
+      ]
+     }
     },
     {
      "id": "C11-14",
@@ -3176,12 +3206,27 @@
      "texto": "Si mañana faltaras o quisieras salir, ¿está tu empresa preparada para transmitirse o venderse sin destruir valor?",
      "nivel": "nucleo",
      "opciones": [
-      {"texto": "Sí: hay plan de sucesión/salida, protocolo y la empresa no depende solo de mí.", "score": 0},
-      {"texto": "A medias; he pensado en ello pero no está montado.", "score": 50},
-      {"texto": "Nada: si yo falto, el valor de la empresa se evapora.", "score": 100}
+      {
+       "texto": "Sí: hay plan de sucesión/salida, protocolo y la empresa no depende solo de mí.",
+       "score": 0
+      },
+      {
+       "texto": "A medias; he pensado en ello pero no está montado.",
+       "score": 50
+      },
+      {
+       "texto": "Nada: si yo falto, el valor de la empresa se evapora.",
+       "score": 100
+      }
      ],
      "ayuda": "Una empresa que depende por completo de su dueño vale mucho menos de lo que crees el día que hay que transmitirla.",
-     "mostrar_si": {"campo": "perfil_laboral", "valor_in": ["Tengo empresa propia (SL u otra)", "Mezcla de varias"]}
+     "mostrar_si": {
+      "campo": "perfil_laboral",
+      "valor_in": [
+       "Tengo empresa propia (SL u otra)",
+       "Mezcla de varias"
+      ]
+     }
     }
    ],
    "cribadores": [
@@ -3267,6 +3312,20 @@
    ]
   },
   {
+   "id": "SD-12",
+   "tipo": "opcion",
+   "campo": "vivienda_tenencia",
+   "texto": "Tu vivienda habitual, ¿cómo es hoy?",
+   "ayuda": "Suele ser tu mayor gasto fijo y, según el caso, tu mayor riesgo oculto o tu mayor tranquilidad.",
+   "opciones": [
+    "En propiedad, con hipoteca a tipo FIJO",
+    "En propiedad, con hipoteca a tipo VARIABLE",
+    "De alquiler",
+    "En propiedad, ya pagada",
+    "Vivo en casa de familiares o cedida"
+   ]
+  },
+  {
    "id": "SD-8",
    "tipo": "opcion",
    "campo": "asesor",
@@ -3294,7 +3353,7 @@
     "campo": "perfil_laboral",
     "valor_not_in": [
      "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
-       "Jubilado / pensionista"
+     "Jubilado / pensionista"
     ]
    }
   },
@@ -3340,6 +3399,106 @@
     "Tengo deuda y la llevo bajo control",
     "Tengo deuda y me pesa"
    ]
+  },
+  {
+   "id": "SD-13",
+   "tipo": "opcion",
+   "campo": "aportacion_modelo",
+   "texto": "Para los gastos comunes (vivienda, facturas, comida), ¿qué modelo describe mejor vuestra dinámica hoy?",
+   "ayuda": "No hay modelo correcto: solo el que os da paz. Esto nos dice si vuestro sistema encaja con vuestra realidad.",
+   "opciones": [
+    "Mitad y mitad: cada uno pone lo mismo, gane lo que gane",
+    "Proporcional: quien gana más, aporta más, para equilibrar el esfuerzo",
+    "Cuenta única: todo va a una bolsa común y no distinguimos de quién es",
+    "No tenemos un sistema claro; lo vamos resolviendo sobre la marcha"
+   ],
+   "mostrar_si": {
+    "campo": "estado_civil",
+    "valor_in": [
+     "Casado/a",
+     "Pareja de hecho o pareja estable sin casar"
+    ]
+   }
+  },
+  {
+   "id": "SD-14",
+   "tipo": "opcion",
+   "campo": "aportacion_resentimiento",
+   "texto": "A nivel honesto, ¿con qué frecuencia sientes que el reparto de gastos genera un desequilibrio o un resentimiento silencioso?",
+   "ayuda": "Nadie verá tu respuesta salvo tú. La diferencia callada es lo que erosiona, no el dinero.",
+   "opciones": [
+    "Nunca: estamos 100% alineados",
+    "Rara vez",
+    "A veces lo noto pero no lo digo",
+    "A menudo, y me genera tensión",
+    "Es un tema tabú que evitamos para no discutir"
+   ],
+   "mostrar_si": {
+    "campo": "estado_civil",
+    "valor_in": [
+     "Casado/a",
+     "Pareja de hecho o pareja estable sin casar"
+    ]
+   }
+  },
+  {
+   "id": "SD-15",
+   "tipo": "opcion",
+   "campo": "gasto_libre",
+   "texto": "¿Tenéis cada uno un «gasto libre» mensual que el otro no pueda cuestionar ni fiscalizar?",
+   "ayuda": "El espacio personal intocable es uno de los mayores predictores de paz financiera en pareja.",
+   "opciones": [
+    "Sí, cada uno tiene el suyo y se respeta",
+    "No, todo gasto se justifica",
+    "No, pero deberíamos tenerlo"
+   ],
+   "mostrar_si": {
+    "campo": "estado_civil",
+    "valor_in": [
+     "Casado/a",
+     "Pareja de hecho o pareja estable sin casar"
+    ]
+   }
+  },
+  {
+   "id": "SD-16",
+   "tipo": "opcion",
+   "campo": "estructura_dinero",
+   "texto": "¿Cómo tenéis organizado vuestro dinero y vuestras inversiones?",
+   "ayuda": "No hay opción correcta. Cada estructura tiene su precio en autonomía y en confianza; solo importa que os dé paz.",
+   "opciones": [
+    "Todo en común: una sola bolsa, cuentas e inversiones compartidas",
+    "Mixto: una cuenta común para gastos y, aparte, lo de cada uno",
+    "Independiente: cada uno con sus cuentas e inversiones, y reparto de gastos"
+   ],
+   "mostrar_si": {
+    "campo": "estado_civil",
+    "valor_in": [
+     "Casado/a",
+     "Pareja de hecho o pareja estable sin casar"
+    ]
+   }
+  },
+  {
+   "id": "SD-17",
+   "tipo": "opcion",
+   "campo": "carga_familiar",
+   "texto": "Más allá del dinero, ¿quién sostiene más el día a día del hogar y los cuidados (logística, niños, gestión mental)?",
+   "ayuda": "Una familia no se sostiene solo con dinero. Esta es la aportación que las cuentas nunca ven.",
+   "opciones": [
+    "Yo, bastante más que mi pareja",
+    "Yo, algo más",
+    "Lo llevamos prácticamente al 50%",
+    "Mi pareja, algo más",
+    "Mi pareja, bastante más que yo"
+   ],
+   "mostrar_si": {
+    "campo": "estado_civil",
+    "valor_in": [
+     "Casado/a",
+     "Pareja de hecho o pareja estable sin casar"
+    ]
+   }
   }
  ],
  "vision_brecha": [
@@ -3438,7 +3597,7 @@
     "campo": "perfil_laboral",
     "valor_not_in": [
      "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
-       "Jubilado / pensionista"
+     "Jubilado / pensionista"
     ]
    }
   },
@@ -3499,7 +3658,7 @@
     "campo": "perfil_laboral",
     "valor_not_in": [
      "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
-       "Jubilado / pensionista"
+     "Jubilado / pensionista"
     ]
    }
   },
@@ -3516,6 +3675,41 @@
    "unidad": "€",
    "texto": "Sin contar tu vivienda habitual, ¿cuánto de tu patrimonio está en inversiones que podrías rescatar o vender en pocos días (fondos, acciones, ETFs, depósitos)? Pon 0 si nada.",
    "ayuda": "Nos dice cuánto de tu patrimonio es realmente realizable ante un imprevisto y cuánto está trabajando, no parado. Sin este dato no asumimos que tu patrimonio esté ni invertido ni parado."
+  },
+  {
+   "id": "NUM-14",
+   "campo": "gasto_estatus",
+   "unidad": "€/mes",
+   "texto": "De tu gasto mensual, ¿cuánto se va en sostener una imagen o un estatus por encima de lo que de verdad necesitas (coche de gama, marcas, restaurantes caros, suscripciones premium)?",
+   "ayuda": "El gasto que impresiona a otros, no el que te hace feliz. Si no aplica, pon 0. Nadie lo verá salvo tú."
+  },
+  {
+   "id": "NUM-15",
+   "campo": "edad_hijo_menor",
+   "unidad": "años",
+   "texto": "¿Qué edad tiene tu hijo o hija más pequeño?",
+   "ayuda": "Nos permite medir algo que casi nadie calcula: el tiempo de infancia que aún te queda con él o ella.",
+   "mostrar_si": {
+    "campo": "dependientes",
+    "valor_in": [
+     "Sí, hijos",
+     "Sí, de varios a la vez"
+    ]
+   }
+  },
+  {
+   "id": "NUM-16",
+   "campo": "gastos_comunes",
+   "unidad": "€/mes",
+   "texto": "¿Cuánto suman al mes vuestros gastos comunes del hogar (vivienda, facturas, comida, coche)?",
+   "ayuda": "La bolsa compartida. Nos deja ver cuánto pesa en el sueldo de cada uno — y si el reparto es tan justo como parece.",
+   "mostrar_si": {
+    "campo": "estado_civil",
+    "valor_in": [
+     "Casado/a",
+     "Pareja de hecho o pareja estable sin casar"
+    ]
+   }
   }
  ],
  "seeds": [

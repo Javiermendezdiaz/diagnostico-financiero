@@ -27,8 +27,32 @@ try:
     _POPP=True
 except Exception:
     _POPP=False
+# --- Lora: serif editorial para titulares, cifras y citas (dirección premium) ---
+try:
+    for _n,_f in [("Lora","Lora-Regular.ttf"),("Lora-SemiBold","Lora-SemiBold.ttf"),
+                  ("Lora-Bold","Lora-Bold.ttf"),("Lora-Italic","Lora-Italic.ttf")]:
+        pdfmetrics.registerFont(TTFont(_n,_os.path.join(_FD,_f)))
+    pdfmetrics.registerFontFamily("Lora",normal="Lora",bold="Lora-Bold",italic="Lora-Italic")
+    import matplotlib.font_manager as _fm2
+    for _f in ("Lora-Regular.ttf","Lora-SemiBold.ttf","Lora-Bold.ttf","Lora-Italic.ttf"):
+        _fm2.fontManager.addfont(_os.path.join(_FD,_f))
+    _LORA=True
+except Exception:
+    _LORA=False
 FR=("Poppins" if _POPP else "Helvetica")
 FB=("Poppins-Bold" if _POPP else "Helvetica-Bold")
+SR=("Lora" if _LORA else FR)              # serif display
+SSB=("Lora-SemiBold" if _LORA else FB)    # serif semibold
+SB=("Lora-Bold" if _LORA else FB)         # serif bold
+SI=("Lora-Italic" if _LORA else FR)       # serif italic
+# rutas TTF para matplotlib (páginas-imagen hero)
+LORA_TTF={k:_os.path.join(_FD,v) for k,v in {"reg":"Lora-Regular.ttf","sb":"Lora-SemiBold.ttf","bold":"Lora-Bold.ttf","it":"Lora-Italic.ttf"}.items()}
+POPP_TTF={k:_os.path.join(_FD,v) for k,v in {"reg":"Poppins-Regular.ttf","med":"Poppins-Medium.ttf","bold":"Poppins-Bold.ttf","light":"Poppins-Light.ttf"}.items()}
+try:
+    import legado_pages as _legado_pages
+    _LEGADO_OK=bool(_LORA)
+except Exception:
+    _legado_pages=None; _LEGADO_OK=False
 
 INST=json.load(open("itap_instrumento.json",encoding="utf-8"))
 CAPAS={c["code"]:c for c in INST["capas"]}
@@ -324,8 +348,8 @@ class Bar(Flowable):
         c.setFillColor(colors.HexColor(col)); c.roundRect(0,0,max(3,W*h/100),s.h,2,fill=1,stroke=0)
 
 def St(n,**k): k.setdefault("fontName",FR); k.setdefault("textColor",INK); return ParagraphStyle(n,**k)
-h_book=St("hb",fontSize=15,leading=19,textColor=ACCDK,fontName=FB,spaceAfter=2)
-h_sec=St("hs",fontSize=17,leading=21,textColor=ACCDK,fontName=FB,spaceAfter=8)
+h_book=St("hb",fontSize=17,leading=21,textColor=ACCDK,fontName=SB,spaceAfter=2)
+h_sec=St("hs",fontSize=20,leading=24,textColor=ACCDK,fontName=SB,spaceAfter=8)
 h_sub=St("hu",fontSize=10.5,leading=13,textColor=ACC,fontName=FB,spaceBefore=7,spaceAfter=3)
 body=St("bd",fontSize=10,leading=15,spaceAfter=7,alignment=TA_JUSTIFY)
 small=St("sm",fontSize=8,leading=11,textColor=GREY)
@@ -382,6 +406,17 @@ class DarkPage(_Flowable):
             c.setFillColor(colors.HexColor("#6B7A92")); c.setFont(FR,7.5)
             c.drawCentredString(cx, 14*mm, self.legal)
         c.restoreState()
+
+class FullBleedImage(_Flowable):
+    """Página-imagen a sangre (cubre toda la hoja A4). Para portada/portadillas/joyas Legado."""
+    def __init__(self, path): _Flowable.__init__(self); self.path=path; self.w=0; self.h=0
+    def wrap(self, aw, ah): self.w=aw; self.h=ah; return aw, ah
+    def draw(self):
+        try:
+            self.canv.drawImage(self.path, -22*mm, -20*mm, width=A4[0], height=A4[1],
+                                preserveAspectRatio=False, mask=None)
+        except Exception:
+            pass
 
 def deco(cv,doc):
     cv.saveState()
@@ -953,6 +988,18 @@ def seccion_extras(extras):
             out.append(Paragraph("Marco de referencia 50/30/20 sobre tus ingresos: necesidades ~<b>%s</b>, deseos ~<b>%s</b>, y a construir patrimonio ~<b>%s</b>/mes. Una brújula, no una jaula."%(_eur(rc["necesidades"]),_eur(rc["deseos"]),_eur(rc["ahorro"])),St("prr",fontSize=9.7,leading=14,spaceBefore=3)))
         if pr.get("empresario"):
             out.append(Paragraph("<font color='#B45309'>&#9656;</font>  <b>Separa familia y negocio.</b> Tu cuota de autónomos, tus tributos y la gestoría <b>no son gasto de vida familiar</b>: mezclarlos distorsiona tu coste de vida real y tu verdadera capacidad de ahorro. Dos cuentas, dos presupuestos, siempre.",St("pre",fontSize=9.7,leading=14,spaceBefore=4,leftIndent=4)))
+    vi=extras.get("vivienda")
+    if vi and vi.get("modo"):
+        _sevc={"alta":"#9A3B2E","media":"#B45309","baja":"#0F766E"}.get(vi.get("severidad"),"#B45309")
+        _fnd={"alta":"#FBF1EE","media":"#FBF8EE","baja":"#F4F7F5"}.get(vi.get("severidad"),"#FBF8EE")
+        _items=[Paragraph("<font color='%s'><b>%s</b></font>"%(_sevc,_limpiar_txt(vi["titulo"])),
+                          St("vivt",fontSize=10.8,leading=15,spaceAfter=4))]
+        for _i,_p in enumerate(vi.get("parrafos",[])):
+            _items.append(Paragraph(_limpiar_txt(_p),St("vivp%d"%_i,fontSize=10,leading=14.5,spaceAfter=3)))
+        out+=[Spacer(1,5*mm), Paragraph("Tu vivienda",h_sub),
+              Paragraph("Tu mayor gasto fijo y, según el caso, tu mayor riesgo oculto o tu mayor tranquilidad. "
+                        "Lo que tu respuesta revela:",small),
+              Spacer(1,2*mm), _box(_items,_fnd,_sevc,ancho=160*mm)]
     out+=[Spacer(1,5*mm), Paragraph("Tu marco de inversión",h_sub),
           Paragraph("Principios, no productos. Qué recomendar en concreto es trabajo de tu asesor en Adapta — y depende de tu situación. Lo que no cambia son las reglas:",small)]
     for _pp in ["Primero el colchón, después invertir: nunca inviertas el dinero que podrías necesitar en 6 meses.",
@@ -1052,8 +1099,15 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     bi,bl=banda(CAPAS["C1"],salud); S=[]
     coh=coherencia(salud,fi,datos)
     arq_code = arq_override if arq_override is not None else arquetipo(resp)[0]
-    # cover
-    S+=[Spacer(1,34*mm),
+    # cover + apertura cinematográfica (Legado: navy + azul eléctrico, datos reales)
+    _hero=None
+    try:
+        if _LEGADO_OK and extras: _hero=_legado_pages.hero_open(cli,datos,extras,p,depth=depth)
+    except Exception:
+        _hero=None
+    if _hero:
+        for _pg in _hero: S+=[FullBleedImage(_pg), PageBreak()]
+    if not _hero: S+=[Spacer(1,34*mm),
         Paragraph("TU LIBRO FINANCIERO",St("cv0",fontSize=12,textColor=GREY,fontName=FB)),
         Spacer(1,3*mm),
         Paragraph("Diagnóstico<br/>Patrimonial",St("cv1",fontSize=40,leading=44,textColor=INK,fontName=FB)),
@@ -1111,7 +1165,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   "territorio saludable. Antes de entrar capítulo a capítulo, esta es tu silueta completa:",body),
         Image("_radar.png",width=122*mm,height=122*mm,hAlign="CENTER"),
         PageBreak()]
-    if depth!="esencial":
+    if True:  # resumen (vistazo) en ambos tiers
         orden=sorted(CAPAS,key=lambda c:p[c]["score"])
         fort=orden[:3]; foco=orden[-3:][::-1]
         S+=[Paragraph("Tu lectura de un vistazo",h_sec),
@@ -1131,7 +1185,23 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                       "de partida, y se mueve.",body),
             PageBreak()]
     # capítulos por capa
-    for n,code in enumerate(CAPAS,1):
+    _rent=bool(extras and extras.get("rentista"))
+    _RENT_RIESGO={
+        "C2":"Tu riesgo ya no es no llegar: llegaste. Es el contrario — que la inflación erosione en silencio lo que hoy te sostiene, o que una tasa de retiro demasiado alta consuma el principal sin que lo notes hasta que es tarde.",
+        "C7":"Para ti, depender de una sola fuente de rentas —un único inmueble, un único pagador, una única clase de activo— es el riesgo silencioso: el día que esa fuente falla o renta menos, tu tren de vida tiembla entero."}
+    _RENT_OPORT={
+        "C2":"Tu número ya no es una meta que alcanzar, sino un nivel que defender. La oportunidad está en blindarlo: que el capital rente, crezca al menos con la inflación y dure más que tú.",
+        "C7":"Diversificar tus fuentes de renta no es crecer por crecer: es que ninguna caída individual pueda con tu tranquilidad. Varias rentas pequeñas e independientes sostienen mejor que una sola grande."}
+    if _rent:
+        S+=[_box([Paragraph("<b>Cómo leer tus capítulos</b>",St("rlt",fontSize=10.8,leading=15,spaceAfter=4)),
+                  Paragraph("Este informe está escrito, por defecto, para quien aún construye su patrimonio. Tú ya lo "
+                            "tienes: vives de tus rentas. Lee cada capítulo con esta traducción — donde el texto hable de "
+                            "«crecer», «ahorrar más» o «acumular», tu versión es «preservar, hacer sostenible y que dure». "
+                            "Tu objetivo no es llegar a la cima: es no bajar de ella. Hemos adaptado a esa realidad tus "
+                            "palancas, tu contrato y los capítulos clave.",
+                            St("rlx",fontSize=10,leading=14.5))],"#F4F7F5","#0F766E",ancho=160*mm),
+            Spacer(1,4*mm)]
+    for n,code in (list(enumerate(CAPAS,1)) if depth!="esencial" else []):
         pc=p[code]
         cab=[Paragraph(f"CAP\u00cdTULO {n}",cap_kicker),
              Paragraph(pc["nombre"],h_book),
@@ -1176,9 +1246,9 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             cab+=[Spacer(1,2*mm),
                   Paragraph(segundo_parrafo(pc["bi"],code),body),
                   Paragraph("El riesgo si no act\u00faas",h_sub),
-                  Paragraph(RIESGO[code],body),
+                  Paragraph((_RENT_RIESGO.get(code) if _rent else None) or RIESGO[code],body),
                   Paragraph("La oportunidad",h_sub),
-                  Paragraph(OPORTUNIDAD[code],body),
+                  Paragraph((_RENT_OPORT.get(code) if _rent else None) or OPORTUNIDAD[code],body),
                   Paragraph("Tu plan de acci\u00f3n",h_sub),
                   Paragraph("Tres pasos, en orden. Empieza por el primero y no pases al siguiente hasta tenerlo en marcha:",small)]
             for a in ACCIONES[code]:
@@ -1192,7 +1262,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             S.extend(cab); S.append(PageBreak())
     if extras: S+=seccion_extras(extras)
     # transversales
-    S+=[Paragraph("Lo que cruza todas las capas",h_sec),
+    if depth!="esencial": S+=[Paragraph("Lo que cruza todas las capas",h_sec),
         Paragraph("Hay tres corrientes que no viven en un solo capítulo: recorren todo tu perfil. Verlas juntas "
                   "explica patrones que ninguna capa aislada revela.",body)]
     desc={"PSIQUE":("Carga psicológica","el peso emocional del dinero: negación, identidad, rumiación."),
@@ -1326,8 +1396,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         Paragraph("Instrumento de 10 capas con dimensiones psicométricas de polaridad consistente. Los percentiles "
                   "se calibran empíricamente frente a la cohorte real de respondentes; mientras la muestra de tu grupo crece, se indican como provisionales. Herramienta "
                   "de autoconocimiento; no sustituye asesoramiento profesional individualizado.",small)]
-    if extras: S+=seccion_coste_inaccion(extras)
-    if extras: S+=seccion_compromiso(extras)
+    if extras and depth!="esencial": S+=seccion_coste_inaccion(extras)
+    if extras and depth!="esencial": S+=seccion_compromiso(extras)
     S+=seccion_adapta(p)
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
@@ -1357,6 +1427,12 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             ("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5),
             ("LEFTPADDING",(0,0),(-1,-1),7),("RIGHTPADDING",(0,0),(-1,-1),7),("FONTNAME",(0,0),(-1,0),FB)]+bgs))
         S+=[Paragraph("%s \u00b7 %s"%(capa["code"],capa["nombre"]),h_sub), t]
+    _const=None
+    try:
+        if _LEGADO_OK and extras: _const=_legado_pages.hero_close(extras,depth=depth)
+    except Exception:
+        _const=None
+    if _const: S+=[PageBreak(), FullBleedImage(_const)]
     S+=[PageBreak(), DarkPage(titulo="▲ ADAPTA  ·  family office",
         sub="Tu Libro Financiero · Documento confidencial",
         legal="Adapta Family Office · Herramienta de autoconocimiento financiero; no constituye asesoramiento personalizado regulado. Las estimaciones son orientativas. © 2026.")]
@@ -1382,8 +1458,7 @@ def _cargar_v2():
     return _INST_V2
 
 def build_book_v2(resp, datos, cli, outpath, perfil_in=None, depth="completo", baremo=None, sintesis=None, extras=None, arq_override=None):
-    """Genera el libro usando el instrumento v2 (11 capas adaptativas) + secciones brecha/palancas.
-    Reutiliza todo el render existente intercambiando INST/CAPAS de forma temporal y segura."""
+    """Genera el libro usando el instrumento v2 (11 capas adaptativas) + secciones brecha/palancas."""
     global INST, CAPAS
     inst_v2=_cargar_v2()
     _bak_inst, _bak_capas = INST, CAPAS

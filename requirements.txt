@@ -9,3 +9,5 @@ numpy
 stripe
 aiohttp
 anthropic
+qrcode
+pillow

@@ -658,6 +658,116 @@ def calcular_compromiso(datos, perfil_in, brecha, p):
             "plazo_anios": plazo, "edad": edad, "reglas": reglas[:6]}
 
 
+def calcular_vivienda(datos, perfil_in):
+    """La 'ola de vivienda': UNA pregunta (tenencia) desbloquea tres diagnÃ³sticos
+    -hipoteca variable, alquiler forzoso, vivienda pagada- con los nÃºmeros reales del cliente."""
+    ten = ((perfil_in or {}).get("vivienda_tenencia", "") or "").strip()
+    if not ten:
+        return {"modo": None}
+    t = ten.lower()
+    coste = _num(datos, "coste_vivienda")
+    ingreso = _num(datos, "ingreso_mensual")
+    ahorro = _num0(datos, "ahorro_mensual") or 0
+    pct_viv = _num0(datos, "pct_vivienda")
+    carga = (100.0 * coste / ingreso) if (coste and ingreso) else None
+    tasa = (100.0 * ahorro / ingreso) if ingreso else None
+
+    def fmt(n):
+        try:
+            return f"{int(round(n)):,}".replace(",", ".") + " €"
+        except Exception:
+            return "—"
+
+    # --- Hipoteca a tipo VARIABLE: el riesgo que no aparece en las cuentas de hoy ---
+    if "variable" in t:
+        parr = ["Tu cuota de hoy no es tu cuota de siempre. Es la única gran factura de tu vida que "
+                "puede subir sin que tú decidas nada: basta con que suban los tipos de interés."]
+        golpe = coste * 0.30 if coste else None
+        severidad = "media"
+        if coste:
+            nueva = coste + golpe
+            linea = (f"Hoy pagas {fmt(coste)} al mes. Si tu cuota subiera un 30% —lo que miles de "
+                     f"familias vivieron entre 2022 y 2023— pasarías a {fmt(nueva)}: {fmt(golpe)} más cada mes.")
+            if ahorro and golpe > ahorro:
+                linea += (f" Ese golpe se comería entero lo que hoy ahorras ({fmt(ahorro)}) y aún faltaría. "
+                          "No es una hipótesis lejana: es tu punto más frágil.")
+                severidad = "alta"
+            elif ahorro:
+                linea += (f" Ese golpe se llevaría buena parte de lo que hoy ahorras ({fmt(ahorro)}). "
+                          "Conviene tenerlo medido antes de que ocurra, no después.")
+            parr.append(linea)
+        if carga is not None and carga >= 35:
+            severidad = "alta"
+        parr.append("No se trata de pasarte a tipo fijo a cualquier precio, sino de saber tu número: "
+                    "cuánto puede subir tu cuota antes de que tu mes deje de cuadrar. Tenlo calculado hoy, "
+                    "con calma, y no el día que llegue la carta del banco.")
+        return {"modo": "variable", "titulo": "Tu hipoteca a tipo variable: el riesgo que no está en tus cuentas de hoy",
+                "etiqueta": "riesgo oculto", "parrafos": parr, "severidad": severidad}
+
+    # --- ALQUILER: forzoso (sin culpa, sin falsa esperanza) vs. flexible ---
+    if "alquiler" in t:
+        forzoso = (carga is not None and carga >= 40) and (tasa is not None and tasa < 10)
+        if forzoso:
+            parr = ["Con tus números, el alquiler se lleva una parte muy grande de lo que entra y apenas "
+                    "queda margen para ahorrar. Quiero ser claro contigo: eso no te convierte en alguien que "
+                    "«tira el dinero». El alquiler es, hoy, lo que tu situación permite, y pagar tu "
+                    "techo es exactamente lo que debes hacer.",
+                    "La trampa sería fijarte la compra de una vivienda como el objetivo de este año. Con esta "
+                    "carga, no lo es, y forzarlo solo añadiría angustia. El objetivo real es más cercano y más "
+                    "poderoso: recuperar aire en el mes y construir un primer colchón, aunque empiece siendo pequeño.",
+                    "Y un aviso honesto: el alquiler es el único gasto que puede subir de golpe sin tu permiso, "
+                    "el día que toca renovar. Por eso tu colchón no es un lujo: es tu defensa frente a esa subida."]
+            return {"modo": "alquiler_forzoso", "titulo": "El alquiler no es tirar el dinero: es lo que hoy puedes",
+                    "etiqueta": "sin culpa", "parrafos": parr, "severidad": "alta"}
+        parr = ["Vivir de alquiler no es un fracaso financiero: es flexibilidad. No tienes capital inmovilizado "
+                "en ladrillo ni dependes de los tipos de interés. Tu reto no es comprar por comprar.",
+                "Pero esa ventaja solo cuenta si el dinero que no inmovilizas trabaja. Si el alquiler te deja "
+                "margen y ese margen se evapora en gasto, entonces sí estás perdiendo: no por alquilar, sino por "
+                "no poner a trabajar lo que ahorras.",
+                "Vigila la renovación: el alquiler puede subir sin que tú decidas. Un colchón de varios meses es "
+                "lo que convierte esa flexibilidad en libertad, y no en vértigo."]
+        return {"modo": "alquiler", "titulo": "Tu alquiler: flexibilidad hoy, decisión consciente mañana",
+                "etiqueta": "flexibilidad", "parrafos": parr, "severidad": "media"}
+
+    # --- Vivienda YA PAGADA: la mayor red de seguridad ---
+    if "pagada" in t:
+        parr = ["Tienes algo que muy pocos consiguen: un techo que ya es tuyo. Tu suelo de gasto baja, ningún "
+                "tipo de interés te afecta y, pase lo que pase, tienes dónde vivir. Es la base sobre la que se "
+                "construye todo lo demás."]
+        if pct_viv and pct_viv >= 70:
+            parr.append("El riesgo contrario también existe, y en tu caso conviene mirarlo: mucho patrimonio "
+                        "dormido en ladrillo y poca liquidez disponible. Tu casa vale, pero no paga la compra del "
+                        "súper. Asegúrate de tener también capital líquido que trabaje.")
+        else:
+            parr.append("El siguiente paso es que el ahorro que ya no se va en vivienda no se diluya en gasto, "
+                        "sino que se convierta en activos que generen renta.")
+        return {"modo": "pagada", "titulo": "Tu vivienda pagada: tu mayor red de seguridad",
+                "etiqueta": "fortaleza", "parrafos": parr, "severidad": "baja"}
+
+    # --- Hipoteca a tipo FIJO: compro certeza ---
+    if "fijo" in t:
+        parr = ["Hiciste algo más valioso de lo que parece: fijaste tu cuota. Aunque los tipos se disparen, tu "
+                "mes no se mueve. Esa certeza es un activo: te protege del riesgo que hoy quita el sueño a quien "
+                "tiene hipoteca variable.",
+                "Aprovéchala. Sabes exactamente cuánto pagas durante años, así que el resto de tu dinero puede "
+                "trabajar con un plan, sin el sobresalto de una cuota que cambia."]
+        return {"modo": "fijo", "titulo": "Tu hipoteca a tipo fijo: compraste certeza",
+                "etiqueta": "estabilidad", "parrafos": parr, "severidad": "baja"}
+
+    # --- Cedida / familiares: ventaja enorme y temporal ---
+    if "familiares" in t or "cedida" in t:
+        parr = ["Hoy el mayor gasto de casi todo el mundo —el techo— es prácticamente cero para ti. Es "
+                "una ventaja brutal. Pero es temporal: en algún momento tendrás que pagar por vivir, y el salto "
+                "será grande.",
+                "La pregunta que decide tu futuro es qué haces hoy con ese margen. Si lo conviertes en colchón y "
+                "en activos, llegarás a ese salto preparado. Si se diluye en gasto, el día que llegue te pillará "
+                "empezando de cero."]
+        return {"modo": "cedida", "titulo": "Vives sin coste de vivienda: una ventaja enorme y temporal",
+                "etiqueta": "oportunidad", "parrafos": parr, "severidad": "media"}
+
+    return {"modo": None}
+
+
 def computar_extras(resp, datos, perfil_in, inst=None):
     """Punto de entrada unico. Devuelve dict listo para report_book + arq_code."""
     inst = inst or cargar_inst()
@@ -681,8 +791,10 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "fortuna_neta": calcular_fortuna_neta(datos),
         "deuda_tipo": calcular_deuda_tipo(resp, datos),
         "presupuesto": calcular_presupuesto(datos, perfil_in),
+        "vivienda": calcular_vivienda(datos, perfil_in),
         "compromiso": compromiso,
         "arq_code": arq_desde_perfil(perfil_in),
+        "perfil_in": perfil_in,
         "_p": p,
     }
 
