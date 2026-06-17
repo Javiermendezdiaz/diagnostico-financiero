@@ -116,15 +116,37 @@ a{color:var(--am)}
   <p style="color:var(--gr);font-size:13px;line-height:1.5">Claude Opus está leyendo tus respuestas, una a una, y redactando tu retrato personal. Puede tardar hasta medio minuto — merece la espera.</p></div>
 
 <div id="s-done" class="step center">
-  <div style="font-size:40px;margin:10px">✓</div>
-  <p style="font-size:17px;font-weight:700;margin-bottom:8px">Diagnóstico completado</p>
-  <p id="doneTxt" style="color:var(--gr);font-size:14px;line-height:1.5"></p>
-  <button class="btn" id="dl" style="display:none;margin-top:18px" onclick="descargar()">Descargar mi informe</button>
+  <div id="doneIcon" style="font-size:40px;margin:6px">✓</div>
+  <p id="doneHead" style="font-size:19px;font-weight:800;margin-bottom:6px">Tu diagnóstico está listo</p>
+  <p id="doneSub" style="color:var(--gr);font-size:13.5px;line-height:1.5;margin-bottom:16px">Un primer vistazo, con tus números reales:</p>
+
+  <div id="teaserBox" style="display:none;text-align:left;background:var(--pa);border:1px solid var(--bd);border-radius:14px;padding:14px 18px;margin:0 auto 16px;max-width:380px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--bd)">
+      <span style="color:var(--gr);font-size:13px">Tu margen de maniobra</span>
+      <span id="tMargen" style="color:var(--am);font-size:22px;font-weight:800">—</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;padding:8px 0">
+      <span style="color:var(--gr);font-size:13px">Tu cifra de libertad</span>
+      <span id="tCifra" style="color:var(--tx);font-size:18px;font-weight:700">—</span>
+    </div>
+    <p style="color:var(--gr);font-size:12px;line-height:1.5;margin-top:8px">Y esto es solo la superficie. El libro completo desglosa tu perfil capa a capa, tu plan de acción de 100 días y tu Constitución Financiera.</p>
+  </div>
+
+  <div id="payBox" style="display:none">
+    <button class="btn" id="payBtn" style="max-width:380px" onclick="pagar()">Desbloquear mi diagnóstico</button>
+    <p style="color:var(--gr);font-size:11.5px;margin-top:10px">Pago seguro vía Stripe · Descarga inmediata en PDF</p>
+  </div>
+
+  <button class="btn" id="dl" style="display:none;max-width:380px;margin-top:8px" onclick="descargar()">Descargar mi informe</button>
+  <p id="doneTxt" style="color:var(--gr);font-size:13.5px;line-height:1.5;margin-top:12px"></p>
 </div>
 
 </div></div></div>
 <script>
 const API="https://diagnostico-financiero-app.onrender.com";
+const PRECIO_TIER={1:19,2:39,3:54};
+let CURSID=null;
+function fmt(n){try{return Math.round(n).toLocaleString('es-ES');}catch(e){return n;}}
 const PAREJA=new URLSearchParams(location.search).get('pareja');
 const _qt=new URLSearchParams(location.search).get('tier'); if((_qt==='1'||_qt==='2'||_qt==='3')&&document.getElementById('tier')) document.getElementById('tier').value=_qt; try{descTier();}catch(e){}
 let INST=null, st={email:"",nombre:"",tier:2,sid:null,perfil:{},resp:{},datos:{},abiertas:{},
@@ -360,14 +382,72 @@ async function finalizar(){
     if(PAREJA) body.pareja_de=PAREJA;
     const r=await fetch(API+'/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const d=await r.json();
-    st.reportUrl=d.report_url;
+    st.reportUrl=d.report_url; CURSID=st.sid;
     show('s-done');
-    document.getElementById('doneTxt').textContent = d.needs_partner
-      ? 'Comparte tu código con tu pareja para que complete su parte.'
-      : 'Tu informe está listo. Si has pagado, ya puedes descargarlo.';
-    if(d.report_url) document.getElementById('dl').style.display='inline-block';
-  }catch(e){console.error(e);show('s-done');document.getElementById('doneTxt').textContent='Hubo un problema al procesar. Reintenta.';}
+    if(d.needs_partner){
+      document.getElementById('doneHead').textContent='Casi listo';
+      document.getElementById('doneSub').style.display='none';
+      document.getElementById('doneTxt').textContent='Comparte tu código con tu pareja para que complete su parte. Cuando termine, vuestro libro se desbloquea.';
+      return;
+    }
+    // Adelanto gratis con datos reales -> paywall
+    const t=d.teaser||{};
+    if(t.margen!=null){ document.getElementById('tMargen').textContent=t.margen+'%'; }
+    if(t.cifra_libertad){ document.getElementById('tCifra').textContent=fmt(t.cifra_libertad)+' €'; }
+    if(t.margen!=null||t.cifra_libertad){ document.getElementById('teaserBox').style.display='block'; }
+    const tier=st.tier||2;
+    document.getElementById('payBtn').textContent='Desbloquear mi diagnóstico · '+(PRECIO_TIER[tier]||39)+' €';
+    document.getElementById('payBox').style.display='block';
+  }catch(e){console.error(e);show('s-done');document.getElementById('doneSub').style.display='none';document.getElementById('doneTxt').textContent='Hubo un problema al procesar. Reintenta.';}
 }
-function descargar(){ if(st.reportUrl) location.href=API+st.reportUrl; }
+async function pagar(){
+  const sid=CURSID||(st&&st.sid); if(!sid){document.getElementById('doneTxt').textContent='Sesión no encontrada. Vuelve a empezar.';return;}
+  const b=document.getElementById('payBtn'); const o=b.textContent; b.disabled=true; b.textContent='Conectando con el pago…';
+  try{
+    const r=await fetch(API+'/api/checkout/'+sid,{method:'POST'});
+    const d=await r.json();
+    if(d.url){ location.href=d.url; return; }
+    if(d.ya_pagado){ descargarSid(sid); return; }
+    throw new Error('sin_url');
+  }catch(e){ b.disabled=false; b.textContent=o; document.getElementById('doneTxt').textContent='No se pudo iniciar el pago. Inténtalo de nuevo en un momento.'; }
+}
+function descargarSid(sid){ location.href=API+'/api/report/'+sid; }
+function descargar(){ if(st&&st.reportUrl) location.href=API+st.reportUrl; else if(CURSID) descargarSid(CURSID); }
 function show(id){document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+// Retorno desde Stripe Checkout (?sid=..&paid=1|0)
+(function(){
+  const qs=new URLSearchParams(location.search);
+  const sid=qs.get('sid'), paid=qs.get('paid');
+  if(!sid) return;
+  CURSID=sid; show('s-done');
+  const sub=document.getElementById('doneSub'); if(sub) sub.style.display='none';
+  const tb=document.getElementById('teaserBox'); if(tb) tb.style.display='none';
+  if(paid==='1'){
+    document.getElementById('doneHead').textContent='Confirmando tu pago…';
+    document.getElementById('doneTxt').textContent='Un momento: validamos el pago y preparamos tu descarga.';
+    let tries=0;
+    const iv=setInterval(async()=>{
+      tries++;
+      try{ const r=await fetch(API+'/api/estado/'+sid); const d=await r.json();
+        if(d.pagado){ clearInterval(iv);
+          document.getElementById('doneHead').textContent='¡Pago confirmado!';
+          document.getElementById('doneTxt').textContent='Descargando tu diagnóstico…';
+          document.getElementById('dl').style.display='inline-block';
+          descargarSid(sid); return;
+        }
+      }catch(e){}
+      if(tries>=25){ clearInterval(iv);
+        document.getElementById('doneHead').textContent='Pago recibido';
+        document.getElementById('doneTxt').textContent='Si la descarga no empieza sola, pulsa el botón.';
+        document.getElementById('dl').style.display='inline-block';
+      }
+    },2000);
+  } else if(paid==='0'){
+    document.getElementById('doneHead').textContent='Tu diagnóstico te espera';
+    document.getElementById('doneTxt').textContent='El pago no se completó. Puedes desbloquearlo cuando quieras.';
+    document.getElementById('payBtn').textContent='Desbloquear mi diagnóstico';
+    document.getElementById('payBox').style.display='block';
+  }
+})();
 </script></body></html>

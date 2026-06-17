@@ -31,6 +31,13 @@ RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 RESEND_FROM = os.environ.get("RESEND_FROM", "ITAP <itap@adaptafamilyoffice.com>")
 NOTIFY_EMAIL = os.environ.get("NOTIFY_EMAIL", "javier@mendezconsultoria.com")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
+# URL publica de la web (para volver tras el checkout). Por defecto, GitHub Pages.
+PUBLIC_BASE_URL = (os.environ.get("PUBLIC_BASE_URL", "").strip()
+                   or "https://javiermendezdiaz.github.io/diagnostico-financiero/empezar2.html")
+# Precio por tier en centimos de euro.
+PRECIOS = {1: 1900, 2: 3900, 3: 5400}
+TIER_NOMBRE = {1: "Diagnostico Rapido", 2: "Libro Financiero (Avanzado)", 3: "Libro de la Pareja"}
 
 def db():
     c = sqlite3.connect(DB); c.row_factory = sqlite3.Row; return c
@@ -403,13 +410,76 @@ def complete(payload: CompletePayload):
         generar_pdf(payload.session_id, email, nombre, payload.respuestas, datos, tier, bar, row["sexo"], sintesis=retrato)
     except Exception as e:
         raise HTTPException(500, "Error generando informe: %s" % e)
-    return {"ok": True, "report_url": "/api/report/%s" % payload.session_id}
+    return {"ok": True, "report_url": "/api/report/%s" % payload.session_id,
+            "teaser": _teaser(datos, salud)}
+
+def _teaser(datos, salud=None):
+    """Datos reales del cliente para el adelanto gratis (prueba de valor antes del pago)."""
+    try:
+        ing = float(datos.get("ingreso_mensual") or 0); gas = float(datos.get("gasto_mensual") or 0)
+        margen = round((ing - gas) / ing * 100) if ing > 0 else None
+        cifra = round(gas * 12 / 0.04) if gas > 0 else None  # regla del 4%
+        out = {}
+        if margen is not None: out["margen"] = margen
+        if cifra: out["cifra_libertad"] = cifra
+        if salud is not None:
+            try: out["salud"] = round(100 - float(salud))  # 0=disfuncion -> mostrar salud
+            except Exception: pass
+        return out
+    except Exception:
+        return {}
 
 @app.get("/api/estado/{session_id}")
 def estado(session_id: str):
     with db() as c:
         row = c.execute("SELECT pagado FROM sesiones WHERE id=?", (session_id,)).fetchone()
     return {"pagado": bool(row and row["pagado"]), "gated": bool(STRIPE_WEBHOOK_SECRET)}
+
+@app.post("/api/checkout/{session_id}")
+def checkout(session_id: str):
+    """Crea una sesion de Stripe Checkout para esta sesion concreta y devuelve la URL de pago.
+    Inyecta client_reference_id=session_id (lo que el webhook usa para marcar pagado) y habilita
+    el campo de codigo promocional (cupon ADAPTA100). Degrada con elegancia si falta la clave."""
+    if not STRIPE_SECRET_KEY:
+        raise HTTPException(503, "Pago no configurado: falta STRIPE_SECRET_KEY en el servidor.")
+    with db() as c:
+        row = c.execute("SELECT email,nombre,tier,pagado,respuestas FROM sesiones WHERE id=?", (session_id,)).fetchone()
+    if not row:
+        raise HTTPException(404, "Sesion no encontrada.")
+    if row["respuestas"] in (None, "{}", ""):
+        raise HTTPException(409, "Completa el cuestionario antes de pagar.")
+    if row["pagado"]:
+        return {"url": None, "ya_pagado": True, "report_url": "/api/report/%s" % session_id}
+    tier = row["tier"] or 2
+    precio = PRECIOS.get(tier, PRECIOS[2])
+    nombre_prod = "ITAP - %s" % TIER_NOMBRE.get(tier, "Diagnostico")
+    sep = "&" if ("?" in PUBLIC_BASE_URL) else "?"
+    success_url = "%s%ssid=%s&paid=1" % (PUBLIC_BASE_URL, sep, session_id)
+    cancel_url = "%s%ssid=%s&paid=0" % (PUBLIC_BASE_URL, sep, session_id)
+    try:
+        import stripe
+        stripe.api_key = STRIPE_SECRET_KEY
+        cs = stripe.checkout.Session.create(
+            mode="payment",
+            line_items=[{
+                "price_data": {
+                    "currency": "eur",
+                    "unit_amount": precio,
+                    "product_data": {"name": nombre_prod,
+                                     "description": "Diagnostico psicofinanciero personalizado (PDF)."},
+                },
+                "quantity": 1,
+            }],
+            client_reference_id=session_id,
+            customer_email=(row["email"] or None),
+            allow_promotion_codes=True,
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata={"session_id": session_id, "tier": str(tier)},
+        )
+        return {"url": cs.url}
+    except Exception as e:
+        raise HTTPException(502, "No se pudo crear el pago: %s" % e)
 
 @app.post("/api/stripe-webhook")
 async def stripe_webhook(request: Request):
