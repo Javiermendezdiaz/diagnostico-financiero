@@ -450,7 +450,9 @@ def checkout(session_id: str):
     precio = PRECIOS.get(tier, PRECIOS[2])
     nombre_prod = "ITAP - %s" % TIER_NOMBRE.get(tier, "Diagnostico")
     sep = "&" if ("?" in PUBLIC_BASE_URL) else "?"
-    success_url = "%s%ssid=%s&paid=1" % (PUBLIC_BASE_URL, sep, session_id)
+    # Incluimos {CHECKOUT_SESSION_ID} (Stripe lo sustituye al volver) para poder VERIFICAR
+    # el pago en el servidor sin depender del webhook.
+    success_url = "%s%ssid=%s&paid=1&cs={CHECKOUT_SESSION_ID}" % (PUBLIC_BASE_URL, sep, session_id)
     cancel_url = "%s%ssid=%s&paid=0" % (PUBLIC_BASE_URL, sep, session_id)
     try:
         import stripe
@@ -492,6 +494,26 @@ def checkout(session_id: str):
         return {"url": cs.url, "_prod": nombre_prod, "_li": ("price" if "price" in line_item else "inline")}
     except Exception as e:
         raise HTTPException(502, "No se pudo crear el pago: %s" % e)
+
+@app.post("/api/verify/{session_id}")
+def verify_payment(session_id: str, cs: str = ""):
+    """Verifica el pago directamente con Stripe (sin depender del webhook). Marca pagado si la
+    sesion de checkout esta completada o pagada (incluye 0 EUR con cupon: 'no_payment_required')."""
+    if not STRIPE_SECRET_KEY or not cs:
+        return {"pagado": False, "reason": "sin_datos"}
+    try:
+        import stripe
+        stripe.api_key = STRIPE_SECRET_KEY
+        s = stripe.checkout.Session.retrieve(cs)
+        ok = (getattr(s, "status", "") == "complete") or (getattr(s, "payment_status", "") in ("paid", "no_payment_required"))
+        ref = getattr(s, "client_reference_id", None)
+        if ok and ref == session_id:
+            with db() as c:
+                c.execute("UPDATE sesiones SET pagado=1 WHERE id=?", (session_id,))
+            return {"pagado": True}
+        return {"pagado": False, "reason": "no_completado"}
+    except Exception as e:
+        return {"pagado": False, "reason": "error_%s" % type(e).__name__}
 
 @app.get("/api/_prices")
 def _prices_debug():

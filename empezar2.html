@@ -487,23 +487,24 @@ function show(id){ if(_cyc){_cyc();_cyc=null;} document.querySelectorAll('.step'
   if(paid==='1'){
     document.getElementById('doneHead').textContent='Confirmando tu pago…';
     document.getElementById('doneTxt').textContent='Un momento: validamos el pago y preparamos tu descarga.';
-    let tries=0;
-    const iv=setInterval(async()=>{
-      tries++;
-      try{ const r=await fetch(API+'/api/estado/'+sid); const d=await r.json();
-        if(d.pagado){ clearInterval(iv);
-          document.getElementById('doneHead').textContent='¡Pago confirmado!';
-          document.getElementById('doneTxt').textContent='Descargando tu diagnóstico…';
+    const cs=qs.get('cs');
+    (async()=>{
+      // 1) Verificar el pago directamente con Stripe (robusto, sin depender del webhook).
+      if(cs){ try{ const r=await fetch(API+'/api/verify/'+sid+'?cs='+encodeURIComponent(cs),{method:'POST'}); const d=await r.json(); if(d.pagado){ descargarSid(sid); return; } }catch(e){} }
+      // 2) Fallback: sondear estado (por si el webhook ya lo marcó).
+      let tries=0;
+      const iv=setInterval(async()=>{
+        tries++;
+        try{ const r=await fetch(API+'/api/estado/'+sid); const d=await r.json();
+          if(d.pagado){ clearInterval(iv); descargarSid(sid); return; }
+        }catch(e){}
+        if(tries>=15){ clearInterval(iv);
+          document.getElementById('doneHead').textContent='Pago recibido';
+          document.getElementById('doneTxt').textContent='Si la descarga no empieza sola, pulsa el botón.';
           document.getElementById('dl').style.display='inline-block';
-          descargarSid(sid); return;
         }
-      }catch(e){}
-      if(tries>=25){ clearInterval(iv);
-        document.getElementById('doneHead').textContent='Pago recibido';
-        document.getElementById('doneTxt').textContent='Si la descarga no empieza sola, pulsa el botón.';
-        document.getElementById('dl').style.display='inline-block';
-      }
-    },2000);
+      },2000);
+    })();
   } else if(paid==='0'){
     document.getElementById('doneHead').textContent='Tu diagnóstico te espera';
     document.getElementById('doneTxt').textContent='El pago no se completó. Puedes desbloquearlo cuando quieras.';
