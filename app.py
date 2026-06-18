@@ -460,10 +460,18 @@ def checkout(session_id: str):
         # crea un precio al vuelo (retrocompatible).
         line_item = None
         try:
-            for p in (stripe.Price.list(active=True, currency="eur", limit=100).get("data", []) or []):
-                if int(p.get("unit_amount") or 0) == precio:
-                    line_item = {"price": p["id"], "quantity": 1}
-                    break
+            for p in (stripe.Price.list(active=True, currency="eur", limit=100, expand=["data.product"]).get("data", []) or []):
+                if int(p.get("unit_amount") or 0) != precio:
+                    continue
+                prod = p.get("product") or {}
+                pname = (prod.get("name") if isinstance(prod, dict) else "") or ""
+                # Saltar los productos creados al vuelo por versiones anteriores (empiezan por "ITAP"),
+                # para quedarnos con el producto REAL del catalogo (al que aplica el cupon).
+                if pname.strip().upper().startswith("ITAP"):
+                    continue
+                nombre_prod = pname or nombre_prod
+                line_item = {"price": p["id"], "quantity": 1}
+                break
         except Exception:
             line_item = None
         if not line_item:
@@ -481,7 +489,7 @@ def checkout(session_id: str):
             cancel_url=cancel_url,
             metadata={"session_id": session_id, "tier": str(tier)},
         )
-        return {"url": cs.url}
+        return {"url": cs.url, "_prod": nombre_prod, "_li": ("price" if "price" in line_item else "inline")}
     except Exception as e:
         raise HTTPException(502, "No se pudo crear el pago: %s" % e)
 
