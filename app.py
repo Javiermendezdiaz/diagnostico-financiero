@@ -455,17 +455,25 @@ def checkout(session_id: str):
     try:
         import stripe
         stripe.api_key = STRIPE_SECRET_KEY
+        # Usar el Price REAL de Stripe que coincida con el importe del tier (19/39/54 €),
+        # para que el cupon QCADAPTA (restringido a esos productos) aplique. Si no hay match,
+        # crea un precio al vuelo (retrocompatible).
+        line_item = None
+        try:
+            for p in (stripe.Price.list(active=True, currency="eur", limit=100).get("data", []) or []):
+                if int(p.get("unit_amount") or 0) == precio:
+                    line_item = {"price": p["id"], "quantity": 1}
+                    break
+        except Exception:
+            line_item = None
+        if not line_item:
+            line_item = {"price_data": {"currency": "eur", "unit_amount": precio,
+                                        "product_data": {"name": nombre_prod,
+                                                         "description": "Diagnostico psicofinanciero personalizado (PDF)."}},
+                         "quantity": 1}
         cs = stripe.checkout.Session.create(
             mode="payment",
-            line_items=[{
-                "price_data": {
-                    "currency": "eur",
-                    "unit_amount": precio,
-                    "product_data": {"name": nombre_prod,
-                                     "description": "Diagnostico psicofinanciero personalizado (PDF)."},
-                },
-                "quantity": 1,
-            }],
+            line_items=[line_item],
             client_reference_id=session_id,
             customer_email=(row["email"] or None),
             allow_promotion_codes=True,
