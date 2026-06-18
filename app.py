@@ -1,6 +1,6 @@
 """ITAP — Backend de produccion. Instrumento + motor + Libros. Profundidad por tier. RGPD. Nombre del cliente."""
 import os, uuid, json, datetime, tempfile, sqlite3, base64, urllib.request, urllib.error
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -496,9 +496,10 @@ def checkout(session_id: str):
         raise HTTPException(502, "No se pudo crear el pago: %s" % e)
 
 @app.post("/api/verify/{session_id}")
-def verify_payment(session_id: str, cs: str = ""):
+def verify_payment(session_id: str, background_tasks: BackgroundTasks, cs: str = ""):
     """Verifica el pago directamente con Stripe (sin depender del webhook). Marca pagado si la
-    sesion de checkout esta completada o pagada (incluye 0 EUR con cupon: 'no_payment_required')."""
+    sesion de checkout esta completada o pagada (incluye 0 EUR con cupon: 'no_payment_required').
+    Al confirmar el pago, envia el libro por email en segundo plano (comprador + aviso a Adapta)."""
     if not STRIPE_SECRET_KEY or not cs:
         return {"pagado": False, "reason": "sin_datos"}
     try:
@@ -551,7 +552,7 @@ async def stripe_webhook(request: Request):
     return {"ok": True}
 
 @app.get("/api/report/{session_id}")
-def report(session_id: str):
+def report(session_id: str, background_tasks: BackgroundTasks):
     if STRIPE_WEBHOOK_SECRET:
         with db() as c:
             prow = c.execute("SELECT pagado FROM sesiones WHERE id=?", (session_id,)).fetchone()
@@ -574,6 +575,12 @@ def report(session_id: str):
                 generar_pdf(session_id, row["email"], row["nombre"], _resp, json.loads(row["datos"]), row["tier"], baremo(_salud), row["sexo"])
         except Exception as e:
             raise HTTPException(500, "Error regenerando informe: %s" % e)
+    # El PDF ya existe aqui: enviamos el email en segundo plano (comprador + aviso a Adapta).
+    # enviar_copia respeta 'notificado', asi que no duplica en re-descargas.
+    try:
+        background_tasks.add_task(enviar_copia, session_id)
+    except Exception:
+        pass
     return FileResponse(path, media_type="application/pdf", filename="Tu_Libro_Financiero_ITAP.pdf")
 
 def _asegurar_pdf(session_id):
@@ -595,10 +602,10 @@ def _asegurar_pdf(session_id):
     except Exception:
         return None
 
-def _resend_email(asunto, html, pdf_bytes, filename):
+def _resend_email(asunto, html, pdf_bytes, filename, to=None):
     payload = {
         "from": RESEND_FROM,
-        "to": [NOTIFY_EMAIL],
+        "to": to or [NOTIFY_EMAIL],
         "subject": asunto,
         "html": html,
         "attachments": [{"filename": filename, "content": base64.b64encode(pdf_bytes).decode("ascii")}],
@@ -634,7 +641,22 @@ def enviar_copia(session_id):
     try:
         with open(path, "rb") as f:
             pdf_bytes = f.read()
-        status, _ = _resend_email(asunto, html, pdf_bytes, "ITAP_%s.pdf" % cliente.replace(" ", "_"))
+        # 1) Entrega al COMPRADOR (si su email es real y no de prueba)
+        if email_cli and ("@" in email_cli) and (not email_cli.lower().endswith(".test")):
+            html_cli = ("<div style='font-family:Helvetica,Arial,sans-serif;color:#222;max-width:560px'>"
+                        "<h2 style='color:#0a0a0b'>Tu Libro Financiero</h2>"
+                        "<p>Hola %s,</p>"
+                        "<p>Aqui tienes tu <b>diagnostico psicofinanciero completo</b>, en el PDF adjunto. "
+                        "Guardalo: es tu mapa de los proximos 100 dias.</p>"
+                        "<p>Gracias por confiar en Adapta Family Office.</p>"
+                        "<p style='color:#888;font-size:12px'>Adapta Family Office</p></div>") % cliente
+            try:
+                _resend_email("Tu Libro Financiero - Adapta Family Office", html_cli, pdf_bytes,
+                              "Tu_Libro_Financiero_Adapta.pdf", to=[email_cli])
+            except Exception:
+                pass
+        # 2) Aviso de venta para Adapta
+        status, _ = _resend_email(asunto, html, pdf_bytes, "ITAP_%s.pdf" % cliente.replace(" ", "_"), to=[NOTIFY_EMAIL])
     except urllib.error.HTTPError as e:
         try: detalle = e.read().decode("utf-8","ignore")[:400]
         except Exception: detalle = ""
