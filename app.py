@@ -460,19 +460,19 @@ def checkout(session_id: str):
         # crea un precio al vuelo (retrocompatible).
         line_item = None
         try:
-            for p in (stripe.Price.list(active=True, currency="eur", limit=100, expand=["data.product"]).get("data", []) or []):
-                if int(p.get("unit_amount") or 0) != precio:
+            for p in stripe.Price.list(active=True, currency="eur", limit=100, expand=["data.product"]).data:
+                if int((p.unit_amount or 0)) != precio:
                     continue
-                prod = p.get("product") or {}
-                pname = (prod.get("name") if isinstance(prod, dict) else "") or ""
+                prod = p.product
+                pname = (prod if isinstance(prod, str) else getattr(prod, "name", "")) or ""
                 # Saltar los productos creados al vuelo por versiones anteriores (empiezan por "ITAP"),
                 # para quedarnos con el producto REAL del catalogo (al que aplica el cupon).
                 if pname.strip().upper().startswith("ITAP"):
                     continue
                 nombre_prod = pname or nombre_prod
-                line_item = {"price": p["id"], "quantity": 1}
+                line_item = {"price": p.id, "quantity": 1}
                 break
-        except Exception:
+        except Exception as _e:
             line_item = None
         if not line_item:
             line_item = {"price_data": {"currency": "eur", "unit_amount": precio,
@@ -502,11 +502,10 @@ def _prices_debug():
         import stripe
         stripe.api_key = STRIPE_SECRET_KEY
         out = []
-        for p in (stripe.Price.list(active=True, limit=100, expand=["data.product"]).get("data", []) or []):
-            prod = p.get("product") or {}
-            out.append({"price": p.get("id"), "amount": p.get("unit_amount"),
-                        "currency": p.get("currency"),
-                        "product": (prod.get("name") if isinstance(prod, dict) else prod)})
+        for p in stripe.Price.list(active=True, limit=100, expand=["data.product"]).data:
+            prod = p.product
+            name = prod if isinstance(prod, str) else getattr(prod, "name", None)
+            out.append({"price": p.id, "amount": p.unit_amount, "currency": p.currency, "product": name})
         return {"n": len(out), "prices": out}
     except Exception as e:
         return {"error": str(e)}
