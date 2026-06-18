@@ -83,7 +83,7 @@ def joyas_0001(seq, tmp, cli, datos, extras, p):
                ("Tu cuerpo (somatización)",max(.05,_fac(p,"C1","somatizacion")/100)),
                ("Tu cabeza (rumiación)",max(.05,_fac(p,"C1","rumiacion")/100))]
         msg="Tu trabajo te paga %d €/hora en dinero. La factura la pagan tu sueño, tu cuerpo y tu cabeza — y luego gastas parte de ese dinero en recuperarlos."%round(eur)
-        try: seq.append(LD.blood_money(tmp+"bm.png",eur,items,msg))
+        try: seq.append(LD.blood_money(tmp+"bm.svg",eur,items,msg))
         except Exception: pass
     # ESCUDO (siempre)
     try:
@@ -96,7 +96,7 @@ def joyas_0001(seq, tmp, cli, datos, extras, p):
         esc=[("Cisne negro","Inflación al 10% y bolsas -30%: tu vida resiste %d meses con lo líquido."%round((col+0.7*invl)/gas) if gas else "—",max(0,min(1,s_cisne))),
              ("Despido temprano","Tu ingreso principal cae a 0 mañana: aguantas %d meses con lo disponible."%round(realizable),s_desp),
              ("Invalidez","Un accidente te impide trabajar: %s."%("tu protección y patrimonio te dan margen" if s_inval>=0.5 else "hoy quedarías muy expuesto"),max(0,min(1,s_inval)))]
-        seq.append(LD.escudo(tmp+"esc.png",esc))
+        seq.append(LD.escudo(tmp+"esc.svg",esc))
     except Exception: pass
     # COSTE DEL EGO (si declaró gasto de estatus)
     ge=_num(datos,"gasto_estatus")
@@ -108,7 +108,7 @@ def joyas_0001(seq, tmp, cli, datos, extras, p):
             n=min(30,max(5,_num(datos,"edad") and (65-_num(datos,"edad")) or 25))
             cap=ge*12*(((1.07**n)-1)/0.07)
             if anos>=0.5:
-                seq.append(LD.coste_ego(tmp+"ego.png",ge,anos,cap))
+                seq.append(LD.coste_ego(tmp+"ego.svg",ge,anos,cap))
         except Exception: pass
 
 def joya_arrepentimiento(seq, tmp, datos):
@@ -116,7 +116,7 @@ def joya_arrepentimiento(seq, tmp, datos):
     if eh is not None and 0<=eh<18:
         try:
             findes=int(round((18-eh)*52))
-            seq.append(LD.arrepentimiento(tmp+"arr.png",findes,int(eh)))
+            seq.append(LD.arrepentimiento(tmp+"arr.svg",findes,int(eh)))
         except Exception: pass
 
 
@@ -150,7 +150,7 @@ def acelerador(seq, tmp, datos, extras, p):
         en=("Ingresos","dependes demasiado de una sola fuente; subirla un 10% es frágil hasta que la diversifiques")
     else:
         en=("Gastos","mantener el gasto plano cuando suben los ingresos es donde casi todos fallan")
-    try: seq.append(LD.acelerador_10x10(tmp+"ace.png",cil,delta,en[0],en[1]))
+    try: seq.append(LD.acelerador_10x10(tmp+"ace.svg",cil,delta,en[0],en[1]))
     except Exception: pass
 
 
@@ -166,52 +166,59 @@ def barrera(seq, tmp, datos, extras, p):
         cap="Con tu colchón aún corto, la tentación de echar mano de este dinero ante un imprevisto es real. Para eso está tu fondo de emergencia; este reactor es sagrado y no se toca."
     else:
         cap="Tu mayor peligro: abandonar en el «Valle de las Sombras» de los primeros años, cuando el esfuerzo es alto y el interés aún parece invisible. Tu única métrica esos trimestres es la velocidad hacia los 100k."
-    try: seq.append(LD.barrera_100k(tmp+"100k.png",p0,aho,7,cap))
+    try: seq.append(LD.barrera_100k(tmp+"100k.svg",p0,aho,7,cap))
     except Exception: pass
 
-def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo"):
+def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_meta=None):
     """Secuencia oscura de apertura, gateada por tier. esencial=T1 (reducido), completo=T2 (todo)."""
     completo = (depth != "esencial")
     seq=[]; nombre=cli.get("nombre") or "Cliente"
     ref=("ITAP-%s"%(str(abs(hash(cli.get('email') or nombre))%9999)).zfill(4))
-    seq.append(LD.cover(tmp+"00.png",nombre,cli.get("fecha",""),ref=ref))
+    seq.append(LD.cover(tmp+"00.svg",nombre,cli.get("fecha",""),ref=ref))
     br=(extras or {}).get("brecha") or {}
     if completo:
-        seq.append(LD.divider(tmp+"01.png","Sección I — Pasado",["Arqueología del","Comportamiento"],
+        seq.append(LD.divider(tmp+"01.svg","Sección I — Pasado",["Arqueología del","Comportamiento"],
             "Las decisiones y creencias que construyeron, en silencio, tus cimientos de hoy.",
             tint="#0E1622", accent="#8FA1BC"))
+        if arq_meta:
+            _pars=[arq_meta.get("desc",""),
+                   "Esta forma de mirar el dinero no nació contigo: se aprendió, en lo que viste y oíste de pequeño sobre el dinero. No es un defecto. Es un guion — y todo guion se puede leer.",
+                   "Hoy se nota así: %s Y su reverso: %s" % (arq_meta.get("luz",""), arq_meta.get("sombra",""))]
+            seq.append(LD.guion_dinero(tmp+"01r.svg", arq_meta.get("nombre","Tu arquetipo"),
+                arq_meta.get("lema",""), _pars,
+                "Un guion se puede reescribir. Empieza por verlo.", accent="#8FA1BC"))
     ci=br.get("coste_ideal_mes"); ing=br.get("ingreso_mes"); gap=br.get("brecha_mes")
     if ci:
         if gap and gap>0:
             dn,du=_compact(gap*12)
-            seq.append(LD.efecto_espejo(tmp+"02.png","El espejo",
+            seq.append(LD.efecto_espejo(tmp+"02.svg","El espejo",
                 "La vida que describí como ideal cuesta %s al mes."%LD_fmt(ci),
                 "%s%s/año"%(dn,du),
                 "Hoy tu modelo genera %s/mes; tu vida ideal pide %s/mes. Esa distancia anual es, exactamente, lo que vamos a cerrar. No es un fracaso: es el mapa."%(LD_fmt(ing or 0),LD_fmt(ci)),
                 "Cerremos la brecha.", accent="#8FA1BC"))
         else:
-            seq.append(LD.efecto_espejo(tmp+"02.png","El espejo",
+            seq.append(LD.efecto_espejo(tmp+"02.svg","El espejo",
                 "La vida que describí como ideal cuesta %s al mes."%LD_fmt(ci),
                 "Ya llegas","Hoy tu flujo ya cubre tu vida ideal. El reto deja de ser cuánto ganas y pasa a ser a qué velocidad conviertes ese margen en capital que trabaje por ti.",
                 "Ahora, protégelo.", accent="#8FA1BC"))
     if completo:
-        seq.append(LD.divider(tmp+"03.png","Sección II — Presente",["Radiografía","del Capital"],
+        seq.append(LD.divider(tmp+"03.svg","Sección II — Presente",["Radiografía","del Capital"],
             "Dónde estás hoy, medido no en cuánto tienes, sino en cuánta paz y cuánta libertad te da.",
             tint=LD.GLOW, accent=LD.BLUE))
     idx,et,drv=stress(datos,p)
-    seq.append(LD.termometro(tmp+"04.png","El termómetro de tu estrés financiero",idx,et,drv,accent=LD.BLUE))
+    seq.append(LD.termometro(tmp+"04.svg","El termómetro de tu estrés financiero",idx,et,drv,accent=LD.BLUE))
     if completo:
         rp=_num(datos,"renta_pasiva") or 0; ingm=_num(datos,"ingreso_mensual") or 0
         pp=(rp/ingm) if ingm else 0.0
-        seq.append(LD.matriz_tiempo(tmp+"04b.png",pp,max(0,ingm-rp),rp,accent=LD.BLUE))
+        seq.append(LD.matriz_tiempo(tmp+"04b.svg",pp,max(0,ingm-rp),rp,accent=LD.BLUE))
     try:
         _it,_wk=sistema_items(extras,datos,p)
-        seq.append(LD.sistema_scorecard(tmp+"04c.png",_it,_wk,accent=LD.BLUE))
+        seq.append(LD.sistema_scorecard(tmp+"04c.svg",_it,_wk,accent=LD.BLUE))
     except Exception:
         pass
     if completo:
         joyas_0001(seq,tmp,cli,datos,extras,p)
-        seq.append(LD.divider(tmp+"05.png","Sección III — Futuro",["Visión","y Libertad"],
+        seq.append(LD.divider(tmp+"05.svg","Sección III — Futuro",["Visión","y Libertad"],
             "Hacia dónde vas, y el número exacto que convierte tu trabajo en una elección.",
             tint="#13202A", accent=LD.GOLD))
         barrera(seq,tmp,datos,extras,p)
@@ -221,7 +228,7 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo"):
         bullets=[]
         if ci: bullets.append("Es el capital que, al 4%% prudente, paga tus %s/mes sin depender de una nómina."%LD_fmt(ci))
         bullets.append("Tu primera misión no es llegar: es asegurar el mes y dormir tranquilo.")
-        seq.append(LD.bignum(tmp+"06.png","Tu número de libertad",dn,du,"euros que compran tu tiempo",
+        seq.append(LD.bignum(tmp+"06.svg","Tu número de libertad",dn,du,"euros que compran tu tiempo",
             "El objetivo de seguridad",
             "Es la cifra que, generando renta, te permite vivir de tu patrimonio y no de tu tiempo.",
             bullets, accent=LD.GOLD))
@@ -232,18 +239,18 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo"):
         h1=au or (pal[0][0] if pal else "Asegura tu primer colchón mínimo.")
         h2=(pal[0][0] if pal else "Automatiza tu ahorro el día de cobro.")
         h3=(pal[1][0] if len(pal)>1 else "Revisa tu fortuna neta y ajusta el rumbo.")
-        seq.append(LD.mapa_100(tmp+"07.png",[
+        seq.append(LD.mapa_100(tmp+"07.svg",[
             ("Día 1–30",h1,"Tu único foco este mes. Hecho esto, lo demás pesa menos."),
             ("Día 31–60",h2,"El hábito que, repetido, cambia la trayectoria."),
             ("Día 61–100",h3,"Mides, ajustas y consolidas. El plan se vuelve tuyo.")], accent=LD.GOLD))
         joya_arrepentimiento(seq,tmp,datos)
     try:
-        seq.append(LD.qr_golden(tmp+"08.png",SIM_URL,"Tu Simulador de Libertad",
+        seq.append(LD.qr_golden(tmp+"08.svg",SIM_URL,"Tu Simulador de Libertad",
             "Tu libro te da el diagnóstico. Este código abre tu simulador: mueve tus variables y mira, en vivo, cómo cada decisión adelanta o retrasa tu libertad. No se vende; se gana terminando tu libro.", accent=LD.GOLD))
     except Exception:
         pass
     if not completo:
-        seq.append(LD.anzuelo(tmp+"anz.png",[
+        seq.append(LD.anzuelo(tmp+"anz.svg",[
             "Tu Pasado: la arqueología de tus creencias del dinero.",
             "Blood Money: lo que tu trabajo le cuesta a tu salud.",
             "Tu Escudo ante el cisne negro, el despido y la invalidez.",
@@ -260,7 +267,7 @@ def hero_close(extras, tmp="/tmp/_leg_", depth="completo"):
     reglas=reglas[:n]
     if len(reglas)<3: return None
     sub=("Tu versión completa, en El Libro Financiero." if depth=="esencial" else "Firmado por ti, para ti. — Adapta Family Office")
-    return LD.constitucion(tmp+"99.png",reglas,sub,accent=LD.GOLD)
+    return LD.constitucion(tmp+"99.svg",reglas,sub,accent=LD.GOLD)
 
 def LD_fmt(n):
     try: return "{:,.0f} €".format(float(n)).replace(",",".")
@@ -301,18 +308,18 @@ def _carga_pct(perfil, propio=True):
 def pareja_hero(nA,nB,cliA,dA,dB,pA,pB,hogar_num,fecha,tmp="/tmp/_lp_",perfilA=None,perfilB=None):
     seq=[]
     ref=("ITAP-%s"%(str(abs(hash((cliA.get('email') or nA)+nB))%9999)).zfill(4))
-    seq.append(LD.cover_pareja(tmp+"00.png",nA,nB,fecha,ref=ref))
-    seq.append(LD.divider(tmp+"01.png","El Libro de Pareja",["La diferencia","callada"],
+    seq.append(LD.cover_pareja(tmp+"00.svg",nA,nB,fecha,ref=ref))
+    seq.append(LD.divider(tmp+"01.svg","El Libro de Pareja",["La diferencia","callada"],
         "El dinero rara vez rompe por cuánto hay. Rompe por cómo lo vive cada uno — y no se habla. Aquí lo ponemos sobre la mesa.",
         tint=LD.GLOW, accent=LD.BLUE))
     zonas=friccion_zonas(pA,pB)
     if zonas:
-        try: seq.append(LD.mapa_friccion(tmp+"02.png",nA,nB,zonas))
+        try: seq.append(LD.mapa_friccion(tmp+"02.svg",nA,nB,zonas))
         except Exception: pass
     # número de libertad conjunto
     if hogar_num and hogar_num>0:
         dn,du=_compact(hogar_num)
-        seq.append(LD.bignum(tmp+"03.png","Vuestro número de libertad","%s"%dn,du,"euros que os liberan a los dos",
+        seq.append(LD.bignum(tmp+"03.svg","Vuestro número de libertad","%s"%dn,du,"euros que os liberan a los dos",
             "Una sola meta",
             "Es el capital conjunto que sostiene la vida de los dos sin depender de ningún sueldo. Vuestro destino compartido, en una cifra.",
             ["Acordad este número juntos: media conversación, medio compromiso.",
@@ -352,7 +359,7 @@ def pareja_hero(nA,nB,cliA,dA,dB,pA,pB,hogar_num,fecha,tmp="/tmp/_lp_",perfilA=N
                     micro+=" Y la grieta es doble: %s, que puede ahorrar menos, sostiene además el %d%% de la casa. Aporta más por el hogar y construye menos para sí; eso hay que reconocerlo y compensarlo en equipo."%(_menos,_h_de(_menos))
                 else:
                     micro+=" Aun así, %s sostiene más hogar (%d%%), lo que en parte reequilibra: cada uno aporta una moneda distinta, y reconocerlo es el trabajo."%(_mas_hogar,_h_de(_mas_hogar))
-            seq.append(LD.esfuerzo_vital(tmp+"02c.png",nA,nB,pctA,pctB,etq,micro,capA=capA,capB=capB))
+            seq.append(LD.esfuerzo_vital(tmp+"02c.svg",nA,nB,pctA,pctB,etq,micro,capA=capA,capB=capB))
     except Exception:
         pass
     # balanza de las dos monedas (si tenemos carga familiar)
@@ -376,7 +383,7 @@ def pareja_hero(nA,nB,cliA,dA,dB,pA,pB,hogar_num,fecha,tmp="/tmp/_lp_",perfilA=N
                     verd="%s carga hoy con más dinero Y más hogar. Eso no es sostenible: es la antesala del agotamiento. Reequilibrad antes de que se convierta en reproche."%mas_ambas
                 else:
                     verd="Cada uno sostiene una moneda distinta del hogar. Reconocer ambas, en voz alta, es la mitad del trabajo."
-            seq.append(LD.balanza_aportacion(tmp+"02b.png",nA,nB,econA,econB,hogarA,hogarB,verd))
+            seq.append(LD.balanza_aportacion(tmp+"02b.svg",nA,nB,econA,econB,hogarA,hogarB,verd))
     except Exception:
         pass
     # el pacto
@@ -388,5 +395,5 @@ def pareja_hero(nA,nB,cliA,dA,dB,pA,pB,hogar_num,fecha,tmp="/tmp/_lp_",perfilA=N
         "Las decisiones por encima de %s € las hablamos juntos, antes de decidir."%("{:,.0f}".format(umbral).replace(",",".")),
         "Reconocemos las dos monedas: quien aporta menos dinero puede sostener más hogar.",
         "Revisaremos nuestro número de libertad conjunto cada seis meses, como un equipo."]
-    seq.append(LD.constitucion(tmp+"99.png",reglas,"Firmado por %s y %s. Un equipo, un plan."%(nA,nB),accent=LD.GOLD))
+    seq.append(LD.constitucion(tmp+"99.svg",reglas,"Firmado por %s y %s. Un equipo, un plan."%(nA,nB),accent=LD.GOLD))
     return seq

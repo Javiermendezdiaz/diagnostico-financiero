@@ -14,6 +14,12 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import os as _os
+try:
+    from svglib.svglib import svg2rlg as _svg2rlg
+    from reportlab.graphics import renderPDF as _renderPDF
+    _SVG_OK=True
+except Exception:
+    _SVG_OK=False
 _FD=_os.path.join(_os.path.dirname(_os.path.abspath(__file__)),"fonts")
 try:
     for _n,_f in [("Poppins","Poppins-Regular.ttf"),("Poppins-Bold","Poppins-Bold.ttf"),
@@ -57,10 +63,13 @@ except Exception:
 INST=json.load(open("itap_instrumento.json",encoding="utf-8"))
 CAPAS={c["code"]:c for c in INST["capas"]}
 TRANS={"PSIQUE","LIQUIDEZ","VINCULO"}
-INK=colors.HexColor("#262620"); ACC=colors.HexColor("#1A1A17"); ACCDK=colors.HexColor("#020203")
-GREY=colors.HexColor("#7A7A72"); LIGHT=colors.HexColor("#FBF6E0"); LINE=colors.HexColor("#E4E1D5")
+# --- Piel Legado OSCURA (cuerpo coherente con portada/cierre) ---
+INK=colors.HexColor("#E7ECF5"); ACC=colors.HexColor("#F2F6FC"); ACCDK=colors.HexColor("#FFFFFF")
+GREY=colors.HexColor("#93A2BC"); LIGHT=colors.HexColor("#13243F"); LINE=colors.HexColor("#2A3A5C")
 AMARILLO=colors.HexColor("#FDD731"); NEGRO=colors.HexColor("#020203")
-PAPER=colors.HexColor("#FFFFFF"); BANDC=["#1D6F42","#B8860B","#C2710C","#9A3B2E"]
+PAPER=colors.HexColor("#0B1A33"); BANDC=["#2FAE6E","#D4A53A","#E08C42","#E5675C"]
+PAGEBG=colors.HexColor("#0A1830")  # fondo navy del cuerpo
+BLUEACC=colors.HexColor("#3D7DFF")
 
 # ---------- scoring ----------
 def phi(x): return 0.5*(1+math.erf(x/math.sqrt(2)))
@@ -320,7 +329,7 @@ def radar_png(p,path):
     # nucleo saludable
     ax.fill_between(th,70,100,color="#1D6F42",alpha=0.06,zorder=1)
     ax.set_yticks([25,50,75]); ax.set_yticklabels(["25","50","75"],color="#B9B5A6",size=7.5)
-    ax.set_xticks(ang[:-1]); ax.set_xticklabels(labels,size=8,color="#262620")
+    ax.set_xticks(ang[:-1]); ax.set_xticklabels(labels,size=8,color="#C9D2E0")
     ax.tick_params(axis='x',pad=9)
     # silueta de referencia tenue (salud 50) para que SIEMPRE haya forma legible, aun en perfiles muy bajos
     ref=[50]*len(ang)
@@ -328,8 +337,8 @@ def radar_png(p,path):
     # poligono: doble relleno para profundidad + linea grafito + vertices
     ax.fill(ang,v,color=fill,alpha=0.16,zorder=3)
     ax.fill(ang,v,color=fill,alpha=0.40,zorder=4)
-    ax.plot(ang,v,color="#1A1A17",linewidth=2.4,zorder=5)
-    ax.scatter(ang[:-1],vsal,s=30,color="#1A1A17",zorder=6,edgecolors="white",linewidths=1.1)
+    ax.plot(ang,v,color="#E7ECF5",linewidth=2.4,zorder=5)
+    ax.scatter(ang[:-1],vsal,s=30,color="#E7ECF5",zorder=6,edgecolors="white",linewidths=1.1)
     plt.tight_layout(); fig.savefig(path,dpi=160,transparent=True); plt.close(fig)
 
 class Chip(Flowable):
@@ -342,7 +351,7 @@ class Bar(Flowable):
     def __init__(s,val,w=160,h=9): s.v=val; s.w=w; s.h=h; Flowable.__init__(s)
     def wrap(s,*a): return (s.w*mm if s.w<10 else s.w,s.h)
     def draw(s):
-        c=s.canv; W=s.w; c.setFillColor(colors.HexColor("#EEF2F6")); c.roundRect(0,0,W,s.h,2,fill=1,stroke=0)
+        c=s.canv; W=s.w; c.setFillColor(colors.HexColor("#16263F")); c.roundRect(0,0,W,s.h,2,fill=1,stroke=0)
         h=100-s.v  # se dibuja SALUD (alto=bien): barra llena y verde = sano
         col=BANDC[0] if h>=75 else BANDC[1] if h>=50 else BANDC[2] if h>=25 else BANDC[3]
         c.setFillColor(colors.HexColor(col)); c.roundRect(0,0,max(3,W*h/100),s.h,2,fill=1,stroke=0)
@@ -378,7 +387,9 @@ try:
             for st in self._saved:
                 self.__dict__.update(st)
                 self.saveState(); self.setFont(FR,7.5); self.setFillColor(GREY)
-                self.drawRightString(A4[0]-22*mm,12*mm,"%02d / %02d"%(self._pageNumber,n)); self.restoreState()
+                if self._pageNumber>1:
+                    self.drawRightString(A4[0]-22*mm,12*mm,"%02d / %02d"%(self._pageNumber,n))
+                self.restoreState()
                 _RLCanvas.showPage(self)
             _RLCanvas.save(self)
 except Exception:
@@ -413,6 +424,15 @@ class FullBleedImage(_Flowable):
     def wrap(self, aw, ah): self.w=aw; self.h=ah; return aw, ah
     def draw(self):
         try:
+            if _SVG_OK and self.path.lower().endswith(".svg"):
+                d=_svg2rlg(self.path)
+                if d is not None and d.width and d.height:
+                    self.canv.saveState()
+                    self.canv.translate(-22*mm,-20*mm)
+                    self.canv.scale(A4[0]/d.width, A4[1]/d.height)
+                    _renderPDF.draw(d, self.canv, 0, 0)
+                    self.canv.restoreState()
+                    return
             self.canv.drawImage(self.path, -22*mm, -20*mm, width=A4[0], height=A4[1],
                                 preserveAspectRatio=False, mask=None)
         except Exception:
@@ -420,8 +440,8 @@ class FullBleedImage(_Flowable):
 
 def deco(cv,doc):
     cv.saveState()
-    # Fondo hueso/papel de alto gramaje (lectura descansada, menos fatiga)
-    cv.setFillColor(colors.HexColor("#FDFBF7")); cv.rect(0,0,A4[0],A4[1],fill=1,stroke=0)
+    # Fondo navy Legado (cuerpo coherente con portada y cierre)
+    cv.setFillColor(PAGEBG); cv.rect(0,0,A4[0],A4[1],fill=1,stroke=0)
     # Cabecera editorial (desde la pagina 2): cliente | firma
     if doc.page>1:
         cv.setFillColor(GREY); cv.setFont(FR,7)
@@ -577,15 +597,15 @@ def cashflow_waterfall(datos, path):
     ax.bar(3,abs(libre),bottom=min(libre,0),color="#94A3B8" if libre>=0 else "#9A3B2E",width=0.6)
     for i,(lab,val) in enumerate(zip(labels,[ing,gas,aho,abs(libre)])):
         ax.text(i,val if i==0 else 0,"",ha="center")
-    ax.set_xticks(range(4)); ax.set_xticklabels(labels,size=9,color="#374151")
+    ax.set_xticks(range(4)); ax.set_xticklabels(labels,size=9,color="#C9D2E0")
     ax.annotate(_eur(ing),(0,ing),ha="center",va="bottom",size=8.5,color="#0F766E",weight="bold")
     ax.annotate(_eur(gas),(1,ing-gas/2),ha="center",va="center",size=8.5,color="white",weight="bold")
     ax.annotate(_eur(aho),(2,ing-gas-aho/2),ha="center",va="center",size=8.5,color="white",weight="bold")
     ax.annotate(_eur(abs(libre)),(3,abs(libre)),ha="center",va="bottom",size=8.5,
-                color="#475569" if libre>=0 else "#9A3B2E",weight="bold")
+                color="#C9D2E0" if libre>=0 else "#9A3B2E",weight="bold")
     ax.set_ylim(0,ing*1.15); ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_color("#D5DBE3"); ax.tick_params(axis="y",labelsize=7,colors="#9CA3AF")
-    ax.set_title("De cada euro que entra, a dónde va",size=10,color="#1F2937",weight="bold",pad=8)
+    ax.spines["left"].set_color("#3A4F75"); ax.tick_params(axis="y",labelsize=7,colors="#9CA3AF")
+    ax.set_title("De cada euro que entra, a dónde va",size=10,color="#EAF0FA",weight="bold",pad=8)
     plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
     return libre
 
@@ -625,11 +645,11 @@ def proyeccion_chart(datos, path, r=0.05):
             ax.annotate(_eur(ser[-1]),(meta_edad,ser[-1]),ha="right",va=va,size=8,color=col,weight="bold")
         lo,hi,modo=base[-1],mejora[-1],"2"
         titulo="Tu patrimonio proyectado a la jubilación (estimación al 5%/año)"
-    ax.set_xlabel("Edad",size=8,color="#6B7280"); ax.tick_params(labelsize=7,colors="#9CA3AF")
+    ax.set_xlabel("Edad",size=8,color="#9FB0C9"); ax.tick_params(labelsize=7,colors="#9CA3AF")
     ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_color("#D5DBE3"); ax.spines["bottom"].set_color("#D5DBE3"); ax.grid(False)
-    ax.legend(fontsize=8,frameon=False,loc="upper left")
-    ax.set_title(titulo,size=10,color="#1F2937",weight="bold",pad=8)
+    ax.spines["left"].set_color("#3A4F75"); ax.spines["bottom"].set_color("#3A4F75"); ax.grid(False)
+    ax.legend(fontsize=8,frameon=False,loc="upper left",labelcolor="#C9D2E0")
+    ax.set_title(titulo,size=10,color="#EAF0FA",weight="bold",pad=8)
     plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
     return lo,hi,meta_edad,modo
 
@@ -645,9 +665,9 @@ def donut_asignacion(asig, path):
     fig,ax=plt.subplots(figsize=(6.0,2.9))
     ax.pie([v for _,v,_ in pares],colors=[c for _,_,c in pares],startangle=90,counterclock=False,
            wedgeprops=dict(width=0.40,edgecolor="white",linewidth=2))
-    ax.text(0,0,_eur(tot),ha="center",va="center",fontsize=11.5,weight="bold",color="#1A1A17")
+    ax.text(0,0,_eur(tot),ha="center",va="center",fontsize=11.5,weight="bold",color="#E7ECF5")
     ax.legend([f"{l}  ·  {_eur(v)}  ({v/tot*100:.0f}%)" for l,v,_ in pares],
-              loc="center left",bbox_to_anchor=(1.0,0.5),frameon=False,fontsize=8.6)
+              loc="center left",bbox_to_anchor=(1.0,0.5),frameon=False,fontsize=8.6,labelcolor="#C9D2E0")
     ax.set(aspect="equal"); plt.tight_layout()
     fig.savefig(path,dpi=150,transparent=True,bbox_inches="tight"); plt.close(fig)
     return True
@@ -681,7 +701,7 @@ def _box(parras, fondo, barra, ancho=76*mm):
 def _lineas(n=3, ancho=160*mm, alto=7*mm):
     rows=[[""] for _ in range(n)]
     return Table(rows,colWidths=[ancho],rowHeights=[alto]*n,
-        style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.5,colors.HexColor("#C7CFDA")),
+        style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.5,colors.HexColor("#2A3A5C")),
           ("TOPPADDING",(0,0),(-1,-1),2),("BOTTOMPADDING",(0,0),(-1,-1),2)]))
 
 def report_id(nombre, fecha):
@@ -705,13 +725,13 @@ def cuadro_financiero(p, datos, fi):
     O=[Paragraph("<b><font color='#0284C7'>Oportunidades</font></b>",small)]+[Paragraph("&#8226; "+t,small) for t in oport]
     A=[Paragraph("<b><font color='#B45309'>Amenazas</font></b>",small)]+[Paragraph("&#8226; "+t,small) for t in amen]
     out.append(Table([[F,O],[D,A]],colWidths=[80*mm,80*mm],
-        style=TableStyle([("BACKGROUND",(0,0),(0,0),colors.HexColor("#EEF7F0")),
-          ("BACKGROUND",(1,0),(1,0),colors.HexColor("#EAF4FB")),
-          ("BACKGROUND",(0,1),(0,1),colors.HexColor("#FBECEC")),
-          ("BACKGROUND",(1,1),(1,1),colors.HexColor("#FBF3E8")),
+        style=TableStyle([("BACKGROUND",(0,0),(0,0),colors.HexColor("#102619")),
+          ("BACKGROUND",(1,0),(1,0),colors.HexColor("#0E2236")),
+          ("BACKGROUND",(0,1),(0,1),colors.HexColor("#2A1414")),
+          ("BACKGROUND",(1,1),(1,1),colors.HexColor("#2A2010")),
           ("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),9),("RIGHTPADDING",(0,0),(-1,-1),9),
           ("TOPPADDING",(0,0),(-1,-1),8),("BOTTOMPADDING",(0,0),(-1,-1),8),
-          ("LINEBELOW",(0,0),(-1,0),3,colors.white),("LINEAFTER",(0,0),(0,-1),3,colors.white)])))
+          ("LINEBELOW",(0,0),(-1,0),3,PAGEBG),("LINEAFTER",(0,0),(0,-1),3,PAGEBG)])))
     out.append(PageBreak())
     cashflow_waterfall(datos,"_cash.png")
     out+=[KeepTogether([Paragraph("Tu flujo de caja",h_sub),
@@ -728,7 +748,7 @@ def cuadro_financiero(p, datos, fi):
             f"esa cifra pierde alrededor de <b>{_eur(coste10)} de poder adquisitivo</b> si la inflación ronda el 3% anual. "
             f"No es prudencia: es un peaje invisible que pagas por no decidir. Mover una parte a algo que al menos "
             f"preserve su valor es de las decisiones más rentables y menos arriesgadas que tienes sobre la mesa.</font>",
-            St("tp",fontSize=10.5,leading=15))],"#FBF3E8","#B45309",ancho=160*mm))
+            St("tp",fontSize=10.5,leading=15))],"#2A2010","#B45309",ancho=160*mm))
     out.append(PageBreak())
     f65,m65,medad,modo=proyeccion_chart(datos,"_proy.png")
     if modo=="3":
@@ -787,7 +807,7 @@ def laboratorio_individual(p, datos, fi, salud, resp):
                 Table([["Firma","Fecha"]],colWidths=[95*mm,55*mm],
                   style=TableStyle([("LINEABOVE",(0,0),(-1,0),0.6,colors.HexColor("#9CA3AF")),
                     ("TEXTCOLOR",(0,0),(-1,0),colors.HexColor("#9CA3AF")),("FONTSIZE",(0,0),(-1,0),8),
-                    ("TOPPADDING",(0,0),(-1,0),3)]))],"#F4F7FA","#0284C7",ancho=160*mm),
+                    ("TOPPADDING",(0,0),(-1,0),3)]))],"#15243C","#0284C7",ancho=160*mm),
           PageBreak()]
     return out
 
@@ -925,7 +945,7 @@ def seccion_extras(extras):
               _box([Paragraph(linea,St("brx",fontSize=10.5,leading=15)),
                     Paragraph(f"Tu número de libertad para <b>esa</b> vida (regla 25×): <b>{_eur(br['numero_ideal'])}</b>.{_na}",
                               St("brx2",fontSize=9.6,leading=14,textColor=GREY,spaceBefore=4))],
-                   "#FBF8EE","#B45309",ancho=160*mm)]
+                   "#23200F","#B45309",ancho=160*mm)]
         mapr={"en rumbo":"Y tú mismo lo lees así: <b>en rumbo</b>. Las matemáticas te acompañan; el trabajo es no desviarte.",
               "espejismo":"Y tú mismo lo nombras: <b>espejismo</b>. Vives bien el presente mientras el futuro se aleja en silencio.",
               "vía muerta":"Y tú mismo lo reconoces: <b>vía muerta</b>. Sin cambiar de modelo, esa vida seguirá siendo una fantasía. La buena noticia: el modelo se cambia."}
@@ -964,7 +984,7 @@ def seccion_extras(extras):
               Paragraph("El número maestro: lo que de verdad es tuyo cuando restas todo lo que debes. Es la cifra que conviene recalcular cada seis meses.",small),
               Spacer(1,2*mm),
               _box([Paragraph("Activos <b>%s</b> &#8722; Deuda <b>%s</b> = Fortuna neta <b>%s</b>%s"%(_eur(fnt["activos"]),_eur(fnt["pasivos"]),_eur(fnt["neta"]),cm),
-                              St("fnt",fontSize=10.5,leading=15))],"#F4F7F5","#0F766E",ancho=160*mm)]
+                              St("fnt",fontSize=10.5,leading=15))],"#15243C","#0F766E",ancho=160*mm)]
         if fnt.get("asignacion") and donut_asignacion(fnt["asignacion"],"_donut.png"):
             out+=[Spacer(1,4*mm), Paragraph("Cómo está repartido tu patrimonio",h_sub),
                   Paragraph("Solo con lo que has declarado, sin suponer nada:",small),
@@ -991,7 +1011,7 @@ def seccion_extras(extras):
     vi=extras.get("vivienda")
     if vi and vi.get("modo"):
         _sevc={"alta":"#9A3B2E","media":"#B45309","baja":"#0F766E"}.get(vi.get("severidad"),"#B45309")
-        _fnd={"alta":"#FBF1EE","media":"#FBF8EE","baja":"#F4F7F5"}.get(vi.get("severidad"),"#FBF8EE")
+        _fnd={"alta":"#2A1414","media":"#23200F","baja":"#15243C"}.get(vi.get("severidad"),"#23200F")
         _items=[Paragraph("<font color='%s'><b>%s</b></font>"%(_sevc,_limpiar_txt(vi["titulo"])),
                           St("vivt",fontSize=10.8,leading=15,spaceAfter=4))]
         for _i,_p in enumerate(vi.get("parrafos",[])):
@@ -1056,7 +1076,7 @@ def seccion_compromiso(extras):
         for r in (cmp.get("reglas") or []):
             inner.append(Paragraph("&#9656;  %s"%r,St("c4",fontSize=9.7,leading=14,leftIndent=8,spaceAfter=1)))
         inner.append(Paragraph(("Un paso cada vez. No se trata de hacerlo perfecto, sino de no rendirme: sostener estos tres, hoy, es suficiente." if cmp.get("crisis") else "No habrá excusas. Mi futuro dependerá de mis decisiones presentes. La disciplina de hoy es la libertad de mañana."),St("c5",fontSize=9.7,leading=14,spaceBefore=7)))
-        out+=[Spacer(1,3*mm), _box(inner,"#FBF8EE","#B45309",ancho=164*mm)]
+        out+=[Spacer(1,3*mm), _box(inner,"#23200F","#B45309",ancho=164*mm)]
         firmas=Table([[Paragraph("________________________<br/><font size=8 color='#6B7280'>MI YO PRESENTE</font>",small),
                        Paragraph("________________________<br/><font size=8 color='#6B7280'>MI YO FUTURO</font>",small)]],colWidths=[80*mm,80*mm])
         firmas.setStyle(TableStyle([("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),14),("ALIGN",(0,0),(-1,-1),"CENTER")]))
@@ -1102,7 +1122,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     # cover + apertura cinematográfica (Legado: navy + azul eléctrico, datos reales)
     _hero=None
     try:
-        if _LEGADO_OK and extras: _hero=_legado_pages.hero_open(cli,datos,extras,p,depth=depth)
+        if _LEGADO_OK and extras: _hero=_legado_pages.hero_open(cli,datos,extras,p,depth=depth,arq_meta=ARQ_META.get(arq_code))
     except Exception:
         _hero=None
     if _hero:
@@ -1144,7 +1164,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     if extras and extras.get("crisis"):
         S+=[_box([Paragraph("<font color='#7A5A00'><b>&#9656;  Primero, lo primero</b></font>",St("cri1",fontSize=11,leading=15,fontName=FB)),
                   Paragraph("Tus respuestas dicen que ahora mismo el dinero te pesa de verdad —en el sueño, en la cabeza, en el día a día. Este informe no va a sumarte presión: antes de cualquier plan a años vista, su único objetivo es ayudarte a recuperar el aire y el control del mes. Un paso cada vez.",St("cri2",fontSize=10,leading=15,spaceBefore=2,textColor=INK))],
-                 "#FBF3E8","#B45309",ancho=160*mm), Spacer(1,3*mm)]
+                 "#2A2010","#B45309",ancho=160*mm), Spacer(1,3*mm)]
     S+=[Table([[Paragraph(f"<font size=42 color='#1A1A17'><b>{100-salud:.0f}</b></font>"
                           f"<font size=13 color='#6B7280'>/100</font>",St("bignum",fontSize=42,leading=46)),
                 Paragraph(f"<b>{bl}</b><br/><font size=8 color='#6B7280'>Salud psicofinanciera global · "
@@ -1160,7 +1180,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         Spacer(1,2*mm),
         *([_box([Paragraph("<font color='#9A6A00'><b>&#9656;  Tu siguiente mejor acción</b></font>",St("sau1",fontSize=11.5,leading=15,fontName=FB)),
                  Paragraph(extras["accion_unica"],St("sau2",fontSize=10.5,leading=15,spaceBefore=2,textColor=INK))],
-                "#FFF8E1","#B45309",ancho=160*mm), Spacer(1,4*mm)] if (extras and extras.get("accion_unica")) else []),
+                "#23200F","#B45309",ancho=160*mm), Spacer(1,4*mm)] if (extras and extras.get("accion_unica")) else []),
         Paragraph("Cuanto más llena y hacia el borde está cada capa, más sana. El anillo verde exterior es el "
                   "territorio saludable. Antes de entrar capítulo a capítulo, esta es tu silueta completa:",body),
         Image("_radar.png",width=122*mm,height=122*mm,hAlign="CENTER"),
@@ -1199,7 +1219,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                             "«crecer», «ahorrar más» o «acumular», tu versión es «preservar, hacer sostenible y que dure». "
                             "Tu objetivo no es llegar a la cima: es no bajar de ella. Hemos adaptado a esa realidad tus "
                             "palancas, tu contrato y los capítulos clave.",
-                            St("rlx",fontSize=10,leading=14.5))],"#F4F7F5","#0F766E",ancho=160*mm),
+                            St("rlx",fontSize=10,leading=14.5))],"#15243C","#0F766E",ancho=160*mm),
             Spacer(1,4*mm)]
     for n,code in (list(enumerate(CAPAS,1)) if depth!="esencial" else []):
         pc=p[code]
@@ -1370,7 +1390,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 f"<b>{_eur(col6)}</b> (seis meses de gastos) o llega un imprevisto grande, <b>pausa las fases 2 y 3</b> "
                 f"y vuelca todo el excedente a reconstruir ese col\u00f3n antes de seguir. Proteger la base va siempre "
                 f"primero; crecer puede esperar unas semanas.</font>",St("kc",fontSize=10.5,leading=15))],
-                "#FBF3E8","#B45309",ancho=160*mm)]
+                "#2A2010","#B45309",ancho=160*mm)]
         S+=[PageBreak(),
             Paragraph("Tu glosario, a tu medida",h_sec),
             Paragraph("No es un diccionario gen\u00e9rico: hemos incluido solo los conceptos que tus respuestas han activado. "
@@ -1419,7 +1439,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             ans_p=Paragraph("<font color='#B5B3A6'>N/A</font>",small) if na else Paragraph("<i>%s</i>"%_limpiar_txt(ans),small)
             rows.append([Paragraph("<font color='#33415C'>%s</font>"%_limpiar_txt(it["texto"]),small),ans_p])
             if ri%2==0:
-                bgs.append(("BACKGROUND",(0,ri),(-1,ri),colors.HexColor("#F7F5EE")))
+                bgs.append(("BACKGROUND",(0,ri),(-1,ri),colors.HexColor("#15243C")))
             ri+=1
         t=Table(rows,colWidths=[104*mm,52*mm],repeatRows=1)
         t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,0),0.6,LINE),

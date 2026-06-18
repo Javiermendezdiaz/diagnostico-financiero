@@ -3,6 +3,7 @@
 import os, numpy as np, matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+plt.rcParams['svg.fonttype']='path'   # glifos como trazos vectoriales: nitidez total, sin depender de fuentes del visor
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import FancyBboxPatch, Rectangle
 
@@ -138,6 +139,23 @@ def efecto_espejo(out, kicker, frase, dato_num, dato_txt, cierre, accent=BLUE):
     ax.text(0.10,0.10,cierre,ha="left",va="center",color=WHITE,fontproperties=L(20),transform=ax.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
+def guion_dinero(out, arq_nombre, arq_lema, parrafos, cierre, accent=GOLD):
+    """Raíz emocional del Pasado: el 'guion del dinero' derivado del arquetipo. Página editorial narrativa."""
+    fig,ax=_canvas(); _bg(ax,(0.80,0.84),tint="#0E1622")
+    ax.text(0.10,0.865,_spaced("TU GUION DEL DINERO"),ha="left",va="center",color=accent,fontproperties=Pm(11),transform=ax.transAxes)
+    ax.text(0.10,0.775,(arq_nombre or "").upper(),ha="left",va="center",color=WHITE,fontproperties=L(38),transform=ax.transAxes)
+    if arq_lema:
+        ax.text(0.10,0.705,"«"+arq_lema+"»",ha="left",va="center",color=accent,fontproperties=Li(16),transform=ax.transAxes)
+    ax.plot([0.10,0.28],[0.668,0.668],color=RULE,lw=1.2,transform=ax.transAxes)
+    yy=0.61
+    for par in parrafos:
+        if not par: continue
+        for ln in _tw.wrap(par,60):
+            ax.text(0.10,yy,ln,ha="left",va="top",color=MUTE,fontproperties=P(11.5),transform=ax.transAxes); yy-=0.0345
+        yy-=0.028
+    ax.text(0.10,0.115,cierre,ha="left",va="center",color=WHITE,fontproperties=L(19),transform=ax.transAxes)
+    fig.savefig(out,dpi=130); plt.close(fig); return out
+
 def termometro(out, titulo, indice, etiqueta, drivers, accent=BLUE):
     # indice 0..100 (vulnerabilidad). gauge semicircular verde->ambar->rojo
     fig,ax=_canvas(); _bg(ax,(0.84,0.84))
@@ -220,9 +238,12 @@ def mapa_100(out, hitos, accent=GOLD):
         y=ytop-(ytop-ybot)*(i/(max(1,n-1)))
         ax.add_patch(Circle((xline,y),0.013,color=accent,transform=ax.transAxes,zorder=5))
         ax.text(xline-0.02,y,dia,ha="right",va="center",color=accent,fontproperties=L(15),transform=ax.transAxes)
-        ax.text(xline+0.04,y+0.022,titulo,ha="left",va="center",color=WHITE,fontproperties=Lr(13.5),transform=ax.transAxes)
+        _tl=textwrap.wrap(titulo,46)[:2]
+        for k,_tln in enumerate(_tl):
+            ax.text(xline+0.04,y+0.026-k*0.030,_tln,ha="left",va="top",color=WHITE,fontproperties=Lr(13.5),transform=ax.transAxes)
+        _dy=y+0.026-len(_tl)*0.030-0.006
         for j,ln in enumerate(textwrap.wrap(det,58)):
-            ax.text(xline+0.04,y-0.008-j*0.028,ln,ha="left",va="top",color=MUTE,fontproperties=P(10),transform=ax.transAxes)
+            ax.text(xline+0.04,_dy-j*0.026,ln,ha="left",va="top",color=MUTE,fontproperties=P(10),transform=ax.transAxes)
     ax.text(0.10,0.10,"No es una lista de deseos. Son tres movimientos con fecha.",ha="left",va="center",color=accent,fontproperties=Li(14),transform=ax.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
