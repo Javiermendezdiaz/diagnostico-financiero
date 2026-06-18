@@ -120,7 +120,13 @@ a{color:var(--am)}
 
 <div id="s-gen" class="step center"><div class="spin"></div>
   <p style="font-size:16px;font-weight:600;margin-bottom:6px">Analizando tu perfil…</p>
-  <p style="color:var(--gr);font-size:13px;line-height:1.5">Nuestro motor de diagnóstico está leyendo tus respuestas, una a una, y redactando tu retrato personal. Puede tardar hasta medio minuto — merece la espera.</p></div>
+  <p id="genMsg" style="color:var(--gr);font-size:13px;line-height:1.5;transition:opacity .2s">Leyendo tus respuestas, una a una.</p>
+  <p style="color:#6b7280;font-size:11.5px;margin-top:10px">Tómate un segundo. Estamos cruzando todo con cuidado — merece la espera.</p></div>
+
+<div id="s-build" class="step center"><div class="spin"></div>
+  <p style="font-size:16px;font-weight:600;margin-bottom:6px">Componiendo tu libro…</p>
+  <p id="buildMsg" style="color:var(--gr);font-size:13px;line-height:1.5;transition:opacity .2s">Reuniendo todo tu análisis.</p>
+  <p style="color:#6b7280;font-size:11.5px;margin-top:10px">Puede tardar hasta un minuto. Cuidamos cada página antes de entregártela.</p></div>
 
 <div id="s-done" class="step center">
   <div id="doneIcon" style="font-size:40px;margin:6px">✓</div>
@@ -313,10 +319,10 @@ function toast(score,tag){
 function escaner(cap,cb){
   const v=capaBand(cap);
   const s=document.getElementById('scan');
-  document.getElementById('scanT').textContent='Analizando · '+(v?v.n:'capa')+'…';
+  document.getElementById('scanT').textContent='Analizando tus respuestas · '+(v?v.n:'capa')+'…';
   const vd=document.getElementById('scanV'); vd.textContent=v?v.t:''; vd.style.color=v?v.c:'#fff';
   s.classList.add('on');
-  setTimeout(()=>{ s.classList.remove('on'); cb(); }, 1150);
+  setTimeout(()=>{ s.classList.remove('on'); cb(); }, 1450);
 }
 
 function elegir(q,idx){
@@ -384,6 +390,14 @@ function atras(){ if(st.i<=0)return; st.i--; while(st.i>0 && !aplica(st.cola[st.
 
 async function finalizar(){
   show('s-gen');
+  cycleMsgs('genMsg',[
+    'Leyendo tus respuestas, una a una.',
+    'Cruzando tu psicología con tus números reales.',
+    'Calculando tu margen de maniobra y tu cifra de libertad.',
+    'Detectando tus puntos de tensión y tus palancas.',
+    'Buscando contradicciones entre lo que dices y lo que haces.',
+    'Redactando tu retrato personal.'
+  ],2500);
   try{
     const body={session_id:st.sid,email:st.email,respuestas:st.resp,datos:st.datos,abiertas:st.abiertas,perfil:st.perfil,v2:true};
     if(PAREJA) body.pareja_de=PAREJA;
@@ -418,9 +432,49 @@ async function pagar(){
     throw new Error('sin_url');
   }catch(e){ b.disabled=false; b.textContent=o; document.getElementById('doneTxt').textContent='No se pudo iniciar el pago. Inténtalo de nuevo en un momento.'; }
 }
-function descargarSid(sid){ location.href=API+'/api/report/'+sid; }
-function descargar(){ if(st&&st.reportUrl) location.href=API+st.reportUrl; else if(CURSID) descargarSid(CURSID); }
-function show(id){document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+let _cyc=null;
+function cycleMsgs(elId,msgs,intervalMs){
+  const el=document.getElementById(elId); if(!el) return null;
+  let i=0; el.textContent=msgs[0]; el.style.opacity=1;
+  const h=setInterval(()=>{ i=(i+1)%msgs.length; el.style.opacity=0; setTimeout(()=>{el.textContent=msgs[i]; el.style.opacity=1;},200); }, intervalMs);
+  _cyc=()=>clearInterval(h); return _cyc;
+}
+async function descargarConAnalisis(sid){
+  show('s-build');
+  cycleMsgs('buildMsg',[
+    'Reuniendo tu perfil de las 11 capas.',
+    'Trazando tu mapa de tensión y tus palancas.',
+    'Calculando tu proyección y tu cifra de libertad.',
+    'Redactando tu plan de acción de 100 días.',
+    'Maquetando tu Constitución Financiera.',
+    'Dando los últimos retoques a tu libro.'
+  ],2600);
+  const t0=Date.now();
+  try{
+    const r=await fetch(API+'/api/report/'+sid);
+    if(!r.ok) throw new Error('status '+r.status);
+    const blob=await r.blob();
+    await new Promise(res=>setTimeout(res, Math.max(0, 6500-(Date.now()-t0))));
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='Tu_Libro_Financiero_ITAP.pdf'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
+    show('s-done');
+    document.getElementById('doneHead').textContent='Tu libro está listo';
+    document.getElementById('doneSub').style.display='none';
+    const tb=document.getElementById('teaserBox'); if(tb) tb.style.display='none';
+    const pb=document.getElementById('payBox'); if(pb) pb.style.display='none';
+    const dl=document.getElementById('dl'); dl.style.display='inline-block'; dl.textContent='Volver a descargar';
+    document.getElementById('doneTxt').textContent='Lo hemos guardado en tu dispositivo. Búscalo en tu carpeta de descargas.';
+  }catch(e){
+    show('s-done');
+    document.getElementById('doneHead').textContent='Tu libro está casi listo';
+    const dl=document.getElementById('dl'); dl.style.display='inline-block'; dl.textContent='Descargar mi libro';
+    document.getElementById('doneTxt').textContent='El análisis tardó un poco más de lo normal. Pulsa para descargarlo.';
+  }
+}
+function descargarSid(sid){ descargarConAnalisis(sid); }
+function descargar(){ const sid=CURSID||(st&&st.sid); if(sid) descargarConAnalisis(sid); }
+function show(id){ if(_cyc){_cyc();_cyc=null;} document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
 // Retorno desde Stripe Checkout (?sid=..&paid=1|0)
 (function(){
