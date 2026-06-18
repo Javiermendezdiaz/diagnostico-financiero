@@ -214,6 +214,43 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
     </div>
   </section>
 
+  <!-- SIM: EL PRECIO DE TU TIEMPO (hora real + libertad en horas) -->
+  <section class="sim" id="st">
+    <div class="copy">
+      <span class="tag" style="color:var(--ro);background:rgba(244,63,94,.1)">El coste invisible</span>
+      <h3 class="serif">El precio real de tu tiempo</h3>
+      <p>Tu sueldo por hora no es lo que pone la nómina. Cuando descuentas el <strong>desgaste</strong> —el estrés que te llevas a casa, las horas que no descansas— tu hora vale menos de lo que crees.</p>
+      <p>Y al revés: tu colchón no son "meses de gasto". Son <strong>horas de vida</strong> en las que no dependes de nadie. Míralo en tiempo, no en euros.</p>
+      <div class="quote"><h4>La idea</h4><p>"No vendes horas por dinero. Cambias trozos de vida. La pregunta es a qué precio — y cuánta libertad te has comprado ya."</p></div>
+    </div>
+    <div class="card">
+      <div class="edge" style="background:linear-gradient(var(--ro),transparent)"></div>
+      <div class="card-h"><span class="t">Tu hora de verdad</span><span class="pill" id="bm-tag" style="background:rgba(244,63,94,.1);color:var(--ro)">Desgaste alto</span></div>
+      <div class="grid2">
+        <div class="fld"><label>Sueldo neto / año <span class="v" id="l-bm-inc">45.000 €</span></label><input type="range" id="bm-inc" min="15000" max="150000" step="1000" value="45000"></div>
+        <div class="fld"><label>Horas reales / semana <span class="v" id="l-bm-h">45 h</span></label><input type="range" id="bm-h" min="20" max="70" step="1" value="45"></div>
+      </div>
+      <div class="fld"><label>Tu desgaste percibido (1–10) <span class="v" id="l-bm-s">7</span></label><input type="range" id="bm-s" min="1" max="10" step="1" value="7"></div>
+      <div class="metrics g2">
+        <div class="metric"><span class="l">Tu hora en nómina</span><span class="n" style="color:var(--gr)" id="bm-nom">—</span></div>
+        <div class="metric"><span class="l">Tu hora real (con desgaste)</span><span class="n" style="color:var(--ro)" id="bm-real">—</span></div>
+      </div>
+      <div class="reco" id="bm-reco">…</div>
+      <div style="border-top:1px solid var(--bd);margin-top:18px;padding-top:16px">
+        <div class="card-h" style="border:none;padding:0;margin-bottom:14px"><span class="t">Tu libertad en horas</span><span class="pill" style="background:rgba(16,185,129,.1);color:var(--em)">Soberanía</span></div>
+        <div class="grid2">
+          <div class="fld"><label>Patrimonio líquido <span class="v" id="l-bm-pat">20.000 €</span></label><input type="range" id="bm-pat" min="0" max="300000" step="2000" value="20000"></div>
+          <div class="fld"><label>Gasto / mes <span class="v" id="l-bm-g">2.000 €</span></label><input type="range" id="bm-g" min="500" max="8000" step="100" value="2000"></div>
+        </div>
+        <div class="metrics g2">
+          <div class="metric"><span class="l">Sin depender de nadie</span><span class="n" style="color:var(--em)" id="bm-months">—</span></div>
+          <div class="metric"><span class="l">Eso son, de vida</span><span class="n" style="color:var(--am)" id="bm-days">—</span></div>
+        </div>
+      </div>
+      <p style="font-size:9.5px;color:var(--gr);margin-top:10px;font-weight:300">El ajuste por desgaste es una <b style="color:var(--gr)">lente subjetiva</b> para decidir mejor, no una medición clínica.</p>
+    </div>
+  </section>
+
   <!-- SIM 3: PAREJA -->
   <section class="sim rev" id="sc">
     <div class="copy">
@@ -260,6 +297,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
       <span class="lbl">Patrón que tiende a desarrollarse:</span>
       <h4 class="serif" id="arq-t">—</h4>
       <p id="arq-d">—</p>
+      <p style="font-size:12px;color:var(--gr);margin-top:14px;border-top:1px solid var(--bd);padding-top:13px;font-weight:300"><b style="color:var(--am);font-weight:600">Y se transmite.</b> Estos patrones suelen pasar de padres a hijos casi sin querer, en la mesa y en los silencios. Verlos a tiempo es justo lo que permite no heredárselos.</p>
     </div>
   </section>
 
@@ -382,11 +420,33 @@ document.querySelectorAll('#arq button').forEach(btn=>btn.addEventListener('clic
   const a=ARQ[btn.dataset.t]; $('arq-t').textContent=a.t; $('arq-d').textContent=a.d;
 }));
 
+/* ---- SIM: precio del tiempo (hora real + libertad) ---- */
+function simBM(){
+  recalc();
+  const inc=+$('bm-inc').value, h=+$('bm-h').value, s=+$('bm-s').value;
+  $('l-bm-inc').textContent=eur(inc); $('l-bm-h').textContent=h+' h'; $('l-bm-s').textContent=s;
+  const nom=inc/(h*47), pen=(s-1)/9*0.45, real=nom*(1-pen);
+  $('bm-nom').textContent=nom.toFixed(1)+' €/h';
+  $('bm-real').textContent=real.toFixed(1)+' €/h';
+  const tag=$('bm-tag'), reco=$('bm-reco');
+  if(s>=8){ tag.textContent='Desgaste alto'; tag.style.cssText='background:rgba(244,63,94,.1);color:var(--ro)';
+    reco.innerHTML='Con este desgaste, tu hora real cae un <strong style="color:var(--ro)">'+Math.round(pen*100)+'%</strong>. Tu tiempo te sale barato. Quizá no se trata de ganar más, sino de que cada hora pese menos.'; }
+  else if(s>=5){ tag.textContent='Desgaste medio'; tag.style.cssText='background:rgba(253,215,49,.1);color:var(--am)';
+    reco.innerHTML='Un desgaste moderado ya te descuenta un <strong>'+Math.round(pen*100)+'%</strong> del valor de tu hora. Cuida que no se cronifique.'; }
+  else { tag.textContent='Desgaste bajo'; tag.style.cssText='background:rgba(16,185,129,.1);color:var(--em)';
+    reco.innerHTML='<strong style="color:var(--em)">Tu hora vale casi lo que marca la nómina.</strong> Trabajas sin dejarte la salud por el camino: esa es la base de todo lo demás.'; }
+  const pat=+$('bm-pat').value, g=+$('bm-g').value, months=g>0?pat/g:0;
+  $('l-bm-pat').textContent=eur(pat); $('l-bm-g').textContent=eur(g);
+  $('bm-months').textContent=months.toFixed(1)+' meses';
+  $('bm-days').textContent=Math.round(months*30)+' días';
+}
+
 /* listeners + init */
 ['r10-inc','r10-exp'].forEach(id=>$(id).addEventListener('input',sim10));
 ['g-cur','g-mon'].forEach(id=>$(id).addEventListener('input',simG));
 ['c-a','c-b','c-e'].forEach(id=>$(id).addEventListener('input',simC));
-sim10(); simG(); simC();
+['bm-inc','bm-h','bm-s','bm-pat','bm-g'].forEach(id=>$(id).addEventListener('input',simBM));
+sim10(); simG(); simC(); simBM();
 $('arq-t').textContent=ARQ.escasez.t; $('arq-d').textContent=ARQ.escasez.d;
 </script>
 </body>
