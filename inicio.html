@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADAPTA · Diagnóstico Psicofinanciero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--am:#FDD731;--ng:#06070d;--pa:#0d0f1a;--bd:#23252e;--tx:#f4f4f5;--gr:#94a3b8;--bl:#3b82f6;--em:#10b981;--ro:#f43f5e;--pu:#a855f7}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ng);color:var(--tx);font-family:'Poppins',system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+.serif{font-family:'Lora',Georgia,serif}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+.head{position:sticky;top:0;z-index:30;background:rgba(6,7,13,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd)}
+.head .wrap{height:64px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-weight:800;letter-spacing:1px;font-size:20px}.logo b{color:var(--am)}
+.logo small{font-size:9px;letter-spacing:2px;color:var(--gr);text-transform:uppercase;margin-left:8px;font-weight:600}
+.status{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--gr);font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.dot{height:8px;width:8px;border-radius:50%;background:var(--em);box-shadow:0 0 8px var(--em);transition:.3s}
+.dot.calc{background:var(--am);box-shadow:0 0 8px var(--am)}
+#statusTxt.calc{color:var(--am)}
+/* hero */
+.hero{position:relative;overflow:hidden;text-align:center;padding:72px 0 56px;border-bottom:1px solid var(--bd)}
+.hero:before{content:"";position:absolute;top:-120px;right:-80px;width:480px;height:480px;background:radial-gradient(circle,rgba(253,215,49,.07),transparent 70%);pointer-events:none}
+.hero:after{content:"";position:absolute;bottom:-140px;left:-100px;width:520px;height:520px;background:radial-gradient(circle,rgba(59,130,246,.06),transparent 70%);pointer-events:none}
+.kick{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--am);font-weight:700;margin-bottom:14px}
+h1.hero-t{font-size:clamp(30px,5vw,52px);line-height:1.12;font-weight:700;letter-spacing:-.5px}
+h1.hero-t .hl{color:var(--am);font-style:italic}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin:26px auto 0;max-width:760px}
+.chip{display:inline-flex;align-items:center;gap:8px;font-size:11.5px;color:var(--tx);background:var(--pa);border:1px solid var(--bd);border-radius:999px;padding:7px 14px}
+.chip .pt{height:6px;width:6px;border-radius:50%}
+.lede{margin:26px auto 0;max-width:620px;color:var(--gr);font-size:15px;font-weight:300;line-height:1.6}
+.cta-row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:32px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border-radius:11px;font-weight:700;font-size:13px;letter-spacing:.5px;cursor:pointer;border:none;font-family:inherit;transition:.2s}
+.btn-am{background:var(--am);color:#000}.btn-am:hover{background:#ffe25a}
+.btn-gh{background:transparent;color:var(--gr);border:1px solid var(--bd)}.btn-gh:hover{color:var(--tx);border-color:#3a3d48}
+/* sections */
+.lab-intro{text-align:center;max-width:680px;margin:64px auto 8px}
+.lab-intro h2{font-size:clamp(24px,3.5vw,34px);font-weight:600;margin-top:8px}
+.note{display:inline-block;margin-top:16px;font-size:12px;color:var(--gr);background:var(--pa);border:1px solid var(--bd);border-radius:10px;padding:10px 16px;font-weight:300;line-height:1.55}
+.note b{color:var(--am);font-weight:600}
+.sim{display:grid;grid-template-columns:1fr;gap:28px;align-items:center;margin:56px 0}
+@media(min-width:900px){.sim{grid-template-columns:5fr 7fr}.sim.rev .copy{order:2}.sim.rev .card{order:1}}
+.tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 11px;border-radius:6px;display:inline-block}
+.copy h3{font-size:clamp(22px,3vw,30px);font-weight:600;margin:14px 0 12px}
+.copy p{color:var(--gr);font-size:14px;font-weight:300;line-height:1.65;margin-bottom:10px}
+.copy strong{color:var(--tx);font-weight:600}
+.quote{margin-top:18px;padding:16px 18px;background:var(--pa);border:1px solid var(--bd);border-radius:10px}
+.quote h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--am);font-weight:600;margin-bottom:6px}
+.quote p{font-size:12.5px;font-style:italic;color:var(--gr);margin:0}
+.feat{list-style:none;margin-top:14px;display:grid;gap:9px}
+.feat li{font-size:13px;color:var(--gr);font-weight:300;display:flex;gap:9px;align-items:baseline}
+.feat li b{color:var(--tx);font-weight:600}
+.feat .ic{color:var(--em);font-weight:700;font-size:12px}
+.card{background:var(--pa);border:1px solid var(--bd);border-radius:16px;padding:26px;position:relative;overflow:hidden}
+.card .edge{position:absolute;top:0;left:0;width:4px;height:100%}
+.card-h{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);padding-bottom:14px;margin-bottom:18px}
+.card-h .t{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gr)}
+.pill{font-size:10px;padding:4px 9px;border-radius:6px;font-weight:600}
+.fld{margin-bottom:16px}
+.fld label{display:flex;justify-content:space-between;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--gr);font-weight:600;margin-bottom:8px}
+.fld label .v{color:var(--tx);font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:#1b1d27;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--am);cursor:pointer;box-shadow:0 0 10px rgba(253,215,49,.5);transition:.15s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:4px}
+.seg button{padding:9px 4px;font-size:10px;text-transform:uppercase;font-weight:700;letter-spacing:.5px;border-radius:7px;border:1px solid var(--bd);background:transparent;color:var(--gr);cursor:pointer;font-family:inherit;transition:.15s}
+.seg button.on{border-color:var(--am);color:var(--am);background:rgba(253,215,49,.06)}
+.panel{background:#080a12;border:1px solid var(--bd);border-radius:11px;padding:16px;margin-top:6px}
+.panel .cap{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--gr)}
+.metrics{display:grid;gap:12px;margin-top:14px}
+.metrics.g2{grid-template-columns:1fr 1fr}.metrics.g3{grid-template-columns:1fr 1fr 1fr}
+.metric{background:#0a0c15;border:1px solid var(--bd);border-radius:9px;padding:13px}
+.metric .l{font-size:8.5px;text-transform:uppercase;letter-spacing:1px;color:var(--gr);font-weight:700}
+.metric .n{font-size:18px;font-weight:700;margin-top:5px;font-variant-numeric:tabular-nums;display:block}
+.bar-wrap{margin-top:14px}
+.bar-row{margin-bottom:10px}
+.bar-row .lab{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}
+.bar-bg{height:9px;background:#080a12;border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;transition:width .3s}
+.reco{background:#080a12;border:1px solid var(--bd);border-radius:9px;padding:14px;margin-top:14px;font-size:12.5px;color:var(--gr);font-weight:300;line-height:1.6}
+.reco strong{font-weight:600}
+.arq-grid{display:grid;grid-template-columns:1fr;gap:12px;margin:20px 0}
+@media(min-width:760px){.arq-grid{grid-template-columns:1fr 1fr 1fr}}
+.arq-grid button{text-align:left;padding:18px;border-radius:13px;border:1px solid var(--bd);background:transparent;cursor:pointer;font-family:inherit;color:var(--gr);transition:.15s}
+.arq-grid button.on{border-color:var(--am);background:rgba(253,215,49,.05)}
+.arq-grid .at{display:block;font-weight:700;font-size:13.5px;color:var(--tx);margin-bottom:7px}
+.arq-grid .ad{display:block;font-size:11.5px;font-weight:300;line-height:1.5}
+.arq-out{background:var(--pa);border:1px solid var(--bd);border-radius:14px;padding:24px}
+.arq-out .lbl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--gr);font-weight:700}
+.arq-out h4{font-size:20px;font-weight:600;margin:8px 0 10px}
+.arq-out p{font-size:13px;color:var(--gr);font-weight:300;line-height:1.65}
+/* closing */
+.closing{margin:80px 0 40px;text-align:center}
+.closing h2{font-size:clamp(24px,3.5vw,34px);font-weight:600}
+.closing>p{color:var(--gr);font-weight:300;max-width:560px;margin:14px auto 0;font-size:14px;line-height:1.65}
+.inc{display:grid;grid-template-columns:1fr;gap:10px;max-width:640px;margin:28px auto 0;text-align:left}
+@media(min-width:680px){.inc{grid-template-columns:1fr 1fr}}
+.inc div{background:var(--pa);border:1px solid var(--bd);border-radius:10px;padding:13px 16px;font-size:13px;color:var(--gr);font-weight:300}
+.inc div b{color:var(--tx);font-weight:600}
+.tiers{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:26px}
+.tier{border:1px solid var(--bd);border-radius:10px;padding:10px 18px;font-size:13px;color:var(--gr)}
+.tier b{color:var(--am);font-weight:700}
+.foot{border-top:1px solid var(--bd);padding:30px 0 50px;text-align:center;color:var(--gr);font-size:11px;font-weight:300;line-height:1.7}
+.foot .big{letter-spacing:2px;text-transform:uppercase;color:var(--tx);font-weight:600;margin-bottom:8px;font-size:11px}
+.disc{max-width:680px;margin:14px auto 0;font-size:10.5px;opacity:.8}
+</style>
+</head>
+<body>
+
+<header class="head"><div class="wrap">
+  <div class="logo">▲ <b>ADAPTA</b><small>Family Office</small></div>
+  <div class="status"><span id="statusTxt">Simulador activo</span><span class="dot" id="statusDot"></span></div>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <div class="kick">Diagnóstico psicofinanciero · Adapta</div>
+  <h1 class="hero-t serif">El diagnóstico psicofinanciero<br><span class="hl">más completo que te van a hacer</span></h1>
+  <div class="chips">
+    <span class="chip"><span class="pt" style="background:var(--am)"></span><b>11 capas</b>&nbsp;de análisis integral</span>
+    <span class="chip"><span class="pt" style="background:var(--bl)"></span><b>Psicología</b>&nbsp;+ patrimonio real</span>
+    <span class="chip"><span class="pt" style="background:var(--em)"></span>Plan accionable de&nbsp;<b>100 días</b></span>
+    <span class="chip"><span class="pt" style="background:var(--pu)"></span>Tu&nbsp;<b>Constitución Financiera</b></span>
+  </div>
+  <p class="lede">Antes de empezar, juega con tus números aquí abajo. Estos simuladores son una <b style="color:var(--tx);font-weight:500">muestra ilustrativa</b>: tu diagnóstico real se calcula con tus respuestas en el cuestionario.</p>
+  <div class="cta-row">
+    <a class="btn btn-am" href="empezar2.html">Comenzar mi diagnóstico →</a>
+    <a class="btn btn-gh" href="#lab">Explorar los simuladores ↓</a>
+  </div>
+</div></section>
+
+<main class="wrap" id="lab">
+  <div class="lab-intro">
+    <span class="kick">El laboratorio</span>
+    <h2 class="serif">Cuatro fuerzas que decidirán tu libertad</h2>
+    <p class="note">Los datos fríos no cambian comportamientos. Mueve los deslizadores y <b>ve el efecto</b> de cada decisión. Las proyecciones usan supuestos ilustrativos; en tu diagnóstico trabajamos con tus cifras reales.</p>
+  </div>
+
+  <!-- SIM 1: REGLA 10% -->
+  <section class="sim rev" id="s10">
+    <div class="copy">
+      <span class="tag" style="color:var(--am);background:rgba(253,215,49,.1)">Ingeniería de aceleración</span>
+      <h3 class="serif">La Regla del 10%</h3>
+      <p>La mayoría se obsesiona con una sola palanca: ganar más, o recortar cafés. Es ineficiente y frustra. La fuerza está en activar <strong>cuatro cilindros a la vez</strong>:</p>
+      <ul class="feat">
+        <li><span class="ic">↑</span><span><b>+10% de ingresos</b> (tu trabajo mejor pagado)</span></li>
+        <li><span class="ic">↓</span><span><b>−10% de gastos fijos</b> (sin tocar tu estilo de vida)</span></li>
+        <li><span class="ic">%</span><span><b>Rentabilidad sobre el capital dormido</b></span></li>
+        <li><span class="ic">∞</span><span><b>El interés compuesto</b> haciendo el resto</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="edge" style="background:linear-gradient(var(--am),transparent)"></div>
+      <div class="card-h"><span class="t">La fórmula de la convergencia</span><span class="pill" style="background:rgba(16,185,129,.1);color:var(--em)">Compuesto</span></div>
+      <div class="grid2">
+        <div class="fld"><label>Ingresos / año <span class="v" id="l-r10-inc">40.000 €</span></label><input type="range" id="r10-inc" min="20000" max="150000" step="1000" value="40000"></div>
+        <div class="fld"><label>Gastos / año <span class="v" id="l-r10-exp">32.000 €</span></label><input type="range" id="r10-exp" min="15000" max="120000" step="1000" value="32000"></div>
+      </div>
+      <div class="panel">
+        <span class="cap" style="float:right">Proyección a 20 años · patrimonio</span>
+        <svg viewBox="0 0 500 200" style="width:100%;height:160px;overflow:visible;margin-top:6px">
+          <path id="p-base" d="" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="4 4"></path>
+          <path id="p-opt" d="" fill="none" stroke="var(--am)" stroke-width="4"></path>
+          <text x="8" y="195" fill="#475569" font-size="9" font-family="monospace">Año 0</text>
+          <text x="250" y="195" fill="#475569" font-size="9" font-family="monospace" text-anchor="middle">Año 10</text>
+          <text x="492" y="195" fill="#475569" font-size="9" font-family="monospace" text-anchor="end">Año 20</text>
+        </svg>
+        <div style="display:flex;justify-content:center;gap:20px;font-size:10px;margin-top:6px;color:var(--gr)">
+          <span>┄ Trayectoria actual</span><span style="color:var(--am)">━ Con la Regla del 10%</span>
+        </div>
+      </div>
+      <div class="metrics g2">
+        <div class="metric"><span class="l">Años que ahorras</span><span class="n" style="color:var(--em)" id="r10-years">—</span></div>
+        <div class="metric"><span class="l">Patrimonio extra · año 20</span><span class="n" style="color:var(--am)" id="r10-extra">—</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIM 2: GRAVEDAD 100K -->
+  <section class="sim" id="sg">
+    <div class="copy">
+      <span class="tag" style="color:var(--pu);background:rgba(168,85,247,.1)">Hito de inflexión</span>
+      <h3 class="serif">La gravedad de los primeros 100.000 €</h3>
+      <p>Como decía Charlie Munger: los primeros 100.000 € son un dolor de muelas, pero <strong>hay que alcanzarlos como sea</strong>. Hasta ahí, tu capacidad de ahorro manda.</p>
+      <p>Al cruzar esa cifra nace tu <strong>empleado invisible</strong>: el dinero empieza a generar más que tu propio esfuerzo físico de ahorro.</p>
+      <div class="quote"><h4>La analogía del cohete</h4><p>Quema el 80% del combustible en los primeros kilómetros para romper la gravedad. Después, vuela casi solo.</p></div>
+    </div>
+    <div class="card">
+      <div class="edge" style="background:linear-gradient(var(--pu),transparent)"></div>
+      <div class="card-h"><span class="t">Simulador de escape</span><span class="pill" id="g-status" style="background:rgba(168,85,247,.1);color:var(--pu)">Gravedad alta</span></div>
+      <div class="grid2">
+        <div class="fld"><label>Patrimonio hoy <span class="v" id="l-g-cur">10.000 €</span></label><input type="range" id="g-cur" min="0" max="90000" step="2000" value="10000"></div>
+        <div class="fld"><label>Ahorro / mes <span class="v" id="l-g-mon">400 €</span></label><input type="range" id="g-mon" min="100" max="3000" step="50" value="400"></div>
+      </div>
+      <div class="panel">
+        <span class="cap">Tu posición hacia el hito de 100.000 €</span>
+        <div style="position:relative;height:64px;margin-top:12px;background:#0a0c15;border:1px solid var(--bd);border-radius:8px;display:flex;overflow:hidden">
+          <div id="g-zone" style="height:100%;background:rgba(168,85,247,.14);border-right:1px solid rgba(168,85,247,.3);display:flex;align-items:center;justify-content:center;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(168,85,247,.8);width:50%">Zona de gravedad</div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(16,185,129,.7);background:rgba(16,185,129,.04)">Atmósfera libre</div>
+          <div id="g-mark" style="position:absolute;height:100%;width:3px;background:var(--am);box-shadow:0 0 10px var(--am);left:10%;transition:left .3s"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--gr);margin-top:6px;font-family:monospace"><span>0 €</span><span>100.000 €</span><span>200.000 €</span></div>
+      </div>
+      <div class="metrics g3">
+        <div class="metric"><span class="l">Meses al hito</span><span class="n" style="color:var(--pu)" id="g-months">—</span></div>
+        <div class="metric"><span class="l">Sueldo invisible</span><span class="n" style="color:var(--am)" id="g-inv">—</span></div>
+        <div class="metric"><span class="l">Estado</span><span class="n" style="color:var(--em);font-size:14px" id="g-acc">—</span></div>
+      </div>
+      <p style="font-size:9.5px;color:var(--gr);margin-top:10px;font-weight:300">Supuesto ilustrativo: 8% anual sobre el capital. No es una previsión garantizada.</p>
+    </div>
+  </section>
+
+  <!-- SIM 3: PAREJA -->
+  <section class="sim rev" id="sc">
+    <div class="copy">
+      <span class="tag" style="color:var(--bl);background:rgba(59,130,246,.1)">Módulo de sinergias</span>
+      <h3 class="serif">El esfuerzo vital en pareja</h3>
+      <p>Un reparto <strong>50/50 en dinero</strong> puede significar un reparto <strong>30/70 en esfuerzo</strong>. Quien gana menos sangra un porcentaje mucho mayor de su sueldo en lo común — y eso, callado, erosiona.</p>
+      <p>Mueve los sueldos y el modelo de aportación y observa cómo cambia el esfuerzo real de cada uno.</p>
+      <div class="quote"><h4>La regla de oro Adapta</h4><p>"La paz del equipo no se diseña con cifras iguales, sino con esfuerzos simétricos."</p></div>
+    </div>
+    <div class="card">
+      <div class="edge" style="background:linear-gradient(var(--bl),transparent)"></div>
+      <div class="card-h"><span class="t">Simulador de sinergia</span><span class="pill" id="c-tag" style="background:rgba(244,63,94,.1);color:var(--ro)">Fricción alta</span></div>
+      <div class="grid2">
+        <div class="fld"><label>Sueldo A <span class="v" id="l-ca">3.200 €</span></label><input type="range" id="c-a" min="1000" max="8000" step="100" value="3200"></div>
+        <div class="fld"><label>Sueldo B <span class="v" id="l-cb">1.800 €</span></label><input type="range" id="c-b" min="1000" max="8000" step="100" value="1800"></div>
+      </div>
+      <div class="fld"><label>Gastos comunes <span class="v" id="l-ce">1.500 €</span></label><input type="range" id="c-e" min="500" max="4000" step="50" value="1500"></div>
+      <div class="seg" id="c-seg">
+        <button data-m="50-50">50 / 50</button>
+        <button data-m="proporcional" class="on">Proporcional</button>
+        <button data-m="cubos">3 Cubos</button>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-row"><div class="lab"><span>Esfuerzo de A</span><span id="c-pa">—</span></div><div class="bar-bg"><div class="bar-fill" id="c-ba" style="background:var(--bl);width:50%"></div></div></div>
+        <div class="bar-row"><div class="lab"><span>Esfuerzo de B</span><span id="c-pb">—</span></div><div class="bar-bg"><div class="bar-fill" id="c-bb" style="background:var(--am);width:50%"></div></div></div>
+      </div>
+      <div class="reco" id="c-reco">Cargando…</div>
+    </div>
+  </section>
+
+  <!-- SIM 4: ARQUETIPOS -->
+  <section style="margin:64px 0">
+    <div class="lab-intro" style="margin:0 auto 8px">
+      <span class="kick">Arqueología del comportamiento</span>
+      <h2 class="serif">La raíz emocional de tu dinero</h2>
+      <p class="note">¿Cómo se vivía el dinero en tu casa cuando tenías 8 años? Es una <b>muestra</b> de cómo tu historia moldea tus decisiones; en el diagnóstico lo medimos con detalle.</p>
+    </div>
+    <div class="arq-grid" id="arq">
+      <button data-t="escasez" class="on"><span class="at">⚠ Escasez y ansiedad</span><span class="ad">El dinero era motivo de discusiones y miedo constantes.</span></button>
+      <button data-t="tabu"><span class="at">🤫 Tabú silencioso</span><span class="ad">Había recursos, pero el tema era secreto e incómodo.</span></button>
+      <button data-t="control"><span class="at">♚ Control absoluto</span><span class="ad">Uno controlaba cada céntimo; el otro dependía.</span></button>
+    </div>
+    <div class="arq-out">
+      <span class="lbl">Patrón que tiende a desarrollarse:</span>
+      <h4 class="serif" id="arq-t">—</h4>
+      <p id="arq-d">—</p>
+    </div>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="closing">
+    <span class="kick">El entregable</span>
+    <h2 class="serif">Lo que recibes en tu libro</h2>
+    <p>No es un PDF plano de un segundo. Tu cuestionario alimenta un motor de 11 capas que cruza tu psicología con tus números reales y compone un libro a tu medida.</p>
+    <div class="inc">
+      <div><b>Tu Espejo:</b> lo que dices frente a lo que dicen tus datos.</div>
+      <div><b>Termómetro de estrés</b> y tu mapa de tensión por áreas.</div>
+      <div><b>Tu Cifra de Libertad</b> y tu margen de maniobra reales.</div>
+      <div><b>Brecha, palancas y contradicciones</b> de tu comportamiento.</div>
+      <div><b>Plan de acción de 100 días</b>, paso a paso.</div>
+      <div><b>Tu Constitución Financiera</b> personalizada.</div>
+    </div>
+    <div class="tiers">
+      <span class="tier">Rápido · <b>19 €</b></span>
+      <span class="tier">Avanzado · <b>39 €</b></span>
+      <span class="tier">Pareja · <b>54 €</b></span>
+    </div>
+    <div class="cta-row" style="margin-top:28px">
+      <a class="btn btn-am" href="empezar2.html">Comenzar mi diagnóstico →</a>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="big">Adapta Family Office</div>
+  <div>Ingeniería del comportamiento financiero · patrimonio con propósito</div>
+  <p class="disc">Marco educativo. Los simuladores de esta página son ilustrativos y no constituyen asesoramiento financiero, fiscal ni de inversión. Las proyecciones usan supuestos generales y no son previsiones garantizadas. Tu diagnóstico se elabora con los datos reales que aportes en el cuestionario.</p>
+</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const eur=n=>Math.round(n).toLocaleString('es-ES')+' €';
+// honest micro-beat: indica que recalcula (de verdad recalcula, solo es muy rápido)
+let _st=null;
+function recalc(){
+  $('statusDot').classList.add('calc'); $('statusTxt').classList.add('calc'); $('statusTxt').textContent='Recalculando…';
+  clearTimeout(_st); _st=setTimeout(()=>{ $('statusDot').classList.remove('calc'); $('statusTxt').classList.remove('calc'); $('statusTxt').textContent='Simulador activo'; },550);
+}
+
+/* ---- SIM 1: Regla 10% ---- */
+function sim10(){
+  recalc();
+  const inc=+$('r10-inc').value, exp=+$('r10-exp').value;
+  $('l-r10-inc').textContent=eur(inc); $('l-r10-exp').textContent=eur(exp);
+  const baseSav=Math.max(0,inc-exp), baseR=0.03;
+  const optSav=Math.max(0,inc*1.10-exp*0.90), optR=0.10;
+  let bC=15000,oC=15000,bp=[],op=[];
+  for(let i=0;i<=20;i++){
+    if(i>0){ bC=(bC+baseSav)*(1+baseR); oC=(oC+optSav)*(1+optR); }
+    const x=(i/20)*484+8, mx=1800000;
+    bp.push(x+','+(180-Math.min(bC,mx)/mx*160));
+    op.push(x+','+(180-Math.min(oC,mx)/mx*160));
+  }
+  $('p-base').setAttribute('d','M '+bp.join(' L '));
+  $('p-opt').setAttribute('d','M '+op.join(' L '));
+  const target=500000; let tb=15000,to=15000,yb=null,yo=null;
+  for(let i=1;i<=40;i++){ tb=(tb+baseSav)*(1+baseR); if(tb>=target&&yb===null)yb=i; to=(to+optSav)*(1+optR); if(to>=target&&yo===null)yo=i; }
+  $('r10-years').textContent=(yb&&yo)?Math.max(0,yb-yo)+' años':'15+ años';
+  $('r10-extra').textContent=eur(Math.max(0,oC-bC));
+}
+
+/* ---- SIM 2: Gravedad 100k ---- */
+function simG(){
+  recalc();
+  const cur=+$('g-cur').value, mon=+$('g-mon').value;
+  $('l-g-cur').textContent=eur(cur); $('l-g-mon').textContent=eur(mon);
+  const limit=100000, r=0.08/12; let cap=cur,m=0;
+  while(cap<limit&&m<360){ cap=(cap+mon)*(1+r); m++; }
+  $('g-mark').style.left=Math.min((cur/200000)*100,98)+'%';
+  if(cur>=limit){
+    $('g-status').textContent='Gravedad superada'; $('g-status').style.cssText='background:rgba(16,185,129,.1);color:var(--em)';
+    $('g-months').textContent='Superado'; $('g-acc').textContent='En órbita';
+  }else{
+    $('g-status').textContent='Gravedad alta'; $('g-status').style.cssText='background:rgba(168,85,247,.1);color:var(--pu)';
+    $('g-months').textContent=m+' meses'; $('g-acc').textContent='Despegando';
+  }
+  $('g-inv').textContent=eur(cur*0.08)+'/año';
+}
+
+/* ---- SIM 3: Pareja ---- */
+let cModel='proporcional';
+function simC(){
+  recalc();
+  const a=+$('c-a').value,b=+$('c-b').value,e=+$('c-e').value;
+  $('l-ca').textContent=eur(a); $('l-cb').textContent=eur(b); $('l-ce').textContent=eur(e);
+  let sA,sB;
+  if(cModel==='50-50'){ sA=e/2; sB=e/2; }
+  else if(cModel==='proporcional'){ const t=a+b; sA=a/t*e; sB=b/t*e; }
+  else { const t=a+b,tot=e+600; sA=a/t*tot-300; sB=b/t*tot-300; }
+  const eA=Math.max(0,sA/a*100), eB=Math.max(0,sB/b*100);
+  $('c-pa').textContent=eA.toFixed(1)+'%'; $('c-pb').textContent=eB.toFixed(1)+'%';
+  $('c-ba').style.width=Math.min(eA,100)+'%'; $('c-bb').style.width=Math.min(eB,100)+'%';
+  const d=Math.abs(eA-eB), tag=$('c-tag'), reco=$('c-reco');
+  if(d>25){ tag.textContent='Fricción extrema'; tag.style.cssText='background:rgba(244,63,94,.1);color:var(--ro)';
+    reco.innerHTML='<strong style="color:var(--ro)">Asimetría fuerte.</strong> El miembro '+(eA>eB?'A':'B')+' soporta una carga desproporcionada. Un modelo <strong>proporcional</strong> o de <strong>3 cubos</strong> reequilibra el esfuerzo.'; }
+  else if(d>10){ tag.textContent='Fricción moderada'; tag.style.cssText='background:rgba(253,215,49,.1);color:var(--am)';
+    reco.innerHTML='<strong>Disparidad sutil pero constante.</strong> Un reajuste proporcional de las aportaciones cuida la salud relacional a largo plazo.'; }
+  else { tag.textContent='Equilibrado'; tag.style.cssText='background:rgba(16,185,129,.1);color:var(--em)';
+    reco.innerHTML='<strong style="color:var(--em)">Esfuerzo simétrico.</strong> Ambos respiran la misma salud financiera relativa.'; }
+}
+document.querySelectorAll('#c-seg button').forEach(btn=>btn.addEventListener('click',()=>{
+  cModel=btn.dataset.m;
+  document.querySelectorAll('#c-seg button').forEach(x=>x.classList.toggle('on',x===btn));
+  simC();
+}));
+
+/* ---- SIM 4: Arquetipos ---- */
+const ARQ={
+  escasez:{t:'El Acumulador Ansioso',d:'Crecer en escasez deja una herida de inseguridad. El riesgo no es gastar de más, sino la parálisis: acumular liquidez ociosa que la inflación erosiona, por miedo a decidir. Tu trabajo es construir seguridad real para poder, por fin, mover el capital.'},
+  tabu:{t:'El Evitador Profesional',d:'Si el dinero era tabú, el patrón adulto es no mirar: posponer decisiones, evitar los números para esquivar la ansiedad. El antídoto no es más información, es una rutina pequeña y fija de revisión que desactive el miedo.'},
+  control:{t:'El Buscador de Autonomía',d:'Haber visto control o dependencia entre tus padres despierta un miedo a perder libertad. Tiendes a levantar un muro de independencia — sano hasta que impide decisiones conjuntas. La clave: un espacio propio innegociable que conviva con un proyecto común.'}
+};
+document.querySelectorAll('#arq button').forEach(btn=>btn.addEventListener('click',()=>{
+  recalc();
+  document.querySelectorAll('#arq button').forEach(x=>x.classList.toggle('on',x===btn));
+  const a=ARQ[btn.dataset.t]; $('arq-t').textContent=a.t; $('arq-d').textContent=a.d;
+}));
+
+/* listeners + init */
+['r10-inc','r10-exp'].forEach(id=>$(id).addEventListener('input',sim10));
+['g-cur','g-mon'].forEach(id=>$(id).addEventListener('input',simG));
+['c-a','c-b','c-e'].forEach(id=>$(id).addEventListener('input',simC));
+sim10(); simG(); simC();
+$('arq-t').textContent=ARQ.escasez.t; $('arq-d').textContent=ARQ.escasez.d;
+</script>
+</body>
+</html>
