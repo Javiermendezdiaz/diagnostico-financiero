@@ -493,6 +493,24 @@ def checkout(session_id: str):
     except Exception as e:
         raise HTTPException(502, "No se pudo crear el pago: %s" % e)
 
+@app.get("/api/_prices")
+def _prices_debug():
+    """Diagnostico temporal: lista los precios activos de Stripe (id, importe, moneda, producto)."""
+    if not STRIPE_SECRET_KEY:
+        return {"error": "no_key"}
+    try:
+        import stripe
+        stripe.api_key = STRIPE_SECRET_KEY
+        out = []
+        for p in (stripe.Price.list(active=True, limit=100, expand=["data.product"]).get("data", []) or []):
+            prod = p.get("product") or {}
+            out.append({"price": p.get("id"), "amount": p.get("unit_amount"),
+                        "currency": p.get("currency"),
+                        "product": (prod.get("name") if isinstance(prod, dict) else prod)})
+        return {"n": len(out), "prices": out}
+    except Exception as e:
+        return {"error": str(e)}
+
 @app.post("/api/stripe-webhook")
 async def stripe_webhook(request: Request):
     if not STRIPE_WEBHOOK_SECRET:
