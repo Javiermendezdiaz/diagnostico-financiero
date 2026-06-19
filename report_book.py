@@ -75,9 +75,14 @@ BLUEACC=colors.HexColor("#3D7DFF")
 def phi(x): return 0.5*(1+math.erf(x/math.sqrt(2)))
 def pctil(s): return round(100*(1-phi((s-45.0)/17.0)))
 def peso(it): return 0.5 if "metacognición" in it.get("dimensiones","") else 1.0
+# «Sobrecarga» es un término de estrés; para capas que no lo son, etiqueta por dominio (C1 lo conserva)
+_BANDA_FIX={"C2":"Sin rumbo","C3":"Frágil","C4":"A la deriva","C5":"Expuesta","C6":"Inflado","C7":"Expuesta","C8":"Vulnerable","C9":"Con fugas","C10":"Apretada","C11":"Estancada"}
 def banda(capa,s):
     for i,b in enumerate(capa["bandas"]):
-        if b["min"]<=s<=b["max"]: return i,b["etiqueta"]
+        if b["min"]<=s<=b["max"]:
+            _e=b["etiqueta"]
+            if _e=="Sobrecarga" and capa.get("code") in _BANDA_FIX: _e=_BANDA_FIX[capa["code"]]
+            return i,_e
     return 3,capa["bandas"][-1]["etiqueta"]
 def score_capa(capa,resp):
     fac={}
