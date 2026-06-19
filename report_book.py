@@ -213,7 +213,7 @@ def _vidx(code, n=3):
 _CONSEJO2={
  "C1":"No es cuestión de aguantar más, sino de ponerle límites al ruido financiero para que tu cabeza descanse.",
  "C2":"No te falta capacidad, te falta un plan con fecha: ponle número y calendario a tu libertad.",
- "C3":"Tu defensa flojea por diseño, no por falta de medios: monta el colchón antes que cualquier inversión.",
+ "C3":"Tu estructura prioriza el consumo presente sobre la resiliencia futura: monta el colchón antes que cualquier inversión.",
  "C4":"El gasto no se controla con fuerza de voluntad, sino con topes automáticos: ponlos y olvídate.",
  "C5":"Aquí el riesgo es de papeles, no de dinero: ordena la protección y dormirás distinto.",
  "C6":"El impulso de aparentar se doma con reglas, no con culpa: 72 horas de pausa antes de comprar.",
@@ -949,7 +949,7 @@ def seccion_extras(extras):
                    "#23200F","#B45309",ancho=160*mm)]
         mapr={"en rumbo":"Y tú mismo lo lees así: <b>en rumbo</b>. Las matemáticas te acompañan; el trabajo es no desviarte.",
               "espejismo":"Y tú mismo lo nombras: <b>espejismo</b>. Vives bien el presente mientras el futuro se aleja en silencio.",
-              "vía muerta":"Y tú mismo lo reconoces: <b>vía muerta</b>. Sin cambiar de modelo, esa vida seguirá siendo una fantasía. La buena noticia: el modelo se cambia."}
+              "vía muerta":"Y tú mismo lo reconoces: <b>vía muerta</b>. Sin cambiar de modelo, esa vida es matemáticamente inviable con tu estructura de ingresos actual. La buena noticia: el modelo se cambia."}
         if br.get("reconocimiento") in mapr:
             out.append(Paragraph(mapr[br["reconocimiento"]],St("brr",fontSize=10,leading=14,spaceBefore=4)))
     if pal:
@@ -959,7 +959,7 @@ def seccion_extras(extras):
             out.append(Paragraph(f"<font color='#0F766E'>&#9656;</font>  <b>{ti}</b>",St("plt",fontSize=10.5,leading=14,spaceBefore=5)))
             out.append(Paragraph(tx,St("plx",fontSize=9.7,leading=14,leftIndent=12,spaceAfter=3)))
     if con:
-        out+=[Spacer(1,4*mm), Paragraph("Lo que no te cuadra (y conviene mirar)",h_sub),
+        out+=[Spacer(1,4*mm), Paragraph("Disonancias estructurales — lo que no te cuadra",h_sub),
               Paragraph("Las grietas más caras de un plan viven en la distancia entre lo que dices, lo que sientes y lo que miden tus números. Estas son las tuyas:",small)]
         for ti,tx in con:
             out.append(Paragraph(f"<font color='#9A3B2E'>&#9656;</font>  <b>{ti}</b>",St("cot",fontSize=10.5,leading=14,spaceBefore=5)))
@@ -967,7 +967,7 @@ def seccion_extras(extras):
     rt=extras.get("ratios") or []
     if rt:
         _RC={"verde":"#1D6F42","ambar":"#B8860B","rojo":"#9A3B2E","info":"#7A7A72"}
-        out+=[Spacer(1,5*mm), Paragraph("Tus ratios financieros",h_sub),
+        out+=[Spacer(1,5*mm), Paragraph("Tu matriz de resiliencia financiera",h_sub),
               Paragraph("Las cifras que un buen asesor mira primero. Cada una con su umbral y qué hacer si se cruza. El color es el semáforo: verde sano, ámbar a vigilar, rojo a actuar.",small)]
         _rows=[]
         for r in rt:
@@ -1146,14 +1146,14 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         PageBreak()]
     # carta de apertura
     S+=[Paragraph("Antes de empezar",h_sec),
-        Paragraph("Este libro no es un test ni una sentencia. "
+        Paragraph("Este libro no es un cuestionario más ni una sentencia. "
                   "Es un espejo. Cada página nace de tus propias respuestas y las ordena para que veas, sin ruido, "
                   "dónde tu dinero te sostiene y dónde te pesa.",body),
         Paragraph("Lo hemos escrito como un libro, no como una ficha, porque tu vida financiera no se entiende con "
                   "un solo número. Se entiende como una historia con capítulos: tu salud emocional con el dinero, tu "
                   "libertad, tu resistencia a los golpes, tu deuda, tu manera de gastar y de protegerte. Cada capítulo "
                   "te dice qué mide, qué ha salido, qué significa para ti y cuál es tu siguiente paso.",body),
-        Paragraph("No hay respuestas buenas o malas: hay puntos de partida. Léelo con calma, en orden. Al final "
+        Paragraph("No se trata de aprobar o suspender: esto fija la línea de base de tu eficiencia patrimonial, el punto desde el que se construye. Léelo con calma, en orden. Al final "
                   "tendrás un mapa y un plan.",body),
         Spacer(1,4*mm),
         Paragraph("Una nota de cuidado: este libro es una herramienta de autoconocimiento, no asesoramiento "
