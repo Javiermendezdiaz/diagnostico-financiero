@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from typing import Optional, Dict
+from typing import Optional, Dict, Any
 import report_book as rb
 import report_couple as rc
 
@@ -69,8 +69,8 @@ class StartPayload(BaseModel):
 class CompletePayload(BaseModel):
     session_id: str
     email: Optional[str] = None
-    respuestas: Dict[str, int] = {}
-    datos: Optional[Dict[str, float]] = None
+    respuestas: Dict[str, Any] = {}
+    datos: Optional[Dict[str, Any]] = None
     pareja_de: Optional[str] = None
     abiertas: Optional[Dict[str, str]] = {}
     perfil: Optional[Dict[str, object]] = {}
