@@ -35,9 +35,10 @@ input,select{width:100%;background:#1c1c20;border:1px solid var(--bd);color:var(
 .center{text-align:center;padding:14px 0}
 .chk{display:flex;gap:10px;align-items:flex-start;margin:14px 0;font-size:13px;color:var(--gr)}.chk input{width:auto;margin-top:2px}
 a{color:var(--am)}
-.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%) translateY(-12px);max-width:560px;width:calc(100% - 28px);
-  padding:11px 14px;border-radius:11px;font-size:13px;font-weight:600;line-height:1.35;opacity:0;pointer-events:none;transition:.28s;z-index:60;border:1px solid}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%) translateY(-14px) scale(.98);max-width:580px;width:calc(100% - 28px);
+  padding:13px 17px;border-radius:13px;font-size:14px;font-weight:600;line-height:1.4;opacity:0;pointer-events:none;transition:.32s cubic-bezier(.2,.85,.25,1);z-index:60;border:1px solid;box-shadow:0 16px 46px -14px rgba(0,0,0,.8)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+.toast .kk{display:block;font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;font-weight:800;opacity:.8;margin-bottom:4px}
 .toast.s0{background:#0e2419;border-color:#1f7a4d;color:#7ee3ad}
 .toast.s50{background:#2a2410;border-color:#9a7b1e;color:#f2cf6b}
 .toast.s100{background:#2a1413;border-color:#9a3024;color:#f6a89c}
@@ -55,7 +56,7 @@ a{color:var(--am)}
 .pacto h3{font-size:19px;font-weight:800;margin-bottom:6px}
 .pacto .pl{display:flex;gap:9px;margin:12px 0;font-size:14px;line-height:1.45;color:var(--tx)}.pacto .pl b{color:var(--am)}
 .pacto .pl i{color:var(--am);font-style:normal;font-weight:800}
-.reflex{color:var(--gr);font-size:12px;font-style:italic;margin:14px 0 2px;padding-left:11px;border-left:2px solid var(--bd);min-height:16px}
+.reflex{color:#cbb978;font-size:13px;font-style:italic;margin:16px 0 2px;padding-left:12px;border-left:2px solid var(--am);min-height:16px;line-height:1.45}
 </style></head>
 <body>
 <div class="toast" id="toast"></div>
@@ -202,11 +203,14 @@ function descTier(){
   const T={'1':'10-12 min.','2':'15-20 min.','3':'15-20 min. por persona'};
   const te=document.getElementById('tiempoEst'); if(te) te.textContent=T[el.value]||'15-20 min.';
 }
-const REFLEX=["Sin prisa. Responde por cómo es, no por cómo te gustaría que fuera.",
-  "No hay respuesta correcta. Solo la verdadera.",
-  "Tómate un segundo. La respuesta honesta es la que de verdad te sirve.",
-  "Esto es un espejo, no un examen. Mírate sin filtro.",
-  "Cuanto más sincero seas, más preciso será tu diagnóstico."];
+const REFLEX=["La respuesta cómoda y la verdadera casi nunca son la misma. Marca la que incomoda.",
+  "Nadie te está viendo. Es el único sitio donde puedes dejar de mentirte.",
+  "Lo que te cueste marcar es, justo, lo que te está costando dinero.",
+  "Si dudas entre dos, elige la que menos te gusta admitir. Esa es la tuya.",
+  "Tu yo de dentro de diez años está leyendo esta respuesta.",
+  "Puedes quedar bien con el test, o quedar bien contigo. No las dos.",
+  "El dinero ya sabe la verdad sobre ti. Esto es para que la sepas tú.",
+  "Cada respuesta de relleno es una página en blanco en tu diagnóstico."];
 
 function construirCola(){
   st.cola=[];
@@ -322,10 +326,10 @@ function toast(score,tag){
   if(!tag) return;
   const t=document.getElementById('toast');
   const cls = score>=100?'s100':(score>=50?'s50':'s0');
-  const ic = score>=100?'⚠️':(score>=50?'•':'✓');
-  t.className='toast '+cls; t.textContent=ic+'  '+tag;
+  const kk = score>=100?'⚠ Foco de tensión':(score>=50?'• Señal a vigilar':'✓ Esto juega a tu favor');
+  t.className='toast '+cls; t.innerHTML='<span class="kk">'+kk+'</span>'+tag;
   requestAnimationFrame(()=>t.classList.add('show'));
-  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2300);
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),3400);
 }
 function escaner(cap,cb){
   const v=capaBand(cap);
@@ -378,7 +382,7 @@ function capaMean(cap){
   return crib.reduce((a,it)=>a+it.opciones[st.resp[it.id]].score,0)/crib.length;
 }
 function popupEstres(cb){
-  document.getElementById('modalP').innerHTML='Estamos detectando algunos focos de tensión importantes en tu perfil. Tranquilo: al terminar recibirás un <b>informe detallado con un plan de acción, paso a paso</b>, para resolver cada uno. Seguimos.';
+  document.getElementById('modalP').innerHTML='He encontrado focos de tensión reales en tu perfil — de los que cuestan dinero y sueño. No te los enseño para asustarte, sino para que dejes de fingir que no están. Al terminar tendrás el <b>plan, paso a paso, para desactivar cada uno</b>. Seguimos.';
   const m=document.getElementById('modal'); m.classList.add('on');
   document.getElementById('modalBtn').onclick=()=>{ m.classList.remove('on'); cb(); };
 }
