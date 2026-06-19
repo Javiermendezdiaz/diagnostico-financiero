@@ -1333,8 +1333,10 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         S+=[Paragraph("Tu retrato, en tus palabras",h_sec),
             Paragraph("Esta lectura nace de lo que tú mismo escribiste en tus respuestas abiertas, cruzado con lo que dicen tus números.",small),
             Spacer(1,2*mm)]
+        import re as _re_md
         for _par in [x for x in str(sintesis).replace("\r","").split("\n") if x.strip()]:
             _e=_par.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+            _e=_re_md.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", _e)   # markdown negrita -> <b> (evita ** literales)
             S.append(Paragraph(_e,body))
         S+=[PageBreak()]
     # plan
@@ -1402,7 +1404,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         S+=[_box([Paragraph("<font color='#B45309'><b>Tu regla de contingencia</b></font><br/>"
                 f"<font size=9.5>Todo plan necesita un freno de emergencia. El tuyo: si tu fondo l\u00edquido baja de "
                 f"<b>{_eur(col6)}</b> (seis meses de gastos) o llega un imprevisto grande, <b>pausa las fases 2 y 3</b> "
-                f"y vuelca todo el excedente a reconstruir ese col\u00f3n antes de seguir. Proteger la base va siempre "
+                f"y vuelca todo el excedente a reconstruir ese colch\u00f3n antes de seguir. Proteger la base va siempre "
                 f"primero; crecer puede esperar unas semanas.</font>",St("kc",fontSize=10.5,leading=15))],
                 "#2A2010","#B45309",ancho=160*mm)]
         S+=[PageBreak(),
@@ -1427,7 +1429,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   "y señala exactamente dónde divergís — el origen de la mayoría de los conflictos silenciosos por dinero.",body),
         Spacer(1,5*mm),
         Paragraph("Metodología y límites",h_sub),
-        Paragraph("Instrumento de 10 capas con dimensiones psicométricas de polaridad consistente. Los percentiles "
+        Paragraph("Instrumento de 11 capas con dimensiones psicométricas de polaridad consistente. Los percentiles "
                   "se calibran empíricamente frente a la cohorte real de respondentes; mientras la muestra de tu grupo crece, se indican como provisionales. Herramienta "
                   "de autoconocimiento; no sustituye asesoramiento profesional individualizado.",small)]
     if extras and depth!="esencial": S+=seccion_coste_inaccion(extras)
