@@ -131,6 +131,9 @@ a{color:var(--am)}
   <div id="parejaNote" style="display:none;margin-top:12px;padding:12px 14px;border-left:3px solid var(--am);background:#1c1c20;border-radius:8px;font-size:13px;line-height:1.5">
     <b style="color:var(--am)">En pareja, ojo con las cifras:</b> habla siempre de <b>tus</b> números individuales, no de los de los dos juntos. Tus ingresos, lo que <b>tú</b> pagas de los gastos, tu patrimonio. Nosotros los sumamos para ver vuestro hogar. Si compartís un gasto (alquiler, etc.), declara solo <b>la parte que pones tú</b>.
   </div>
+  <div id="soloNote" style="display:none;margin-top:12px;padding:12px 14px;border-left:3px solid var(--am);background:#1c1c20;border-radius:8px;font-size:13px;line-height:1.5">
+    <b style="color:var(--am)">Solo tus cifras, no las del hogar:</b> este diagnóstico es sobre <b>ti</b>. Responde con tus números <b>individuales</b> — tus ingresos, tu patrimonio, tus propiedades, tu parte de los gastos —, <b>sin sumar los de tu pareja</b>. Si compartís un gasto o una vivienda, declara solo <b>la parte que te corresponde a ti</b>.
+  </div>
   <button class="btn" onclick="arrancarTest()">Acepto. Empecemos →</button>
 </div>
 
@@ -229,6 +232,7 @@ async function iniciar(){
     st.sid=(await r.json()).session_id;
     construirCola();
     if(PAREJA){const pn=document.getElementById('parejaNote');if(pn)pn.style.display='block';}
+    else{const sn=document.getElementById('soloNote');if(sn)sn.style.display='block';}
     show('s-pacto');
   }catch(e){console.error(e);alert('No se pudo cargar. Reintenta.');show('s-reg')}
 }
