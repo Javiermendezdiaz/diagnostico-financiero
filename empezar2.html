@@ -57,6 +57,13 @@ a{color:var(--am)}
 .pacto .pl{display:flex;gap:9px;margin:12px 0;font-size:14px;line-height:1.45;color:var(--tx)}.pacto .pl b{color:var(--am)}
 .pacto .pl i{color:var(--am);font-style:normal;font-weight:800}
 .reflex{color:#cbb978;font-size:13px;font-style:italic;margin:16px 0 2px;padding-left:12px;border-left:2px solid var(--am);min-height:16px;line-height:1.45}
+@keyframes qin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.qin{animation:qin .34s cubic-bezier(.2,.85,.25,1) both}
+.optin{animation:qin .32s cubic-bezier(.2,.85,.25,1) both}
+.prail{margin:0 0 18px}
+.prail-h{display:flex;justify-content:space-between;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--gr);font-weight:700;margin-bottom:7px}
+.capas-rail{display:flex;gap:4px}
+.cap-pip{flex:1;height:5px;border-radius:99px;background:var(--bd);transition:background .55s,box-shadow .55s}
 </style></head>
 <body>
 <div class="toast" id="toast"></div>
@@ -110,6 +117,7 @@ a{color:var(--am)}
 <div id="s-q" class="step">
   <div class="bar"><i id="bar"></i></div>
   <div class="tens"><span class="lbl2" id="tensLbl" style="color:#7ee3ad">Estructura eficiente</span><div class="tbar"><i id="tbar" style="background:#1f7a4d"></i></div></div>
+  <div class="prail"><div class="prail-h"><span>Tu perfil en construcción</span><span id="capasCount">0 / 11 capas</span></div><div class="capas-rail" id="capasRail"></div></div>
   <div class="qnum" id="bloque"></div>
   <div class="qtext" id="qtext"></div>
   <div class="ayuda" id="ayuda" style="display:none"></div>
@@ -303,7 +311,14 @@ function pintar(){
       b.onclick=()=>elegir(q,idx); opts.appendChild(b);
     });
   }
+  // entrada animada de la pregunta y de las opciones (transiciones vivas)
+  ['bloque','qtext'].forEach(id=>{const e=document.getElementById(id);if(e){e.classList.remove('qin');void e.offsetWidth;e.classList.add('qin');}});
+  [...opts.children].forEach((el,i)=>{el.classList.add('optin');el.style.animationDelay=(i*45)+'ms';});
+  // perfil que se construye en vivo
+  const _r=document.getElementById('capasRail'); if(_r&&!_r.children.length)buildCapasRail(); updateCapasRail();
 }
+function buildCapasRail(){ const r=document.getElementById('capasRail'); if(!r||!INST||!INST.capas)return; r.innerHTML=''; INST.capas.forEach(c=>{const p=document.createElement('i');p.className='cap-pip';p.dataset.cap=c.code;p.title=c.nombre;r.appendChild(p);}); }
+function updateCapasRail(){ if(!INST||!INST.capas)return; let rev=0; INST.capas.forEach(c=>{ const pip=document.querySelector('.cap-pip[data-cap="'+c.code+'"]'); if(!pip)return; const ans=c.items.filter(it=>it.nivel==='nucleo'&&st.resp[it.id]!=null).length; if(!ans)return; rev++; const health=100-capaMean(c.code); const col=health>=70?'#1f7a4d':health>=45?'#9a7b1e':health>=25?'#c2710c':'#b91c1c'; pip.style.background=col; pip.style.boxShadow='0 0 7px '+col+'90'; }); const cc=document.getElementById('capasCount'); if(cc)cc.textContent=rev+' / '+INST.capas.length+' capas'; }
 function progreso(q){
   const orden=['SD','VIS','NUM',...INST.capas.map(c=>c.code),'OPEN'];
   const idx=orden.indexOf(q._cap);
