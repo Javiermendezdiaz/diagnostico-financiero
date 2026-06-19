@@ -105,7 +105,7 @@ def bignum(out, titulo, numero, sufijo, caption, side_head, side_body, bullets, 
 
 if __name__=="__main__":
     O="/sessions/jolly-beautiful-cray/mnt/outputs/"
-    cover(O+"d_cover.png","Javier Méndez","17 de junio de 2026",ref="ITAP-X-00CBD")
+    cover(O+"d_cover.png","Javier Méndez","17 de junio de 2026",ref="AFO-X-00CBD")
     divider(O+"d_div1.png","Sección I",
             ["Arqueología del","Comportamiento"],
             "Las decisiones y creencias heredadas que construyeron, en silencio, tus cimientos de hoy.")
@@ -194,15 +194,22 @@ def termometro(out, titulo, indice, etiqueta, drivers, accent=BLUE):
     ax.add_patch(Circle((cx,cy),0.012,color=WHITE,transform=ax.transAxes,zorder=7))
     ax.text(cx,cy-0.10,str(int(indice)),ha="center",va="center",color=WHITE,fontproperties=L(50),transform=ax.transAxes)
     ax.text(cx,cy-0.165,_spaced(etiqueta.upper(),1),ha="center",va="center",color=accent,fontproperties=Pm(10),transform=ax.transAxes)
+    ax.text(cx,cy-0.215,"0 = BLINDADO   ·   100 = EXPUESTO",ha="center",va="center",color=MUTE,fontproperties=P(7.5),transform=ax.transAxes)
     ax.text(cx,cy+Rr+0.03,"ÍNDICE DE VULNERABILIDAD",ha="center",va="center",color=MUTE,fontproperties=P(9.5),transform=ax.transAxes)
     # drivers columna derecha
     x=0.70; yy=0.62
     ax.text(x,yy+0.06,"Qué lo mueve",ha="left",va="center",color=accent,fontproperties=Pm(12),transform=ax.transAxes)
+    ax.text(x,yy+0.028,"barra llena = factor sano",ha="left",va="center",color=MUTE,fontproperties=Li(8.5),transform=ax.transAxes)
     for nombre,val,estado in drivers:  # val 0..1, estado color
         ax.text(x,yy,nombre,ha="left",va="center",color=WHITE,fontproperties=P(10),transform=ax.transAxes)
         ax.add_patch(Rectangle((x,yy-0.028),0.22,0.012,color="#1E2C46",transform=ax.transAxes))
         ax.add_patch(Rectangle((x,yy-0.028),0.22*val,0.012,color=estado,transform=ax.transAxes))
         yy-=0.085
+    import textwrap as _tw2
+    _expv="Mide cuánto te afectaría un imprevisto —un paro, un gasto grande—. Cuanto más alto el número, más expuesto estás; cuanto más bajo, más blindado."
+    _ey=0.155
+    for _ln in _tw2.wrap(_expv,90):
+        ax.text(0.085,_ey,_ln,ha="left",va="top",color=MUTE,fontproperties=P(9),transform=ax.transAxes); _ey-=0.028
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
 def constitucion(out, reglas, subtit, accent=GOLD):
@@ -225,6 +232,7 @@ def matriz_tiempo(out, pct_pasivo, ing_activo, ing_pasivo, accent=BLUE):
     """¿Trabajas tú o trabaja tu dinero? Barra activo (sangre) vs pasivo (libre)."""
     fig,ax=_canvas(); _bg(ax,(0.84,0.84))
     _vbar(ax,0.085,0.85,"¿Trabajas tú, o trabaja tu dinero?",accent,sz=17)
+    ax.text(0.10,0.715,"De cada euro que ganas hoy: cuánto exige tu tiempo (rojo) y cuánto trabaja sin ti (oro).",ha="left",va="center",color=MUTE,fontproperties=P(9.5),transform=ax.transAxes)
     pp=max(0.0,min(1.0,pct_pasivo)); pa=1-pp
     x0,w,y,h=0.10,0.80,0.52,0.075
     ax.add_patch(Rectangle((x0,y),w*pa,h,color="#C65C4E",transform=ax.transAxes,zorder=4))
@@ -232,8 +240,8 @@ def matriz_tiempo(out, pct_pasivo, ing_activo, ing_pasivo, accent=BLUE):
     # etiquetas grandes
     ax.text(x0,y+0.13,"%d%%"%round(pa*100),ha="left",va="center",color="#E2796B",fontproperties=L(40),transform=ax.transAxes)
     ax.text(x0+w,y+0.13,"%d%%"%round(pp*100),ha="right",va="center",color=GOLD,fontproperties=L(40),transform=ax.transAxes)
-    ax.text(x0,y-0.04,"DE TU DINERO ES TIEMPO TUYO",ha="left",va="top",color=MUTE,fontproperties=P(9.5),transform=ax.transAxes)
-    ax.text(x0+w,y-0.04,"TRABAJA SOLO",ha="right",va="top",color=MUTE,fontproperties=P(9.5),transform=ax.transAxes)
+    ax.text(x0,y-0.04,"DEPENDE DE TU ESFUERZO",ha="left",va="top",color=MUTE,fontproperties=P(9.5),transform=ax.transAxes)
+    ax.text(x0+w,y-0.04,"TRABAJA SIN TI",ha="right",va="top",color=MUTE,fontproperties=P(9.5),transform=ax.transAxes)
     # interpretación
     import textwrap
     if pp<0.05:

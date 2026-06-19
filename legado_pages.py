@@ -173,7 +173,7 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
     """Secuencia oscura de apertura, gateada por tier. esencial=T1 (reducido), completo=T2 (todo)."""
     completo = (depth != "esencial")
     seq=[]; nombre=cli.get("nombre") or "Cliente"
-    ref=("ITAP-%s"%(str(abs(hash(cli.get('email') or nombre))%9999)).zfill(4))
+    ref=("AFO-%s"%(str(abs(hash(cli.get('email') or nombre))%9999)).zfill(4))
     seq.append(LD.cover(tmp+"00.svg",nombre,cli.get("fecha",""),ref=ref))
     br=(extras or {}).get("brecha") or {}
     if completo:
@@ -312,7 +312,7 @@ def _carga_pct(perfil, propio=True):
 
 def pareja_hero(nA,nB,cliA,dA,dB,pA,pB,hogar_num,fecha,tmp="/tmp/_lp_",perfilA=None,perfilB=None):
     seq=[]
-    ref=("ITAP-%s"%(str(abs(hash((cliA.get('email') or nA)+nB))%9999)).zfill(4))
+    ref=("AFO-%s"%(str(abs(hash((cliA.get('email') or nA)+nB))%9999)).zfill(4))
     seq.append(LD.cover_pareja(tmp+"00.svg",nA,nB,fecha,ref=ref))
     seq.append(LD.divider(tmp+"01.svg","El Libro de Pareja",["La diferencia","callada"],
         "El dinero rara vez rompe por cuánto hay. Rompe por cómo lo vive cada uno — y no se habla. Aquí lo ponemos sobre la mesa.",

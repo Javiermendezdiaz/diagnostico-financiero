@@ -708,7 +708,7 @@ def report_id(nombre, fecha):
     import hashlib
     ini=''.join([w[0] for w in (nombre or 'X').split()[:2]]).upper() or 'X'
     h=hashlib.sha1((str(nombre)+str(fecha)).encode('utf-8')).hexdigest()[:5].upper()
-    return f"ITAP-{ini}-{h}"
+    return f"AFO-{ini}-{h}"
 
 def valor_hora(datos):
     return max(datos.get("ingreso_mensual",0),0)/160.0
