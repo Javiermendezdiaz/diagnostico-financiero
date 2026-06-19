@@ -737,6 +737,14 @@ def cuadro_financiero(p, datos, fi):
     cashflow_waterfall(datos,"_cash.png")
     out+=[KeepTogether([Paragraph("Tu flujo de caja",h_sub),
           Image("_cash.png",width=160*mm,height=75*mm,hAlign="CENTER")])]
+    # Anatomia del flujo: deficit real (dinamico, solo si gasta mas de lo que ingresa)
+    _ingm=max(datos.get("ingreso_mensual",0),0); _gasm=datos.get("gasto_mensual",0) or 0; _defm=_gasm-_ingm
+    if _defm>0:
+        out.append(_box([
+            Paragraph("<font color='#E2796B'><b>Brecha negativa: %s/mes</b></font>"%_eur(_defm),St("brnh",fontSize=11,leading=15)),
+            Paragraph("<font size=9.5>Gastas <b>%s/mes</b> e ingresas <b>%s/mes</b>: operas en déficit de <b>%s al mes</b> (unos <b>%s al año</b>). Ese hueco no se evapora — se cubre consumiendo tu colchón o con deuda invisible (tarjetas, aplazamientos). En banca privada se llama <i>pérdida latente por descontrol de costes fijos</i>. La palanca no es ganar más: es ver, al euro, a dónde va tu dinero.</font>"%(_eur(_gasm),_eur(_ingm),_eur(_defm),_eur(_defm*12)),St("brnx",fontSize=9.5,leading=14,spaceBefore=3))],
+            "#2A1414","#9A3B2E",ancho=160*mm))
+        out.append(Paragraph("<font color='#B5B3A6'><i>Dictamen de dirección patrimonial: la libertad no se alcanza subiendo los ingresos al infinito, sino optimizando la estructura que sostiene cada euro que ya generas.</i></font>",St("dic",fontSize=9.5,leading=14,spaceBefore=5)))
     tap=tapon_coste(datos)
     if tap:
         exceso,coste=tap
@@ -1008,7 +1016,7 @@ def seccion_extras(extras):
             rc=pr["recomendado"]
             out.append(Paragraph("Marco de referencia 50/30/20 sobre tus ingresos: necesidades ~<b>%s</b>, deseos ~<b>%s</b>, y a construir patrimonio ~<b>%s</b>/mes. Una brújula, no una jaula."%(_eur(rc["necesidades"]),_eur(rc["deseos"]),_eur(rc["ahorro"])),St("prr",fontSize=9.7,leading=14,spaceBefore=3)))
         if pr.get("empresario"):
-            out.append(Paragraph("<font color='#B45309'>&#9656;</font>  <b>Separa familia y negocio.</b> Tu cuota de autónomos, tus tributos y la gestoría <b>no son gasto de vida familiar</b>: mezclarlos distorsiona tu coste de vida real y tu verdadera capacidad de ahorro. Dos cuentas, dos presupuestos, siempre.",St("pre",fontSize=9.7,leading=14,spaceBefore=4,leftIndent=4)))
+            out.append(Paragraph("<font color='#B45309'>&#9656;</font>  <b>Síndrome del cortocircuito patrimonial: separa familia y negocio.</b> Tu cuota de autónomos, tus tributos y la gestoría <b>no son gasto de vida familiar</b>: mezclarlos distorsiona tu coste de vida real y tu verdadera capacidad de ahorro. Tu negocio no debe financiar tu vida ni tu vida absorber los golpes del negocio. Dos cuentas, dos presupuestos, siempre.",St("pre",fontSize=9.7,leading=14,spaceBefore=4,leftIndent=4)))
     vi=extras.get("vivienda")
     if vi and vi.get("modo"):
         _sevc={"alta":"#9A3B2E","media":"#B45309","baja":"#0F766E"}.get(vi.get("severidad"),"#B45309")
