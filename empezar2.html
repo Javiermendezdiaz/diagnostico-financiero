@@ -65,22 +65,15 @@ a{color:var(--am)}
 .q-card{transition:opacity .3s cubic-bezier(.4,0,.2,1),transform .3s cubic-bezier(.4,0,.2,1)}
 .q-card.in{animation:cardin .5s cubic-bezier(.4,0,.2,1) both}
 .q-card.exit{opacity:0;transform:translateY(-20px)}
-.q-side{text-align:center;margin:0 0 16px}
+.q-side{order:-1;text-align:center;margin:0 auto 18px;background:#0a0c14;border:1px solid var(--bd);border-radius:16px;padding:18px 14px 13px;max-width:340px;width:100%}
 .radar-cap{font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--gr);font-weight:700;margin-bottom:4px}
 .radar-cap span:last-child{color:var(--am)}
-#radarWrap svg{width:230px;height:auto;max-width:74vw}
-.q-side-foot{font-size:10px;color:var(--gr);margin-top:8px;letter-spacing:.3px;font-style:italic}
+#radarWrap svg{width:232px;height:auto;max-width:82%}
+.q-side-foot{font-size:10px;color:var(--gr);margin-top:6px;letter-spacing:.3px;font-style:italic}
 .opt{transition:transform .12s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease}
 .opt:hover{border-color:var(--am)}
 .opt:active{transform:scale(.98)}
 .opt.sel{border-color:var(--am);background:rgba(253,215,49,.07);box-shadow:0 0 0 1px var(--am)}
-@media(min-width:860px){
-  .q-split{flex-direction:row;gap:34px;align-items:flex-start}
-  .q-main{flex:1 1 60%;min-width:0}
-  .q-side{flex:0 0 36%;position:sticky;top:24px;background:#0a0c14;border:1px solid var(--bd);border-radius:18px;padding:22px 16px;margin:34px 0 0}
-  #radarWrap svg{width:100%;max-width:264px}
-}
-@media(max-width:859px){#radarWrap svg{max-width:152px}.q-side-foot{display:none}.q-side{order:-1}}
 </style></head>
 <body>
 <div class="toast" id="toast"></div>
