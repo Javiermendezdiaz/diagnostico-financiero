@@ -516,23 +516,6 @@ def verify_payment(session_id: str, background_tasks: BackgroundTasks, cs: str =
     except Exception as e:
         return {"pagado": False, "reason": "error_%s" % type(e).__name__}
 
-@app.get("/api/_prices")
-def _prices_debug():
-    """Diagnostico temporal: lista los precios activos de Stripe (id, importe, moneda, producto)."""
-    if not STRIPE_SECRET_KEY:
-        return {"error": "no_key"}
-    try:
-        import stripe
-        stripe.api_key = STRIPE_SECRET_KEY
-        out = []
-        for p in stripe.Price.list(active=True, limit=100, expand=["data.product"]).data:
-            prod = p.product
-            name = prod if isinstance(prod, str) else getattr(prod, "name", None)
-            out.append({"price": p.id, "amount": p.unit_amount, "currency": p.currency, "product": name})
-        return {"n": len(out), "prices": out}
-    except Exception as e:
-        return {"error": str(e)}
-
 @app.post("/api/stripe-webhook")
 async def stripe_webhook(request: Request):
     if not STRIPE_WEBHOOK_SECRET:
