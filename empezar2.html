@@ -60,10 +60,27 @@ a{color:var(--am)}
 @keyframes qin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .qin{animation:qin .34s cubic-bezier(.2,.85,.25,1) both}
 .optin{animation:qin .32s cubic-bezier(.2,.85,.25,1) both}
-.prail{margin:0 0 18px}
-.prail-h{display:flex;justify-content:space-between;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--gr);font-weight:700;margin-bottom:7px}
-.capas-rail{display:flex;gap:4px}
-.cap-pip{flex:1;height:5px;border-radius:99px;background:var(--bd);transition:background .55s,box-shadow .55s}
+.q-split{display:flex;flex-direction:column;gap:0}
+@keyframes cardin{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.q-card{transition:opacity .3s cubic-bezier(.4,0,.2,1),transform .3s cubic-bezier(.4,0,.2,1)}
+.q-card.in{animation:cardin .5s cubic-bezier(.4,0,.2,1) both}
+.q-card.exit{opacity:0;transform:translateY(-20px)}
+.q-side{text-align:center;margin:0 0 16px}
+.radar-cap{font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--gr);font-weight:700;margin-bottom:4px}
+.radar-cap span:last-child{color:var(--am)}
+#radarWrap svg{width:230px;height:auto;max-width:74vw}
+.q-side-foot{font-size:10px;color:var(--gr);margin-top:8px;letter-spacing:.3px;font-style:italic}
+.opt{transition:transform .12s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease}
+.opt:hover{border-color:var(--am)}
+.opt:active{transform:scale(.98)}
+.opt.sel{border-color:var(--am);background:rgba(253,215,49,.07);box-shadow:0 0 0 1px var(--am)}
+@media(min-width:860px){
+  .q-split{flex-direction:row;gap:34px;align-items:flex-start}
+  .q-main{flex:1 1 60%;min-width:0}
+  .q-side{flex:0 0 36%;position:sticky;top:24px;background:#0a0c14;border:1px solid var(--bd);border-radius:18px;padding:22px 16px;margin:34px 0 0}
+  #radarWrap svg{width:100%;max-width:264px}
+}
+@media(max-width:859px){#radarWrap svg{max-width:152px}.q-side-foot{display:none}.q-side{order:-1}}
 </style></head>
 <body>
 <div class="toast" id="toast"></div>
@@ -115,16 +132,26 @@ a{color:var(--am)}
 </div>
 
 <div id="s-q" class="step">
-  <div class="bar"><i id="bar"></i></div>
-  <div class="tens"><span class="lbl2" id="tensLbl" style="color:#7ee3ad">Estructura eficiente</span><div class="tbar"><i id="tbar" style="background:#1f7a4d"></i></div></div>
-  <div class="prail"><div class="prail-h"><span>Tu perfil en construcción</span><span id="capasCount">0 / 11 capas</span></div><div class="capas-rail" id="capasRail"></div></div>
-  <div class="qnum" id="bloque"></div>
-  <div class="qtext" id="qtext"></div>
-  <div class="ayuda" id="ayuda" style="display:none"></div>
-  <div id="opts"></div>
-  <div class="reflex" id="reflex"></div>
-  <button class="btn" id="cont" style="display:none" onclick="contNum()">Siguiente →</button>
-  <button class="back" id="atras" style="display:none" onclick="atras()">← Atrás</button>
+  <div class="q-split">
+    <div class="q-main">
+      <div class="bar"><i id="bar"></i></div>
+      <div class="tens"><span class="lbl2" id="tensLbl" style="color:#7ee3ad">Estructura eficiente</span><div class="tbar"><i id="tbar" style="background:#1f7a4d"></i></div></div>
+      <div class="q-card" id="qcard">
+        <div class="qnum" id="bloque"></div>
+        <div class="qtext" id="qtext"></div>
+        <div class="ayuda" id="ayuda" style="display:none"></div>
+        <div id="opts"></div>
+        <div class="reflex" id="reflex"></div>
+      </div>
+      <button class="btn" id="cont" style="display:none" onclick="contNum()">Siguiente →</button>
+      <button class="back" id="atras" style="display:none" onclick="atras()">← Atrás</button>
+    </div>
+    <aside class="q-side">
+      <div class="radar-cap"><span>Tu huella patrimonial</span> · <span id="capasCount">0 / 11 capas</span></div>
+      <div id="radarWrap"></div>
+      <div class="q-side-foot">Analizando tu perfil en tiempo real…</div>
+    </aside>
+  </div>
 </div>
 
 <div id="s-gen" class="step center"><div class="spin"></div>
@@ -311,14 +338,25 @@ function pintar(){
       b.onclick=()=>elegir(q,idx); opts.appendChild(b);
     });
   }
-  // entrada animada de la pregunta y de las opciones (transiciones vivas)
-  ['bloque','qtext'].forEach(id=>{const e=document.getElementById(id);if(e){e.classList.remove('qin');void e.offsetWidth;e.classList.add('qin');}});
-  [...opts.children].forEach((el,i)=>{el.classList.add('optin');el.style.animationDelay=(i*45)+'ms';});
-  // perfil que se construye en vivo
-  const _r=document.getElementById('capasRail'); if(_r&&!_r.children.length)buildCapasRail(); updateCapasRail();
+  // entrada animada de la card + stagger de opciones + radar en vivo
+  const _qc=document.getElementById('qcard'); if(_qc){_qc.classList.remove('exit');_qc.classList.remove('in');void _qc.offsetWidth;_qc.classList.add('in');}
+  [...opts.children].forEach((el,i)=>{el.classList.add('optin');el.style.animationDelay=(i*50)+'ms';});
+  try{updateRadar();}catch(_e){}
 }
-function buildCapasRail(){ const r=document.getElementById('capasRail'); if(!r||!INST||!INST.capas)return; r.innerHTML=''; INST.capas.forEach(c=>{const p=document.createElement('i');p.className='cap-pip';p.dataset.cap=c.code;p.title=c.nombre;r.appendChild(p);}); }
-function updateCapasRail(){ if(!INST||!INST.capas)return; let rev=0; INST.capas.forEach(c=>{ const pip=document.querySelector('.cap-pip[data-cap="'+c.code+'"]'); if(!pip)return; const ans=c.items.filter(it=>it.nivel==='nucleo'&&st.resp[it.id]!=null).length; if(!ans)return; rev++; const health=100-capaMean(c.code); const col=health>=70?'#1f7a4d':health>=45?'#9a7b1e':health>=25?'#c2710c':'#b91c1c'; pip.style.background=col; pip.style.boxShadow='0 0 7px '+col+'90'; }); const cc=document.getElementById('capasCount'); if(cc)cc.textContent=rev+' / '+INST.capas.length+' capas'; }
+let _qlock=false;
+function nextFade(fn){ if(_qlock){return;} _qlock=true; setTimeout(()=>{try{updateRadar();}catch(e){}},90); const c=document.getElementById('qcard'); setTimeout(()=>{if(c)c.classList.add('exit');},200); setTimeout(()=>{_qlock=false;fn();},470); }
+const AXES=[
+  {k:'Flujo',caps:['C4','C6','C9']},
+  {k:'Solidez',caps:['C3','C5','C10']},
+  {k:'Crecimiento',caps:['C2','C7','C8','C11']},
+  {k:'Psicofinanzas',caps:['C1']}
+];
+let _radarVals=[0,0,0,0],_radarRAF=null;
+function _axisHealth(caps){let s=0,nn=0;caps.forEach(code=>{const c=INST.capas.find(x=>x.code===code);if(!c)return;const ans=c.items.filter(it=>it.nivel==='nucleo'&&st.resp[it.id]!=null).length;if(!ans)return;s+=(100-capaMean(code));nn++;});return nn?s/nn:0;}
+function _rpt(cx,cy,R,i,n,val){const a=-Math.PI/2+i*2*Math.PI/n;const r=R*(0.10+0.90*Math.max(0,Math.min(100,val))/100);return [cx+r*Math.cos(a),cy+r*Math.sin(a)];}
+function buildRadar(){const w=document.getElementById('radarWrap');if(!w||!INST||!INST.capas)return;const cx=100,cy=100,R=64,n=AXES.length;function g(i,r){const a=-Math.PI/2+i*2*Math.PI/n;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];}let rings='';[0.34,0.67,1].forEach(t=>{const p=AXES.map((a,i)=>g(i,R*t).map(v=>v.toFixed(1)).join(',')).join(' ');rings+='<polygon points="'+p+'" fill="none" stroke="#23252e" stroke-width="1"/>';});let spokes='',labels='';AXES.forEach((a,i)=>{const[x,y]=g(i,R);spokes+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#23252e" stroke-width="1"/>';const[lx,ly]=g(i,R+17);const anc=Math.abs(lx-cx)<8?'middle':(lx>cx?'start':'end');labels+='<text x="'+lx.toFixed(1)+'" y="'+(ly+3).toFixed(1)+'" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="'+anc+'">'+a.k+'</text>';});w.innerHTML='<svg viewBox="0 0 200 206" xmlns="http://www.w3.org/2000/svg">'+rings+spokes+'<polygon id="radarPoly" points="" fill="rgba(253,215,49,.15)" stroke="#FDD731" stroke-width="2" stroke-linejoin="round"/><g id="radarVerts"></g>'+labels+'</svg>';_radarVals=AXES.map(()=>0);drawRadar(_radarVals);}
+function drawRadar(vals){const cx=100,cy=100,R=64,n=AXES.length;const poly=vals.map((v,i)=>_rpt(cx,cy,R,i,n,v).map(x=>x.toFixed(1)).join(',')).join(' ');const p=document.getElementById('radarPoly');if(p)p.setAttribute('points',poly);const g=document.getElementById('radarVerts');if(g)g.innerHTML=vals.map((v,i)=>{const[x,y]=_rpt(cx,cy,R,i,n,v);return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.7" fill="#FDD731"/>';}).join('');}
+function updateRadar(){if(!INST||!INST.capas)return;const w=document.getElementById('radarWrap');if(w&&!w.children.length)buildRadar();const tgt=AXES.map(a=>_axisHealth(a.caps));const from=_radarVals.slice(),t0=performance.now(),D=480,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;cancelAnimationFrame(_radarRAF);(function step(now){const t=Math.min(1,(now-t0)/D),e=ease(t);_radarVals=tgt.map((v,i)=>from[i]+(v-from[i])*e);drawRadar(_radarVals);if(t<1)_radarRAF=requestAnimationFrame(step);})(t0);let rev=0;INST.capas.forEach(c=>{if(c.items.filter(it=>it.nivel==='nucleo'&&st.resp[it.id]!=null).length)rev++;});const cc=document.getElementById('capasCount');if(cc)cc.textContent=rev+' / '+INST.capas.length+' capas';}
 function progreso(q){
   const orden=['SD','VIS','NUM',...INST.capas.map(c=>c.code),'OPEN'];
   const idx=orden.indexOf(q._cap);
