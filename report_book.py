@@ -279,15 +279,15 @@ CIERRE3={
 
 def interpretar(nombre,s,bl,bi,peor,code=None):
     nl=nombre.lower()
-    if bi==0: return (f"En {nl} estás en terreno sólido (salud {100-s:.0f}/100, «{bl}»). Es una de tus fortalezas. "
+    if bi==0: return (f"En {nl} estás en terreno sólido (salud {100-s:.0f}/100). Es una de tus fortalezas. "
                       f"No la des por garantizada: lo que hoy va bien también se cuida.")
-    if bi==1: return (f"En {nl} vas bien, con margen (salud {100-s:.0f}/100, «{bl}»). El punto que más pesa ahora es "
+    if bi==1: return (f"En {nl} vas con margen (salud {100-s:.0f}/100). El punto que más pesa ahora es "
                       f"«{peor}»; ahí tienes la mejora más fácil y rentable.")
     if bi==2:
         c=CIERRE2.get(code,"todavía no duele, pero ya te está restando margen sin que lo notes.")
-        return (f"{nombre} muestra sobrecarga (salud {100-s:.0f}/100, «{bl}»), sobre todo en «{peor}»: {c}")
+        return (f"{nombre} entra en zona «{bl}» (salud {100-s:.0f}/100), sobre todo en «{peor}»: {c}")
     c=CIERRE3.get(code,"no admite más demora: cada mes que pasa, el agujero se ensancha solo.")
-    return (f"{nombre} está en zona crítica (salud {100-s:.0f}/100, «{bl}»), en especial en «{peor}»: {c}")
+    return (f"{nombre} está en zona crítica (salud {100-s:.0f}/100), en especial en «{peor}»: {c}")
 
 def insights(p,tr,fi):
     o=[]
@@ -1372,7 +1372,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         Table([["Número de libertad financiera (regla 25×)",f"{fi[0]:,.0f} €".replace(",",".")],
                ["Progreso hacia la libertad",f"{fi[1]} %"],
                ["Tasa de ahorro actual",f"{fi[2]} %"],
-               ["Años estimados a la libertad","más de 100" if fi[3] is None else f"{fi[3]} años"]],
+               ["Años estimados a la libertad","más de 100" if fi[3] is None else ("+40 años (a este ritmo)" if fi[3]>40 else f"{fi[3]:.0f} años")]],
               colWidths=[105*mm,55*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
               ("FONTNAME",(1,0),(1,-1),FB),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
               ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)])),
