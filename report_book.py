@@ -409,7 +409,7 @@ class DarkPage(_Flowable):
             c.setFillColor(colors.HexColor("#1C3257")); c.setFont(FB,150)
             c.drawCentredString(cx, self.h-150*mm, self.numero)
         c.setFillColor(colors.HexColor("#FDD731")); c.setFont(FB,22)
-        c.drawCentredString(cx, self.h/2.0+6*mm, self.titulo or "▲ ADAPTA")
+        c.drawCentredString(cx, self.h/2.0+6*mm, self.titulo or "ADAPTA")
         if self.sub:
             c.setFillColor(colors.HexColor("#C9D2E0")); c.setFont(FR,11)
             c.drawCentredString(cx, self.h/2.0-6*mm, self.sub)
@@ -1453,7 +1453,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     except Exception:
         _const=None
     if _const: S+=[PageBreak(), FullBleedImage(_const)]
-    S+=[PageBreak(), DarkPage(titulo="▲ ADAPTA  ·  family office",
+    S+=[PageBreak(), DarkPage(titulo="ADAPTA  ·  family office",
         sub="Tu Libro Financiero · Documento confidencial",
         legal="Adapta Family Office · Herramienta de autoconocimiento financiero; no constituye asesoramiento personalizado regulado. Las estimaciones son orientativas. © 2026.")]
     global CLIENTE_NOMBRE; CLIENTE_NOMBRE=(cli.get("nombre") or "")
