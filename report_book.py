@@ -786,9 +786,17 @@ def laboratorio_individual(p, datos, fi, salud, resp):
             horas=(tap[1]/12)/vnh
             extra=(f" Con tu liquidez parada perdiendo valor, estás regalando el equivalente a unas "
                    f"<b>{horas:.0f} horas de tu trabajo cada mes</b> en coste de oportunidad.")
+        _c1=p.get("C1",{}).get("score",50)
+        _desg=max(0.0,min(0.40,(100-_c1)/100.0*0.5))   # mas estres (C1 bajo) -> mas descuento, tope 40%
+        _desg_p=""
+        if _desg>=0.05:
+            _desg_p=(f" Pero esa es tu hora en bruto. Tu capa de estrés financiero está en <b>{_c1:.0f}/100</b>: "
+                     f"al descontar ese desgaste —el peso que el dinero te lleva a casa, las horas que no descansas— "
+                     f"tu hora real cae a <b>{_eur(vnh*(1-_desg))}</b>, un <b>{_desg*100:.0f}% menos</b>. No es una "
+                     f"medición clínica, es una lente para decidir: cuando tu hora vale eso, delegar y soltar deja de ser un lujo.")
         out+=[Paragraph("1 · El valor de tu hora",h_sub),
               Paragraph(f"Tu hora de vida trabajada vale aproximadamente <b>{_eur(vnh)}</b> (ingreso neto ÷ 160 h). "
-                        f"Deja de pensar en euros y empieza a pensar en horas de vida.{extra}",body),
+                        f"Deja de pensar en euros y empieza a pensar en horas de vida.{_desg_p}{extra}",body),
               Paragraph("Apunta un gasto o una ineficiencia que quieras revisar y tradúcelo a horas de tu vida:",small),
               _lineas(2),Spacer(1,4*mm)]
     # 2. FODA de arbitraje
