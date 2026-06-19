@@ -314,10 +314,10 @@ def sistema_scorecard(out, items, weakest, accent=BLUE):
         ax.text(x0,y,letra,ha="left",va="center",color=accent,fontproperties=L(30),transform=ax.transAxes)
         ax.text(x0+0.075,y+0.012,nombre,ha="left",va="center",color=WHITE,fontproperties=Lr(13.5),transform=ax.transAxes)
         if health is None:
-            ax.add_patch(Rectangle((barx,y-0.006),barw,0.010,color="#1E2C46",transform=ax.transAxes,zorder=3))
-            for xx in np.arange(barx,barx+barw,0.02):
-                ax.plot([xx,xx+0.01],[y-0.001,y-0.001],color="#46587A",lw=1.4,transform=ax.transAxes,zorder=4)
-            ax.text(barx+barw+0.03,y,status,ha="left",va="center",color=MUTE,fontproperties=P(9.5),transform=ax.transAxes)
+            # capa que se revisa en tu sesion (no la puntua el test): etiqueta intencional, nunca barra vacia
+            ax.add_patch(Rectangle((barx,y-0.013),barw,0.026,facecolor=accent,alpha=0.12,edgecolor=accent,lw=0.7,transform=ax.transAxes,zorder=3))
+            ax.text(barx+barw/2.0,y,"Revisión personalizada",ha="center",va="center",color=accent,fontproperties=Pm(8.5),transform=ax.transAxes,zorder=4)
+            ax.text(barx+barw+0.03,y,status,ha="left",va="center",color=accent,fontproperties=P(9),transform=ax.transAxes)
         else:
             ax.add_patch(Rectangle((barx,y-0.006),barw,0.010,color="#1E2C46",transform=ax.transAxes,zorder=3))
             ax.add_patch(Rectangle((barx,y-0.006),barw*max(.04,health/100.0),0.010,color=hc(health),transform=ax.transAxes,zorder=4))
@@ -391,7 +391,7 @@ def escudo(out, escenarios, accent=BLUE):
             ha="left",va="center",color=accent,fontproperties=Li(13),transform=ax.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
-def coste_ego(out, gasto_mes, anos, capital, accent=GOLD):
+def coste_ego(out, gasto_mes, anos, capital, n_anos=25, accent=GOLD):
     fig,ax=_canvas(); _bg(ax,(0.84,0.82),tint="#1A1726")
     _vbar(ax,0.085,0.86,"El precio que pagas por parecer rico",accent,sz=19)
     ax.text(0.10,0.62,"Ese gasto de imagen te roba",ha="left",va="center",color=MUTE,fontproperties=P(12),transform=ax.transAxes)
@@ -400,10 +400,10 @@ def coste_ego(out, gasto_mes, anos, capital, accent=GOLD):
     ax.text(0.12+0.066*len(txt)+0.02,0.495,"AÑOS",ha="left",va="center",color=WHITE,fontproperties=L(30),transform=ax.transAxes)
     ax.text(0.10,0.40,_spaced("DE LIBERTAD, ADELANTADOS",1),ha="left",va="center",color=MUTE,fontproperties=P(10),transform=ax.transAxes)
     import textwrap
-    msg=("Gastas %s €/mes en sostener una imagen. Invertido al 7%%, ese mismo dinero sumaría unos %s y "
-         "adelantaría tu libertad %s años. Ese coche, esa marca, esa mesa del mejor restaurante: su precio "
-         "real no es lo que pagaste, son los años de tu vida que cuestan.") % (
-         "{:,.0f}".format(gasto_mes).replace(",","."), "{:,.0f} €".format(capital).replace(",","."), txt)
+    msg=("Gastas %s €/mes en sostener una imagen. Invertido al 7%% hasta tu jubilación (unos %d años), ese mismo "
+         "dinero sumaría unos %s y adelantaría tu libertad %s años. Ese coche, esa marca, esa mesa del mejor "
+         "restaurante: su precio real no es lo que pagaste, son los años de tu vida que cuestan.") % (
+         "{:,.0f}".format(gasto_mes).replace(",","."), int(n_anos), "{:,.0f} €".format(capital).replace(",","."), txt)
     yy=0.30
     for ln in textwrap.wrap(msg,74):
         ax.text(0.10,yy,ln,ha="left",va="top",color=MUTE,fontproperties=P(10.5),transform=ax.transAxes); yy-=0.034

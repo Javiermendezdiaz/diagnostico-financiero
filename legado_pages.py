@@ -108,7 +108,7 @@ def joyas_0001(seq, tmp, cli, datos, extras, p):
             n=min(30,max(5,_num(datos,"edad") and (65-_num(datos,"edad")) or 25))
             cap=ge*12*(((1.07**n)-1)/0.07)
             if anos>=0.5:
-                seq.append(LD.coste_ego(tmp+"ego.svg",ge,anos,cap))
+                seq.append(LD.coste_ego(tmp+"ego.svg",ge,anos,cap,n))
         except Exception: pass
 
 def joya_arrepentimiento(seq, tmp, datos):
