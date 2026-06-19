@@ -65,11 +65,18 @@ a{color:var(--am)}
 .q-card{transition:opacity .3s cubic-bezier(.4,0,.2,1),transform .3s cubic-bezier(.4,0,.2,1)}
 .q-card.in{animation:cardin .5s cubic-bezier(.4,0,.2,1) both}
 .q-card.exit{opacity:0;transform:translateY(-20px)}
-.q-side{order:-1;text-align:center;margin:0 auto 18px;background:#0a0c14;border:1px solid var(--bd);border-radius:16px;padding:18px 14px 13px;max-width:340px;width:100%}
+.q-side{order:2;text-align:center;margin:16px auto 0;background:#0a0c14;border:1px solid var(--bd);border-radius:16px;padding:18px 14px 13px;max-width:340px;width:100%}
 .radar-cap{font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--gr);font-weight:700;margin-bottom:4px}
 .radar-cap span:last-child{color:var(--am)}
 #radarWrap svg{width:232px;height:auto;max-width:82%}
 .q-side-foot{font-size:10px;color:var(--gr);margin-top:6px;letter-spacing:.3px;font-style:italic}
+/* Pantalla ancha: pregunta a la izquierda, radar como panel derecho (solo en el paso de preguntas) */
+@media(min-width:880px){
+  .wrap:has(#s-q.active){max-width:884px}
+  #s-q .q-split{flex-direction:row;align-items:flex-start;gap:24px}
+  #s-q .q-main{flex:1 1 auto;min-width:0}
+  #s-q .q-side{order:0;flex:0 0 290px;max-width:290px;margin:0;position:sticky;top:18px}
+}
 .fuga{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;padding-top:11px;border-top:1px solid var(--bd)}
 .fuga-l{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--gr);font-weight:600;text-align:left;line-height:1.35}
 .fuga-v{font-size:16px;font-weight:800;color:#f6a89c;white-space:nowrap}
