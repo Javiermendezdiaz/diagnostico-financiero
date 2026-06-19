@@ -623,9 +623,10 @@ def proyeccion_chart(datos, path, r=0.05):
     fig,ax=plt.subplots(figsize=(6.4,3.2))
     if inv is not None:
         inv=inv or 0; parado=max(0,colch-gas*6)
-        e1=[v+parado for v in grow(inv,aho)]          # Inaccion: solo lo invertido trabaja; parado plano
-        e2=[v+parado for v in grow(inv,superavit)]     # Optimizar flujo: invierte el superavit real
-        e3=grow(inv+parado,superavit)                  # Completa: tambien pone a trabajar lo parado
+        aport_opt=max(aho,superavit)                   # optimizar nunca aporta menos que hoy -> garantiza e1<=e2<=e3
+        e1=[v+parado for v in grow(inv,aho)]          # Inaccion: sigues como hoy; lo parado sigue parado
+        e2=[v+parado for v in grow(inv,aport_opt)]     # Optimizar flujo: capturas todo tu superavit real
+        e3=grow(inv+parado,aport_opt)                  # Completa: ademas pones a trabajar lo parado
         ax.plot(xs,e1,color="#9A3B2E",lw=2.0,label="Inacción (como hoy)")
         ax.plot(xs,e2,color="#B8860B",lw=2.0,ls="--",label="Optimizar tu flujo")
         ax.plot(xs,e3,color="#1D6F42",lw=2.4,label="Estrategia completa")

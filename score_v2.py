@@ -244,10 +244,11 @@ def calcular_palancas(datos, p, perfil_in, resp=None):
                     "más rentables que existen, y solo está al alcance de quien tiene empresa, como tú."))
 
     # 7) Comisiones de inversión que erosionan la rentabilidad en silencio
-    if resp and resp.get("C2-14") == 2 and patrimonio >= 10000:
-        coste = patrimonio * 0.015
+    invertible_com = _num0(datos, "inversiones_liquidas") or 0
+    if resp and resp.get("C2-14") == 2 and invertible_com >= 10000:
+        coste = invertible_com * 0.015
         out.append(("Tus comisiones te comen la rentabilidad en silencio",
-                    "No saber qué pagas casi siempre significa pagar de más. Sobre tu patrimonio, una comisión típica "
+                    "No saber qué pagas casi siempre significa pagar de más. Sobre tu cartera invertida, una comisión típica "
                     "de banco (~1,5%%) son unos %s al año — y a 20 años, por interés compuesto, puede costarte cerca "
                     "de un tercio de lo que habrías acumulado. Saber el dato y bajarlo es rentabilidad garantizada." % _eur(coste)))
 
