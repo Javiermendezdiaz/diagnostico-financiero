@@ -519,7 +519,7 @@ def calcular_ratios(datos, perfil_in):
         gap = gasto - pension
         if gap > 0:
             add("Gap de pensión", "faltan %s/mes" % _eur(gap), "rojo" if gap > gasto * 0.5 else "ambar",
-                "Plan de pensiones o inversión periódica para cerrar la brecha antes de jubilarte.")
+                "Es lo que separa tu coste de vida (%s) de tu pensión pública estimada (%s): un plan de pensiones o inversión periódica lo cierra antes de jubilarte." % (_eur(gasto), _eur(pension)))
         else:
             add("Gap de pensión", "cubierto", "verde", "Tu pensión estimada cubre tu coste de vida.")
     return R
@@ -578,7 +578,8 @@ def calcular_deuda_tipo(resp, datos):
         return ("Tu deuda, hoy, es neutra: tú decides su dirección",
                 "Ni te hunde ni te impulsa. Ese es justo el punto de bifurcación: puedes convertirla en palanca —que "
                 "financie algo que rinde— o dejar que derive en freno. La diferencia no la marca la deuda, la marcas tú "
-                "con para qué la usas.")
+                "con para qué la usas. Y si la sientes más pesada de lo que dicen los números, esa tensión también "
+                "decide por ti: ponerle cifra exacta —cuánto pagas y a qué interés— es lo que disuelve el peso que notas.")
     return ("Tu deuda, hoy, es un freno",
             "Tu deuda te quita dinero: es consumo que pagas con intereses, sin nada que rinda detrás. Es lo primero que "
             "hay que desactivar, empezando por la más cara, porque cada euro de intereses es un euro que no construye tu "

@@ -860,7 +860,7 @@ def glosario(p, datos, fi):
     if p["C10"]["score"]>=45:
         g.append(("Deuda de alto interés (deuda mala)",
             "Financiación al consumo —tarjetas revolving, microcréditos— a tasas de doble dígito.",
-            "Tu capa de deuda puntuó alto: si arrastras alguna de este tipo, es tu prioridad absoluta.",
+            "Tu capa de deuda muestra tensión: si tienes deuda de este tipo (tarjetas, revolving), es tu prioridad absoluta.",
             "El interés compuesto jugando en tu contra. Atacar la más cara primero es la mejor inversión que existe."))
     # Resiliencia / emergencia
     if p["C3"]["score"]>=45:
