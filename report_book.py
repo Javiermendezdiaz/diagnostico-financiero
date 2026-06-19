@@ -1505,6 +1505,20 @@ def _cargar_v2():
     global _INST_V2
     if _INST_V2 is None:
         _INST_V2=json.load(open("itap_v2.json",encoding="utf-8"))
+        _FAC_FIX={"Alto interes":"Alto interés","Concentración geografica":"Concentración geográfica",
+            "Exito":"Éxito","Fuente unica":"Fuente única","Polvora seca":"Pólvora seca","Colchon":"Colchón",
+            "Anticiclico":"Anticíclico","Creep ingreso":"Inflación del estilo de vida","Número fi":"Tu cifra de libertad",
+            "Plan b":"Plan B","Plan b crisis":"Plan B de crisis","Sistema cajas":"Sistema de cuentas",
+            "Anticipa grandes":"Anticipa gastos grandes","Carga cuota":"Carga de la cuota","Relación deuda":"Relación deuda/ingresos",
+            "Conoce gasto":"Conoces tu gasto","Tijera":"Tijera de ahorro","Oculto":"Gasto oculto","Fuga":"Fuga de caja",
+            "Coste de tu inversión":"Comisiones de inversión","Expectativa rentab.":"Expectativa de rentabilidad",
+            "Amenaza sector":"Amenaza del sector","Comparación circulo":"Comparación con tu círculo",
+            "Techo ingresos":"Techo de ingresos","Deuda imagen":"Deuda por imagen"}
+        for _c in _INST_V2.get("capas",[]):
+            _fd=_c.get("facetas")
+            if isinstance(_fd,dict):
+                for _k in list(_fd.keys()):
+                    _fd[_k]=_FAC_FIX.get(_fd[_k],_fd[_k])
     return _INST_V2
 
 def build_book_v2(resp, datos, cli, outpath, perfil_in=None, depth="completo", baremo=None, sintesis=None, extras=None, arq_override=None):

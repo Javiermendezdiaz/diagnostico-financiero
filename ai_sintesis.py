@@ -80,8 +80,10 @@ def sintetizar_individual(abiertas, contexto=None):
         "<respuestas_abiertas_del_cliente>\n%s\n</respuestas_abiertas_del_cliente>\n\n"
         "Redacta el apartado del informe titulado «Tu retrato, en tus palabras»: un texto de 150 a 220 "
         "palabras que reinterprete lo que el cliente ha escrito, lo conecte con sus métricas y le devuelva "
-        "una lectura honesta y precisa de su relación con el dinero. Devuélvelo entre etiquetas "
-        "<retrato>...</retrato>, sin nada más fuera de ellas." % (metr_txt, bloque)
+        "una lectura honesta y precisa de su relación con el dinero. Tono de estratega patrimonial: "
+        "directo y empático, nunca burlón ni condescendiente; no te rías de cómo escribe ni de sus palabras "
+        "—interpreta lo que revelan, no las ridiculices. No uses markdown ni asteriscos, escribe en prosa limpia. "
+        "Devuélvelo entre etiquetas <retrato>...</retrato>, sin nada más fuera de ellas." % (metr_txt, bloque)
     )
     try:
         msg = cli.messages.create(model=MODELO, max_tokens=MAX_TOKENS,
