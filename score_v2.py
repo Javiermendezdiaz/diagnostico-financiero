@@ -490,11 +490,11 @@ def calcular_ratios(datos, perfil_in):
     if cvm is not None and ing:
         cv = 100 * cvm / ing
         add("Carga de vivienda", "%.0f%% de tus ingresos" % cv, "verde" if cv < 30 else ("ambar" if cv < 40 else "rojo"),
-            "Tu techo pesa demasiado; revisa refinanciación, condiciones o tamaño." if cv >= 30 else "En zona sana.")
+            "Asfixia inmobiliaria: por encima del 30% tu techo te quita músculo para invertir. Revisa refinanciación, condiciones o tamaño." if cv >= 30 else "En zona sana: por debajo del 30% de tus ingresos.")
     if cuota is not None and ing:
         dti = 100 * cuota / ing
         add("Carga de deuda (DTI)", "%.0f%% de tus ingresos" % dti, "verde" if dti < 30 else ("ambar" if dti < 35 else "rojo"),
-            "Plan de amortización o reestructuración: ataca primero la deuda más cara." if dti >= 35 else "Bajo control.")
+            "DTI = de cada 100 € que ingresas, cuánto se va a deuda. Por encima del 35% aprieta: plan de amortización, ataca primero la deuda más cara." if dti >= 35 else "DTI = qué parte de tu ingreso se va a deuda. El tuyo está bajo control.")
     if deuda is not None and pat > 0:
         ap = 100 * deuda / pat
         add("Apalancamiento", "%.0f%% de tu patrimonio" % ap, "verde" if ap < 50 else ("ambar" if ap < 80 else "rojo"),
@@ -504,8 +504,9 @@ def calcular_ratios(datos, perfil_in):
             "Plan de diversificación por clases de activo: no dependas de una sola pieza." if pctv >= 50 else "Razonable.")
     if pat > 0 and gasto:
         ac = pat / (gasto * 12)
-        add("Independencia financiera", "%.1f años de vida cubiertos" % ac, "verde" if ac >= 25 else ("ambar" if ac >= 10 else "rojo"),
-            "Proyecta tu hito de libertad y las palancas que lo acercan.")
+        _val_if = ("%.1f años (~%.0f meses) de vida cubiertos" % (ac, ac*12)) if ac < 2 else ("%.1f años de vida cubiertos" % ac)
+        add("Independencia financiera", _val_if, "verde" if ac >= 25 else ("ambar" if ac >= 10 else "rojo"),
+            "Es tu colchón de oxígeno: el tiempo que vivirías con tu patrimonio si hoy se cortaran los ingresos. Proyecta tu hito de libertad y las palancas que lo acercan.")
     rp = _num0(datos, "renta_pasiva")
     if rp is not None and ing:
         pp = 100 * rp / ing
