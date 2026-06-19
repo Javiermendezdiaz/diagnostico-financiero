@@ -243,6 +243,11 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
             ("Día 1–30",h1,"Tu único foco este mes. Hecho esto, lo demás pesa menos."),
             ("Día 31–60",h2,"El hábito que, repetido, cambia la trayectoria."),
             ("Día 61–100",h3,"Mides, ajustas y consolidas. El plan se vuelve tuyo.")], accent=LD.GOLD))
+        if arq_meta:
+            _man="%s Y, esta vez, lo ejecutas: actúas sobre tu plan en lugar de aplazarlo." % (arq_meta.get('luz','') or '')
+            seq.append(LD.el_salto(tmp+"07b.svg", arq_meta.get('nombre','Tu arquetipo'),
+                arq_meta.get('sombra','') or 'Tu punto ciego te cuesta dinero y tranquilidad sin que lo veas.',
+                _man, "No tienes que ser otro. Solo el mismo, sin la fuga.", accent=LD.GOLD))
         joya_arrepentimiento(seq,tmp,datos)
     try:
         seq.append(LD.qr_golden(tmp+"08.svg",SIM_URL,"Tu Simulador de Libertad",

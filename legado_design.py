@@ -156,6 +156,29 @@ def guion_dinero(out, arq_nombre, arq_lema, parrafos, cierre, accent=GOLD):
     ax.text(0.10,0.115,cierre,ha="left",va="center",color=WHITE,fontproperties=L(19),transform=ax.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
+def el_salto(out, arq_nombre, hoy, manana, cierre, accent=GOLD):
+    """El salto: misma identidad, sin el punto ciego. HOY (apagado) -> EN 12 MESES (vivo)."""
+    fig,ax=_canvas(); _bg(ax,(0.84,0.16),tint="#0E1622")
+    ax.text(0.10,0.90,_spaced("EL SALTO"),ha="left",va="center",color=accent,fontproperties=Pm(11),transform=ax.transAxes)
+    ax.text(0.10,0.825,"La misma raíz, sin el peaje.",ha="left",va="center",color=WHITE,fontproperties=L(32),transform=ax.transAxes)
+    # ---- HOY (apagado) ----
+    ax.text(0.10,0.715,_spaced("HOY"),ha="left",va="center",color=FAINT,fontproperties=Pm(11),transform=ax.transAxes)
+    ax.text(0.105,0.675,(arq_nombre or "").upper(),ha="left",va="center",color=MUTE,fontproperties=Lr(15),transform=ax.transAxes)
+    yy=0.625
+    for ln in _tw.wrap(hoy,58):
+        ax.text(0.10,yy,ln,ha="left",va="top",color="#67768F",fontproperties=P(11.5),transform=ax.transAxes); yy-=0.0345
+    # ---- flecha de salto ----
+    ax.plot([0.12,0.12],[0.47,0.40],color=accent,lw=2.2,transform=ax.transAxes,zorder=4)
+    ax.fill([0.108,0.132,0.12],[0.402,0.402,0.382],color=accent,transform=ax.transAxes,zorder=4)
+    # ---- EN 12 MESES (vivo) ----
+    ax.text(0.10,0.345,_spaced("EN 12 MESES"),ha="left",va="center",color=accent,fontproperties=Pm(11),transform=ax.transAxes)
+    ax.text(0.105,0.305,(arq_nombre or "").upper(),ha="left",va="center",color=WHITE,fontproperties=Lr(15),transform=ax.transAxes)
+    yy=0.255
+    for ln in _tw.wrap(manana,58):
+        ax.text(0.10,yy,ln,ha="left",va="top",color="#D7DEEA",fontproperties=P(11.5),transform=ax.transAxes); yy-=0.0345
+    ax.text(0.10,0.10,cierre,ha="left",va="center",color=WHITE,fontproperties=Li(18),transform=ax.transAxes)
+    fig.savefig(out,dpi=130); plt.close(fig); return out
+
 def termometro(out, titulo, indice, etiqueta, drivers, accent=BLUE):
     # indice 0..100 (vulnerabilidad). gauge semicircular verde->ambar->rojo
     fig,ax=_canvas(); _bg(ax,(0.84,0.84))
