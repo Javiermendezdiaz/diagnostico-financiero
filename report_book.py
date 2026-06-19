@@ -1437,11 +1437,12 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 else: ans=""; na=True
             else:
                 v=datos.get(NUM_MAP.get(it["id"],"")); na=(v is None); ans=("%s %s"%(v,it.get("unidad",""))).strip() if v is not None else ""
-            ans_p=Paragraph("<font color='#B5B3A6'>N/A</font>",small) if na else Paragraph("<i>%s</i>"%_limpiar_txt(ans),small)
-            rows.append([Paragraph("<font color='#33415C'>%s</font>"%_limpiar_txt(it["texto"]),small),ans_p])
+            if na: continue   # purga premium: no mostramos preguntas que el cliente no respondio
+            rows.append([Paragraph("<font color='#33415C'>%s</font>"%_limpiar_txt(it["texto"]),small),Paragraph("<i>%s</i>"%_limpiar_txt(ans),small)])
             if ri%2==0:
                 bgs.append(("BACKGROUND",(0,ri),(-1,ri),colors.HexColor("#15243C")))
             ri+=1
+        if len(rows)<=1: continue   # capa sin respuestas reales: no imprimir tabla vacia
         t=Table(rows,colWidths=[104*mm,52*mm],repeatRows=1)
         t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,0),0.6,LINE),
             ("LINEBELOW",(0,1),(-1,-1),0.3,LINE),

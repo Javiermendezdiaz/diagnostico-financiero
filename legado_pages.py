@@ -29,7 +29,7 @@ def stress(datos,p):
     def col_(s): return "#3FB984" if s<0.34 else ("#E3B341" if s<0.67 else "#D9534F")
     drivers=[("Colchón de seguridad (%.1f meses)"%meses, max(.08,s_col), col_(s_col)),
              ("Carga de deuda (DTI %d%%)"%round(dti), max(.08,s_dti), col_(s_dti)),
-             ("Tasa de ahorro (%d%%)"%round(tasa), max(.08,s_aho), col_(s_aho))]
+             ("Tasa de ahorro (%s%%)"%(("%.1f"%tasa) if 0<tasa<10 else ("%d"%round(tasa))), max(.08,s_aho), col_(s_aho))]
     et="zona sana" if idx<40 else ("zona a vigilar" if idx<70 else "zona de alerta")
     return idx,et,drivers
 
