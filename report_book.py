@@ -1017,6 +1017,11 @@ def seccion_extras(extras):
             out.append(Paragraph("Marco de referencia 50/30/20 sobre tus ingresos: necesidades ~<b>%s</b>, deseos ~<b>%s</b>, y a construir patrimonio ~<b>%s</b>/mes. Una brújula, no una jaula."%(_eur(rc["necesidades"]),_eur(rc["deseos"]),_eur(rc["ahorro"])),St("prr",fontSize=9.7,leading=14,spaceBefore=3)))
         if pr.get("empresario"):
             out.append(Paragraph("<font color='#B45309'>&#9656;</font>  <b>Síndrome del cortocircuito patrimonial: separa familia y negocio.</b> Tu cuota de autónomos, tus tributos y la gestoría <b>no son gasto de vida familiar</b>: mezclarlos distorsiona tu coste de vida real y tu verdadera capacidad de ahorro. Tu negocio no debe financiar tu vida ni tu vida absorber los golpes del negocio. Dos cuentas, dos presupuestos, siempre.",St("pre",fontSize=9.7,leading=14,spaceBefore=4,leftIndent=4)))
+            out.append(Spacer(1,3*mm))
+            out.append(_box([
+                Paragraph("<font color='#5BA7E8'><b>Nota de dirección patrimonial: el registro contable no es arquitectura financiera</b></font>",St("dp1",fontSize=10.6,leading=15)),
+                Paragraph("Tu <b>gestoría</b> mira hacia atrás: registra lo que ya pasó y liquida tus impuestos. Es necesaria, pero no diseña tu futuro. La <b>dirección patrimonial</b> mira hacia delante: ordena la estructura de tus activos, tu vehículo societario y la pasarela entre tu empresa y tu patrimonio personal <i>antes</i> de que cierre el año fiscal. El gestor rellena el formulario; la estrategia decide qué debe decir ese formulario.",St("dp2",fontSize=9.4,leading=14,textColor=colors.HexColor('#C9D2E0'),spaceBefore=3))],
+                "#0E2236","#0284C7",ancho=160*mm))
     vi=extras.get("vivienda")
     if vi and vi.get("modo"):
         _sevc={"alta":"#9A3B2E","media":"#B45309","baja":"#0F766E"}.get(vi.get("severidad"),"#B45309")
