@@ -216,7 +216,7 @@ _CONSEJO2={
  "C3":"Tu estructura prioriza el consumo presente sobre la resiliencia futura: monta el colchón antes que cualquier inversión.",
  "C4":"El gasto no se controla con fuerza de voluntad, sino con topes automáticos: ponlos y olvídate.",
  "C5":"Aquí el riesgo es de papeles, no de dinero: ordena la protección y dormirás distinto.",
- "C6":"El impulso de aparentar se doma con reglas, no con culpa: 72 horas de pausa antes de comprar.",
+ "C6":"Tu gasto de imagen capitaliza en contra de tu libertad: cada euro en aparentar es un euro que no compra tu independencia. Regla: 72 horas de pausa antes de comprar.",
  "C7":"No dependas de tu voluntad para diversificar: fíjate un objetivo de % por fuente y muévelo.",
  "C8":"La antifragilidad se construye con pequeñas apuestas, no con un gran salto: empieza por una.",
  "C9":"Aquí el problema no es de capacidad, es de sistema: automatiza el destino del dinero el día 1.",
@@ -295,7 +295,7 @@ def insights(p,tr,fi):
     if p["C2"]["score"]>=50 and fi[2]<12:
         o.append(("La libertad está lejos a este ritmo",f"Tu tasa de ahorro ({fi[2]}%) no sostiene tu meta: el horizonte es de décadas. La palanca está en el flujo de caja, no en la rentabilidad."))
     if p["C6"]["score"]>=50 and p["C4"]["score"]>=50:
-        o.append(("Estás financiando una imagen","Gasto de estatus más deriva de estilo de vida: parte de tu esfuerzo se va en aparentar. Aquí hay margen rápido y silencioso."))
+        o.append(("Tu estatus compite con tu libertad","La capitalización de tu estatus social y la deriva de estilo de vida (lifestyle creep) compiten directamente con la compra de tu libertad futura. Aquí hay margen rápido y silencioso."))
     if tr["VINCULO"] is not None and tr["VINCULO"]>=50:
         o.append(("El dinero tensa tu vínculo","Hay fricción o falta de transparencia con tu pareja o familia: un multiplicador de todo lo demás. El informe de pareja lo aborda de frente."))
     if not o: o.append(("Un perfil equilibrado","No tienes focos críticos. Tu trabajo es de optimización fina, no de contención: pulir una maquinaria que ya funciona."))
@@ -488,13 +488,13 @@ def seccion_adapta(p):
     peores=sorted(CAPAS,key=lambda c:p[c]["score"],reverse=True)[:2]
     for code in peores:
         ti,de,url=ADAPTA[code]
-        out.append(Paragraph(f"<font color='#0284C7'><b>&#9656; #8226; {ti}</b></font>",St("ad1",fontSize=11,leading=14,spaceBefore=6,spaceAfter=2)))
+        out.append(Paragraph(f"<font color='#0284C7'><b>&#9656; {ti}</b></font>",St("ad1",fontSize=11,leading=14,spaceBefore=6,spaceAfter=2)))
         out.append(Paragraph(de,St("ad2",fontSize=10,leading=14,leftIndent=8,spaceAfter=2)))
         out.append(Paragraph(f"<a href='{url}'><font color='#1A1A17'>Ver c\u00f3mo lo trabajamos &#8594;</font></a>",St("ad3",fontSize=9.5,leading=13,leftIndent=8,spaceAfter=8)))
     out+=[Spacer(1,3*mm),
           Paragraph("Por d\u00f3nde empezamos",h_sub),
-          Paragraph("Como en todo lo que hacemos en Adapta: una conversaci\u00f3n inicial, sin compromiso. Te escuchamos "
-                    "primero, te proponemos despu\u00e9s. Como debe ser.",
+          Paragraph("Tienes el mapa. El siguiente paso es una <b>sesi\u00f3n estrat\u00e9gica</b> para pasar del diagn\u00f3stico a la ejecuci\u00f3n: "
+                    "te escuchamos primero, te proponemos despu\u00e9s. Sin compromiso y sin llamadas de presi\u00f3n \u2014 como debe ser.",
                     St("cta",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=2)),
           Spacer(1,2*mm),
           Paragraph("<b>Reserva tu conversaci\u00f3n:</b> <a href='https://www.adaptafamilyoffice.com/informe'><font color='#0284C7'>adaptafamilyoffice.com</font></a>  &#183;  "
@@ -751,7 +751,7 @@ def cuadro_financiero(p, datos, fi):
         vnh=valor_hora(datos)
         horas=(coste/12)/vnh if vnh>0 else 0
         coste10=exceso*(1-(1/(1.03**10)))  # poder adquisitivo erosionado en 10 años al 3%
-        out.append(_box([Paragraph(f"<font color='#B45309'><b>La auditoría del tapón</b></font><br/>"
+        out.append(_box([Paragraph(f"<font color='#B45309'><b>El impuesto silencioso por inacción</b></font><br/>"
             f"<font size=9.5>Tienes unos <b>{_eur(exceso)}</b> de liquidez por encima de un colchón sano de 6 meses. "
             f"Parada y sin invertir, no te cuesta {_eur(coste)} hoy: te cuesta el tiempo. Proyectado a diez años, "
             f"esa cifra pierde alrededor de <b>{_eur(coste10)} de poder adquisitivo</b> si la inflación ronda el 3% anual. "
