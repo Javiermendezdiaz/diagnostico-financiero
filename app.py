@@ -420,10 +420,23 @@ def _teaser(datos, salud=None):
         if cifra: out["cifra_libertad"] = cifra
         if ing > 0 and gas > 0:
             out["esclavitud"] = round(min(100, gas / ing * 100))
-            _ml = round(12 * (ing - gas) / ing, 1)
-            out["meses_libertad"] = _ml if _ml > 0 else 0
+        # Meses de libertad REALES: los que compra tu patrimonio, no el flujo del mes.
+        # Es la cifra que de verdad mide lo libre que estas (un patrimonio alto vale
+        # mas que un buen sueldo con poco respaldo).
+        try:
+            import score_v2
+            _r = score_v2.calcular_resiliencia(datos)
+        except Exception:
+            _r = None
+        if _r:
+            out["meses_libertad"] = _r["meses_libertad"]
+            out["anios_libertad"] = _r["anios_libertad"]
+            out["meses_liquido"] = _r["meses_liquido"]
+            out["resiliencia"] = _r["resiliencia"]
+            out["fragilidad"] = _r["fragilidad"]
+            out["nivel_libertad"] = _r["nivel"]
         if salud is not None:
-            try: out["salud"] = round(100 - float(salud))  # 0=disfuncion -> mostrar salud
+            try: out["salud"] = round(100 - float(salud))  # 0=disfuncion -> tu relacion con el dinero
             except Exception: pass
         return out
     except Exception:

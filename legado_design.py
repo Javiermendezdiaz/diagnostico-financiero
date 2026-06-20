@@ -47,7 +47,7 @@ def _spaced(t,n=3): return (" "*n).join(list(t))
 def cover(out, cliente, fecha, tier_txt="Informe Avanzado · Tier II", ref="ITAP"):
     fig,ax=_canvas(); _bg(ax,(0.80,0.86))
     _emblem(ax,0.5,0.845)
-    ax.text(0.5,0.78,_spaced("ADAPTA  FAMILY  OFFICE",1),ha="center",va="center",color=MUTE,fontproperties=P(8.5),transform=ax.transAxes)
+    ax.text(0.5,0.78,_spaced("FAMILY  OFFICE",1),ha="center",va="center",color=MUTE,fontproperties=P(8.5),transform=ax.transAxes)
     ax.text(0.5,0.66,_spaced("TU LIBRO FINANCIERO"),ha="center",va="center",color=BLUE_L,fontproperties=Pm(10),transform=ax.transAxes)
     ax.text(0.5,0.575,"DIAGNÓSTICO",ha="center",va="center",color=WHITE,fontproperties=L(43),transform=ax.transAxes)
     ax.text(0.5,0.485,"PATRIMONIAL",ha="center",va="center",color=BLUE,fontproperties=L(43),transform=ax.transAxes)
@@ -251,6 +251,10 @@ def matriz_tiempo(out, pct_pasivo, ing_activo, ing_pasivo, accent=BLUE):
     yy=0.40
     for ln in textwrap.wrap(txt,72):
         ax.text(0.10,yy,ln,ha="left",va="top",color=WHITE if yy>0.37 else MUTE,fontproperties=P(11),transform=ax.transAxes); yy-=0.036
+    # Tesis incómoda: la razón de fondo por la que esta página existe
+    ax.plot([0.10,0.17],[0.265,0.265],color=accent,lw=1.4,transform=ax.transAxes)
+    ax.text(0.10,0.225,"Nadie ha logrado nada grande dependiendo solo de su esfuerzo.",ha="left",va="center",color=WHITE,fontproperties=Lr(12.5),transform=ax.transAxes)
+    ax.text(0.10,0.185,"La libertad empieza cuando tu dinero trabaja sin ti.",ha="left",va="center",color=accent,fontproperties=Lr(12.5),transform=ax.transAxes)
     ax.text(0.10,0.10,"Donde tu dinero pierde el tiempo.",ha="left",va="center",color=accent,fontproperties=Li(15),transform=ax.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out
 

@@ -303,6 +303,13 @@
      "activa_si": {
       "capa": "C1",
       "min_score": 35
+     },
+     "mostrar_si": {
+      "campo": "estado_civil",
+      "valor_in": [
+       "Casado/a",
+       "Pareja de hecho o pareja estable sin casar"
+      ]
      }
     },
     {
@@ -1499,7 +1506,7 @@
      "faceta": "mapa_patrimonial",
      "tipo": "escala",
      "dimensiones": "VINCULO",
-     "texto": "¿Tu pareja o herederos sabrían dónde están tus cuentas, inversiones y deudas?",
+     "texto": "¿Tus herederos o personas de confianza sabrían dónde están tus cuentas, inversiones y deudas?",
      "nivel": "nucleo",
      "opciones": [
       {
@@ -1522,7 +1529,7 @@
      "faceta": "pareja_protegida",
      "tipo": "escala",
      "dimensiones": "VINCULO",
-     "texto": "Si tienes pareja sin casar o personas a cargo, ¿están protegidas legalmente si te pasara algo?",
+     "texto": "¿Tu pareja quedaría legalmente protegida si te pasara algo (testamento, seguro, titularidades)?",
      "nivel": "profundizacion",
      "opciones": [
       {
@@ -1542,6 +1549,13 @@
      "activa_si": {
       "capa": "C5",
       "min_score": 35
+     },
+     "mostrar_si": {
+      "campo": "estado_civil",
+      "valor_in": [
+       "Casado/a",
+       "Pareja de hecho o pareja estable sin casar"
+      ]
      }
     },
     {

@@ -1380,32 +1380,86 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         S+=[PageBreak()]
     # === ACTO 1 (cierre): sintesis financiera (FODA + flujo + proyeccion) ANTES de planificar ===
     S+=cuadro_financiero(p,datos,fi)
+    # === ACTO 1: Meses de Libertad Financiera — la cifra objetiva que de verdad te mide ===
+    _res=(extras or {}).get("resiliencia")
+    if _res:
+        _ml_p=_res["meses_libertad"]; _an_p=_res["anios_libertad"]; _mliq=_res["meses_liquido"]
+        _niv=_res["nivel"]; _ilq=_res["iliquido"]
+        if _niv=="libertad":
+            _h1=f"<b>Tu patrimonio cubre {_an_p:g} años de tu vida.</b>"
+            _h2=("Has cruzado la línea que casi nadie cruza: si tus ingresos se cortaran hoy, tu patrimonio sostendría tu vida "
+                 "durante décadas. Trabajar ha dejado de ser obligación para ser elección. Tu reto ya no es ganar más, sino que "
+                 "ese capital rente y no pierda poder de compra contra la inflación.")
+        elif _niv=="solido":
+            _h1=f"<b>Tu patrimonio compra {_ml_p:g} meses —cerca de {_an_p:g} años— de libertad.</b>"
+            _h2=("Tienes un respaldo que muy pocos tienen. La pregunta deja de ser «¿aguantaría un golpe?» —lo aguantas— y pasa a "
+                 "ser «¿está trabajando mi capital o duerme?». Tu palanca ya no es el sueldo: es la eficiencia de tu patrimonio.")
+        elif _niv=="construccion":
+            _h1=f"<b>Tu patrimonio cubre {_ml_p:g} meses de tu vida.</b>"
+            _h2=("Estás construyendo respaldo real. El siguiente hito es claro: llegar a 24 meses cubiertos, el punto donde un "
+                 "imprevisto deja de ser una amenaza y pasa a ser una incomodidad. A partir de ahí, el dinero empieza a trabajar para ti.")
+        elif _niv=="ajustado":
+            _h1=f"<b>Tu patrimonio cubre {_ml_p:g} meses de tu vida.</b>"
+            _h2=("Es una base, pero todavía fina: un shock serio —un paro, una avería grande, un mal año— te obligaría a decisiones "
+                 "duras. La prioridad no es la rentabilidad todavía; es engrosar ese colchón hasta 6-12 meses. Eso es lo que compra calma.")
+        else:
+            _h1=f"<b>Tu patrimonio cubre apenas {_ml_p:g} meses de tu vida.</b>"
+            _h2=("Hoy tu libertad depende casi por completo de que el ingreso no falle. Y esto es lo importante: no es cuestión de "
+                 "cuánto ganas —se puede ganar bien y estar igual de expuesto—. Aquí todavía no se construye libertad: se construye "
+                 "red. Antes que cualquier inversión, meses de respaldo.")
+        _parr=[Paragraph("LO QUE DE VERDAD TE MIDE",St("mlh0",fontSize=9,leading=12,textColor=colors.HexColor("#B45309"),fontName=FB)),
+               Paragraph(_h1+" "+_h2,St("mlh1",fontSize=11,leading=16,textColor=INK,spaceBefore=3)),
+               Paragraph("No es tu sueldo el que mide tu libertad, es tu patrimonio: los meses que vivirías si tus ingresos se "
+                         "cortaran hoy. Un buen sueldo con poco respaldo es más frágil que un patrimonio sólido con un mal mes.",
+                         St("mlh2",fontSize=9.4,leading=13,textColor=GREY,spaceBefore=5))]
+        if _ilq:
+            _parr.append(Paragraph(f"<b>Matiz honesto:</b> buena parte de tu patrimonio no es caja inmediata. En líquido disponible "
+                                   f"tienes solo <b>{_mliq:g} meses</b>. Tu casa o tu negocio valen, pero no pagan el súper del mes que "
+                                   f"viene: conviene tener una parte realizable en días.",
+                                   St("mlh3",fontSize=9.4,leading=13,textColor=colors.HexColor("#9A3B2E"),spaceBefore=5)))
+        S+=[_box(_parr,"#FBF9EC","#C9962B",ancho=160*mm), Spacer(1,4*mm)]
     # === ACTO 1: Ratio de Esclavitud Temporal (dinamico y honesto, derivado del flujo real) ===
     _ingm_e=max(datos.get("ingreso_mensual",0),0); _ahom_e=datos.get("ahorro_mensual",0) or 0
     _gasm_e=datos.get("gasto_mensual",0) or 0
     if _ingm_e>0:
         _s_e=max(0.0,min(1.0,_ahom_e/_ingm_e)); _escl=max(0.0,min(1.0,1.0-_s_e))
         _ml=round(12*_s_e,1); _mi=round(12*_escl)
-        if _ahom_e>0:
-            _esf=_gasm_e/_ahom_e if _ahom_e>0 else 0
-            _txt_e=(f"<b>Tu Ratio de Esclavitud Temporal es del {_escl*100:.0f}%.</b> De cada 12 meses que trabajas, "
-                    f"unos <b>{_mi:.0f} se destinan solo a sostener tu vida actual</b> y apenas <b>{_ml:g} al año</b> "
-                    f"quedan para construir tu libertad. Hoy necesitas <b>{_esf:g} meses de trabajo</b> para financiar "
-                    f"un solo mes de tu vida futura. No es un problema de ingresos: es un problema de liberación de tiempo.")
+        _ya_libre=bool(_res and _res.get("nivel") in ("libertad","solido"))
+        if _ya_libre:
+            _txt_e=(f"<b>En puro flujo, tu mes se parece al de todos: el {_escl*100:.0f}% de lo que trabajas se va en sostener tu "
+                    f"vida.</b> Pero en ti esa cifra engaña, y mucho. Tu patrimonio ya ha comprado tu libertad: no cambias tiempo "
+                    f"por dinero para sobrevivir —ya no dependes de ello—, lo haces porque quieres. Tu palanca no es liberar horas; "
+                    f"es que tu capital trabaje tan duro como trabajaste tú para construirlo.")
+            S+=[_box([Paragraph(_txt_e,St("escl",fontSize=10.5,leading=15,textColor=INK))],
+                     "#EEF2F8","#2C5C8A",ancho=160*mm),
+                Spacer(1,3*mm)]
         else:
-            _txt_e=("<b>Tu Ratio de Esclavitud Temporal roza el 100%.</b> Ahora mismo casi todo lo que trabajas se "
-                    "consume en sostener tu vida actual: apenas queda año destinado a construir tu libertad. "
-                    "El primer objetivo no es ganar más; es abrir una rendija de excedente.")
-        S+=[_box([Paragraph(_txt_e,St("escl",fontSize=10.5,leading=15,textColor=INK)),
-                  Paragraph("Ese tiempo «ocupado» —tu jornada, los desplazamientos, todo lo que haces para generar ingresos— "
-                            "es el que tu plan busca encoger. Su objetivo de fondo es uno: convertir horas ocupadas en horas "
-                            "libres, las que eliges tú.",St("escl2",fontSize=9.6,leading=14,textColor=GREY,spaceBefore=4))],
-                 "#FBF4E4","#B45309",ancho=160*mm),
-            Spacer(1,3*mm)]
+            if _ahom_e>0:
+                _esf=_gasm_e/_ahom_e if _ahom_e>0 else 0
+                _txt_e=(f"<b>Tu Ratio de Esclavitud Temporal es del {_escl*100:.0f}%.</b> De cada 12 meses que trabajas, "
+                        f"unos <b>{_mi:.0f} se destinan solo a sostener tu vida actual</b> y apenas <b>{_ml:g} al año</b> "
+                        f"quedan para construir tu libertad. Hoy necesitas <b>{_esf:g} meses de trabajo</b> para financiar "
+                        f"un solo mes de tu vida futura. No es un problema de ingresos: es un problema de liberación de tiempo.")
+            else:
+                _txt_e=("<b>Tu Ratio de Esclavitud Temporal roza el 100%.</b> Ahora mismo casi todo lo que trabajas se "
+                        "consume en sostener tu vida actual: apenas queda año destinado a construir tu libertad. "
+                        "El primer objetivo no es ganar más; es abrir una rendija de excedente.")
+            S+=[_box([Paragraph(_txt_e,St("escl",fontSize=10.5,leading=15,textColor=INK)),
+                      Paragraph("Ese tiempo «ocupado» —tu jornada, los desplazamientos, todo lo que haces para generar ingresos— "
+                                "es el que tu plan busca encoger. Su objetivo de fondo es uno: convertir horas ocupadas en horas "
+                                "libres, las que eliges tú.",St("escl2",fontSize=9.6,leading=14,textColor=GREY,spaceBefore=4))],
+                     "#FBF4E4","#B45309",ancho=160*mm),
+                Spacer(1,3*mm)]
     # === TRANSICION ACTO 1 -> ACTO 2: el golpe de realidad (dinamico segun perfil) ===
     _ingm_h=max(datos.get("ingreso_mensual",0),0); _gasm_h=datos.get("gasto_mensual",0) or 0
     _tasa_h=fi[2] if (len(fi)>2 and fi[2] is not None) else 0
-    if _gasm_h>_ingm_h:
+    _ya_libre_h=bool(_res and _res.get("nivel") in ("libertad","solido"))
+    if _gasm_h>_ingm_h and _ya_libre_h:
+        _hostia=("Acabas de ver tu foto de hoy. Gastas más de lo que ingresas — pero en tu caso eso no es una fuga, es una "
+                 "decisión: vives, en parte, del patrimonio que ya construiste. Lo que antes fue acumular ahora es administrar el "
+                 "desembalse. El riesgo cambia de cara: ya no es llegar a fin de mes, es que tu capital se agote antes de tiempo o "
+                 "no rente lo suficiente para sostener el ritmo. Eso se planifica, no se improvisa.")
+    elif _gasm_h>_ingm_h:
         _hostia=("Acabas de ver tu foto de hoy. Tu estructura no está rota, pero está en rojo: tienes un motor que "
                  "genera dinero y un sistema que lo evapora más rápido de lo que entra. No es falta de ingresos — "
                  "es una fuga de diseño. Y lo que se diseña, se corrige.")

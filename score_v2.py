@@ -564,6 +564,71 @@ def calcular_fortuna_neta(datos):
     return out
 
 
+def _interp(x, pts):
+    """Interpolacion lineal por tramos. pts = lista ordenada de (x, y)."""
+    if x <= pts[0][0]:
+        return pts[0][1]
+    if x >= pts[-1][0]:
+        return pts[-1][1]
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        if x0 <= x <= x1:
+            t = (x - x0) / (x1 - x0) if x1 != x0 else 0
+            return y0 + t * (y1 - y0)
+    return pts[-1][1]
+
+
+def calcular_resiliencia(datos):
+    """Resiliencia financiera OBJETIVA: los meses de libertad que tu patrimonio compra.
+
+    Es la cifra que mide de verdad lo bien o mal que estas: el patrimonio neto
+    convertible en liquidez dividido por tu coste de vida. Alguien con mucho patrimonio
+    y deficit mensual esta objetivamente mucho mas libre que alguien que ahorra poco
+    sobre un patrimonio minimo. Devuelve None si faltan datos para calcularla.
+
+    Polaridad de 'fragilidad': 0 = solido/libre, 100 = al limite (igual que el resto del motor).
+    """
+    gasto = _num(datos, "gasto_mensual")
+    if not gasto:
+        return None
+    pat = _num(datos, "patrimonio") or 0.0          # patrimonio NETO (activos - pasivos)
+    colch = _num(datos, "colchon_liquido") or 0.0
+    inv = _num0(datos, "inversiones_liquidas") or 0.0
+    liq = colch + inv                               # convertible en dias (rapido)
+    meses_pat = pat / gasto                          # libertad total (incluye activos lentos: vivienda, negocio)
+    meses_liq = liq / gasto                           # resistencia inmediata
+    anios_pat = meses_pat / 12.0
+    # Fragilidad objetiva: el patrimonio total manda (clave de la libertad),
+    # pero la liquidez inmediata pondera para no llamar 'libre' a quien no tiene caja.
+    frag_total = _interp(meses_pat, [(0, 100), (6, 80), (24, 55), (60, 35), (120, 20), (300, 3)])
+    frag_liq = _interp(meses_liq, [(0, 100), (1, 90), (3, 70), (6, 45), (12, 25), (24, 10)])
+    fragilidad = round(0.60 * frag_total + 0.40 * frag_liq)
+    # Salud objetiva (0 fragil -> 100 solido), para mostrar como % positivo.
+    resiliencia = 100 - fragilidad
+    if anios_pat >= 25:
+        nivel = "libertad"          # el patrimonio ya cubre la vida (regla 25x)
+    elif meses_pat >= 60:
+        nivel = "solido"
+    elif meses_pat >= 24:
+        nivel = "construccion"
+    elif meses_pat >= 6:
+        nivel = "ajustado"
+    else:
+        nivel = "expuesto"
+    # Riesgo de caja: mucho patrimonio pero poca liquidez inmediata.
+    iliquido = bool(meses_pat >= 24 and meses_liq < 3)
+    return {
+        "meses_libertad": round(meses_pat, 1),
+        "anios_libertad": round(anios_pat, 1),
+        "meses_liquido": round(meses_liq, 1),
+        "patrimonio": pat,
+        "liquido_inmediato": liq,
+        "fragilidad": fragilidad,
+        "resiliencia": resiliencia,
+        "nivel": nivel,
+        "iliquido": iliquido,
+    }
+
+
 def calcular_deuda_tipo(resp, datos):
     """Lee C10-07 (¿la deuda te quita o te da dinero?) y la nombra palanca/neutra/freno."""
     v = resp.get("C10-07")
@@ -792,6 +857,7 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "asesor": calcular_asesor(perfil_in),
         "herencia": calcular_herencia(perfil_in),
         "fortuna_neta": calcular_fortuna_neta(datos),
+        "resiliencia": calcular_resiliencia(datos),
         "deuda_tipo": calcular_deuda_tipo(resp, datos),
         "presupuesto": calcular_presupuesto(datos, perfil_in),
         "vivienda": calcular_vivienda(datos, perfil_in),
