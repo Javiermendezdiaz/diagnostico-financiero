@@ -1371,7 +1371,11 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             _txt_e=("<b>Tu Ratio de Esclavitud Temporal roza el 100%.</b> Ahora mismo casi todo lo que trabajas se "
                     "consume en sostener tu vida actual: apenas queda año destinado a construir tu libertad. "
                     "El primer objetivo no es ganar más; es abrir una rendija de excedente.")
-        S+=[_box([Paragraph(_txt_e,St("escl",fontSize=10.5,leading=15,textColor=INK))],"#FBF4E4","#B45309",ancho=160*mm),
+        S+=[_box([Paragraph(_txt_e,St("escl",fontSize=10.5,leading=15,textColor=INK)),
+                  Paragraph("Ese tiempo «ocupado» —tu jornada, los desplazamientos, todo lo que haces para generar ingresos— "
+                            "es el que tu plan busca encoger. Su objetivo de fondo es uno: convertir horas ocupadas en horas "
+                            "libres, las que eliges tú.",St("escl2",fontSize=9.6,leading=14,textColor=GREY,spaceBefore=4))],
+                 "#FBF4E4","#B45309",ancho=160*mm),
             Spacer(1,3*mm)]
     # === TRANSICION ACTO 1 -> ACTO 2: el golpe de realidad (dinamico segun perfil) ===
     _ingm_h=max(datos.get("ingreso_mensual",0),0); _gasm_h=datos.get("gasto_mensual",0) or 0
