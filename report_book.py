@@ -1394,6 +1394,30 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     # === ACTO 2: la brecha y las palancas (vida ideal vs actual + coste de no hacer nada) ===
     if extras: S+=seccion_extras(extras)
     if extras and depth!="esencial": S+=seccion_coste_inaccion(extras)
+    if depth!="esencial":
+        # Diagnostico condicional: Gasto Anestesico (solo si estres alto Y gasto sin sentido alto)
+        _c1s=p.get("C1",{}).get("score",0) or 0; _c6s=p.get("C6",{}).get("score",0) or 0
+        if _c1s>=55 and _c6s>=55:
+            S+=[_box([Paragraph("<b>Patrón detectado: Gasto Anestésico</b>",St("ga1",fontSize=11.5,leading=15,textColor=ACCDK,fontName=FB)),
+                      Paragraph("Tus respuestas cruzan dos señales que rara vez se miran juntas: una carga de estrés financiero alta "
+                                "y un gasto que no te devuelve bienestar. Es el patrón del gasto de evasión — usar el flujo de caja para "
+                                "comprar alivio inmediato frente a la tensión. Matemáticamente, financias el propio bucle: trabajas bajo "
+                                "presión para ganar, y gastas parte de eso en anestesiar la presión de trabajar. Romperlo no es gastar "
+                                "menos por fuerza de voluntad: es sustituir el consumo de evasión por la tranquilidad del control estructural.",
+                                St("ga2",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
+                    "#FBECE8","#9A3B2E",ancho=160*mm), Spacer(1,4*mm)]
+        # Diagnostico condicional: Indice de Fragilidad Familiar (solo si dependientes Y colchon < 6 meses)
+        _cm=(extras.get("fortuna_neta") or {}).get("colchon_meses") if extras else None
+        if extras and extras.get("conciliacion") and _cm is not None and _cm<6:
+            _dias=int(round(_cm*30))
+            S+=[_box([Paragraph("<b>ESTRUCTURA EXPUESTA</b>",St("ff1",fontSize=11.5,leading=15,textColor=colors.HexColor("#9A3B2E"),fontName=FB)),
+                      Paragraph(("Tienes personas que dependen de ti económicamente y un colchón por debajo de seis meses. Si tu "
+                                "principal fuente de ingresos se detuviera, tu familia tendría unos <b>%d días</b> de autonomía antes de "
+                                "tener que recortar su nivel de vida o malvender activos. Esto no es un problema de dinero: es de "
+                                "seguridad. Blindar el colchón y ordenar la protección patrimonial es la prioridad que va por delante "
+                                "de cualquier estrategia de crecimiento.") % _dias,
+                                St("ff2",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
+                    "#FBECE8","#9A3B2E",ancho=160*mm), Spacer(1,4*mm)]
     # === ACTO 3: el plan ===
     S+=[Paragraph("Tu plan de acción",h_sec),
         Paragraph("Ordenado por impacto: si solo pudieras mover una palanca esta semana, empieza por la primera.",body)]
