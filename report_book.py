@@ -1397,6 +1397,15 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     # === ACTO 3: el plan ===
     S+=[Paragraph("Tu plan de acción",h_sec),
         Paragraph("Ordenado por impacto: si solo pudieras mover una palanca esta semana, empieza por la primera.",body)]
+    # Lineas Rojas: no-negociables de tu Constitucion (derivados de tu situacion real)
+    _lr=[]
+    if tapon_coste(datos): _lr.append("No mantener más de 3 meses de gasto en cuentas al 0%: el excedente parado pierde valor cada mes.")
+    if _gasm_e>_ingm_e: _lr.append("No tapar el déficit con deuda de consumo ni aplazamientos: primero se cierra la fuga.")
+    else: _lr.append("No dejar tu excedente sin destino: cada mes, lo que sobra va a su sitio antes del día 5.")
+    _lr.append("No postergar el blindaje de lo que ya has construido: proteger va siempre antes que crecer.")
+    _lrp=[Paragraph("<b>Tus líneas rojas — los no-negociables de tu Constitución</b>",St("lr0",fontSize=11,leading=15,textColor=ACCDK,fontName=FB))]
+    for _x in _lr: _lrp.append(Paragraph("&#9656;  "+_x,St("lrx",fontSize=10,leading=14,textColor=INK,leftIndent=4,spaceBefore=2)))
+    S+=[_box(_lrp,"#FBF9EC","#C9962B",ancho=160*mm), Spacer(1,4*mm)]
     rows=[[Paragraph("<b>#</b>",small),Paragraph("<b>Área de impacto</b>",small),Paragraph("<b>Tu siguiente acción</b>",small),Paragraph("<b>Severidad</b>",small)]]
     _AREA={"C1":"Bienestar financiero","C2":"Libertad financiera","C3":"Resistencia ante shocks","C4":"Control del gasto","C5":"Protección patrimonial","C6":"Gasto con sentido","C7":"Diversificación de ingresos","C8":"Antifragilidad","C9":"Gobierno del flujo","C10":"Salud de la deuda","C11":"Palanca de crecimiento"}
     _vistos=set(); _i=0
@@ -1523,7 +1532,12 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             ("TOPPADDING",(0,0),(-1,-1),7),("BOTTOMPADDING",(0,0),(-1,-1),7),
             ("BACKGROUND",(0,1),(0,-1),colors.HexColor("#FBECE8")),("BACKGROUND",(1,1),(1,-1),colors.HexColor("#EAF5EE")),
             ("LINEBELOW",(0,0),(-1,-1),0.4,LINE)]))
+        _fecha_h=cli.get("fecha","hoy")
+        _urg=("Este diagnóstico retrata tu estructura a día de <b>%s</b>. " % _fecha_h)
+        if _ba and _ba>0: _urg+=("Cada mes que el cuadro sigue igual, ese coste de oportunidad de <b>%s al año</b> no se detiene: corre en tu contra. " % _eur(_ba))
+        _urg+="Tu ventana ideal de actuación empieza en las próximas 72 horas."
         S+=[PageBreak(), Paragraph("Dos caminos desde aquí",h_sec),
+            Paragraph(_urg,St("urg",fontSize=10.5,leading=15,textColor=INK,spaceAfter=4)),
             Paragraph("El diagnóstico ya está hecho. Lo único que queda es elegir desde dónde sigues:",body),
             Spacer(1,3*mm), _mz]
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
