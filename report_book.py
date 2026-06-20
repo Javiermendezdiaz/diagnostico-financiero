@@ -1196,6 +1196,23 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   "individualizado ni atención psicológica. Si el dinero te genera un malestar que te desborda, "
                   "apóyate también en un profesional de confianza.",small),
         PageBreak()]
+    # === Indice: el mapa de los 5 actos ===
+    _ix=[("APERTURA","Portada · carta de bienvenida"),
+         ("ACTO 1 · DIAGNÓSTICO","Tu foto de hoy: radar, las 11 capas y tu síntesis financiera"),
+         ("ACTO 2 · LA BRECHA","Vida ideal vs actual · palancas · el coste de no hacer nada"),
+         ("ACTO 3 · EL PLAN","Tu Constitución financiera: hoja de ruta a 72 h / 30 / 90 días"),
+         ("ACTO 4 · ADAPTA","El siguiente paso: ejecución con tu family office"),
+         ("ANEXOS","Glosario · tus respuestas · metodología")]
+    S+=[Paragraph("El mapa de tu libro",h_sec),
+        Paragraph("Seis tramos, un solo recorrido: del diagnóstico a la acción. Léelo en orden.",body),Spacer(1,5*mm)]
+    for _t,_d in _ix:
+        S.append(Table([[Paragraph("<b>%s</b>"%_t,St("ixt",fontSize=11,leading=14,textColor=ACCDK,fontName=FB)),
+                         Paragraph(_d,St("ixd",fontSize=9.6,leading=13,textColor=GREY))]],
+                 colWidths=[54*mm,106*mm],
+                 style=[("LINEBELOW",(0,0),(-1,-1),0.5,LINE),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+                        ("LINEBEFORE",(0,0),(0,-1),2.6,AMARILLO),("LEFTPADDING",(0,0),(0,-1),10),
+                        ("TOPPADDING",(0,0),(-1,-1),9),("BOTTOMPADDING",(0,0),(-1,-1),9)]))
+    S+=[PageBreak()]
     # resumen + radar
     S+=[Paragraph("El mapa completo",h_sec)]
     if extras and extras.get("crisis"):
@@ -1372,8 +1389,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         if _ahom_e>0:
             _esf=_gasm_e/_ahom_e if _ahom_e>0 else 0
             _txt_e=(f"<b>Tu Ratio de Esclavitud Temporal es del {_escl*100:.0f}%.</b> De cada 12 meses que trabajas, "
-                    f"unos <b>{_mi:.0f} se destinan solo a sostener tu vida actual</b> y apenas <b>{_ml:.1f} al año</b> "
-                    f"quedan para construir tu libertad. Hoy necesitas <b>{_esf:.1f} meses de trabajo</b> para financiar "
+                    f"unos <b>{_mi:.0f} se destinan solo a sostener tu vida actual</b> y apenas <b>{_ml:g} al año</b> "
+                    f"quedan para construir tu libertad. Hoy necesitas <b>{_esf:g} meses de trabajo</b> para financiar "
                     f"un solo mes de tu vida futura. No es un problema de ingresos: es un problema de liberación de tiempo.")
         else:
             _txt_e=("<b>Tu Ratio de Esclavitud Temporal roza el 100%.</b> Ahora mismo casi todo lo que trabajas se "
@@ -1402,7 +1419,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     S+=[Spacer(1,3*mm),
         Paragraph(_hostia,St("hostia",fontSize=13,leading=19,textColor=ACCDK,fontName=FB,spaceBefore=4,spaceAfter=5)),
         Table([[""]],colWidths=[62*mm],style=[("LINEBELOW",(0,0),(-1,-1),3,AMARILLO)]),
-        PageBreak()]
+        Spacer(1,9*mm)]
     # === ACTO 2: la brecha y las palancas (vida ideal vs actual + coste de no hacer nada) ===
     if extras: S+=seccion_extras(extras)
     if extras and depth!="esencial": S+=seccion_coste_inaccion(extras)

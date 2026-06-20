@@ -17,8 +17,8 @@ def Pm(sz): return _fp("Poppins-Medium.ttf",sz)
 def Pb(sz): return _fp("Poppins-Bold.ttf",sz)
 def Pl(sz): return _fp("Poppins-Light.ttf",sz)
 
-BG0="#060B17"; BG1="#0B1A39"; GLOW="#16294F"
-BLUE="#3D7DFF"; BLUE_L="#6FA0FF"; WHITE="#F3F6FC"; MUTE="#94A6C4"; FAINT="#5C6E8E"; RULE="#2A3A5C"
+BG0="#0A0A0C"; BG1="#121215"; GLOW="#2A2410"
+BLUE="#FDD731"; BLUE_L="#FFE36A"; WHITE="#F3F6FC"; MUTE="#9A958A"; FAINT="#6B655A"; RULE="#33312A"
 GOLD="#E3B341"; GREEN="#3FB984"
 A4=(8.27,11.69)  # portrait inches
 
@@ -39,10 +39,8 @@ def _canvas():
     return fig,ax
 
 def _emblem(ax,x,y,s=0.030):
-    # marco fino + triángulo Adapta
-    ax.add_patch(FancyBboxPatch((x-s,y-s),2*s,2*s,boxstyle="round,pad=0.004,rounding_size=0.006",
-                 fill=False,ec=BLUE,lw=1.4,transform=ax.transAxes,zorder=5))
-    ax.fill([x-0.012,x+0.012,x],[y-0.009,y-0.009,y+0.011],color=WHITE,transform=ax.transAxes,zorder=6)
+    # marca Adapta: wordmark (sin triángulo placeholder)
+    ax.text(x,y,"ADAPTA",ha="center",va="center",color=BLUE,fontproperties=Pb(16),transform=ax.transAxes,zorder=6)
 
 def _spaced(t,n=3): return (" "*n).join(list(t))
 
