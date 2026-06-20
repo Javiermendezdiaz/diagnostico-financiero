@@ -505,7 +505,7 @@ async function finalizar(){
     }
     if(t.salud!=null){ document.getElementById('tSalud').textContent=t.salud; }
     if(t.margen!=null){ document.getElementById('tMargen').textContent=t.margen+'%'; }
-    if(t.cifra_libertad){ document.getElementById('tCifra').textContent=fmt(t.cifra_libertad)+' €'; }
+    if(t.cifra_libertad){ var cl=t.cifra_libertad; var clt=(cl>=1e6)?((cl/1e6).toFixed(1).replace('.',',')+' M €'):((cl>=1e3)?(Math.round(cl/1e3)+' K €'):(fmt(cl)+' €')); document.getElementById('tCifra').textContent=clt; }
     if(t.esclavitud!=null||t.margen!=null||t.cifra_libertad){ document.getElementById('teaserBox').style.display='block'; }
     const tier=st.tier||2;
     document.getElementById('payBtn').textContent='Desbloquear mi diagnóstico · '+(PRECIO_TIER[tier]||39)+' €';
