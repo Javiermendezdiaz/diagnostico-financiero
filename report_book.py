@@ -1450,8 +1450,22 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                ["Años estimados a la libertad","más de 100" if fi[3] is None else ("+40 años (a este ritmo)" if fi[3]>40 else f"{fi[3]:.0f} años")]],
               colWidths=[105*mm,55*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
               ("FONTNAME",(1,0),(1,-1),FB),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
-              ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)])),
-        PageBreak()]
+              ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)]))]
+    # Fase patrimonial (construccion vs gestion) + palanca del 20% (solo en construccion)
+    _rentista_f=bool(extras and extras.get("rentista"))
+    _prog_f=fi[1] if (fi and len(fi)>1 and fi[1] is not None) else None
+    _gestion=_rentista_f or (_prog_f is not None and _prog_f>=90)
+    _tasa_f=fi[2] if (fi and len(fi)>2 and fi[2] is not None) else None
+    S+=[Spacer(1,4*mm),Paragraph("Tu fase patrimonial: <b>%s</b>"%("Gestión y preservación" if _gestion else "Construcción de patrimonio"),St("fase",fontSize=10.5,leading=15,textColor=INK))]
+    if (not _gestion) and _tasa_f is not None and _tasa_f<20:
+        S+=[Spacer(1,2*mm),_box([Paragraph("<b>Tu palanca número uno: la tasa de ahorro</b>",St("p20a",fontSize=11,leading=15,textColor=ACCDK,fontName=FB)),
+              Paragraph("Estás en fase de construcción de patrimonio y tu tasa de ahorro es del <b>%.0f%%</b>. Por debajo del 20%%, "
+                        "el capital crece despacio y tu libertad se aleja años. El 20%% no es una cifra arbitraria: es el umbral donde "
+                        "el interés compuesto empieza a trabajar de verdad a tu favor en lugar de en tu contra. Llevar tu ahorro hacia "
+                        "ese nivel es, con diferencia, la decisión de mayor impacto que tienes ahora sobre la mesa."%_tasa_f,
+                        St("p20b",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
+              "#FBF4E4","#B45309",ancho=160*mm)]
+    S+=[PageBreak()]
     if depth!="esencial":
         _seen=[]
         for _v,_c,_d in plan(p):
@@ -1564,6 +1578,21 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             Paragraph(_urg,St("urg",fontSize=10.5,leading=15,textColor=INK,spaceAfter=4)),
             Paragraph("El diagnóstico ya está hecho. Lo único que queda es elegir desde dónde sigues:",body),
             Spacer(1,3*mm), _mz]
+    # === Manifiesto de cierre: Tus deberes (principios, voz Adapta) ===
+    if depth!="esencial":
+        _deb=["Mide.","Corrige.","No hagas ceros.","Mejora cada día un poco.","Comprométete a lograrlo.",
+              "Haz más cosas que funcionen.","Elimina lo que no te acerque a tus objetivos.","Define tu estilo de vida y cómo sufragarlo.",
+              "Piensa en tu peor escenario.","Detecta oportunidades.","Rentabiliza tu dinero.","Ahorra para invertir.",
+              "Valora tu tiempo.","Pasa a la acción.","Asesórate."]
+        _dp=[Paragraph("Tus deberes",h_sec),
+             Paragraph("Si te quedas con una sola página de todo este libro, que sea esta. No es teoría: es la disciplina "
+                       "que separa a quien sueña su libertad de quien la construye. Léela cada mes.",body),Spacer(1,3*mm)]
+        for _d in _deb:
+            _dp.append(Paragraph("<font color='#B8860B'>&#9670;</font>  <b>%s</b>"%_d,St("deb",fontSize=11.5,leading=17,leftIndent=6,spaceAfter=1)))
+        _dp+=[Spacer(1,4*mm),Paragraph("No esperes una solución mágica. La aplicación honesta de esta lista —tan lejos como "
+              "quieras llevarla— es lo que cambia la realidad de tus finanzas, de tu tiempo y, con ellos, de tu vida.",
+              St("debc",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=2))]
+        S+=[PageBreak()]+_dp
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
     S+=[PageBreak(), Paragraph("Anexo \u2014 Tus respuestas",h_sec),
