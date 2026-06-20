@@ -176,16 +176,18 @@ a{color:var(--am)}
   <p id="doneHead" style="font-size:19px;font-weight:800;margin-bottom:6px">Tu diagnóstico está listo</p>
   <p id="doneSub" style="color:var(--gr);font-size:13.5px;line-height:1.5;margin-bottom:16px">Un primer vistazo, con tus números reales:</p>
 
-  <div id="teaserBox" style="display:none;text-align:left;background:var(--pa);border:1px solid var(--bd);border-radius:14px;padding:14px 18px;margin:0 auto 16px;max-width:380px">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--bd)">
-      <span style="color:var(--gr);font-size:13px">Tu margen de maniobra</span>
-      <span id="tMargen" style="color:var(--am);font-size:22px;font-weight:800">—</span>
+  <div id="teaserBox" style="display:none;text-align:left;background:var(--pa);border:1px solid var(--bd);border-radius:14px;padding:18px;margin:0 auto 16px;max-width:380px">
+    <div style="text-align:center;padding:4px 0 13px;border-bottom:1px solid var(--bd)">
+      <div style="color:var(--gr);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em">Tu Ratio de Esclavitud Temporal</div>
+      <div id="tEscl" style="color:var(--am);font-size:46px;font-weight:800;line-height:1.15">—</div>
+      <div id="tEsclSub" style="color:var(--gr);font-size:12.5px;line-height:1.5;margin-top:2px"></div>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:baseline;padding:8px 0">
-      <span style="color:var(--gr);font-size:13px">Tu cifra de libertad</span>
-      <span id="tCifra" style="color:var(--tx);font-size:18px;font-weight:700">—</span>
+    <div style="display:flex;gap:10px;margin-top:13px">
+      <div style="flex:1;text-align:center"><div id="tSalud" style="color:var(--tx);font-size:22px;font-weight:800">—</div><div style="color:var(--gr);font-size:11px;margin-top:2px">Salud /100</div></div>
+      <div style="flex:1;text-align:center"><div id="tMargen" style="color:var(--tx);font-size:22px;font-weight:800">—</div><div style="color:var(--gr);font-size:11px;margin-top:2px">Tu margen</div></div>
+      <div style="flex:1;text-align:center"><div id="tCifra" style="color:var(--tx);font-size:16px;font-weight:700;line-height:1.4">—</div><div style="color:var(--gr);font-size:11px;margin-top:2px">Cifra libertad</div></div>
     </div>
-    <p style="color:var(--gr);font-size:12px;line-height:1.5;margin-top:8px">Y esto es solo la superficie. El libro completo desglosa tu perfil capa a capa, tu plan de acción de 100 días y tu Constitución Financiera.</p>
+    <p style="color:var(--gr);font-size:12px;line-height:1.55;margin-top:13px">Y esto es solo la superficie. Tu libro nombra, una a una, las <b style="color:var(--tx)">11 capas</b> de tu perfil, los patrones que te cuestan dinero ahora mismo y tu plan de 100 días para desactivarlos.</p>
   </div>
 
   <div id="payBox" style="display:none">
@@ -493,9 +495,18 @@ async function finalizar(){
     }
     // Adelanto gratis con datos reales -> paywall
     const t=d.teaser||{};
+    if(t.esclavitud!=null){
+      document.getElementById('tEscl').textContent=t.esclavitud+'%';
+      const ml=(t.meses_libertad!=null)?t.meses_libertad:0;
+      const inercia=Math.max(0,(12-ml));
+      document.getElementById('tEsclSub').textContent = ml>0
+        ? ('De cada 12 meses que trabajas, ~'+inercia.toFixed(1).replace('.0','')+' se queman solo en sostener tu vida actual.')
+        : 'Ahora mismo casi todo lo que trabajas se consume en sostener tu vida actual.';
+    }
+    if(t.salud!=null){ document.getElementById('tSalud').textContent=t.salud; }
     if(t.margen!=null){ document.getElementById('tMargen').textContent=t.margen+'%'; }
     if(t.cifra_libertad){ document.getElementById('tCifra').textContent=fmt(t.cifra_libertad)+' €'; }
-    if(t.margen!=null||t.cifra_libertad){ document.getElementById('teaserBox').style.display='block'; }
+    if(t.esclavitud!=null||t.margen!=null||t.cifra_libertad){ document.getElementById('teaserBox').style.display='block'; }
     const tier=st.tier||2;
     document.getElementById('payBtn').textContent='Desbloquear mi diagnóstico · '+(PRECIO_TIER[tier]||39)+' €';
     document.getElementById('payBox').style.display='block';

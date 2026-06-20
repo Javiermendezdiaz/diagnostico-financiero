@@ -418,6 +418,10 @@ def _teaser(datos, salud=None):
         out = {}
         if margen is not None: out["margen"] = margen
         if cifra: out["cifra_libertad"] = cifra
+        if ing > 0 and gas > 0:
+            out["esclavitud"] = round(min(100, gas / ing * 100))
+            _ml = round(12 * (ing - gas) / ing, 1)
+            out["meses_libertad"] = _ml if _ml > 0 else 0
         if salud is not None:
             try: out["salud"] = round(100 - float(salud))  # 0=disfuncion -> mostrar salud
             except Exception: pass
