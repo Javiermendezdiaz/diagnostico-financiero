@@ -1548,6 +1548,26 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             ri+=1
         rtab.setStyle(TableStyle(sty))
         S+=[rtab, Spacer(1,5*mm)]
+        # === Tu plan, en cifras: cuantificado y gated sobre datos reales ===
+        _cif=[]
+        _gm=datos.get("gasto_mensual") or 0; _im=max(datos.get("ingreso_mensual",0),0); _pt=datos.get("patrimonio") or 0
+        _colobj=round(_gm*3) if _gm else 0
+        if _colobj:
+            _cif.append("<b>Tu colchón objetivo: %s</b> (3 meses de tus gastos reales). Ábrelo en una cuenta remunerada, separada del día a día, y aliméntalo con una transferencia automática el día 1 de cada mes." % _eur(_colobj))
+        if _pt and _colobj and _pt>_colobj:
+            _cif.append("Divide tu patrimonio de hoy: <b>%s</b> congelados como fondo intocable de resiliencia y <b>%s</b> como base operativa para invertir o amortizar." % (_eur(_colobj),_eur(_pt-_colobj)))
+        _rec=(extras.get("presupuesto") or {}).get("recomendado") if extras else None
+        if _rec and _im:
+            _cif.append("Págate primero: el día 1, reparte tus <b>%s</b> en cuentas separadas — Necesidades <b>%s</b>, Deseos <b>%s</b>, Construcción <b>%s</b>. Ahorrar lo que sobra no funciona; forzar el reparto, sí." % (_eur(_im),_eur(_rec.get("necesidades",0)),_eur(_rec.get("deseos",0)),_eur(_rec.get("ahorro",0))))
+        _dt=extras.get("deuda_tipo") if extras else None
+        if _dt and isinstance(_dt,(list,tuple)) and len(_dt)>0 and "freno" in str(_dt[0]).lower():
+            _cif.append("Tienes deuda que te resta: lístala con su TAE exacta y amortiza primero la más cara. Eliminar deuda de consumo a tipo alto es la rentabilidad más segura que existe.")
+        if extras and (extras.get("presupuesto") or {}).get("empresario"):
+            _cif.append("Antes del día 90, audita con tu asesor el mix óptimo entre nómina y dividendos de tu sociedad: extraer por costumbre deja en Hacienda dinero que podría ir a tu patrimonio.")
+        if _cif:
+            _cp=[Paragraph("<b>Tu plan, en cifras</b>",St("cif0",fontSize=11,leading=15,textColor=ACCDK,fontName=FB))]
+            for _x in _cif: _cp.append(Paragraph("<font color='#B45309'>&#9656;</font>  "+_x,St("cifx",fontSize=9.8,leading=14,textColor=INK,leftIndent=4,spaceBefore=3)))
+            S+=[_box(_cp,"#FBF4E4","#B45309",ancho=160*mm), Spacer(1,4*mm)]
         S+=[_box([Paragraph("<b>No haces esto solo.</b>",St("ej1",fontSize=11,leading=15,textColor=ACCDK,fontName=FB)),
                   Paragraph("Las tareas de hábito y decisión son tuyas. Pero el trabajo pesado —mover el capital a vehículos "
                             "eficientes, ordenar la fiscalidad, redactar el blindaje legal— lo ejecuta el equipo de Adapta por ti. "
