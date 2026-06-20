@@ -1473,6 +1473,14 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                         "ese nivel es, con diferencia, la decisión de mayor impacto que tienes ahora sobre la mesa."%_tasa_f,
                         St("p20b",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
               "#FBF4E4","#B45309",ancho=160*mm)]
+    _pat_h=datos.get("patrimonio")
+    if (not _gestion) and _pat_h is not None and _pat_h<100000:
+        S+=[Spacer(1,2*mm),_box([Paragraph("<b>Tu primer hito no es la libertad total: son los primeros 100.000 €.</b>",St("h100a",fontSize=10.8,leading=15,textColor=ACCDK,fontName=FB)),
+              Paragraph("Reunir ese primer capital invertible desde cero es el tramo más difícil del camino —pura constancia—, "
+                        "pero también el que más cambia las reglas a tu favor: superado ese punto, tu mentalidad ya es otra, se "
+                        "abren mejores opciones y el interés compuesto empieza a hacer el trabajo pesado. Pon ahí tu foco antes "
+                        "que en la meta final.",St("h100b",fontSize=9.8,leading=14,textColor=INK,spaceBefore=3))],
+              "#EEF2F8","#0F766E",ancho=160*mm)]
     S+=[PageBreak()]
     if depth!="esencial":
         _seen=[]
