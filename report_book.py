@@ -752,6 +752,14 @@ def cuadro_financiero(p, datos, fi):
             Paragraph("<font size=9.5>Gastas <b>%s/mes</b> e ingresas <b>%s/mes</b>: operas en déficit de <b>%s al mes</b> (unos <b>%s al año</b>). Ese hueco no se evapora — se cubre consumiendo tu colchón o con deuda invisible (tarjetas, aplazamientos). En banca privada se llama <i>pérdida latente por descontrol de costes fijos</i>. La palanca no es ganar más: es ver, al euro, a dónde va tu dinero.</font>"%(_eur(_gasm),_eur(_ingm),_eur(_defm),_eur(_defm*12)),St("brnx",fontSize=9.5,leading=14,spaceBefore=3))],
             "#FBECE8","#9A3B2E",ancho=160*mm))
         out.append(Paragraph("<font color='#6B6B62'><i>Dictamen de dirección patrimonial: la libertad no se alcanza subiendo los ingresos al infinito, sino optimizando la estructura que sostiene cada euro que ya generas.</i></font>",St("dic",fontSize=9.5,leading=14,spaceBefore=5)))
+    elif _ingm>=2500 and _defm<0 and (-_defm)/_ingm<0.12:
+        _mrg=-_defm; _mrp=_mrg/_ingm*100
+        out.append(_box([Paragraph(f"<font color='#B45309'><b>Ley de Parkinson: tus gastos han subido con tus ingresos</b></font><br/>"
+            f"<font size=9.5>Ingresas <b>{_eur(_ingm)}/mes</b> y te queda un margen de apenas <b>{_eur(_mrg)}</b> "
+            f"(un {_mrp:.0f}% de lo que entra). No es que ganes poco: tu estilo de vida ha crecido casi al ritmo de tus "
+            f"ingresos. Es la Ley de Parkinson aplicada al dinero — el gasto se expande hasta llenar lo que entra; el dinero "
+            f"no se evapora, se acomoda. Cada euro de esa subida que recuperes va directo a tu libertad, sin trabajar un "
+            f"minuto más.</font>",St("park",fontSize=10.5,leading=15))],"#FBF4E4","#B45309",ancho=160*mm))
     tap=tapon_coste(datos)
     if tap:
         exceso,coste=tap
