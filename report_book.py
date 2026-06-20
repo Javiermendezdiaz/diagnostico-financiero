@@ -1461,6 +1461,10 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     _gestion=_rentista_f or (_prog_f is not None and _prog_f>=90)
     _tasa_f=fi[2] if (fi and len(fi)>2 and fi[2] is not None) else None
     S+=[Spacer(1,4*mm),Paragraph("Tu fase patrimonial: <b>%s</b>"%("Gestión y preservación" if _gestion else "Construcción de patrimonio"),St("fase",fontSize=10.5,leading=15,textColor=INK))]
+    if not _gestion:
+        S+=[Paragraph("<i>La fórmula no es «Ingresos − Ahorro = Gastos». Es <b>Ingresos − Estilo de vida = Inversión</b>: "
+                      "defines el estilo de vida que quieres, inviertes el resto antes de gastarlo, y trabajas para ensanchar "
+                      "esa diferencia subiendo ingresos.</i>",St("formula",fontSize=9.8,leading=14,textColor=GREY,spaceBefore=3,spaceAfter=2))]
     if (not _gestion) and _tasa_f is not None and _tasa_f<20:
         S+=[Spacer(1,2*mm),_box([Paragraph("<b>Tu palanca número uno: la tasa de ahorro</b>",St("p20a",fontSize=11,leading=15,textColor=ACCDK,fontName=FB)),
               Paragraph("Estás en fase de construcción de patrimonio y tu tasa de ahorro es del <b>%.0f%%</b>. Por debajo del 20%%, "
