@@ -455,7 +455,7 @@ const eur=n=>Math.round(n).toLocaleString('es-ES')+' €';
 let _st=null;
 function recalc(){
   $('statusDot').classList.add('calc'); $('statusTxt').classList.add('calc'); $('statusTxt').textContent='Recalculando…';
-  clearTimeout(_st); _st=setTimeout(()=>{ $('statusDot').classList.remove('calc'); $('statusTxt').classList.remove('calc'); $('statusTxt').textContent='Simulador activo'; },550);
+  clearTimeout(_st); _st=setTimeout(()=>{ $('statusDot').classList.remove('calc'); $('statusTxt').classList.remove('calc'); $('statusTxt').textContent='Análisis riguroso · 15 min'; },550);
 }
 
 /* ---- SIM 1: Regla 10% ---- */
