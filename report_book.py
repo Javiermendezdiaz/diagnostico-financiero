@@ -1309,7 +1309,6 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   Paragraph("Para reflexionar",h_sub),
                   Paragraph(REFLEX[code],St("rf",fontSize=10,leading=14,textColor=INK,fontName="Helvetica-Oblique"))]
             S.extend(cab); S.append(PageBreak())
-    if extras: S+=seccion_extras(extras)
     # transversales
     if depth!="esencial": S+=[Paragraph("Lo que cruza todas las capas",h_sec),
         Paragraph("Hay tres corrientes que no viven en un solo capítulo: recorren todo tu perfil. Verlas juntas "
@@ -1354,7 +1353,48 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             _e=_re_md.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", _e)   # markdown negrita -> <b> (evita ** literales)
             S.append(Paragraph(_e,body))
         S+=[PageBreak()]
-    # plan
+    # === ACTO 1 (cierre): sintesis financiera (FODA + flujo + proyeccion) ANTES de planificar ===
+    S+=cuadro_financiero(p,datos,fi)
+    # === ACTO 1: Ratio de Esclavitud Temporal (dinamico y honesto, derivado del flujo real) ===
+    _ingm_e=max(datos.get("ingreso_mensual",0),0); _ahom_e=datos.get("ahorro_mensual",0) or 0
+    _gasm_e=datos.get("gasto_mensual",0) or 0
+    if _ingm_e>0:
+        _s_e=max(0.0,min(1.0,_ahom_e/_ingm_e)); _escl=max(0.0,min(1.0,1.0-_s_e))
+        _ml=round(12*_s_e,1); _mi=round(12*_escl)
+        if _ahom_e>0:
+            _esf=_gasm_e/_ahom_e if _ahom_e>0 else 0
+            _txt_e=(f"<b>Tu Ratio de Esclavitud Temporal es del {_escl*100:.0f}%.</b> De cada 12 meses que trabajas, "
+                    f"unos <b>{_mi:.0f} se destinan solo a sostener tu vida actual</b> y apenas <b>{_ml:.1f} al año</b> "
+                    f"quedan para construir tu libertad. Hoy necesitas <b>{_esf:.1f} meses de trabajo</b> para financiar "
+                    f"un solo mes de tu vida futura. No es un problema de ingresos: es un problema de liberación de tiempo.")
+        else:
+            _txt_e=("<b>Tu Ratio de Esclavitud Temporal roza el 100%.</b> Ahora mismo casi todo lo que trabajas se "
+                    "consume en sostener tu vida actual: apenas queda año destinado a construir tu libertad. "
+                    "El primer objetivo no es ganar más; es abrir una rendija de excedente.")
+        S+=[_box([Paragraph(_txt_e,St("escl",fontSize=10.5,leading=15,textColor=INK))],"#FBF4E4","#B45309",ancho=160*mm),
+            Spacer(1,3*mm)]
+    # === TRANSICION ACTO 1 -> ACTO 2: el golpe de realidad (dinamico segun perfil) ===
+    _ingm_h=max(datos.get("ingreso_mensual",0),0); _gasm_h=datos.get("gasto_mensual",0) or 0
+    _tasa_h=fi[2] if (len(fi)>2 and fi[2] is not None) else 0
+    if _gasm_h>_ingm_h:
+        _hostia=("Acabas de ver tu foto de hoy. Tu estructura no está rota, pero está en rojo: tienes un motor que "
+                 "genera dinero y un sistema que lo evapora más rápido de lo que entra. No es falta de ingresos — "
+                 "es una fuga de diseño. Y lo que se diseña, se corrige.")
+    elif _tasa_h<10:
+        _hostia=("Acabas de ver tu foto de hoy. Tu estructura no está rota, pero está en pausa: tienes un motor que "
+                 "genera dinero y un sistema que apenas retiene lo que produce. El problema no es cuánto ganas; "
+                 "es cuánto se queda contigo.")
+    else:
+        _hostia=("Acabas de ver tu foto de hoy. Tu estructura funciona, pero rinde por debajo de su potencial: "
+                 "generas y retienes, y ahora cada euro tiene que trabajar con intención, no por inercia.")
+    S+=[Spacer(1,3*mm),
+        Paragraph(_hostia,St("hostia",fontSize=13,leading=19,textColor=ACCDK,fontName=FB,spaceBefore=4,spaceAfter=5)),
+        Table([[""]],colWidths=[62*mm],style=[("LINEBELOW",(0,0),(-1,-1),3,AMARILLO)]),
+        PageBreak()]
+    # === ACTO 2: la brecha y las palancas (vida ideal vs actual + coste de no hacer nada) ===
+    if extras: S+=seccion_extras(extras)
+    if extras and depth!="esencial": S+=seccion_coste_inaccion(extras)
+    # === ACTO 3: el plan ===
     S+=[Paragraph("Tu plan de acción",h_sec),
         Paragraph("Ordenado por impacto: si solo pudieras mover una palanca esta semana, empieza por la primera.",body)]
     rows=[[Paragraph("<b>#</b>",small),Paragraph("<b>Área de impacto</b>",small),Paragraph("<b>Tu siguiente acción</b>",small),Paragraph("<b>Severidad</b>",small)]]
@@ -1379,7 +1419,6 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
               ("FONTNAME",(1,0),(1,-1),FB),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
               ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)])),
         PageBreak()]
-    S+=cuadro_financiero(p,datos,fi)
     if depth!="esencial":
         _seen=[]
         for _v,_c,_d in plan(p):
@@ -1447,8 +1486,16 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         Paragraph("Instrumento de 11 capas con dimensiones psicométricas de polaridad consistente. Los percentiles "
                   "se calibran empíricamente frente a la cohorte real de respondentes; mientras la muestra de tu grupo crece, se indican como provisionales. Herramienta "
                   "de autoconocimiento; no sustituye asesoramiento profesional individualizado.",small)]
-    if extras and depth!="esencial": S+=seccion_coste_inaccion(extras)
     if extras and depth!="esencial": S+=seccion_compromiso(extras)
+    # === PUENTE ACTO 3 -> ACTO 4: el plan da el QUE; Adapta, el COMO (el siguiente nivel) ===
+    if depth!="esencial":
+        S+=[_box([Paragraph("<b>Ya tienes el qué. Falta el cómo.</b>",St("pte1",fontSize=12.5,leading=16,textColor=ACCDK,fontName=FB)),
+                  Paragraph("Lo que acabas de leer es tu Constitución financiera: la ley por la que se rigen tus decisiones de aquí "
+                            "en adelante. Tenerla escrita es la mitad del trabajo. La otra mitad —ejecutar el blindaje y el "
+                            "desacoplamiento sin cometer los errores caros que no se ven hasta años después— es exactamente lo que "
+                            "un family office hace por ti. Lo que viene no es un anuncio: es el siguiente nivel lógico de tu plan.",
+                            St("pte2",fontSize=10.5,leading=15,textColor=INK,spaceBefore=3))],
+                "#FBF9EC","#C9962B",ancho=160*mm), Spacer(1,4*mm)]
     S+=seccion_adapta(p)
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
