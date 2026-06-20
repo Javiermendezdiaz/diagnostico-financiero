@@ -1453,6 +1453,11 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             ri+=1
         rtab.setStyle(TableStyle(sty))
         S+=[rtab, Spacer(1,5*mm)]
+        S+=[_box([Paragraph("<b>No haces esto solo.</b>",St("ej1",fontSize=11,leading=15,textColor=ACCDK,fontName=FB)),
+                  Paragraph("Las tareas de hábito y decisión son tuyas. Pero el trabajo pesado —mover el capital a vehículos "
+                            "eficientes, ordenar la fiscalidad, redactar el blindaje legal— lo ejecuta el equipo de Adapta por ti. "
+                            "Tú decides; nosotros operamos.",St("ej2",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
+                "#FBF9EC","#C9962B",ancho=160*mm), Spacer(1,4*mm)]
         # Regla de contingencia (kill-switch sano)
         col6=datos.get("gasto_mensual",0)*6
         S+=[_box([Paragraph("<font color='#B45309'><b>Tu regla de contingencia</b></font><br/>"
@@ -1497,6 +1502,30 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                             St("pte2",fontSize=10.5,leading=15,textColor=INK,spaceBefore=3))],
                 "#FBF9EC","#C9962B",ancho=160*mm), Spacer(1,4*mm)]
     S+=seccion_adapta(p)
+    # === ACTO 4 (cierre): Matriz de Decision Bifurcada (Inaccion vs Adapta), cifras reales ===
+    if extras and depth!="esencial":
+        _ba=(extras.get("brecha") or {}).get("brecha_anual"); _nl=fi[0] if (fi and fi[0]) else None
+        _izq=[]
+        if _ba and _ba>0: _izq.append("Sigues dejando escapar unos <b>%s al año</b> que tu trayectoria aún no genera." % _eur(_ba))
+        _izq+=["La misma inercia que arrastras, sin revisar.","Rumiación y descontrol: el coste que no aparece en ninguna cuenta, pero lo pagas en sueño y en cabeza."]
+        _der=["Activas tu Constitución financiera: reglas claras, decisiones sin ruido.",
+              "Trasladas la carga operativa a un family office: el trabajo pesado lo hacemos nosotros.",
+              "Blindas tu colchón y pones cada euro a trabajar con intención."]
+        if _nl: _der.append("Avanzas, con método, hacia tu número de libertad (<b>%s</b>)." % _eur(_nl))
+        _filas=[[Paragraph("<font color='white'><b>Si no haces nada</b></font>",St("mzi",fontSize=11,leading=14,textColor=colors.white,fontName=FB)),
+                 Paragraph("<font color='white'><b>El siguiente paso con Adapta</b></font>",St("mzd",fontSize=11,leading=14,textColor=colors.white,fontName=FB))]]
+        for i in range(max(len(_izq),len(_der))):
+            _filas.append([Paragraph(("&#9656;  "+_izq[i]) if i<len(_izq) else "",small),
+                           Paragraph(("&#9656;  "+_der[i]) if i<len(_der) else "",small)])
+        _mz=Table(_filas,colWidths=[80*mm,80*mm])
+        _mz.setStyle(TableStyle([("BACKGROUND",(0,0),(0,0),colors.HexColor("#9A3B2E")),("BACKGROUND",(1,0),(1,0),colors.HexColor("#1D6F42")),
+            ("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),9),("RIGHTPADDING",(0,0),(-1,-1),9),
+            ("TOPPADDING",(0,0),(-1,-1),7),("BOTTOMPADDING",(0,0),(-1,-1),7),
+            ("BACKGROUND",(0,1),(0,-1),colors.HexColor("#FBECE8")),("BACKGROUND",(1,1),(1,-1),colors.HexColor("#EAF5EE")),
+            ("LINEBELOW",(0,0),(-1,-1),0.4,LINE)]))
+        S+=[PageBreak(), Paragraph("Dos caminos desde aquí",h_sec),
+            Paragraph("El diagnóstico ya está hecho. Lo único que queda es elegir desde dónde sigues:",body),
+            Spacer(1,3*mm), _mz]
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
     S+=[PageBreak(), Paragraph("Anexo \u2014 Tus respuestas",h_sec),
