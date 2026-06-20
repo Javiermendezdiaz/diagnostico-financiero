@@ -498,11 +498,12 @@ def seccion_adapta(p):
         out.append(Paragraph(f"<font color='#0284C7'><b>&#9656; {ti}</b></font>",St("ad1",fontSize=11,leading=14,spaceBefore=6,spaceAfter=2)))
         out.append(Paragraph(de,St("ad2",fontSize=10,leading=14,leftIndent=8,spaceAfter=2)))
         out.append(Paragraph(f"<a href='{url}'><font color='#1A1A17'>Ver c\u00f3mo lo trabajamos &#8594;</font></a>",St("ad3",fontSize=9.5,leading=13,leftIndent=8,spaceAfter=8)))
-    out+=[Spacer(1,3*mm),
+    out+=[Spacer(1,4*mm),
           Paragraph("Por d\u00f3nde empezamos",h_sub),
+          Spacer(1,2.5*mm),
           Paragraph("Tienes el mapa. El siguiente paso es una <b>sesi\u00f3n estrat\u00e9gica</b> para pasar del diagn\u00f3stico a la ejecuci\u00f3n: "
                     "te escuchamos primero, te proponemos despu\u00e9s. Sin compromiso y sin llamadas de presi\u00f3n \u2014 como debe ser.",
-                    St("cta",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=2)),
+                    St("cta",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=0)),
           Spacer(1,2*mm),
           Paragraph("<b>Reserva tu conversaci\u00f3n:</b> <a href='https://www.adaptafamilyoffice.com/informe'><font color='#0284C7'>adaptafamilyoffice.com</font></a>  &#183;  "
                     "<b>WhatsApp:</b> <a href='https://wa.me/34683343531'><font color='#0284C7'>+34 683 34 35 31</font></a>  &#183;  info@adaptafamilyoffice.com",
@@ -1132,6 +1133,11 @@ def seccion_extras(extras):
               Paragraph("Tres preguntas para convertir una cita de papeleo en una de estrategia:",small)]
         for q in pa:
             out.append(Paragraph("<font color='#0F766E'>&#9656;</font>  «%s»"%q,St("pqa",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=3)))
+        out.append(Paragraph("Y si esas preguntas le quedan grandes, no es un fallo tuyo: una gestoría tramita, no "
+                             "diseña estrategia patrimonial. Lo que de verdad necesitas es una capa de asesoramiento "
+                             "<b>integral</b> —que mire a la vez tu fiscalidad, tus inversiones y tus inmuebles como un solo "
+                             "patrimonio—. Es otro oficio, el de un family office, y es el que mueve la aguja.",
+                             St("pqz",fontSize=9.7,leading=14,textColor=GREY,spaceBefore=6)))
     return out
 
 def seccion_compromiso(extras):
@@ -1492,10 +1498,11 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         else:
             if _ahom_e>0:
                 _esf=_gasm_e/_ahom_e if _ahom_e>0 else 0
-                _txt_e=(f"<b>Tu Ratio de Esclavitud Temporal es del {_escl*100:.0f}%.</b> De cada 12 meses que trabajas, "
-                        f"unos <b>{_mi:.0f} se destinan solo a sostener tu vida actual</b> y apenas <b>{_ml:g} al año</b> "
-                        f"quedan para construir tu libertad. Hoy necesitas <b>{_esf:g} meses de trabajo</b> para financiar "
-                        f"un solo mes de tu vida futura. No es un problema de ingresos: es un problema de liberación de tiempo.")
+                _txt_e=(f"<b>Tu Ratio de Esclavitud Temporal es del {_escl*100:.0f}%.</b> Traducido a tiempo: de cada 12 meses "
+                        f"que trabajas, <b>unos {_mi:.0f} se van enteros en pagar la vida que ya tienes</b> y apenas "
+                        f"<b>{_ml:.0f} en construir la que quieres</b>. Y este es el dato que duele: al ritmo de hoy, "
+                        f"<b>comprar un solo mes de libertad te cuesta {_esf:g} meses de trabajo</b>. El problema no es "
+                        f"cuánto ganas: es lo poco de tu esfuerzo que se queda contigo.")
             else:
                 _txt_e=("<b>Tu Ratio de Esclavitud Temporal roza el 100%.</b> Ahora mismo casi todo lo que trabajas se "
                         "consume en sostener tu vida actual: apenas queda año destinado a construir tu libertad. "

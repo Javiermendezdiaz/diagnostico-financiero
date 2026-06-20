@@ -357,12 +357,17 @@ def calcular_asesor(perfil_in):
         return ("Tu cobertura asesora: vas sin red",
                 "Lo llevas todo tú: tiene mérito y te da control, pero también un punto ciego estructural. Nadie "
                 "audita tus decisiones con ojos externos, y los sesgos propios no se ven desde dentro. Tu mayor "
-                "coste no son los impuestos: es decidir sin un sistema que valide la jugada antes de moverla.")
+                "coste no son los impuestos: es decidir sin un sistema que valide la jugada antes de moverla. Y no se "
+                "resuelve con una gestoría que te lleve el papeleo: lo que necesitas es asesoramiento integral —financiero, "
+                "inmobiliario y fiscal bajo un mismo techo—, que mire tu patrimonio como un todo. Es justo lo que hoy no tienes.")
     if "papeleo" in al or "impuestos" in al:
         return ("Tu cobertura asesora: gestoría, no estrategia",
                 "Tienes una gestoría, no un estratega. Cumplir con Hacienda es obligatorio, pero no hace crecer tu "
                 "patrimonio. Que sientas que vas a ciegas teniendo asesor es la señal: pagas por estar en regla, no "
-                "por claridad sobre a dónde vas. Son dos servicios distintos, y el segundo es el que mueve la aguja.")
+                "por claridad sobre a dónde vas. Y seamos claros: pedirle estrategia patrimonial a una gestoría es pedirle "
+                "peras al olmo —no es su oficio—. Lo que te falta no es cambiar de gestor, es sumar una capa de asesoramiento "
+                "integral, que mire a la vez tu fiscalidad, tus inversiones y tus inmuebles como un solo patrimonio. Ese es el "
+                "servicio que mueve la aguja, y es el de un family office.")
     if "confianza" in al:
         return ("Tu cobertura asesora: un activo que conviene exprimir",
                 "Tener un asesor de confianza es un activo enorme; no lo sueltes. Este informe no compite con él: te "
