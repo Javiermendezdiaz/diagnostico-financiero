@@ -1481,6 +1481,13 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                         "abren mejores opciones y el interés compuesto empieza a hacer el trabajo pesado. Pon ahí tu foco antes "
                         "que en la meta final.",St("h100b",fontSize=9.8,leading=14,textColor=INK,spaceBefore=3))],
               "#EEF2F8","#0F766E",ancho=160*mm)]
+    if _gestion:
+        S+=[Spacer(1,2*mm),_box([Paragraph("<b>Cambian las reglas: ya no acumulas, preservas.</b>",St("gst1",fontSize=10.8,leading=15,textColor=ACCDK,fontName=FB)),
+              Paragraph("Acumular y desacumular son juegos opuestos con las mismas piezas. Mientras construías, el tiempo y los "
+                        "vaivenes del mercado jugaban a tu favor. Ahora tu reto es distinto: que el capital dure y rente sin "
+                        "sobresaltos. La protección del principal y la liquidez pesan más que exprimir el crecimiento, y un error "
+                        "en esta fase se corrige mucho peor que en la de construcción.",St("gst2",fontSize=9.8,leading=14,textColor=INK,spaceBefore=3))],
+              "#EEF2F8","#0F766E",ancho=160*mm)]
     S+=[PageBreak()]
     if depth!="esencial":
         _seen=[]
