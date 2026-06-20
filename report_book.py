@@ -721,6 +721,62 @@ def report_id(nombre, fecha):
 def valor_hora(datos):
     return max(datos.get("ingreso_mensual",0),0)/160.0
 
+def seccion_fuentes(extras):
+    """Mapa de fuentes de ingreso: cuántas, cuánto rinde cada una y a qué precio de tiempo (€/hora)."""
+    f=extras.get("fuentes") if extras else None
+    if not f: return []
+    out=[Paragraph("Tu mapa de fuentes de ingreso",h_sec),
+         Paragraph("Depender de una sola fuente es la mayor fragilidad financiera que existe: el día que falla, lo "
+                   "pierdes todo a la vez. Aquí está la tuya, fuente por fuente, con lo que de verdad importa — cuánto "
+                   "te renta cada una y a qué precio de tu tiempo.",body)]
+    _fh=St("fh",fontSize=8,leading=11,textColor=colors.HexColor("#FDD731"),fontName=FB)
+    rows=[[Paragraph("FUENTE",_fh),Paragraph("€/MES",_fh),Paragraph("H/SEM",_fh),Paragraph("€/HORA",_fh),Paragraph("TIPO",_fh)]]
+    for it in f["fuentes"]:
+        _hrs=("%g"%it["horas"]) if it["horas"] is not None else "—"
+        _eh="— (sin tu tiempo)" if it["eur_hora"] is None else _eur(it["eur_hora"])
+        _tipo="Pasiva" if it["pasiva"] else "Activa"; _tc="#1D6F42" if it["pasiva"] else "#9A3B2E"
+        rows.append([Paragraph(it["nombre"],small),Paragraph(_eur(it["ingreso"]),small),Paragraph(_hrs,small),
+                     Paragraph(_eh,small),Paragraph(f"<font color='{_tc}'><b>{_tipo}</b></font>",small)])
+    tab=Table(rows,colWidths=[54*mm,26*mm,24*mm,30*mm,24*mm],
+        style=TableStyle([("BACKGROUND",(0,0),(-1,0),colors.HexColor("#101113")),
+            ("LINEBELOW",(0,1),(-1,-1),0.4,colors.HexColor("#E7E3D8")),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+            ("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5),
+            ("LEFTPADDING",(0,0),(-1,-1),6),("RIGHTPADDING",(0,0),(-1,-1),6)]))
+    out+=[Spacer(1,3*mm),tab,Spacer(1,4*mm)]
+    n=f["n"]; conc=f["concentracion"]
+    if n==1:
+        _d=("<b>Hoy toda tu vida financiera cuelga de un solo hilo.</b> El 100% de lo que entra viene de una única "
+            "fuente: el día que falle —un despido, un cliente que se va, una baja— tu ingreso no baja, desaparece. No es "
+            "alarmismo, es estructura. La primera prioridad de tu plan no es ganar más en esa fuente: es abrir una segunda."); _dc="#9A3B2E"; _db="#FBECE8"
+    elif conc>=70:
+        _d=(f"<b>Tienes {n} fuentes, pero una sola concentra el {conc}% de lo que entra.</b> Sobre el papel estás "
+            f"diversificado; en la práctica, casi todo sigue dependiendo de una pieza. Diversificar de verdad es que "
+            f"ninguna fuente pueda hundirte ella sola."); _dc="#B45309"; _db="#FBF4E4"
+    else:
+        _d=(f"<b>Tienes {n} fuentes de ingreso, y eso es una fortaleza real.</b> Cuantos más pilares sostienen tu "
+            f"economía, menos te afecta que uno falle. Tu trabajo ahora es que cada uno rinda y que el peso no se "
+            f"concentre en uno solo."); _dc="#1D6F42"; _db="#EAF5EE"
+    out.append(_box([Paragraph(_d,St("fd1",fontSize=10.5,leading=15,textColor=INK))],_db,_dc,ancho=160*mm))
+    peor=f.get("peor_activa")
+    if peor and peor.get("eur_hora"):
+        out.append(Paragraph(f"<b>El precio de tu tiempo:</b> tu fuente «{peor['nombre']}» te renta unos "
+                             f"<b>{_eur(peor['eur_hora'])}/hora</b>. Esa es la pregunta incómoda: ¿es el mejor uso de esas horas, "
+                             f"o podrías subir su valor —o sustituirla— y liberar tiempo para algo que rinda más? No se trata de "
+                             f"trabajar más horas: se trata de que cada hora valga más.",
+                             St("fd2",fontSize=9.7,leading=14,spaceBefore=6)))
+    if not f["tiene_pasiva"]:
+        out.append(Paragraph("<b>Hoy ni un euro entra sin tu tiempo.</b> Todas tus fuentes exigen tus horas. Quienes llegan "
+                             "lejos comparten una cosa: construyeron al menos una fuente que trabaja sin ellos —un alquiler, "
+                             "dividendos, un negocio sistematizado—. La primera es la que más cuesta y la que más libera: es el "
+                             "salto que cambia el juego.",St("fd3",fontSize=9.7,leading=14,spaceBefore=4)))
+    else:
+        out.append(Paragraph(f"<b>Ya tienes {f['n_pasivas']} fuente(s) que no dependen de tu tiempo.</b> Eso es justo lo que "
+                             f"construye libertad: dinero que entra mientras vives. Protégelas, reinvierte lo que generan y haz que "
+                             f"crezcan hasta que un día cubran tu coste de vida. Ahí es donde trabajar pasa a ser elección.",
+                             St("fd4",fontSize=9.7,leading=14,spaceBefore=4)))
+    out.append(Spacer(1,3*mm))
+    return out
+
 def cuadro_financiero(p, datos, fi):
     """FODA + cash flow + proyeccion + tapon. Devuelve flowables."""
     out=[Paragraph("Tu cuadro financiero",h_sec),
@@ -1450,6 +1506,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                                 "libres, las que eliges tú.",St("escl2",fontSize=9.6,leading=14,textColor=GREY,spaceBefore=4))],
                      "#FBF4E4","#B45309",ancho=160*mm),
                 Spacer(1,3*mm)]
+    # === ACTO 1: mapa de fuentes de ingreso (diversificacion + €/hora por fuente) ===
+    if extras: S+=seccion_fuentes(extras)
     # === TRANSICION ACTO 1 -> ACTO 2: el golpe de realidad (dinamico segun perfil) ===
     _ingm_h=max(datos.get("ingreso_mensual",0),0); _gasm_h=datos.get("gasto_mensual",0) or 0
     _tasa_h=fi[2] if (len(fi)>2 and fi[2] is not None) else 0

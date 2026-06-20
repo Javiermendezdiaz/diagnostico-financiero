@@ -629,6 +629,55 @@ def calcular_resiliencia(datos):
     }
 
 
+_FUENTE_DEFS = [
+    ("Mi trabajo activo (empleo, autónomo)", "ing_trabajo", "h_trabajo", "Trabajo activo"),
+    ("Inversiones (dividendos, intereses, fondos)", "ing_inversion", "h_inversion", "Inversiones"),
+    ("Alquileres de inmuebles", "ing_alquiler", "h_alquiler", "Alquileres"),
+    ("Otras fuentes (un negocio que funciona sin mí, royalties…)", "ing_otros", "h_otros", "Otras fuentes"),
+]
+
+
+def calcular_fuentes(datos, perfil_in):
+    """Mapa de fuentes de ingreso: cuántas, cuánto rinde cada una y a qué precio de tiempo (€/hora).
+    La tesis: depender de una sola fuente es la mayor fragilidad financiera que existe.
+    Solo se calcula sobre las fuentes que el cliente declara; nada se inventa."""
+    sel = (perfil_in or {}).get("fuentes_ingreso")
+    if not sel:
+        return None
+    if isinstance(sel, str):
+        sel = [sel]
+    fuentes = []
+    total = 0.0
+    for label, fing, fhrs, nombre in _FUENTE_DEFS:
+        if label not in sel:
+            continue
+        ing = _num0(datos, fing) or 0.0
+        hrs = _num0(datos, fhrs)
+        item = {"nombre": nombre, "ingreso": ing, "horas": hrs}
+        if hrs is not None and hrs > 0:
+            item["eur_hora"] = round(ing / (hrs * 4.33), 1) if ing else 0.0
+            item["pasiva"] = hrs <= 1
+        else:
+            item["eur_hora"] = None          # sin tiempo declarado: renta pura
+            item["pasiva"] = True
+        fuentes.append(item)
+        total += ing
+    n = len(fuentes)
+    if n == 0:
+        return None
+    for it in fuentes:
+        it["pct"] = round(100 * it["ingreso"] / total) if total else 0
+    n_pasivas = sum(1 for it in fuentes if it["pasiva"])
+    mayor = max(fuentes, key=lambda x: x["ingreso"]) if total else fuentes[0]
+    activas = [it for it in fuentes if not it["pasiva"] and it.get("eur_hora")]
+    peor = min(activas, key=lambda x: x["eur_hora"]) if activas else None
+    return {
+        "fuentes": fuentes, "n": n, "n_pasivas": n_pasivas, "n_activas": n - n_pasivas,
+        "total": total, "concentracion": mayor["pct"], "mayor": mayor["nombre"],
+        "peor_activa": peor, "tiene_pasiva": n_pasivas > 0,
+    }
+
+
 def calcular_deuda_tipo(resp, datos):
     """Lee C10-07 (¿la deuda te quita o te da dinero?) y la nombra palanca/neutra/freno."""
     v = resp.get("C10-07")
@@ -858,6 +907,7 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "herencia": calcular_herencia(perfil_in),
         "fortuna_neta": calcular_fortuna_neta(datos),
         "resiliencia": calcular_resiliencia(datos),
+        "fuentes": calcular_fuentes(datos, perfil_in),
         "deuda_tipo": calcular_deuda_tipo(resp, datos),
         "presupuesto": calcular_presupuesto(datos, perfil_in),
         "vivienda": calcular_vivienda(datos, perfil_in),

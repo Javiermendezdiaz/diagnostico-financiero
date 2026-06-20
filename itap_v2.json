@@ -3326,6 +3326,20 @@
    ]
   },
   {
+   "id": "SD-18",
+   "tipo": "opcion",
+   "campo": "fuentes_ingreso",
+   "multi": true,
+   "texto": "¿De qué fuentes entra hoy tu dinero? Marca todas las que apliquen.",
+   "ayuda": "Depender de una sola fuente es la mayor fragilidad financiera que existe. Vamos a medir cuántas tienes y cuánto te cuesta cada una en tiempo.",
+   "opciones": [
+    "Mi trabajo activo (empleo, autónomo)",
+    "Inversiones (dividendos, intereses, fondos)",
+    "Alquileres de inmuebles",
+    "Otras fuentes (un negocio que funciona sin mí, royalties…)"
+   ]
+  },
+  {
    "id": "SD-12",
    "tipo": "opcion",
    "campo": "vivienda_tenencia",
@@ -3682,6 +3696,110 @@
    "unidad": "€/mes",
    "texto": "¿Cuánto ingresas al mes de fuentes que NO dependen de tu trabajo activo (alquileres, dividendos, intereses, royalties, un negocio que funciona sin ti)? Pon 0 si ninguna.",
    "ayuda": "Cada euro que entra sin tu tiempo es un euro de libertad real. Es la vía de subir ingresos sin vender más horas."
+  },
+  {
+   "id": "NUM-F1",
+   "campo": "ing_trabajo",
+   "unidad": "€/mes",
+   "texto": "De tu trabajo activo (empleo, autónomo), ¿cuánto ingresas al mes?",
+   "ayuda": "Solo lo que depende de que tú estés ahí.",
+   "mostrar_si": {
+    "campo": "fuentes_ingreso",
+    "valor_in": [
+     "Mi trabajo activo (empleo, autónomo)"
+    ]
+   }
+  },
+  {
+   "id": "NUM-F2",
+   "campo": "h_trabajo",
+   "unidad": "horas/semana",
+   "texto": "¿Cuántas horas a la semana le dedicas a ese trabajo activo?",
+   "ayuda": "Incluye desplazamientos y todo el tiempo que te exige. Nos deja calcular cuánto vale tu hora.",
+   "mostrar_si": {
+    "campo": "fuentes_ingreso",
+    "valor_in": [
+     "Mi trabajo activo (empleo, autónomo)"
+    ]
+   }
+  },
+  {
+   "id": "NUM-F3",
+   "campo": "ing_inversion",
+   "unidad": "€/mes",
+   "texto": "De tus inversiones (dividendos, intereses, fondos), ¿cuánto te entra de media al mes?",
+   "ayuda": "Lo que genera tu capital, no lo que aportas tú.",
+   "mostrar_si": {
+    "campo": "fuentes_ingreso",
+    "valor_in": [
+     "Inversiones (dividendos, intereses, fondos)"
+    ]
+   }
+  },
+  {
+   "id": "NUM-F4",
+   "campo": "h_inversion",
+   "unidad": "horas/semana",
+   "texto": "¿Cuántas horas a la semana dedicas a gestionar esas inversiones?",
+   "ayuda": "Solo la gestión real (decisiones, seguimiento). Si es prácticamente automático, pon 0.",
+   "mostrar_si": {
+    "campo": "fuentes_ingreso",
+    "valor_in": [
+     "Inversiones (dividendos, intereses, fondos)"
+    ]
+   }
+  },
+  {
+   "id": "NUM-F5",
+   "campo": "ing_alquiler",
+   "unidad": "€/mes",
+   "texto": "De tus alquileres, ¿cuánto te entra neto al mes (después de gastos)?",
+   "ayuda": "El ingreso real que te queda del alquiler.",
+   "mostrar_si": {
+    "campo": "fuentes_ingreso",
+    "valor_in": [
+     "Alquileres de inmuebles"
+    ]
+   }
+  },
+  {
+   "id": "NUM-F6",
+   "campo": "h_alquiler",
+   "unidad": "horas/semana",
+   "texto": "¿Cuántas horas a la semana te llevan tus alquileres?",
+   "ayuda": "Gestión de inquilinos, averías, papeleo. Si lo tienes delegado o es mínimo, pon 0.",
+   "mostrar_si": {
+    "campo": "fuentes_ingreso",
+    "valor_in": [
+     "Alquileres de inmuebles"
+    ]
+   }
+  },
+  {
+   "id": "NUM-F7",
+   "campo": "ing_otros",
+   "unidad": "€/mes",
+   "texto": "De tus otras fuentes (negocio que funciona sin ti, royalties…), ¿cuánto te entra al mes?",
+   "ayuda": "Lo que generan esas fuentes de media al mes.",
+   "mostrar_si": {
+    "campo": "fuentes_ingreso",
+    "valor_in": [
+     "Otras fuentes (un negocio que funciona sin mí, royalties…)"
+    ]
+   }
+  },
+  {
+   "id": "NUM-F8",
+   "campo": "h_otros",
+   "unidad": "horas/semana",
+   "texto": "¿Cuántas horas a la semana te exigen esas otras fuentes?",
+   "ayuda": "Si de verdad funcionan sin ti, pon 0. Esa es la prueba de fuego.",
+   "mostrar_si": {
+    "campo": "fuentes_ingreso",
+    "valor_in": [
+     "Otras fuentes (un negocio que funciona sin mí, royalties…)"
+    ]
+   }
   },
   {
    "id": "NUM-13",

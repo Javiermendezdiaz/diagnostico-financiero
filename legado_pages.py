@@ -227,6 +227,13 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
         dn,du=_compact(num)
         bullets=[]
         if ci: bullets.append("Es el capital que, al 4%% prudente, paga tus %s/mes sin depender de una nómina."%LD_fmt(ci))
+        _pension=_num(datos,"pension_estimada") or 0
+        if ci and _pension>0:
+            if _pension<ci:
+                _num_aj=max(0,(ci-_pension))*12*25
+                bullets.append("Al jubilarte no partes de cero: tu pensión estimada (%s/mes) cubre una parte. Contando con ella, el capital que necesitas baja a %s."%(LD_fmt(_pension),LD_fmt(_num_aj)))
+            else:
+                bullets.append("Tu pensión estimada (%s/mes) cubriría tu coste de vida: ese número, para el retiro, es casi cero. La cifra grande es para liberarte ANTES de jubilarte."%LD_fmt(_pension))
         bullets.append("Tu primera misión no es llegar: es asegurar el mes y dormir tranquilo.")
         seq.append(LD.bignum(tmp+"06.svg","Tu número de libertad",dn,du,"euros que compran tu tiempo",
             "El objetivo de seguridad",

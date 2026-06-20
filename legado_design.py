@@ -79,12 +79,16 @@ def bignum(out, titulo, numero, sufijo, caption, side_head, side_body, bullets, 
     # título con barra vertical de acento (arriba-izq)
     ax.add_patch(Rectangle((0.085,0.85),0.006,0.055,color=accent,transform=ax.transAxes,zorder=5))
     ax.text(0.11,0.878,titulo.upper(),ha="left",va="center",color=WHITE,fontproperties=L(26),transform=ax.transAxes)
-    # número gigante (izq)
-    ax.text(0.10,0.46,numero,ha="left",va="center",color=WHITE,fontproperties=L(96),transform=ax.transAxes)
-    # medir ancho aprox para colocar sufijo
-    ax.text(0.10,0.46,numero,ha="left",va="center",color=(0,0,0,0),fontproperties=L(96),transform=ax.transAxes)
-    ax.annotate(sufijo,xy=(0.10,0.46),xytext=(0.10+0.052*len(numero),0.46),textcoords="axes fraction",
-                ha="left",va="center",color=accent,fontproperties=L(96))
+    # número gigante (izq) — medimos su ancho REAL para que el sufijo no se solape
+    _tn=ax.text(0.10,0.46,numero,ha="left",va="center",color=WHITE,fontproperties=L(96),transform=ax.transAxes,zorder=5)
+    fig.canvas.draw()
+    try:
+        _bb=_tn.get_window_extent(renderer=fig.canvas.get_renderer())
+        _xr=ax.transAxes.inverted().transform((_bb.x1,_bb.y0))[0]
+    except Exception:
+        _xr=0.10+0.060*len(str(numero))
+    if sufijo:
+        ax.text(_xr+0.012,0.46,sufijo,ha="left",va="center",color=accent,fontproperties=L(96),transform=ax.transAxes,zorder=5)
     ax.text(0.11,0.345,_spaced(caption.upper(),1),ha="left",va="center",color=MUTE,fontproperties=P(10.5),transform=ax.transAxes)
     # columna derecha
     x=0.56
