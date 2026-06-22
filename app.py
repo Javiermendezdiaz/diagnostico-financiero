@@ -407,9 +407,9 @@ def complete(payload: CompletePayload):
     # El PDF NO se genera aqui: seria trabajo pesado antes del pago y bloquea el worker.
     # Se genera de forma diferida en /api/report (tras el pago). El retrato IA ya quedo guardado.
     return {"ok": True, "report_url": "/api/report/%s" % payload.session_id,
-            "teaser": _teaser(datos, salud)}
+            "teaser": _teaser(datos, salud, payload.perfil)}
 
-def _teaser(datos, salud=None):
+def _teaser(datos, salud=None, perfil=None):
     """Datos reales del cliente para el adelanto gratis (prueba de valor antes del pago)."""
     try:
         ing = float(datos.get("ingreso_mensual") or 0); gas = float(datos.get("gasto_mensual") or 0)
@@ -438,6 +438,18 @@ def _teaser(datos, salud=None):
         if salud is not None:
             try: out["salud"] = round(100 - float(salud))  # 0=disfuncion -> tu relacion con el dinero
             except Exception: pass
+        # Ratio de Vida (IRI) + foco principal del Nudo: el gancho personalizado antes del pago.
+        if perfil:
+            try:
+                import score_v2 as _s2
+                _rv = _s2.calcular_ratio_vida(perfil)
+                if _rv:
+                    out["iri"] = _rv["iri"]; out["foco"] = _rv["weakest"]
+                _nd = _s2.calcular_nudo(perfil, datos)
+                if _nd and _nd.get("principal"):
+                    out["foco_tit"] = _nd["principal"]["tit"]
+            except Exception:
+                pass
         return out
     except Exception:
         return {}

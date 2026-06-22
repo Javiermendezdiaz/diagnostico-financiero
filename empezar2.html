@@ -189,6 +189,10 @@ a{color:var(--am)}
       <div style="flex:1;text-align:center"><div id="tMargen" style="color:var(--tx);font-size:22px;font-weight:800">—</div><div style="color:var(--gr);font-size:11px;margin-top:2px">Tu margen</div></div>
       <div style="flex:1;text-align:center"><div id="tCifra" style="color:var(--tx);font-size:16px;font-weight:700;line-height:1.4">—</div><div style="color:var(--gr);font-size:11px;margin-top:2px">Cifra libertad</div></div>
     </div>
+    <div id="tFocoBox" style="display:none;margin-top:13px;padding-top:13px;border-top:1px solid var(--bd)">
+      <div style="color:var(--gr);font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px">Tu foco principal <span id="tIriTag" style="color:var(--am)"></span></div>
+      <div id="tFoco" style="color:var(--tx);font-size:13.5px;line-height:1.45;font-weight:500"></div>
+    </div>
     <p style="color:var(--gr);font-size:12px;line-height:1.55;margin-top:13px">Y esto es solo la superficie. Tu libro nombra, una a una, las <b style="color:var(--tx)">12 capas</b> de tu perfil, los patrones que te cuestan dinero ahora mismo y tu plan de 100 días para desactivarlos.</p>
   </div>
 
@@ -625,7 +629,8 @@ async function finalizar(){
     if(t.salud!=null){ document.getElementById('tSalud').textContent=t.salud; }
     if(t.margen!=null){ document.getElementById('tMargen').textContent=t.margen+'%'; }
     if(t.cifra_libertad){ var cl=t.cifra_libertad; var clt=(cl>=1e6)?((cl/1e6).toFixed(1).replace('.',',')+' M €'):((cl>=1e3)?(Math.round(cl/1e3)+' K €'):(fmt(cl)+' €')); document.getElementById('tCifra').textContent=clt; }
-    if(t.esclavitud!=null||t.margen!=null||t.cifra_libertad){ document.getElementById('teaserBox').style.display='block'; }
+    if(t.foco_tit){ document.getElementById('tFoco').textContent=t.foco_tit; if(t.iri!=null) document.getElementById('tIriTag').textContent='· Ratio de Vida '+t.iri+'/100'; document.getElementById('tFocoBox').style.display='block'; }
+    if(t.esclavitud!=null||t.margen!=null||t.cifra_libertad||t.foco_tit){ document.getElementById('teaserBox').style.display='block'; }
     const tier=st.tier||2;
     document.getElementById('payBtn').textContent='Desbloquear mi diagnóstico · '+(PRECIO_TIER[tier]||39)+' €';
     document.getElementById('payBox').style.display='block';
