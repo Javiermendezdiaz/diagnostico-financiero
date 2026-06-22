@@ -12,6 +12,7 @@ from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table, Tab
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_JUSTIFY
 import report_book as rb
+import score_v2 as sv
 
 INST=rb.INST; CAPAS=rb.CAPAS
 INK=colors.HexColor("#262620"); A_COL="#B8860B"; B_COL="#3F3F46"
@@ -181,7 +182,7 @@ def _compartimento(prof, resp):
                 "deja las cartas al descubierto. El patrimonio no se desbloquea con técnica, sino poniendo esto sobre la mesa.")
     return None
 
-def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, resp=None):
+def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, resp=None, extras=None):
     pn=(nombre.split()[0] if (nombre or "").strip() else "esta persona")
     bi_g,bl_g=rb.banda(rb.CAPAS["C1"],salud)
     out=[Paragraph("PERFIL INDIVIDUAL",kick), Paragraph(nombre,h_sec),
@@ -196,10 +197,10 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
         out+=[Spacer(1,3*mm), _callout(est[0], est[1], "#B45309", "#FBF3E8")]
     out+=[PageBreak(), Paragraph(f"{pn}: fortalezas y focos",h_sub)]
     orden=sorted(rb.CAPAS,key=lambda c:prof[c]["score"])
-    out.append(Paragraph("<b>Sus tres fortalezas</b>",small))
+    out.append(Paragraph("<b>Tus tres fortalezas</b>",small))
     for c in orden[:3]:
         out.append(Paragraph(f"&#8226;  <b>{rb.CAPAS[c]['nombre']}</b> ({prof[c]['score']:.0f}). {rb.OPORTUNIDAD[c]}",St("if1",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
-    out.append(Paragraph("<b>Sus tres focos</b>",small))
+    out.append(Paragraph("<b>Tus tres focos</b>",small))
     for c in orden[-3:][::-1]:
         out.append(Paragraph(f"&#8226;  <b>{rb.CAPAS[c]['nombre']}</b> ({prof[c]['score']:.0f}). {rb.RIESGO[c]}",St("if2",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
     out.append(Paragraph(f"{pn}: patrones transversales",h_sub))
@@ -207,10 +208,13 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
         v=trans[t]; vt=("%s"%v) if v is not None else "\u2014"
         out.append(Table([[Paragraph(f"<b>{t.capitalize()}</b>  {vt}/100",small),rb.Bar(v or 0,w=110*mm)]],
                          colWidths=[42*mm,114*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
-    out.append(Paragraph(f"{pn}: lo que revelan sus respuestas",h_sub))
+    out.append(Paragraph(f"{pn}: lo que revelan tus respuestas",h_sub))
     for ti,tx in rb.insights(prof,trans,fi_hogar):
         out.append(Paragraph(f"<font color='#1A1A17'>&#8226;</font>  <b>{ti}</b>",small))
         out.append(Paragraph(tx,St("ii",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=6)))
+    if extras:
+        try: out += rb.seccion_ratio_vida(extras) + rb.seccion_nudo(extras)
+        except Exception: pass
     out.append(PageBreak())
     out.append(Paragraph(f"{pn}: resumen capa por capa",h_sub))
     rows=[[Paragraph("<b>Capa</b>",small),Paragraph("<b>Score</b>",small),Paragraph("<b>Banda</b>",small)]]
@@ -478,8 +482,12 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                      rb.Chip(zona,zc,w=64,h=13)])
     S+=[tbl(rows,[78*mm,15*mm,15*mm,20*mm,32*mm]),PageBreak()]
     rb.radar_png(pA,"_radarA.png"); rb.radar_png(pB,"_radarB.png")
-    S+=seccion_individual(cliA["nombre"] or nA,pA,trA,saludA,dA,"_radarA.png",fi_h,rA)
-    S+=seccion_individual(cliB["nombre"] or nB,pB,trB,saludB,dB,"_radarB.png",fi_h,rB)
+    try: _exA=sv.computar_extras(rA,_fill(dA),perfilA or {},_iv2)
+    except Exception: _exA=None
+    try: _exB=sv.computar_extras(rB,_fill(dB),perfilB or {},_iv2)
+    except Exception: _exB=None
+    S+=seccion_individual(cliA["nombre"] or nA,pA,trA,saludA,dA,"_radarA.png",fi_h,rA,extras=_exA)
+    S+=seccion_individual(cliB["nombre"] or nB,pB,trB,saludB,dB,"_radarB.png",fi_h,rB,extras=_exB)
     # capitulos comparativos por capa
     S+=[Paragraph("Capa por capa, los dos",h_sec),
         Paragraph("El corazon de vuestro libro: las diez dimensiones, leidas en pareja. La barra azul es "
