@@ -22,6 +22,8 @@ body{font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;ba
 .qnum{color:var(--gr);font-size:12px;margin-bottom:14px}
 .qtext{font-size:19px;font-weight:700;line-height:1.35;margin-bottom:6px}
 .ayuda{color:var(--gr);font-size:13px;line-height:1.4;margin-bottom:16px}
+@keyframes aiFade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.ayuda.ai{color:var(--am)}
 .opt{display:block;width:100%;text-align:left;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);
   padding:15px 16px;border-radius:12px;font-size:15px;font-weight:600;line-height:1.35;margin-bottom:11px;cursor:pointer;transition:.15s;font-family:inherit}
 .opt:hover{border-color:var(--am);background:#222227}
@@ -217,7 +219,7 @@ function fmt(n){try{return Math.round(n).toLocaleString('es-ES');}catch(e){retur
 const PAREJA=new URLSearchParams(location.search).get('pareja');
 const _qt=new URLSearchParams(location.search).get('tier'); if((_qt==='1'||_qt==='2'||_qt==='3')&&document.getElementById('tier')) document.getElementById('tier').value=_qt; try{descTier();}catch(e){}
 let INST=null, st={email:"",nombre:"",tier:2,sid:null,perfil:{},resp:{},datos:{},abiertas:{},
-   cola:[], i:0, tens:[], reportUrl:null, abierta:new Set(), insertados:new Set(), inyectados:0, motorLog:[], avisoEstres:false};
+   cola:[], i:0, tens:[], reportUrl:null, abierta:new Set(), insertados:new Set(), inyectados:0, motorLog:[], _prog:0, _lastIdx:null, avisoEstres:false};
 
 async function iniciar(){
   st.nombre=nombre.value.trim(); st.email=email.value.trim(); st.tier=parseInt(tier.value);
@@ -258,7 +260,7 @@ const REFLEX=["La respuesta cómoda y la verdadera casi nunca son la misma. Marc
   "Cada respuesta de relleno es una página en blanco en tu diagnóstico."];
 
 function construirCola(){
-  st.cola=[]; st.abierta=new Set(); st.insertados=new Set(); st.inyectados=0; st.motorLog=[];
+  st.cola=[]; st.abierta=new Set(); st.insertados=new Set(); st.inyectados=0; st.motorLog=[]; st._prog=0; st._lastIdx=null;
   INST.sociodemografico.forEach(q=>st.cola.push({...q,_b:'Sobre ti',_cap:'SD'}));
   INST.vision_brecha.forEach(q=>st.cola.push({...q,_b:'Tu vida ideal',_cap:'VIS'}));
   INST.numericas_financieras.forEach(q=>st.cola.push({...q,tipo:'numerica',_b:'Tus números',_cap:'NUM'}));
@@ -358,7 +360,7 @@ function abrirCruces(){
     if(!ok) continue;
     if(cr.mostrar_si && !emostrar(cr.mostrar_si)) continue;
     st.abierta.add(key);
-    if(inyectarEnCola([{...cr,_b:cr._b||'Donde se cruza tu vida',_cap:'X'}], st.i+1)>0) _log('[Step '+st.i+'] ['+cr.id+'] INJECT_CRUCE -> triggered: '+cond.map(x=>x.capa).join('+'));
+    if(inyectarEnCola([{...cr,_b:cr._b||'Donde se cruza tu vida',ayuda:(cr.ayuda||'Esta pregunta nace de cruzar dos de tus respuestas. Por eso es solo para ti.'),_cap:'X'}], st.i+1)>0) _log('[Step '+st.i+'] ['+cr.id+'] INJECT_CRUCE -> triggered: '+cond.map(x=>x.capa).join('+'));
   }
 }
 function capaBand(cap){
@@ -378,11 +380,15 @@ function pintar(){
   if(st.i>=st.cola.length){ return finalizar(); }
   const q=st.cola[st.i];
   repProg(q);
-  document.getElementById('bloque').textContent=q._b+'  ·  Análisis '+Math.round((st.i/Math.max(1,st.cola.length))*100)+'%';
+  document.getElementById('bloque').textContent=q._b+'  ·  Análisis '+progresoPct(q)+'%';
   progreso(q);
   qtext.textContent=q.texto||q.pregunta;
-  const ay=document.getElementById('ayuda');
-  if(q.ayuda){ay.textContent=q.ayuda;ay.style.display='block'}else ay.style.display='none';
+  const ay=document.getElementById('ayuda'); ay.classList.remove('ai');
+  if(q.ayuda){
+    ay.textContent=q.ayuda; ay.style.display='block';
+    if(q._cap==='X'){ ay.classList.add('ai'); _log('[Step '+st.i+'] [UI] CRUCE_VISIBLE -> indicador de adaptacion mostrado al usuario'); }
+    ay.style.animation='none'; void ay.offsetWidth; ay.style.animation='aiFade .4s ease';   // micro-transicion suave
+  } else ay.style.display='none';
   const rf=document.getElementById('reflex'); if(rf) rf.textContent=REFLEX[st.i % REFLEX.length];
   const cont=document.getElementById('cont'); const opts=document.getElementById('opts'); opts.innerHTML='';
   document.getElementById('atras').style.display = st.i>0?'inline-block':'none';
@@ -436,11 +442,15 @@ function updateRadar(){if(!INST||!INST.capas)return;const w=document.getElementB
 function calcFuga(){const d=st.datos||{};const g=+d.gasto_mensual||0,col=+d.colchon_liquido||0;if(!g||!col)return 0;return Math.round(Math.max(0,col-6*g)*0.03);}
 let _fugaCur=0,_fugaRAF=null;
 function _actualizarFuga(){const f=calcFuga();const fb=document.getElementById('fugaBox');if(!fb)return;if(f<=0){fb.style.display='none';return;}fb.style.display='flex';const from=_fugaCur,t0=performance.now(),D=750;cancelAnimationFrame(_fugaRAF);(function s(now){const t=Math.min(1,(now-t0)/D),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;const v=Math.round(from+(f-from)*e);const el=document.getElementById('fugaV');if(el)el.textContent=v.toLocaleString('es-ES')+' €/año';if(t<1)_fugaRAF=requestAnimationFrame(s);else _fugaCur=f;})(t0);}
-function progreso(q){
+function progresoPct(q){
   const orden=['SD','VIS','NUM',...INST.capas.map(c=>c.code),'OPEN'];
-  const idx=orden.indexOf(q._cap);
-  document.getElementById('bar').style.width=Math.min(98,Math.round(((idx+0.5)/orden.length)*100))+'%';
+  let idx=orden.indexOf(q._cap);
+  if(idx<0) idx=(st._lastIdx!=null?st._lastIdx:0); else st._lastIdx=idx;   // cruces 'X': mantienen posicion, no saltan a 0
+  let pct=Math.min(98,Math.round(((idx+0.5)/orden.length)*100));
+  pct=Math.max(pct, st._prog||0); st._prog=pct;                            // MONOTONO: nunca retrocede
+  return pct;
 }
+function progreso(q){ document.getElementById('bar').style.width=progresoPct(q)+'%'; }
 // ---- TENSIÓN en tiempo real ----
 function actualizarTension(){
   if(!st.tens.length) return;
