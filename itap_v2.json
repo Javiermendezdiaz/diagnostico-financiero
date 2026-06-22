@@ -3248,6 +3248,121 @@
     "C11-02",
     "C11-03"
    ]
+  },
+  {
+   "code": "C12",
+   "nombre": "Tu Disciplina de Inversión",
+   "bandas": [
+    {"min": 0, "max": 25, "etiqueta": "Sólido"},
+    {"min": 26, "max": 50, "etiqueta": "Con margen"},
+    {"min": 51, "max": 75, "etiqueta": "Sobrecarga"},
+    {"min": 76, "max": 100, "etiqueta": "Crítico"}
+   ],
+   "facetas": {
+    "capital_invertido": "Capital invertido",
+    "constancia": "Constancia",
+    "plan_horizonte": "Plan y horizonte",
+    "sangre_fria": "Sangre fría",
+    "diversificacion_cartera": "Diversificación de cartera",
+    "coste_comisiones": "Coste y comisiones"
+   },
+   "items": [
+    {
+     "id": "C12-01",
+     "faceta": "capital_invertido",
+     "tipo": "escala",
+     "dimensiones": "LIQUIDEZ",
+     "texto": "Del dinero que NO necesitas a corto plazo, ¿qué parte está invertido y creciendo (fondos, acciones, inmuebles…) en vez de parado en cuentas?",
+     "nivel": "nucleo",
+     "opciones": [
+      {"texto": "Casi todo: lo que no uso a corto está trabajando para mí.", "score": 0},
+      {"texto": "Una parte; el resto sigue parado en cuentas.", "score": 50},
+      {"texto": "Casi nada o nada: mi dinero está quieto.", "score": 100}
+     ],
+     "tier1": true,
+     "ayuda": "El dinero parado pierde valor cada año contra la inflación. Invertir es la única forma de que crezca."
+    },
+    {
+     "id": "C12-02",
+     "faceta": "constancia",
+     "tipo": "escala",
+     "dimensiones": "PSIQUE",
+     "texto": "¿Con qué constancia inviertes?",
+     "nivel": "nucleo",
+     "opciones": [
+      {"texto": "De forma periódica y automática, pase lo que pase en los mercados.", "score": 0},
+      {"texto": "Cuando me acuerdo o cuando me sobra algo.", "score": 50},
+      {"texto": "No invierto de forma regular.", "score": 100}
+     ],
+     "tier1": true,
+     "ayuda": "La constancia, no el acierto puntual, es lo que construye patrimonio a largo plazo."
+    },
+    {
+     "id": "C12-03",
+     "faceta": "plan_horizonte",
+     "tipo": "escala",
+     "dimensiones": "PSIQUE",
+     "texto": "¿Inviertes con un plan y un horizonte claros?",
+     "nivel": "nucleo",
+     "opciones": [
+      {"texto": "Sí: sé para qué invierto, a qué plazo y con qué estrategia.", "score": 0},
+      {"texto": "Tengo una idea vaga, pero sin un plan definido.", "score": 50},
+      {"texto": "Voy reaccionando a lo que oigo o a corazonadas.", "score": 100}
+     ],
+     "tier1": true,
+     "ayuda": "Sin un plan y un horizonte, la inversión se vuelve apuesta — y las apuestas se pierden."
+    },
+    {
+     "id": "C12-04",
+     "faceta": "sangre_fria",
+     "tipo": "escala",
+     "dimensiones": "PSIQUE",
+     "texto": "Cuando los mercados caen con fuerza (un −20% o −30%), ¿qué haces normalmente?",
+     "nivel": "profundizacion",
+     "opciones": [
+      {"texto": "Mantengo o aprovecho para comprar más barato; sé que es temporal.", "score": 0},
+      {"texto": "Aguanto, pero con mucha angustia y dudas.", "score": 50},
+      {"texto": "Vendo para frenar la pérdida.", "score": 100}
+     ],
+     "activa_si": {"capa": "C12", "min_score": 35},
+     "ayuda": "Vender en las caídas convierte una bajada temporal en pérdida permanente: es el error que más rentabilidad destruye."
+    },
+    {
+     "id": "C12-05",
+     "faceta": "diversificacion_cartera",
+     "tipo": "escala",
+     "dimensiones": "LIQUIDEZ",
+     "texto": "Tu dinero invertido, ¿cómo está repartido?",
+     "nivel": "profundizacion",
+     "opciones": [
+      {"texto": "Diversificado por tipos de activo y geografías; nada depende de una sola apuesta.", "score": 0},
+      {"texto": "Algo repartido, pero con bastante peso en una o dos cosas.", "score": 50},
+      {"texto": "Concentrado en pocas apuestas (una empresa, una cripto, un único activo).", "score": 100}
+     ],
+     "activa_si": {"capa": "C12", "min_score": 35},
+     "ayuda": "La diversificación es lo más parecido a una comida gratis que existe en inversión: baja el riesgo sin sacrificar rentabilidad esperada."
+    },
+    {
+     "id": "C12-06",
+     "faceta": "coste_comisiones",
+     "tipo": "escala",
+     "dimensiones": "LIQUIDEZ",
+     "texto": "¿Sabes cuánto pagas al año en comisiones y gastos por tus inversiones?",
+     "nivel": "profundizacion",
+     "opciones": [
+      {"texto": "Sí, lo sé y lo tengo optimizado con productos de bajo coste.", "score": 0},
+      {"texto": "Más o menos, pero no estoy seguro de no pagar de más.", "score": 50},
+      {"texto": "Ni idea de lo que pago.", "score": 100}
+     ],
+     "activa_si": {"capa": "C12", "min_score": 35},
+     "ayuda": "Una comisión del 1,5% anual puede costarte, a 20 años y por interés compuesto, cerca de un tercio de lo que habrías acumulado."
+    }
+   ],
+   "cribadores": [
+    "C12-01",
+    "C12-02",
+    "C12-03"
+   ]
   }
  ],
  "sociodemografico": [

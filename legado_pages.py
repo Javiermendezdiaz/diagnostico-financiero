@@ -301,7 +301,7 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
             "Tu Escudo ante el cisne negro, el despido y la invalidez.",
             "El Coste de tu Ego y la Barrera de los 100.000 €.",
             "El Acelerador 10×10: cómo adelantar años tu libertad.",
-            "Tus 11 capas psicofinancieras, una a una.",
+            "Tus 12 capas psicofinancieras, una a una.",
             "Tu Constitución Financiera completa."], SIM_URL.rsplit("/",1)[0]))
     return seq
 

@@ -444,7 +444,7 @@ def calcular_herencia(perfil_in):
 _FOCO_NOM={"C1":"mi relación emocional con el dinero","C2":"mi camino a la libertad financiera",
  "C3":"mi resistencia ante un imprevisto","C4":"la eficiencia de mi gasto","C5":"la protección de mi patrimonio y la herencia",
  "C6":"mi gasto de estatus","C7":"la concentración de mis ingresos","C8":"mi antifragilidad",
- "C9":"el gobierno de mi flujo de caja","C10":"mi salud de deuda","C11":"mi palanca de crecimiento"}
+ "C9":"el gobierno de mi flujo de caja","C10":"mi salud de deuda","C11":"mi palanca de crecimiento","C12":"mi disciplina de inversión"}
 
 def calcular_preguntas_asesor(perfil_in, p):
     """Si el cliente TIENE asesor (papeleo o de confianza), le damos 3 preguntas para exigir estrategia. Lista o None."""
