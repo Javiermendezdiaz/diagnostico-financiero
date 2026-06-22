@@ -133,6 +133,7 @@ a{color:var(--am)}
   <div id="parejaNote" style="display:none;margin-top:12px;padding:12px 14px;border-left:3px solid var(--am);background:#1c1c20;border-radius:8px;font-size:13px;line-height:1.5">
     <b style="color:var(--am)">En pareja, ojo con las cifras:</b> habla siempre de <b>tus</b> números individuales, no de los de los dos juntos. Tus ingresos, lo que <b>tú</b> pagas de los gastos, tu patrimonio. Nosotros los sumamos para ver vuestro hogar. Si compartís un gasto (alquiler, etc.), declara solo <b>la parte que pones tú</b>.
   </div>
+  <div id="parejaProceso" style="display:none;margin-top:12px;padding:12px 14px;border-left:3px solid var(--am);background:#161618;border-radius:8px;font-size:12.5px;line-height:1.6"></div>
   <div id="soloNote" style="display:none;margin-top:12px;padding:12px 14px;border-left:3px solid var(--am);background:#1c1c20;border-radius:8px;font-size:13px;line-height:1.5">
     <b style="color:var(--am)">Solo tus cifras, no las del hogar:</b> este diagnóstico es sobre <b>ti</b>. Responde con tus números <b>individuales</b> — tus ingresos, tu patrimonio, tus propiedades, tu parte de los gastos —, <b>sin sumar los de tu pareja</b>. Si compartís un gasto o una vivienda, declara solo <b>la parte que te corresponde a ti</b>.
   </div>
@@ -219,6 +220,7 @@ a{color:var(--am)}
       <div id="parejaCode" style="font-family:monospace;font-size:13px;font-weight:700;color:var(--am);word-break:break-all;line-height:1.45;background:#0e0e11;border:1px solid var(--bd);border-radius:8px;padding:10px 12px">—</div>
       <button class="btn" id="parejaCopyBtn" style="margin-top:14px" onclick="copiarPareja()">Enviar enlace a mi pareja</button>
       <p id="parejaCopyMsg" style="color:var(--gr);font-size:11.5px;margin-top:9px;line-height:1.5">Tu pareja abre ese enlace, responde su parte y vuestro libro conjunto se desbloquea.</p>
+      <p id="parejaWait" style="display:none;color:var(--am);font-size:11.5px;margin-top:10px;line-height:1.5">Esperando a que tu pareja complete su parte… esta página lo detecta sola y descargará vuestro libro.</p>
     </div>
   </div>
 </div>
@@ -286,8 +288,17 @@ async function iniciar(){
       body:JSON.stringify({email:st.email,nombre:st.nombre,tier:st.tier,sexo:'',consentimiento:true})});
     st.sid=(await r.json()).session_id;
     construirCola();
-    if(PAREJA){const pn=document.getElementById('parejaNote');if(pn)pn.style.display='block';}
-    else{const sn=document.getElementById('soloNote');if(sn)sn.style.display='block';}
+    if(st.tier===3){
+      const pn=document.getElementById('parejaNote');if(pn)pn.style.display='block';
+      const pp=document.getElementById('parejaProceso');
+      if(pp){ pp.style.display='block';
+        pp.innerHTML = PAREJA
+          ? '<b style="color:var(--am)">Cómo funciona:</b> tu pareja ya completó su parte y desbloqueó vuestro Libro de Pareja. Solo falta lo tuyo. En cuanto termines, recibís el documento conjunto con los dos perfiles.'
+          : '<b style="color:var(--am)">Cómo funciona el diagnóstico de pareja:</b> <b>1)</b> Completas tu parte. <b>2)</b> Desbloqueas vuestro Libro de Pareja (pago único). <b>3)</b> Recibes un enlace para tu pareja. <b>4)</b> Cuando complete su parte, descargáis el libro conjunto (y te llega por email).';
+      }
+    } else {
+      const sn=document.getElementById('soloNote');if(sn)sn.style.display='block';
+    }
     show('s-pacto');
   }catch(e){console.error(e);alert('No se pudo cargar. Reintenta.');show('s-reg')}
 }
@@ -621,13 +632,19 @@ async function finalizar(){
     st.reportUrl=d.report_url; CURSID=st.sid;
     show('s-done');
     if(d.needs_partner){
-      document.getElementById('doneHead').textContent='Casi listo';
+      // INICIADOR: primero paga, luego invita. El enlace para la pareja llega TRAS el pago.
+      st.esCoupleInic=true;
+      document.getElementById('doneHead').textContent='Tu parte está lista';
+      var _ds=document.getElementById('doneSub'); if(_ds){ _ds.style.display='block';
+        _ds.textContent='Un primer vistazo con tus números. Desbloquea vuestro Libro de Pareja y, justo después, recibes el enlace para invitar a tu pareja:'; }
+      // sin return -> continúa al adelanto + paywall (54 €)
+    } else if(d.es_pareja){
+      // SEGUNDO MIEMBRO: no paga. Agradecimiento.
+      document.getElementById('doneHead').textContent='¡Has completado tu parte!';
       document.getElementById('doneSub').style.display='none';
-      document.getElementById('doneTxt').textContent='Comparte el enlace con tu pareja para que complete su parte. Cuando termine, vuestro libro conjunto se desbloquea.';
-      var _cod=d.codigo||st.sid;
-      window.PAREJA_LINK=location.origin+location.pathname+'?pareja='+encodeURIComponent(_cod);
-      var _pc=document.getElementById('parejaCode'); if(_pc) _pc.textContent=window.PAREJA_LINK;
-      var _pb=document.getElementById('parejaCodeBox'); if(_pb) _pb.style.display='block';
+      document.getElementById('doneTxt').textContent = d.inic_pagado
+        ? 'Tu pareja ya desbloqueó vuestro Libro de Pareja. Recibiréis el documento conjunto con los dos perfiles por email. ¡Gracias!'
+        : 'Hemos guardado tu parte. En cuanto tu pareja desbloquee el libro, recibiréis el documento conjunto. ¡Gracias!';
       return;
     }
     // Adelanto gratis con datos reales -> paywall
@@ -646,7 +663,8 @@ async function finalizar(){
     if(t.foco_tit){ document.getElementById('tFoco').textContent=t.foco_tit; if(t.iri!=null) document.getElementById('tIriTag').textContent='· Ratio de Vida '+t.iri+'/100'; document.getElementById('tFocoBox').style.display='block'; }
     if(t.esclavitud!=null||t.margen!=null||t.cifra_libertad||t.foco_tit){ document.getElementById('teaserBox').style.display='block'; }
     const tier=st.tier||2;
-    document.getElementById('payBtn').textContent='Desbloquear mi diagnóstico · '+(PRECIO_TIER[tier]||39)+' €';
+    document.getElementById('payBtn').textContent=(st.esCoupleInic?'Desbloquear nuestro Libro de Pareja · ':'Desbloquear mi diagnóstico · ')+(PRECIO_TIER[tier]||39)+' €';
+    var _pcn=document.getElementById('payCoupleNote'); if(_pcn) _pcn.style.display=st.esCoupleInic?'block':'none';
     document.getElementById('payBox').style.display='block';
   }catch(e){console.error(e);show('s-done');document.getElementById('doneSub').style.display='none';document.getElementById('doneTxt').textContent='Hubo un problema al procesar. Reintenta.';}
 }
@@ -721,6 +739,36 @@ async function descargarConAnalisis(sid){
     document.getElementById('doneTxt').textContent='El análisis tardó un poco más de lo normal. Pulsa para descargarlo.';
   }
 }
+async function trasPago(sid){
+  try{
+    const r=await fetch(API+'/api/pareja-estado/'+sid); const d=await r.json();
+    if(d.es_pareja && d.es_inic && !d.pareja_lista){ mostrarEsperaPareja(sid); return; }
+  }catch(e){}
+  descargarConAnalisis(sid);
+}
+function mostrarEsperaPareja(sid){
+  show('s-done'); CURSID=sid;
+  window.PAREJA_LINK=location.origin+location.pathname+'?pareja='+encodeURIComponent(sid);
+  document.getElementById('doneHead').textContent='✓ Pago confirmado';
+  var _s=document.getElementById('doneSub'); if(_s) _s.style.display='none';
+  var _tb=document.getElementById('teaserBox'); if(_tb) _tb.style.display='none';
+  var _pb2=document.getElementById('payBox'); if(_pb2) _pb2.style.display='none';
+  document.getElementById('doneTxt').textContent='Ahora invita a tu pareja. En cuanto complete su parte, descargáis aquí vuestro Libro de Pareja (y te llega por email).';
+  var _pc=document.getElementById('parejaCode'); if(_pc) _pc.textContent=window.PAREJA_LINK;
+  var _pcb=document.getElementById('parejaCodeBox'); if(_pcb) _pcb.style.display='block';
+  var _w=document.getElementById('parejaWait'); if(_w) _w.style.display='block';
+  var _dl=document.getElementById('dl'); if(_dl){ _dl.style.display='inline-block'; _dl.textContent='Ya ha completado · descargar'; }
+  let tries=0;
+  const iv=setInterval(async()=>{
+    tries++;
+    try{ const r=await fetch(API+'/api/pareja-estado/'+sid); const d=await r.json();
+      if(d.pareja_lista){ clearInterval(iv);
+        var w=document.getElementById('parejaWait'); if(w) w.textContent='Tu pareja ha completado. Preparando vuestro libro…';
+        descargarConAnalisis(sid); return; }
+    }catch(e){}
+    if(tries>=720){ clearInterval(iv); }
+  },5000);
+}
 function descargarSid(sid){ descargarConAnalisis(sid); }
 function descargar(){ const sid=CURSID||(st&&st.sid); if(sid) descargarConAnalisis(sid); }
 function show(id){ if(_cyc){_cyc();_cyc=null;} document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
@@ -739,13 +787,13 @@ function show(id){ if(_cyc){_cyc();_cyc=null;} document.querySelectorAll('.step'
     const cs=qs.get('cs');
     (async()=>{
       // 1) Verificar el pago directamente con Stripe (robusto, sin depender del webhook).
-      if(cs){ try{ const r=await fetch(API+'/api/verify/'+sid+'?cs='+encodeURIComponent(cs),{method:'POST'}); const d=await r.json(); if(d.pagado){ descargarSid(sid); return; } }catch(e){} }
+      if(cs){ try{ const r=await fetch(API+'/api/verify/'+sid+'?cs='+encodeURIComponent(cs),{method:'POST'}); const d=await r.json(); if(d.pagado){ trasPago(sid); return; } }catch(e){} }
       // 2) Fallback: sondear estado (por si el webhook ya lo marcó).
       let tries=0;
       const iv=setInterval(async()=>{
         tries++;
         try{ const r=await fetch(API+'/api/estado/'+sid); const d=await r.json();
-          if(d.pagado){ clearInterval(iv); descargarSid(sid); return; }
+          if(d.pagado){ clearInterval(iv); trasPago(sid); return; }
         }catch(e){}
         if(tries>=15){ clearInterval(iv);
           document.getElementById('doneHead').textContent='Pago recibido';

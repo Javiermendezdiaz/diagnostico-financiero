@@ -54,7 +54,8 @@ def init_db():
                          ("consent_fecha","TEXT"),("consent_version","TEXT"),("notificado","INTEGER"),
                          ("salud","REAL"),("sexo","TEXT"),("pagado","INTEGER"),
                          ("abiertas","TEXT"),("sintesis","TEXT"),("perfil","TEXT"),("es_v2","INTEGER"),
-                         ("progreso_idx","INTEGER"),("progreso_total","INTEGER"),("last_qid","TEXT"),("progreso_fecha","TEXT")]:
+                         ("progreso_idx","INTEGER"),("progreso_total","INTEGER"),("last_qid","TEXT"),("progreso_fecha","TEXT"),
+                         ("es_inic","INTEGER")]:
             if col not in cols:
                 c.execute("ALTER TABLE sesiones ADD COLUMN %s %s" % (col, ddl))
 init_db()
@@ -360,7 +361,7 @@ def funnel():
     }
 
 @app.post("/api/complete")
-def complete(payload: CompletePayload):
+def complete(payload: CompletePayload, background_tasks: BackgroundTasks):
     with db() as c:
         row = c.execute("SELECT email,nombre,tier,sexo FROM sesiones WHERE id=?", (payload.session_id,)).fetchone()
     if not row:
@@ -376,12 +377,21 @@ def complete(payload: CompletePayload):
                    1 if payload.v2 else 0, payload.session_id))
     if tier == 3:
         if not payload.pareja_de:
-            return {"ok": True, "needs_partner": True, "codigo": payload.session_id}
+            # INICIADOR: marca su rol, calcula su adelanto individual y pasa al pago YA.
+            # El libro de pareja se generara bajo SU sesion (es el comprador y quien descarga).
+            _sal = _guardar_salud_v2(payload.session_id, payload.respuestas) if payload.v2 else _guardar_salud(payload.session_id, payload.respuestas)
+            with db() as c:
+                c.execute("UPDATE sesiones SET es_inic=1 WHERE id=?", (payload.session_id,))
+            return {"ok": True, "needs_partner": True, "codigo": payload.session_id,
+                    "teaser": _teaser(datos, _sal, payload.perfil, payload.datos)}
+        # PAREJA (segundo miembro): enlaza de vuelta al iniciador para que pueda generar/descargar.
         with db() as c:
-            arow = c.execute("SELECT email,nombre,respuestas,datos,perfil FROM sesiones WHERE id=?", (payload.pareja_de,)).fetchone()
-            brow = c.execute("SELECT email,nombre,respuestas,datos,perfil FROM sesiones WHERE id=?", (payload.session_id,)).fetchone()
+            arow = c.execute("SELECT email,nombre,respuestas,datos,perfil,pagado FROM sesiones WHERE id=?", (payload.pareja_de,)).fetchone()
         if not arow or arow["respuestas"] in (None, "{}"):
-            raise HTTPException(409, "Tu pareja todavia no ha terminado su cuestionario.")
+            raise HTTPException(409, "Tu pareja todavia no ha empezado: pidele que inicie su parte primero.")
+        with db() as c:
+            c.execute("UPDATE sesiones SET pareja_de=? WHERE id=? AND (pareja_de IS NULL OR pareja_de='')",
+                      (payload.session_id, payload.pareja_de))
         fric = _friccion_pareja(payload.pareja_de, payload.session_id)
         if fric:
             try:
@@ -389,8 +399,15 @@ def complete(payload: CompletePayload):
                     c.execute("UPDATE sesiones SET sintesis=? WHERE id=?", (fric, payload.session_id))
             except Exception:
                 pass
-        # El PDF de pareja se genera de forma diferida en /api/report (tras el pago).
-        return {"ok": True, "es_pareja": True, "report_url": "/api/report/%s" % payload.session_id}
+        # Si el iniciador YA pago, genera y envia el libro de pareja en segundo plano
+        # (aunque haya cerrado la pestana): le llegara por email automaticamente.
+        if arow["pagado"]:
+            try:
+                background_tasks.add_task(enviar_copia, payload.pareja_de)
+            except Exception:
+                pass
+        # El segundo miembro NO paga (el iniciador es el comprador). Devuelve rol partner.
+        return {"ok": True, "es_pareja": True, "rol": "partner", "inic_pagado": bool(arow["pagado"])}
     if payload.v2:
         salud = _guardar_salud_v2(payload.session_id, payload.respuestas)
         retrato = _retrato_individual_v2(payload.session_id, payload.respuestas, payload.abiertas, payload.perfil, email, nombre)
@@ -407,18 +424,23 @@ def complete(payload: CompletePayload):
     # El PDF NO se genera aqui: seria trabajo pesado antes del pago y bloquea el worker.
     # Se genera de forma diferida en /api/report (tras el pago). El retrato IA ya quedo guardado.
     return {"ok": True, "report_url": "/api/report/%s" % payload.session_id,
-            "teaser": _teaser(datos, salud, payload.perfil)}
+            "teaser": _teaser(datos, salud, payload.perfil, payload.datos)}
 
-def _teaser(datos, salud=None, perfil=None):
+def _teaser(datos, salud=None, perfil=None, raw=None):
     """Datos reales del cliente para el adelanto gratis (prueba de valor antes del pago)."""
     try:
+        rw = raw or datos
+        _real_ing = float((rw or {}).get("ingreso_mensual") or 0) > 0
+        _real_gas = float((rw or {}).get("gasto_mensual") or 0) > 0
         ing = float(datos.get("ingreso_mensual") or 0); gas = float(datos.get("gasto_mensual") or 0)
         margen = round((ing - gas) / ing * 100) if ing > 0 else None
         cifra = round(gas * 12 / 0.04) if gas > 0 else None  # regla del 4%
         out = {}
-        if margen is not None: out["margen"] = margen
-        if cifra: out["cifra_libertad"] = cifra
-        if ing > 0 and gas > 0:
+        # Solo mostramos cifras derivadas de ingreso/gasto si el usuario los aporto DE VERDAD
+        # (evita ensenar numeros por defecto como si fueran reales).
+        if margen is not None and _real_ing and _real_gas: out["margen"] = margen
+        if cifra and _real_gas: out["cifra_libertad"] = cifra
+        if ing > 0 and gas > 0 and _real_ing and _real_gas:
             out["esclavitud"] = round(min(100, gas / ing * 100))
         # Meses de libertad REALES: los que compra tu patrimonio, no el flujo del mes.
         # Es la cifra que de verdad mide lo libre que estas (un patrimonio alto vale
@@ -459,6 +481,21 @@ def estado(session_id: str):
     with db() as c:
         row = c.execute("SELECT pagado FROM sesiones WHERE id=?", (session_id,)).fetchone()
     return {"pagado": bool(row and row["pagado"]), "gated": bool(STRIPE_WEBHOOK_SECRET)}
+
+@app.get("/api/pareja-estado/{session_id}")
+def pareja_estado(session_id: str):
+    """Estado del flujo de pareja: dice al INICIADOR si ya puede descargar el libro conjunto."""
+    with db() as c:
+        row = c.execute("SELECT pareja_de,pagado,tier,es_inic FROM sesiones WHERE id=?", (session_id,)).fetchone()
+    if not row:
+        return {"existe": False}
+    pid = row["pareja_de"]; lista = False
+    if pid:
+        with db() as c:
+            pr = c.execute("SELECT respuestas FROM sesiones WHERE id=?", (pid,)).fetchone()
+        lista = bool(pr and pr["respuestas"] not in (None, "{}", ""))
+    return {"existe": True, "es_pareja": (row["tier"] == 3), "es_inic": bool(row["es_inic"]),
+            "pareja_lista": lista, "pagado": bool(row["pagado"]), "gated": bool(STRIPE_WEBHOOK_SECRET)}
 
 @app.post("/api/checkout/{session_id}")
 def checkout(session_id: str):
@@ -573,18 +610,28 @@ def report(session_id: str, background_tasks: BackgroundTasks):
     path = os.path.join(REPORTS_DIR, "itap_%s.pdf" % session_id)
     if not os.path.exists(path):
         with db() as c:
-            row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis,perfil FROM sesiones WHERE id=?", (session_id,)).fetchone()
+            row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis,perfil,es_inic FROM sesiones WHERE id=?", (session_id,)).fetchone()
         if not row or row["respuestas"] in (None, "{}"):
             raise HTTPException(404, "Informe no encontrado")
+        if row["tier"] == 3 and not row["pareja_de"]:
+            raise HTTPException(409, "Aun falta que tu pareja complete su parte.")
         try:
             if row["pareja_de"]:
                 with db() as c:
-                    arow = c.execute("SELECT email,nombre,respuestas,datos,perfil FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
-                generar_couple(path, arow, row)
+                    prow = c.execute("SELECT email,nombre,respuestas,datos,perfil,sintesis FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
+                if not prow or prow["respuestas"] in (None, "{}"):
+                    raise HTTPException(409, "Aun falta que tu pareja complete su parte.")
+                # El INICIADOR (es_inic) va primero en el libro de pareja.
+                if row["es_inic"]:
+                    generar_couple(path, row, prow)
+                else:
+                    generar_couple(path, prow, row)
             else:
                 _resp = json.loads(row["respuestas"])
                 _salud = _guardar_salud(session_id, _resp)
                 generar_pdf(session_id, row["email"], row["nombre"], _resp, json.loads(row["datos"]), row["tier"], baremo(_salud), row["sexo"])
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(500, "Error regenerando informe: %s" % e)
     # El PDF ya existe aqui: enviamos el email en segundo plano (comprador + aviso a Adapta).
@@ -600,14 +647,21 @@ def _asegurar_pdf(session_id):
     if os.path.exists(path):
         return path
     with db() as c:
-        row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis,perfil FROM sesiones WHERE id=?", (session_id,)).fetchone()
+        row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis,perfil,es_inic FROM sesiones WHERE id=?", (session_id,)).fetchone()
     if not row or row["respuestas"] in (None, "{}"):
+        return None
+    if row["tier"] == 3 and not row["pareja_de"]:
         return None
     try:
         if row["pareja_de"]:
             with db() as c:
-                arow = c.execute("SELECT email,nombre,respuestas,datos,perfil FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
-            generar_couple(path, arow, row)
+                prow = c.execute("SELECT email,nombre,respuestas,datos,perfil,sintesis FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
+            if not prow or prow["respuestas"] in (None, "{}"):
+                return None
+            if row["es_inic"]:
+                generar_couple(path, row, prow)
+            else:
+                generar_couple(path, prow, row)
         else:
             generar_pdf(session_id, row["email"], row["nombre"], json.loads(row["respuestas"]), json.loads(row["datos"]), row["tier"])
         return path if os.path.exists(path) else None
