@@ -662,7 +662,7 @@ def proyeccion_chart(datos, path, r=0.05):
         for ser,col,va in [(e1,"#9A3B2E","top"),(e3,"#1D6F42","bottom")]:
             ax.scatter([meta_edad],[ser[-1]],color=col,zorder=5)
             ax.annotate(_eur(ser[-1]),(meta_edad,ser[-1]),ha="right",va=va,size=8,color=col,weight="bold")
-        lo,hi,modo=e1[-1],e3[-1],"3"
+        lo,mid,hi,modo=e1[-1],e2[-1],e3[-1],"3"
         titulo="Tres caminos para tu patrimonio (sobre tu liquidez invertible)"
     else:
         base=grow(pat,aho); mejora=grow(pat,aho+0.05*ing*12)  # ahorro ACTUAL + 5 puntos extra (no sustituir)
@@ -672,7 +672,7 @@ def proyeccion_chart(datos, path, r=0.05):
         for ser,col,va in [(base,"#0284C7","top"),(mejora,"#1D6F42","bottom")]:
             ax.scatter([meta_edad],[ser[-1]],color=col,zorder=5)
             ax.annotate(_eur(ser[-1]),(meta_edad,ser[-1]),ha="right",va=va,size=8,color=col,weight="bold")
-        lo,hi,modo=base[-1],mejora[-1],"2"
+        lo,mid,hi,modo=base[-1],None,mejora[-1],"2"
         titulo="Tu patrimonio proyectado a la jubilación (estimación al 5%/año)"
     ax.set_xlabel("Edad",size=8,color="#5C6470"); ax.tick_params(labelsize=7,colors="#9CA3AF")
     ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
@@ -680,7 +680,7 @@ def proyeccion_chart(datos, path, r=0.05):
     ax.legend(fontsize=8,frameon=False,loc="upper left",labelcolor="#2C313A")
     ax.set_title(titulo,size=10,color="#17181C",weight="bold",pad=8)
     plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
-    return lo,hi,meta_edad,modo
+    return lo,mid,hi,meta_edad,modo
 
 def donut_asignacion(asig, path):
     """Donut HONESTO de asignacion del patrimonio: solo lo que el cliente declara (NUM-13)."""
@@ -851,14 +851,15 @@ def cuadro_financiero(p, datos, fi):
             f"preserve su valor es de las decisiones más rentables y menos arriesgadas que tienes sobre la mesa.</font>",
             St("tp",fontSize=10.5,leading=15))],"#FBF4E4","#B45309",ancho=160*mm))
     out.append(PageBreak())
-    f65,m65,medad,modo=proyeccion_chart(datos,"_proy.png")
+    f65,mid65,m65,medad,modo=proyeccion_chart(datos,"_proy.png")
     if modo=="3":
-        narr=(f"Tres caminos. Si dejas tu dinero como hoy, a los {medad} rondarías los <b>{_eur(f65)}</b>. Solo con invertir "
-              f"tu ahorro y tu liquidez ociosa al 5% ya subes. Pero si <b>ejecutas el plan completo</b> llegarías a "
-              f"<b>{_eur(m65)}</b>: <b>{_eur(m65-f65)}</b> más que sin hacer nada. Esa diferencia no es suerte ni mercado: es "
-              f"el coste de no decidir. (El plan asume subir tus ingresos un 10% al año durante los primeros años, mantener "
-              f"tu estilo de vida —con un recorte puntual del 10%— y un 10% de rentabilidad, la media histórica del mercado. "
-              f"Las otras dos líneas, un 5% prudente. Sin contar tu vivienda; orientativo, no una promesa.)")
+        narr=(f"Tres caminos, a los {medad}. <b>1 · Inacción</b> (sigues igual): <b>{_eur(f65)}</b>. "
+              f"<b>2 · Invertir tu ahorro</b> al 5%: <b>{_eur(mid65)}</b>. "
+              f"<b>3 · Ejecutar el plan completo</b>: <b>{_eur(m65)}</b> — <b>{_eur(m65-f65)}</b> más que sin hacer nada. "
+              f"La lección es brutal: a un 5% prudente, optimizar o no cambia poco; lo que multiplica tu patrimonio es "
+              f"<b>ejecutar el plan</b>. Eso no es suerte ni mercado: es el coste de no decidir. (El plan asume subir tus "
+              f"ingresos un 10% al año los primeros años, mantener tu estilo de vida —con un recorte puntual del 10%— y un "
+              f"10% de rentabilidad, la media histórica del mercado; orientativo, no una promesa.)")
     else:
         narr=(f"Si mantienes tu ritmo actual, a los {medad} rondarías los <b>{_eur(f65)}</b>. Subiendo tu ahorro cinco "
               f"puntos, esa cifra sube a <b>{_eur(m65)}</b>: la diferencia entre ambas líneas es, literalmente, el precio de "
@@ -1224,7 +1225,10 @@ def seccion_coste_inaccion(extras):
          Paragraph("Un diagnóstico sin acción es solo información cara. Esto es lo que te cuesta, en concreto, cada mes que el cuadro sigue igual:",body)]
     for it in items:
         out.append(Paragraph("<font color='#9A3B2E'>&#9656;</font>  "+it,St("ci",fontSize=10.5,leading=15,leftIndent=6,spaceAfter=7)))
-    out.append(Paragraph("La buena noticia: nada de esto es una condena. Se mueve con las decisiones ordenadas que tienes en las páginas anteriores — no con suerte, con método. El primer paso es hoy.",
+    out.append(Paragraph("Pero cada una de esas cifras es reversible — y depende de ti, no del mercado ni de la suerte. La "
+               "pregunta no es si <i>puedes</i> cambiarlo: es si lo <b>harás</b> antes de cerrar este libro. No necesitas "
+               "hacerlo todo; necesitas hacer <b>UNA cosa</b> —la primera de tu plan— hoy, en las próximas 48 horas. Porque el "
+               "coste de no hacer nada solo lo paga quien no hace nada.",
                St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=4)))
     return out
 
