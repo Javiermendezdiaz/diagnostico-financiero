@@ -182,6 +182,35 @@ def _compartimento(prof, resp):
                 "deja las cartas al descubierto. El patrimonio no se desbloquea con técnica, sino poniendo esto sobre la mesa.")
     return None
 
+def seccion_dinero_trabaja(dA, dB):
+    a=_fill(dA); b=_fill(dB)
+    ing=a["ingreso_mensual"]+b["ingreso_mensual"]
+    pasivo=(a.get("renta_pasiva") or 0)+(b.get("renta_pasiva") or 0)
+    if ing<=0: return []
+    pasivo=min(pasivo,ing); activo=ing-pasivo
+    ppa=round(activo/ing*100); ppp=100-ppa
+    wA=max(3.0,160.0*activo/ing); wP=max(3.0,160.0*pasivo/ing)
+    out=[PageBreak(), Paragraph("¿Trabajáis vosotros, o trabaja vuestro dinero?",h_sec),
+         Paragraph("De cada euro que entra en casa: cuánto exige vuestro tiempo (trabajo activo) y cuánto trabaja sin vosotros "
+                   "(rentas, dividendos, alquileres). Toda economía que aspira a la libertad busca lo mismo: que esa segunda barra crezca.",body),
+         Spacer(1,6*mm),
+         Table([[Paragraph(f"<font color='white'><b>{ppa}%</b></font>",small) if wA>16 else Paragraph("",small),
+                 Paragraph(f"<font color='white'><b>{ppp}%</b></font>",small) if wP>14 else Paragraph("",small)]],
+               colWidths=[wA*mm,wP*mm],rowHeights=[13*mm],
+               style=[("BACKGROUND",(0,0),(0,0),colors.HexColor("#C65C4E")),("BACKGROUND",(1,0),(1,0),colors.HexColor("#E3B341")),
+                      ("VALIGN",(0,0),(-1,-1),"MIDDLE"),("ALIGN",(0,0),(-1,-1),"CENTER"),("LEFTPADDING",(0,0),(-1,-1),4)]),
+         Spacer(1,2*mm),
+         Table([[Paragraph("<font color='#C65C4E'>●</font>  Depende de vuestro esfuerzo",small),
+                 Paragraph("<font color='#E3B341'>●</font>  Trabaja sin vosotros",small)]],colWidths=[80*mm,80*mm],
+               style=[("LEFTPADDING",(0,0),(-1,-1),0)]),
+         Spacer(1,5*mm),
+         Paragraph((f"Hoy <b>{ppa}%</b> de lo que entra depende de que sigáis trabajando. La libertad financiera llega "
+                    f"cuando la barra dorada sostiene vuestra vida sin que tengáis que estar — ese es el objetivo conjunto.") if ppp<50 else
+                   (f"Ya <b>{ppp}%</b> de vuestros ingresos trabaja sin vosotros: vais por el buen camino hacia que el dinero "
+                    f"os mantenga a vosotros, y no al revés."), body),
+         PageBreak()]
+    return out
+
 def seccion_caminos_hogar(dA, dB):
     a=_fill(dA); b=_fill(dB)
     hog={"edad":int(round((a["edad"]+b["edad"])/2)),
@@ -542,6 +571,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     S+=[tbl(rows,[78*mm,15*mm,15*mm,20*mm,32*mm]),PageBreak()]
     S+=seccion_dafo_pareja(pA,pB,nA,nB)
     S+=seccion_caminos_hogar(dA,dB)
+    S+=seccion_dinero_trabaja(dA,dB)
     rb.radar_png(pA,"_radarA.png"); rb.radar_png(pB,"_radarB.png")
     try: _exA=sv.computar_extras(rA,_fill(dA),perfilA or {},_iv2)
     except Exception: _exA=None
