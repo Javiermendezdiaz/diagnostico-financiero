@@ -330,7 +330,7 @@ def sistema_scorecard(out, items, weakest, accent=BLUE):
             ax.text(barx+barw+0.03,y,status,ha="left",va="center",color=hc(health),fontproperties=Pm(9.5),transform=ax.transAxes)
         ax.text(x0+0.075,y-0.018,_SIS_SUB[i],ha="left",va="center",color=FAINT,fontproperties=P(8.5),transform=ax.transAxes)
         if i==weakest:
-            ax.text(barx+barw+0.03,y-0.020,"← tu eslabón más débil",ha="left",va="center",color="#D9534F",fontproperties=Li(9),transform=ax.transAxes)
+            ax.text(barx+barw+0.03,y-0.020,"« tu eslabón más débil",ha="left",va="center",color="#D9534F",fontproperties=Li(9),transform=ax.transAxes)
     ax.text(0.10,0.075,"Una cadena se rompe por su eslabón más débil. Ahí empieza tu plan.",
             ha="left",va="center",color=accent,fontproperties=Li(13),transform=ax.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out

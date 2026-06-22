@@ -217,11 +217,49 @@ const PRECIO_TIER={1:19,2:39,3:54};
 let CURSID=null;
 function fmt(n){try{return Math.round(n).toLocaleString('es-ES');}catch(e){return n;}}
 const PAREJA=new URLSearchParams(location.search).get('pareja');
+try{ofrecerReanudar();}catch(e){}
 const _qt=new URLSearchParams(location.search).get('tier'); if((_qt==='1'||_qt==='2'||_qt==='3')&&document.getElementById('tier')) document.getElementById('tier').value=_qt; try{descTier();}catch(e){}
 let INST=null, st={email:"",nombre:"",tier:2,sid:null,perfil:{},resp:{},datos:{},abiertas:{},
    cola:[], i:0, tens:[], reportUrl:null, abierta:new Set(), insertados:new Set(), inyectados:0, motorLog:[], _prog:0, _lastIdx:null, avisoEstres:false};
 
+const LS_KEY='itap_progreso_v3';
+function saveProgreso(){
+  try{ if(!st.sid) return;
+    localStorage.setItem(LS_KEY, JSON.stringify({v:3,sid:st.sid,email:st.email,nombre:st.nombre,tier:st.tier,
+      perfil:st.perfil,datos:st.datos,resp:st.resp,abiertas:st.abiertas,cola:st.cola,i:st.i,
+      abierta:[...st.abierta],insertados:[...st.insertados],inyectados:st.inyectados,motorLog:st.motorLog,
+      _prog:st._prog,_lastIdx:st._lastIdx,tens:st.tens,avisoEstres:st.avisoEstres,ts:Date.now()}));
+  }catch(e){}
+}
+function hayProgreso(){ try{ const s=JSON.parse(localStorage.getItem(LS_KEY)||'null');
+  return (s && s.cola && s.i>0 && s.i<s.cola.length) ? s : null; }catch(e){ return null; } }
+function limpiarProgreso(){ try{ localStorage.removeItem(LS_KEY); }catch(e){} }
+async function reanudar(){
+  const s=hayProgreso(); if(!s) return; show('s-load');
+  try{
+    INST=await (await fetch('itap_v2.json?v='+Date.now())).json();
+    try{ const _qq=await (await fetch(API+'/api/questions/'+s.tier)).json(); INST._abiertas=_qq.abiertas||[]; }catch(e){ INST._abiertas=[]; }
+    Object.assign(st,{sid:s.sid,email:s.email,nombre:s.nombre,tier:s.tier,perfil:s.perfil,datos:s.datos,
+      resp:s.resp,abiertas:s.abiertas,cola:s.cola,i:s.i,abierta:new Set(s.abierta||[]),
+      insertados:new Set(s.insertados||[]),inyectados:s.inyectados||0,motorLog:s.motorLog||[],
+      _prog:s._prog||0,_lastIdx:(s._lastIdx==null?null:s._lastIdx),tens:s.tens||[],avisoEstres:!!s.avisoEstres});
+    show('s-q'); pintar();
+  }catch(e){ show('s-reg'); }
+}
+function ofrecerReanudar(){
+  const s=hayProgreso(); if(!s) return; const cont=document.getElementById('s-reg'); if(!cont) return;
+  const pct=Math.round((s.i/s.cola.length)*100);
+  const box=document.createElement('div');
+  box.style.cssText='background:rgba(253,215,49,.08);border:1px solid var(--am);border-radius:14px;padding:16px 18px;margin:0 0 22px;text-align:left';
+  box.innerHTML='<div style="font-weight:600;color:var(--tx);margin-bottom:4px">Tienes un diagnóstico a medias ('+pct+'%)</div>'+
+    '<div style="font-size:13px;color:var(--gr);margin-bottom:12px">Lo guardamos en este navegador. Puedes continuar donde lo dejaste.</div>'+
+    '<button class="btn btn-am" style="padding:10px 18px;font-size:14px" onclick="reanudar()">Reanudar mi test →</button>'+
+    '<button style="margin-left:10px;background:none;border:none;color:var(--gr);font-size:12.5px;cursor:pointer;text-decoration:underline" onclick="limpiarProgreso();this.closest(\'div\').remove()">Empezar de nuevo</button>';
+  cont.insertBefore(box, cont.firstChild);
+}
+
 async function iniciar(){
+  limpiarProgreso();
   st.nombre=nombre.value.trim(); st.email=email.value.trim(); st.tier=parseInt(tier.value);
   if(PAREJA) st.tier=3;
   if(!st.nombre){alert('Pon tu nombre');return}
@@ -380,7 +418,9 @@ function pintar(){
   if(st.i>=st.cola.length){ return finalizar(); }
   const q=st.cola[st.i];
   repProg(q);
-  document.getElementById('bloque').textContent=q._b+'  ·  Análisis '+progresoPct(q)+'%';
+  saveProgreso();
+  const _rem=Math.max(0,st.cola.length-st.i), _mins=_rem>2?'  ·  ~'+Math.max(1,Math.round(_rem*8/60))+' min':'';
+  document.getElementById('bloque').textContent=q._b+'  ·  Análisis '+progresoPct(q)+'%'+_mins;
   progreso(q);
   qtext.textContent=q.texto||q.pregunta;
   const ay=document.getElementById('ayuda'); ay.classList.remove('ai');
@@ -547,6 +587,7 @@ function avanzar(q){
 function atras(){ if(st.i<=0)return; st.i--; while(st.i>0 && !aplica(st.cola[st.i])) st.i--; pintar(); }
 
 async function finalizar(){
+  limpiarProgreso();
   show('s-gen');
   const _t0=Date.now();
   cajaNegra('genMsg',[
