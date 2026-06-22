@@ -77,6 +77,21 @@ def tbl(rows,widths,head=True):
     t.setStyle(TableStyle(sty)); return t
 
 CAP_QMIDE=rb.QMIDE
+# Voz de PAREJA para "Qué mide" (plural/género correcto; evita el "tu" singular del libro individual)
+QMIDE_PAREJA={
+ "C1":"cómo vivís cada uno la relación con el dinero por dentro: el estrés, el sueño, la ansiedad y la culpa.",
+ "C2":"cuánto os separa de la libertad financiera real y si tenéis un plan que la sostenga.",
+ "C3":"cuánto aguantaríais un golpe —un paro, un gasto inesperado— sin que vuestra vida se derrumbe.",
+ "C4":"si vuestro estilo de vida crece con sentido o se infla en silencio y se come vuestros ingresos.",
+ "C5":"si vuestro patrimonio y vuestra familia están protegidos legalmente ante lo inesperado.",
+ "C6":"cuánto de vuestro gasto financia una imagen en lugar de vuestra vida real.",
+ "C7":"cuánto dependéis de una sola fuente de ingresos: vuestro mayor riesgo oculto.",
+ "C8":"si un golpe os hunde o podéis salir reforzados de él.",
+ "C9":"si gobernáis el dinero que entra y sale, o se os escapa sin saber a dónde.",
+ "C10":"el peso y la salud de vuestra deuda, y si resistiría una caída de ingresos.",
+ "C11":"si vuestro dinero solo se defiende o además construye: vuestra capacidad real de hacer crecer lo que ya tenéis.",
+ "C12":"si canalizáis vuestro ahorro hacia la inversión —la única palanca que hace crecer el patrimonio de forma exponencial— o lo dejáis parado perdiendo valor contra la inflación.",
+}
 CHOQUE={
  "C1":"{debil} carga en solitario el peso emocional del dinero mientras {fuerte} lo vive con calma. El riesgo no son las cifras: es que {debil} somatice la alerta de toda la casa sin que {fuerte} lo perciba. La tranquilidad de {fuerte} se est\u00e1 financiando, en silencio, con el desgaste de {debil}.",
  "C2":"Ten\u00e9is horizontes de libertad desalineados: {debil} ve la meta lejos y {fuerte} la siente al alcance. Sin un \u00fanico n\u00famero com\u00fan, cada uno rema hacia una orilla distinta y el barco gira en c\u00edrculos.",
@@ -476,7 +491,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                 Table([[""]],colWidths=[40*mm],style=[("LINEBELOW",(0,0),(-1,-1),1.5,colors.HexColor(A_COL))]),
                 Spacer(1,3*mm),
                 Paragraph("Qué mide",h_sub),
-                Paragraph("Esta capa mide "+CAP_QMIDE[code],body),
+                Paragraph("Esta capa mide "+QMIDE_PAREJA.get(code, CAP_QMIDE[code]),body),
                 Paragraph("Vuestros resultados",h_sub),
                 Table([[Paragraph(f"<font color='{A_COL}'>●</font> {nA}: <b>{a:.0f}</b>/100",small),
                         Paragraph(f"<font color='{B_COL}'>●</font> {nB}: <b>{b:.0f}</b>/100",small)],
