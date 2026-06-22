@@ -471,6 +471,52 @@ def acelerador_10x10(out, cilindros, anos_delta, enemy_nombre, enemy_motivo, acc
     ax.text(0.5,0.04,"Objetivo de rentabilidad ilustrativo; no es una garantía.",ha="center",va="center",color=FAINT,fontproperties=P(7.5),transform=ax.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
+def acelerador_tabla(out, ing_m, gas_m, pat, num, accent=GOLD):
+    """Proyección a 10 años con las 4 palancas: ingresos +10%/año, gasto −10% (una vez),
+    rentabilidad 10% (media histórica del S&P 500), patrimonio compuesto. Tabla año a año."""
+    fig,ax=_canvas(); _bg(ax,(0.84,0.20),tint="#13202A")
+    _vbar(ax,0.085,0.91,"Tu acelerador, año a año",accent,sz=20)
+    ax.text(0.107,0.862,_spaced("PROYECCIÓN A 10 AÑOS",1),ha="left",va="center",color=MUTE,fontproperties=P(9),transform=ax.transAxes)
+    ax.text(0.107,0.832,"Ingresos +10%/año · gasto −10% una vez · rentabilidad 10% (media histórica del S&P 500) · objetivo +10% de patrimonio al año.",
+            ha="left",va="center",color=FAINT,fontproperties=P(7.6),transform=ax.transAxes)
+    R=0.10
+    rows=[]; w=float(pat or 0); ig=float(ing_m or 0)*12.0; gs=float(gas_m or 0)*12.0; y_lib=None
+    for t in range(1,11):
+        ig*=1.10
+        if t==1: gs*=0.90
+        aho=max(0.0,ig-gs)
+        w=w*(1+R)+aho
+        pc=int(round(100*w/num)) if num else 0
+        if y_lib is None and num and w>=num: y_lib=t
+        rows.append((t,ig/12.0,gs/12.0,aho,w,pc))
+    def _e(n): return ("{:,.0f}".format(n).replace(",","."))+" €"
+    def _ek(n): return ("%.0fk €"%(n/1000.0)) if n>=1000 else _e(n)
+    cols=[("AÑO",0.11,"left"),("INGRESO",0.31,"right"),("GASTO",0.47,"right"),("AHORRO/AÑO",0.67,"right"),("PATRIMONIO",0.86,"right"),("%",0.965,"right")]
+    ytop=0.78; rh=0.0505
+    for (h,x,al) in cols:
+        ax.text(x,ytop,h,ha=al,va="center",color=accent,fontproperties=Pm(8),transform=ax.transAxes)
+    ax.plot([0.10,0.97],[ytop-0.020,ytop-0.020],color="#3A4A66",lw=0.8,transform=ax.transAxes)
+    for i,(t,im,gm,ah,pw,pc) in enumerate(rows):
+        yy=ytop-0.044-i*rh
+        hl=(y_lib is not None and t==y_lib)
+        ax.text(0.11,yy,"Año %d"%t,ha="left",va="center",color=(accent if hl else MUTE),fontproperties=(Pm(9) if hl else P(9)),transform=ax.transAxes)
+        ax.text(0.31,yy,_e(im),ha="right",va="center",color=WHITE,fontproperties=P(8.4),transform=ax.transAxes)
+        ax.text(0.47,yy,_e(gm),ha="right",va="center",color=MUTE,fontproperties=P(8.4),transform=ax.transAxes)
+        ax.text(0.67,yy,_e(ah),ha="right",va="center",color=WHITE,fontproperties=P(8.4),transform=ax.transAxes)
+        ax.text(0.86,yy,_ek(pw),ha="right",va="center",color=accent,fontproperties=Pm(9),transform=ax.transAxes)
+        ax.text(0.965,yy,("%d%%"%pc if pc<100 else "100%"),ha="right",va="center",color=(accent if pc>=100 else MUTE),fontproperties=P(8.4),transform=ax.transAxes)
+    final=rows[-1]
+    if y_lib:
+        head="Tu libertad financiera, alcanzada en el año %d." % y_lib
+    else:
+        head="En 10 años recorres el %d%% del camino a tu libertad." % final[5]
+    ax.text(0.11,0.140,head,ha="left",va="center",color=WHITE,fontproperties=L(19),transform=ax.transAxes)
+    ax.text(0.11,0.098,"Cuatro palancas del 10%% que no se suman: se multiplican. De %s a %s de patrimonio en una década."
+            % (_ek(float(pat or 0)),_ek(final[4])),ha="left",va="top",color=MUTE,fontproperties=P(9),transform=ax.transAxes)
+    ax.text(0.11,0.034,"Proyección ilustrativa con objetivos exigentes; no es una garantía. La rentabilidad real varía cada año.",
+            ha="left",va="center",color=FAINT,fontproperties=P(7),transform=ax.transAxes)
+    fig.savefig(out,dpi=130); plt.close(fig); return out
+
 def barrera_100k(out, p0, aho_m, r, valle_caption, accent=GOLD):
     """El gráfico de la inflexión cruzada: aportaciones (esfuerzo) vs interés (tu dinero)."""
     import numpy as _np

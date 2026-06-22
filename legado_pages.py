@@ -145,15 +145,17 @@ def acelerador(seq, tmp, datos, extras, p):
     ing=_num(datos,"ingreso_mensual") or 0; gas=_num(datos,"gasto_mensual") or 0
     aho=_num(datos,"ahorro_mensual") or 0; pat=_num(datos,"patrimonio") or 0
     if not num or ing<=0: return
+    try: seq.append(LD.acelerador_tabla(tmp+"acetab.svg",ing,gas,pat,num))
+    except Exception: pass
     inv=((extras or {}).get("perfil_in") or {}).get("invierte","") or ""
     r0=1.5 if ("nada" in inv.lower() or inv=="") else (5.5 if "importante" in inv.lower() else 4.0)
     nuevo=aho+0.10*ing+0.10*gas
-    y0=_years_to(num,pat,aho,r0); y10=_years_to(num,pat,nuevo,9.0)
+    y0=_years_to(num,pat,aho,r0); y10=_years_to(num,pat,nuevo,10.0)
     delta=max(0,y0-y10)
     if delta<0.5: return
     cil=[("Ingresos",_eu(ing),_eu(ing*1.1),"+10%"),
          ("Gastos",_eu(gas),_eu(gas*0.9),"−10%"),
-         ("Rentabilidad","~%d%%"%round(r0),"~9%","objetivo"),
+         ("Rentabilidad","~%d%%"%round(r0),"~10%","S&P 500"),
          ("Patrimonio",_eu(pat),"+10%/año","compuesto")]
     # cilindro enemigo (psicología)
     c6=(p.get("C6",{}) or {}).get("score",0); c4=(p.get("C4",{}) or {}).get("score",0)
@@ -257,15 +259,30 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
             bullets, accent=LD.GOLD))
     if completo:
         acelerador(seq,tmp,datos,extras,p)
-        pal=(extras or {}).get("palancas") or []
-        au=(extras or {}).get("accion_unica")
-        h1=au or (pal[0][0] if pal else "Asegura tu primer colchón mínimo.")
-        h2=(pal[0][0] if pal else "Automatiza tu ahorro el día de cobro.")
-        h3=(pal[1][0] if len(pal)>1 else "Revisa tu fortuna neta y ajusta el rumbo.")
+        # Plan de 100 dias: TRES movimientos imperativos y claros (no diagnosticos)
+        _dt=(extras or {}).get("deuda_tipo")
+        _gas100=_num(datos,"gasto_mensual") or 0; _ing100=_num(datos,"ingreso_mensual") or 0
+        _aho100=_num(datos,"ahorro_mensual") or 0; _col100=_num(datos,"colchon_liquido") or 0
+        _meses100=(_col100/_gas100) if _gas100 else 99
+        _tasa100=(100*_aho100/_ing100) if _ing100 else 0
+        _inv100=((extras or {}).get("perfil_in") or {}).get("invierte","") or ""
+        if _dt and "freno" in str(_dt[0]).lower():
+            m1=("Ataca tu deuda más cara","Cada euro de interés que matas es la rentabilidad más segura que existe. Es tu primer movimiento, antes que ahorrar o invertir.")
+        elif _meses100<3:
+            m1=("Blinda tu colchón de 3 meses","Tu suelo: tres meses de gastos en una cuenta remunerada. Hecho esto, cualquier imprevisto deja de ser una amenaza.")
+        elif _tasa100<10:
+            m1=("Abre una rendija de excedente","Automatiza un ahorro fijo el día de cobro, aunque empiece pequeño. Lo que importa no es la cifra: es arrancar el hábito.")
+        else:
+            m1=("Da destino a tu excedente","Que cada euro que sobra tenga un sitio antes del día 5 del mes. Lo que no se dirige, se evapora sin que lo notes.")
+        m2=("Automatiza tu ahorro","Que salga solo el día de cobro, antes de gastar. El sistema vence a la fuerza de voluntad: lo que no ves, no lo gastas.")
+        if ("nada" in _inv100.lower()) or _inv100=="":
+            m3=("Pon tu patrimonio a trabajar","Pasar de «parado» a «invertido con un plan» es tu mayor salto pendiente. Empieza, mide y ajusta el rumbo.")
+        else:
+            m3=("Reequilibra y consolida","Revisa tu fortuna neta, ajusta lo que se haya desviado y consolida el hábito. A partir de aquí, el plan es tuyo.")
         seq.append(LD.mapa_100(tmp+"07.svg",[
-            ("Día 1–30",h1,"Tu único foco este mes. Hecho esto, lo demás pesa menos."),
-            ("Día 31–60",h2,"El hábito que, repetido, cambia la trayectoria."),
-            ("Día 61–100",h3,"Mides, ajustas y consolidas. El plan se vuelve tuyo.")], accent=LD.GOLD))
+            ("Día 1–30",m1[0],m1[1]),
+            ("Día 31–60",m2[0],m2[1]),
+            ("Día 61–100",m3[0],m3[1])], accent=LD.GOLD))
         if arq_meta:
             _man="%s Y, esta vez, lo ejecutas: actúas sobre tu plan en lugar de aplazarlo." % (arq_meta.get('luz','') or '')
             seq.append(LD.el_salto(tmp+"07b.svg", arq_meta.get('nombre','Tu arquetipo'),
