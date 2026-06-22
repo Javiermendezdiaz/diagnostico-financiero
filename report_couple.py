@@ -182,6 +182,34 @@ def _compartimento(prof, resp):
                 "deja las cartas al descubierto. El patrimonio no se desbloquea con técnica, sino poniendo esto sobre la mesa.")
     return None
 
+def seccion_dafo_pareja(pA,pB,nA,nB):
+    sc=lambda c,pp:pp[c]["score"]; capas=list(rb.CAPAS); nom=lambda c:rb.CAPAS[c]["nombre"]
+    fuertes=sorted([c for c in capas if max(sc(c,pA),sc(c,pB))<=40], key=lambda c:sc(c,pA)+sc(c,pB))[:3]
+    debiles=sorted([c for c in capas if min(sc(c,pA),sc(c,pB))>=55], key=lambda c:-(sc(c,pA)+sc(c,pB)))[:3]
+    compl=sorted([c for c in capas if abs(sc(c,pA)-sc(c,pB))>=40], key=lambda c:-abs(sc(c,pA)-sc(c,pB)))[:3]
+    def lst(cs,vacio):
+        return [Paragraph("&#8226;  "+nom(c),small) for c in cs] or [Paragraph("<font color='#6B7280'>&#8226;  "+vacio+"</font>",small)]
+    out=[PageBreak(), Paragraph("Vuestro DAFO de hogar",h_sec),
+         Paragraph("Una pareja no es la suma de dos economías: es un sistema. Aquí, de un vistazo, dónde sois fuertes juntos, "
+                   "dónde flojeáis los dos a la vez y —lo más valioso— dónde el uno puede cubrir al otro.",body),
+         Spacer(1,4*mm)]
+    F=rb._box([Paragraph("<font color='#1D6F42'><b>FORTALEZAS COMPARTIDAS</b></font>",small)]+lst(fuertes,"Aún sin fortaleza común clara."),"#EAF3EC","#1D6F42",ancho=78*mm)
+    D=rb._box([Paragraph("<font color='#9A3B2E'><b>DEBILIDADES DEL HOGAR</b></font>",small)]+lst(debiles,"Sin debilidad compartida grave."),"#FBF4E4","#9A3B2E",ancho=78*mm)
+    out+=[Table([[F,D]],colWidths=[80*mm,80*mm],style=[("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),0),("RIGHTPADDING",(0,0),(0,0),4)]),Spacer(1,5*mm)]
+    if compl:
+        rows=[Paragraph("Vuestra complementariedad — la ventaja real de ser dos",h_sub)]
+        for c in compl:
+            fuerte,debil=(nA,nB) if sc(c,pA)<sc(c,pB) else (nB,nA)
+            rows.append(Paragraph(f"&#8226;  En <b>{nom(c)}</b>, <b>{fuerte}</b> está más entero y puede sostener a <b>{debil}</b>. "
+                                  f"Repartíos el rol aquí: que lidere quien lo tiene resuelto, en vez de fallar los dos por igual.",
+                                  St("dc",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
+        out+=rows
+    else:
+        out+=[Paragraph("Hoy no hay complementariedad clara: en casi todo estáis al mismo nivel. Las áreas flojas las tendréis "
+                        "que levantar juntos, sin que uno pueda tirar del otro — más razón para hacerlo en equipo.",body)]
+    out+=[PageBreak()]
+    return out
+
 def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, resp=None, extras=None):
     pn=(nombre.split()[0] if (nombre or "").strip() else "esta persona")
     bi_g,bl_g=rb.banda(rb.CAPAS["C1"],salud)
@@ -481,6 +509,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                      Paragraph(f"{b:.0f}",small),Paragraph(f"{g:.0f}",small),
                      rb.Chip(zona,zc,w=64,h=13)])
     S+=[tbl(rows,[78*mm,15*mm,15*mm,20*mm,32*mm]),PageBreak()]
+    S+=seccion_dafo_pareja(pA,pB,nA,nB)
     rb.radar_png(pA,"_radarA.png"); rb.radar_png(pB,"_radarB.png")
     try: _exA=sv.computar_extras(rA,_fill(dA),perfilA or {},_iv2)
     except Exception: _exA=None
