@@ -1301,6 +1301,33 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   "territorio saludable. Antes de entrar capítulo a capítulo, esta es tu silueta completa:",body),
         Image("_radar.png",width=122*mm,height=122*mm,hAlign="CENTER"),
         PageBreak()]
+    # === Tabla semaforo: las 11 areas, ordenadas de peor a mejor ===
+    _NOM11={"C1":"Salud emocional","C2":"Libertad financiera","C3":"Resistencia ante shocks","C4":"Control del gasto",
+            "C5":"Protección patrimonial","C6":"Gasto con sentido","C7":"Diversificación de ingresos","C8":"Antifragilidad",
+            "C9":"Eficiencia del flujo","C10":"Salud de la deuda","C11":"Palanca de crecimiento"}
+    _semfh=St("semfh",fontSize=8,leading=11,textColor=colors.HexColor("#FDD731"),fontName=FB)
+    _fil=sorted(((int(round(100-p[c]["score"])),c) for c in p), key=lambda x:x[0])
+    _sr=[[Paragraph("#",_semfh),Paragraph("ÁREA",_semfh),Paragraph("NOTA /100",_semfh),Paragraph("ESTADO",_semfh)]]
+    for _i,(_sal,_c) in enumerate(_fil,1):
+        if _sal<40: _col,_est="#C0392B","Prioritario"
+        elif _sal<60: _col,_est="#E08A00","A vigilar"
+        else: _col,_est="#1D6F42","Sano"
+        _sr.append([Paragraph("%d"%_i,small),Paragraph(_NOM11.get(_c,_c),small),
+                    Paragraph("<b>%d</b>"%_sal,small),
+                    Paragraph(f"<font color='{_col}'>&#9679;</font>  <font color='{_col}'><b>{_est}</b></font>",small)])
+    _semtab=Table(_sr,colWidths=[10*mm,82*mm,28*mm,40*mm],
+        style=TableStyle([("BACKGROUND",(0,0),(-1,0),colors.HexColor("#101113")),
+            ("LINEBELOW",(0,1),(-1,-1),0.4,colors.HexColor("#E7E3D8")),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+            ("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5),
+            ("LEFTPADDING",(0,0),(-1,-1),6),("RIGHTPADDING",(0,0),(-1,-1),6)]))
+    S+=[Paragraph("Tus 11 áreas, de peor a mejor",h_sec),
+        Paragraph("La misma silueta del radar, pero en cifras y ordenada: arriba, lo que más pide atención; abajo, lo que "
+                  "ya te sostiene. Tu plan empieza por la primera fila.",body),
+        Spacer(1,3*mm), _semtab, Spacer(1,3*mm),
+        Paragraph("<font color='#C0392B'>&#9679;</font> Prioritario (menos de 40) &#160;·&#160; "
+                  "<font color='#E08A00'>&#9679;</font> A vigilar (40–59) &#160;·&#160; "
+                  "<font color='#1D6F42'>&#9679;</font> Sano (60+). La nota es tu salud en cada área: 100 = óptimo.",small),
+        PageBreak()]
     if True:  # resumen (vistazo) en ambos tiers
         orden=sorted(CAPAS,key=lambda c:p[c]["score"])
         fort=orden[:3]; foco=orden[-3:][::-1]
