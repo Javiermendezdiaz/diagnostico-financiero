@@ -811,6 +811,76 @@ def seccion_ratio_vida(extras):
     out+=[PageBreak()]
     return out
 
+def seccion_nudo(extras):
+    """El Nudo: las 2-3 tensiones vitales mas agudas, cruzando dinero/salud/tiempo/familia/relaciones."""
+    nd = extras.get("nudo") if extras else None
+    if not nd:
+        return []
+    _hr = Table([[""]], colWidths=[160*mm],
+        style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.5,colors.HexColor("#E7E3D8")),
+            ("TOPPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),0)]))
+    out = [PageBreak(), Paragraph("El nudo: lo que aparece al cruzar tu vida", h_sec),
+           Paragraph("Has respondido cada área por separado. Pero tú no vives por separado. Cuando cruzamos "
+                     "tus respuestas — dinero, salud, tiempo, familia, relaciones — aparecen las tensiones que "
+                     "ningún número aislado puede ver. Estas son las tuyas, de la más aguda a la menos.", body),
+           Spacer(1, 5*mm)]
+    n = len(nd["tensiones"])
+    for i, t in enumerate(nd["tensiones"]):
+        out += [Paragraph(f"<font color='#B8860B'><b>{t['dom']}</b></font>",
+                    St("nd%d"%i, fontSize=8, leading=11, spaceAfter=2)),
+                Paragraph(f"<b>{t['tit']}</b>",
+                    St("ndt%d"%i, fontSize=12.5, leading=16, textColor=INK, fontName=FB, spaceAfter=3)),
+                Paragraph(t["txt"], St("ndx%d"%i, fontSize=10.5, leading=15, textColor=INK, spaceAfter=8))]
+        if i < n-1:
+            out += [_hr, Spacer(1, 5*mm)]
+    out += [Spacer(1, 4*mm),
+            _box([Paragraph("Estas no son cifras: son la trama de tu vida. Y todas se anudan en el mismo sitio. "
+                  "Por eso el resto de este libro no va de dinero — va de recuperar lo que el dinero, mal usado, "
+                  "te está quitando.", St("ndc", fontSize=10.5, leading=15, textColor=INK))],
+                 "#FBF4E4", "#9A3B2E", ancho=160*mm),
+            PageBreak()]
+    return out
+
+def seccion_conclusion(extras):
+    """Cierre del libro: por que levantarte del sofa. Sintetiza nudo principal + palanca IRI + primer paso."""
+    if not extras:
+        return []
+    nd = extras.get("nudo"); rv = extras.get("ratio_vida"); acc = extras.get("accion_unica")
+    out = [PageBreak(), Paragraph("¿Por qué levantarte del sofá?", h_sec),
+           Paragraph("Has llegado al final. La mayoría no lo hace. Pero leer no cambia nada — y este "
+                     "diagnóstico no vale por lo que te ha contado, sino por lo que hagas en los próximos diez "
+                     "minutos. Antes de cerrarlo, quédate solo con esto:", body),
+           Spacer(1, 5*mm)]
+    if nd and nd.get("principal"):
+        pr = nd["principal"]
+        out += [Paragraph("<font color='#9A3B2E'><b>TU TENSIÓN PRINCIPAL</b></font>",
+                    St("cc1", fontSize=8, leading=11, spaceAfter=2)),
+                Paragraph(f"<b>{pr['tit']}.</b> {pr['txt']}",
+                    St("cc1x", fontSize=11, leading=16, textColor=INK, spaceAfter=10))]
+    if rv:
+        _p = rv.get("iri_potencial", rv["iri"])
+        out += [_box([Paragraph(f"Tu Ratio de Vida hoy es <b>{rv['iri']}</b> — la medida de cuánto de tu vida "
+                    f"estás viviendo de verdad. Y lo más importante de todo este libro cabe en una frase: si dejas "
+                    f"de descuidar <b>{rv['weakest']}</b>, sube a <b>{_p}</b>, sin ganar un euro más. Tu mayor "
+                    f"retorno no está en tener más, sino en reequilibrar lo que ya tienes.",
+                    St("cc2", fontSize=10.5, leading=15, textColor=INK))], "#FBF4E4", "#B45309", ancho=160*mm),
+                Spacer(1, 5*mm)]
+    out += [Paragraph("<font color='#1D6F42'><b>EL PRIMER PASO — EN LAS PRÓXIMAS 48 HORAS</b></font>",
+                St("cc3", fontSize=8, leading=11, spaceAfter=2)),
+            Paragraph(acc if isinstance(acc, str) and acc else
+                "Empieza por el primer movimiento de tu plan y no pases al siguiente hasta tenerlo en marcha.",
+                St("cc3x", fontSize=11, leading=16, textColor=INK, spaceAfter=2)),
+            Spacer(1, 6*mm),
+            _box([Paragraph("El sofá es cómodo. Por eso es peligroso.",
+                    St("cc4a", fontSize=14, leading=18, textColor=colors.white, fontName=FB, spaceAfter=5)),
+                  Paragraph("La distancia entre quien cambia su vida y quien solo lee sobre ella no es el talento "
+                    "ni la suerte: es lo que hace en los diez minutos siguientes a un momento como este. Ya sabes "
+                    "cuál es tu nudo, cuánto te cuesta y cuál es tu primer paso. Lo único que falta eres tú, "
+                    "de pie.", St("cc4b", fontSize=10.5, leading=15, textColor=colors.white))],
+                 "#1A1A17", "#B8860B", ancho=160*mm),
+            PageBreak()]
+    return out
+
 def seccion_fuentes(extras):
     """Mapa de fuentes de ingreso: cuántas, cuánto rinde cada una y a qué precio de tiempo (€/hora)."""
     f=extras.get("fuentes") if extras else None
@@ -1426,6 +1496,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   "<font color='#1D6F42'>&#9679;</font> Sano (60+). La nota es tu salud en cada área: 100 = óptimo.",small),
         PageBreak()]
     if extras: S+=seccion_ratio_vida(extras)
+    if extras: S+=seccion_nudo(extras)
     if True:  # resumen (vistazo) en ambos tiers
         orden=sorted(CAPAS,key=lambda c:p[c]["score"])
         fort=orden[:3]; foco=orden[-3:][::-1]
@@ -1939,6 +2010,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
               "quieras llevarla— es lo que cambia la realidad de tus finanzas, de tu tiempo y, con ellos, de tu vida.",
               St("debc",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=2))]
         S+=[PageBreak()]+_dp
+    if extras: S+=seccion_conclusion(extras)
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
     S+=[PageBreak(), Paragraph("Anexo \u2014 Tus respuestas",h_sec),

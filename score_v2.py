@@ -743,6 +743,80 @@ def calcular_ratio_vida(perfil_in):
             "iri_potencial": iri_potencial, "tension": tension}
 
 
+_NUDO_SALUD={"casi nunca":0,"a veces":1,"normal":2,"casi siempre":3,"siempre":4}
+def calcular_nudo(perfil_in, datos):
+    """El Nudo: cruza dinero, tiempo, salud, familia y relaciones (datos reales, nada inventado)
+    y emite las 2-3 tensiones vitales mas agudas. Cada tension conecta >=2 dominios de vida."""
+    rv = calcular_ratio_vida(perfil_in)
+    if not rv:
+        return None
+    dims = rv["dims"]; S=dims["Salud"]; D=dims["Dinero"]; T=dims["Tiempo"]; F=dims["Felicidad"]
+    p = (perfil_in or {})
+    def has(campo, *subs):
+        v = (p.get(campo, "") or "").lower()
+        return any(s in v for s in subs)
+    dep = (p.get("dependientes", "") or "")
+    tiene_dep = dep.strip().lower().startswith("s")
+    try:
+        res = calcular_resiliencia(datos) or {}
+    except Exception:
+        res = {}
+    meses = res.get("meses_libertad")
+    L = []
+    if D >= 58 and T <= 45:
+        L.append({"sev": (D-T)+(12 if tiene_dep else 0), "dom": "DINERO · TIEMPO",
+            "tit": "Estás comprando tu patrimonio con tu tiempo",
+            "txt": "Generas dinero y vives a contrarreloj. Estás financiando lo que construyes con la única "
+                   "moneda que no cotiza y no se devuelve: tu tiempo. Cada euro que sumas hoy lo pagas con una hora "
+                   "que no vuelve mañana."})
+    if D >= 55 and T <= 50 and tiene_dep and has("conciliacion", "presencia física", "presencia fisica", "ausencia"):
+        L.append({"sev": 95 + (50-T), "dom": "DINERO · TIEMPO · FAMILIA",
+            "tit": "La factura de tu éxito la firma tu familia",
+            "txt": "Y esa factura no la pagas solo tú. Tienes a quien depende de ti — y tu propia respuesta lo "
+                   "confirma: estás presente en cuerpo y ausente en lo que de verdad cuenta. El dinero que ganas "
+                   "PARA ellos te está costando estar CON ellos. Ningún patrimonio recompra una infancia."})
+    if S <= 45 and (D >= 52 or T <= 45):
+        L.append({"sev": (60-S)+28, "dom": "SALUD · DINERO",
+            "tit": "Construyes sobre un cuerpo que ya no mantienes",
+            "txt": "Levantas tu vida sobre el único activo que el dinero no recompra: tu salud. Es el cimiento "
+                   "que, el día que cede, hace que el saldo de tu cuenta deje de importar en una sola llamada de "
+                   "teléfono."})
+    if F <= 45 and D >= 52:
+        L.append({"sev": (60-F)+22, "dom": "FELICIDAD · RELACIONES · DINERO",
+            "tit": "Rico de medios, pobre de sentido",
+            "txt": "Tienes los medios, pero se te escapa el para qué y la gente con la que disfrutarlo. Nadie, en "
+                   "la última página de su vida, ha deseado más patrimonio y menos personas a su alrededor."})
+    if has("conciliacion", "ausencia total"):
+        L.append({"sev": 100, "dom": "DINERO · FAMILIA",
+            "tit": "Tu forma de ganar dinero te está costando los tuyos",
+            "txt": "Lo dijiste tú: tu situación financiera y laboral te hace perderte los momentos. El dinero mal "
+                   "gobernado no compra paz en casa — la consume, en silencio, cada día. Y ese coste no aparece en "
+                   "ninguna cuenta hasta que ya es irreversible."})
+    if has("energia", "quemado"):
+        L.append({"sev": 62 + (45-S if S < 45 else 0), "dom": "SALUD · TIEMPO · DINERO",
+            "tit": "No tienes un trabajo: tienes una trampa que paga bien",
+            "txt": "Demasiadas horas en lo que odias, sin un sistema que funcione sin ti. Eso cobra caro y tarde: "
+                   "primero la energía, luego la salud, y un día la cuenta llega entera. Un patrimonio que te exige "
+                   "seguir quemándote no es libertad: es una condena con nómina."})
+    if has("carga_familiar", "yo, bastante m", "yo, algo m") and T <= 52:
+        L.append({"sev": 56, "dom": "FAMILIA · TIEMPO",
+            "tit": "Sostienes la casa y la cuenta a la vez",
+            "txt": "Llevas el día a día del hogar por encima de tu pareja Y el peso económico. Esa doble jornada "
+                   "no figura en ninguna nómina, pero la pagas en los dos activos que ya tienes en rojo: tu tiempo "
+                   "y tu energía."})
+    if tiene_dep and meses is not None and meses < 12:
+        L.append({"sev": 68 + int((12-meses)*2), "dom": "DINERO · FAMILIA",
+            "tit": "Tu libertad es la red que sostiene a los tuyos",
+            "txt": "Si mañana faltaras tú, los que dependen de ti aguantarían unos %d meses con lo que hay. Tu "
+                   "libertad financiera no es un capricho personal: es la red que protege a tu familia el día que "
+                   "tú no puedas. Construirla es el acto menos egoísta que existe." % int(round(meses))})
+    if not L:
+        return None
+    L.sort(key=lambda x: -x["sev"])
+    top = L[:3]
+    return {"tensiones": top, "n": len(top), "principal": top[0]}
+
+
 def calcular_deuda_tipo(resp, datos):
     """Lee C10-07 (¿la deuda te quita o te da dinero?) y la nombra palanca/neutra/freno."""
     v = resp.get("C10-07")
@@ -974,6 +1048,7 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "resiliencia": calcular_resiliencia(datos),
         "fuentes": calcular_fuentes(datos, perfil_in),
         "ratio_vida": calcular_ratio_vida(perfil_in),
+        "nudo": calcular_nudo(perfil_in, datos),
         "deuda_tipo": calcular_deuda_tipo(resp, datos),
         "presupuesto": calcular_presupuesto(datos, perfil_in),
         "vivienda": calcular_vivienda(datos, perfil_in),
