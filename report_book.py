@@ -1005,9 +1005,33 @@ def cuadro_financiero(p, datos, fi):
         narr=(f"Si mantienes tu ritmo actual, a los {medad} rondarías los <b>{_eur(f65)}</b>. Subiendo tu ahorro cinco "
               f"puntos, esa cifra sube a <b>{_eur(m65)}</b>: la diferencia entre ambas líneas es, literalmente, el precio de "
               f"no decidir. (Estimación a un 5% anual; orientativa, no una promesa de rentabilidad.)")
-    out+=[KeepTogether([Paragraph("Hacia dónde vas",h_sub),
-          Image("_proy.png",width=160*mm,height=75*mm,hAlign="CENTER")]),
-          Paragraph(narr,body), PageBreak()]
+    out.append(KeepTogether([Paragraph("Hacia dónde vas",h_sub),
+          Image("_proy.png",width=160*mm,height=75*mm,hAlign="CENTER")]))
+    _cl=St("cmL",fontSize=8.5,leading=11,textColor=colors.HexColor("#6B7280"))
+    def _cn(lab,val,col):
+        return [Paragraph(lab,_cl),
+                Paragraph("<b>%s</b>"%_eur(val),St("cmN"+col,fontSize=18,leading=22,textColor=colors.HexColor(col),fontName=FB))]
+    if modo=="3":
+        out+=[Spacer(1,3*mm),
+              Table([[_cn("Sin hacer nada",f65,"#9A3B2E"),_cn("Invirtiendo bien",mid65,"#B8860B"),
+                      _cn("Ejecutando tu plan",m65,"#1D6F42")]],colWidths=[53*mm,53*mm,54*mm],
+                    style=[("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),0),
+                           ("TOPPADDING",(0,0),(-1,-1),2),("BOTTOMPADDING",(0,0),(-1,-1),0)]),
+              Spacer(1,2*mm),
+              Paragraph(f"La distancia entre quedarte quieto y ejecutar tu plan es <b>{_eur(m65-f65)}</b>. No la decide "
+                        f"el mercado ni la suerte: la decides tú, cada mes que empiezas — o que aplazas.",
+                        St("cmg",fontSize=10.5,leading=15,textColor=INK)),
+              Spacer(1,3*mm)]
+    elif mid65 is not None:
+        out+=[Spacer(1,3*mm),
+              Table([[_cn("Si sigues igual",f65,"#0284C7"),_cn("Si ahorras 5 puntos más",m65,"#1D6F42")]],
+                    colWidths=[80*mm,80*mm],style=[("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),0),
+                           ("TOPPADDING",(0,0),(-1,-1),2)]),
+              Spacer(1,2*mm),
+              Paragraph(f"Esos <b>{_eur(m65-f65)}</b> de diferencia son, literalmente, el precio de no decidir.",
+                        St("cmg2",fontSize=10.5,leading=15,textColor=INK)),
+              Spacer(1,3*mm)]
+    out+=[Paragraph(narr,body), PageBreak()]
     return out
 
 def laboratorio_individual(p, datos, fi, salud, resp):
@@ -1366,10 +1390,11 @@ def seccion_coste_inaccion(extras):
          Paragraph("Un diagnóstico sin acción es solo información cara. Esto es lo que te cuesta, en concreto, cada mes que el cuadro sigue igual:",body)]
     for it in items:
         out.append(Paragraph("<font color='#9A3B2E'>&#9656;</font>  "+it,St("ci",fontSize=10.5,leading=15,leftIndent=6,spaceAfter=7)))
-    out.append(Paragraph("Pero cada una de esas cifras es reversible — y depende de ti, no del mercado ni de la suerte. La "
-               "pregunta no es si <i>puedes</i> cambiarlo: es si lo <b>harás</b> antes de cerrar este libro. No necesitas "
-               "hacerlo todo; necesitas hacer <b>UNA cosa</b> —la primera de tu plan— hoy, en las próximas 48 horas. Porque el "
-               "coste de no hacer nada solo lo paga quien no hace nada.",
+    out.append(Paragraph("Cada una de estas cifras es reversible — y ninguna depende del mercado ni de la suerte, sino "
+               "de ti. No se trata de hacerlo todo de golpe: se trata de hacer <b>UNA</b> cosa —la primera de tu plan— "
+               "antes de que termine el día. Porque quien lee esto y mañana sigue exactamente igual no ha pagado por un "
+               "diagnóstico: ha pagado por una excusa más cara. La diferencia entre los dos no está en la página "
+               "siguiente — está en si te levantas de la silla <b>ahora</b>.",
                St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=4)))
     return out
 
