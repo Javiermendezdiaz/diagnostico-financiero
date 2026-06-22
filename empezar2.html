@@ -212,6 +212,15 @@ a{color:var(--am)}
 
   <button class="btn" id="dl" style="display:none;max-width:380px;margin-top:8px" onclick="descargar()">Descargar mi informe</button>
   <p id="doneTxt" style="color:var(--gr);font-size:13.5px;line-height:1.5;margin-top:12px"></p>
+
+  <div id="parejaCodeBox" style="display:none;max-width:380px;margin:14px auto 0;text-align:center">
+    <div style="background:var(--pa);border:1px solid var(--bd);border-radius:14px;padding:18px">
+      <div style="color:var(--gr);font-size:11px;text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px">Enlace para tu pareja</div>
+      <div id="parejaCode" style="font-family:monospace;font-size:13px;font-weight:700;color:var(--am);word-break:break-all;line-height:1.45;background:#0e0e11;border:1px solid var(--bd);border-radius:8px;padding:10px 12px">—</div>
+      <button class="btn" id="parejaCopyBtn" style="margin-top:14px" onclick="copiarPareja()">Enviar enlace a mi pareja</button>
+      <p id="parejaCopyMsg" style="color:var(--gr);font-size:11.5px;margin-top:9px;line-height:1.5">Tu pareja abre ese enlace, responde su parte y vuestro libro conjunto se desbloquea.</p>
+    </div>
+  </div>
 </div>
 
 </div></div></div>
@@ -614,7 +623,11 @@ async function finalizar(){
     if(d.needs_partner){
       document.getElementById('doneHead').textContent='Casi listo';
       document.getElementById('doneSub').style.display='none';
-      document.getElementById('doneTxt').textContent='Comparte tu código con tu pareja para que complete su parte. Cuando termine, vuestro libro se desbloquea.';
+      document.getElementById('doneTxt').textContent='Comparte el enlace con tu pareja para que complete su parte. Cuando termine, vuestro libro conjunto se desbloquea.';
+      var _cod=d.codigo||st.sid;
+      window.PAREJA_LINK=location.origin+location.pathname+'?pareja='+encodeURIComponent(_cod);
+      var _pc=document.getElementById('parejaCode'); if(_pc) _pc.textContent=window.PAREJA_LINK;
+      var _pb=document.getElementById('parejaCodeBox'); if(_pb) _pb.style.display='block';
       return;
     }
     // Adelanto gratis con datos reales -> paywall
@@ -636,6 +649,19 @@ async function finalizar(){
     document.getElementById('payBtn').textContent='Desbloquear mi diagnóstico · '+(PRECIO_TIER[tier]||39)+' €';
     document.getElementById('payBox').style.display='block';
   }catch(e){console.error(e);show('s-done');document.getElementById('doneSub').style.display='none';document.getElementById('doneTxt').textContent='Hubo un problema al procesar. Reintenta.';}
+}
+async function copiarPareja(){
+  var b=document.getElementById('parejaCopyBtn'), msg=document.getElementById('parejaCopyMsg');
+  var link=window.PAREJA_LINK||(document.getElementById('parejaCode')||{}).textContent||'';
+  try{
+    if(navigator.share){ await navigator.share({title:'Diagnóstico de pareja · Adapta',text:'Completa tu parte para desbloquear nuestro libro financiero:',url:link}); return; }
+    await navigator.clipboard.writeText(link);
+    if(b) b.textContent='✓ Enlace copiado';
+    if(msg) msg.textContent='Pégaselo a tu pareja (WhatsApp, etc.). Cuando termine su parte, vuestro libro se desbloquea.';
+  }catch(e){
+    try{ var el=document.getElementById('parejaCode'); var r=document.createRange(); r.selectNodeContents(el); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); }catch(_){}
+    if(msg) msg.textContent='Copia el enlace de arriba y envíaselo a tu pareja.';
+  }
 }
 async function pagar(){
   const sid=CURSID||(st&&st.sid); if(!sid){document.getElementById('doneTxt').textContent='Sesión no encontrada. Vuelve a empezar.';return;}
