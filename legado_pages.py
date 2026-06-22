@@ -41,6 +41,21 @@ def _asesor_health(perfil_in):
     if any(k in t for k in ["nadie","solo yo","por mi cuenta","ninguno","no teng"]): return 20
     return 50
 
+def _tributacion_health(perfil_in):
+    """Salud fiscal 0-100 a partir de las dos preguntas de fiscalidad (IRPF/productos + vivienda).
+    Devuelve None si no se respondió ninguna (compatibilidad con sesiones antiguas)."""
+    _m=[("lo controlo",80),("la conozco",80),("lo básico",45),("algo sé",45),
+        ("voy a ciegas",20),("ni idea",20),("nunca me lo he planteado",12)]
+    vals=[]
+    for k in ("fiscalidad_nivel","fiscalidad_vivienda"):
+        v=((perfil_in or {}).get(k,"") or "").lower()
+        if (not v) or ("no aplica" in v) or ("no tengo vivienda" in v):
+            continue
+        for key,h in _m:
+            if key in v:
+                vals.append(h); break
+    return round(sum(vals)/len(vals)) if vals else None
+
 def sistema_items(extras, datos, p):
     perfil_in=(extras or {}).get("perfil_in") or {}
     def H(code):
@@ -50,8 +65,9 @@ def sistema_items(extras, datos, p):
         if h is None: return "Lo vemos juntos"
         return "Sólido" if h>=67 else ("En marcha" if h>=50 else ("A vigilar" if h>=34 else "Punto débil"))
     A=_asesor_health(perfil_in)
+    T=_tributacion_health(perfil_in)
     rows=[("S","Saneamiento",H("C10")),("I","Ingresos",H("C7")),("S","Seguros",H("C5")),
-          ("T","Tributación",None),("E","Excedentes",H("C9")),("M","Mantenimiento",H("C2")),
+          ("T","Tributación",T),("E","Excedentes",H("C9")),("M","Mantenimiento",H("C2")),
           ("A","Acompañamiento",A)]
     items=[(l,n,h,st(h)) for (l,n,h) in rows]
     nums=[(i,h) for i,(l,n,h,_) in enumerate(items) if h is not None]

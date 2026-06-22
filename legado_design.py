@@ -489,6 +489,7 @@ def barrera_100k(out, p0, aho_m, r, valle_caption, accent=GOLD):
     _bg(axm,(0.84,0.20),tint="#13202A")
     _vbar(axm,0.085,0.90,"El nacimiento de tu empleado invisible",accent,sz=18)
     axm.text(0.107,0.85,_spaced("LA BARRERA DE LOS 100.000 €",1),ha="left",va="center",color=MUTE,fontproperties=P(9),transform=axm.transAxes)
+    axm.text(0.107,0.806,"Azul: lo que aportas tú. Oro: lo que tu dinero genera solo, por interés compuesto al ~%d%%. Donde se cruzan, tu dinero trabaja más que tú."%round(r),ha="left",va="center",color=FAINT,fontproperties=P(8),transform=axm.transAxes)
     # eje del gráfico
     ax=fig.add_axes([0.11,0.30,0.80,0.45]); ax.set_facecolor("none")
     yrs=_np.arange(YRS+1)
@@ -510,23 +511,43 @@ def barrera_100k(out, p0, aho_m, r, valle_caption, accent=GOLD):
     axm.text(0.145,0.25,"Tu esfuerzo (lo que aportas de tu bolsillo)",ha="left",va="center",color=MUTE,fontproperties=P(8.5),transform=axm.transAxes)
     axm.add_patch(Rectangle((0.55,0.245),0.018,0.010,color=accent,alpha=0.8,transform=axm.transAxes))
     axm.text(0.575,0.25,"El esfuerzo de tu dinero (interés compuesto)",ha="left",va="center",color=MUTE,fontproperties=P(8.5),transform=axm.transAxes)
-    # headline
-    if p0>=100000:
-        head="Tu reactor ya está encendido."
-    elif y100 is not None:
-        head="Enciendes tu reactor en %d años." % y100
-    else:
-        head="Tu primer objetivo: los 100.000 €."
-    axm.text(0.11,0.185,head,ha="left",va="center",color=WHITE,fontproperties=L(24),transform=axm.transAxes)
+    # === El empleado invisible (personalizado): cada uno aporta lo que tú ahorras al año ===
     import textwrap
-    sub=""
-    if infl:
-        sub="Tu punto de inflexión real está en %s: a partir de ahí, tu dinero gana más cada año de lo que tú ahorras. " % ("{:,.0f} €".format(infl).replace(",","."))
-    yy=0.14
-    for ln in textwrap.wrap(sub+valle_caption,96):
-        axm.text(0.11,yy,ln,ha="left",va="top",color=MUTE,fontproperties=P(9.3),transform=axm.transAxes); yy-=0.027
-    axm.text(0.11,0.045,"Asume una cartera diversificada a ~%d%% anual. Ilustrativo, no garantizado."%round(r),
-             ha="left",va="center",color=FAINT,fontproperties=P(7.5),transform=axm.transAxes)
+    def _yr_to(target):
+        ww=p0
+        for t in range(0,61):
+            if ww>=target: return t
+            ww=ww*(1+rr)+aho_y
+        return None
+    def _ck(n): return ("%.0fk"%(n/1000.0)) if n>=1000 else ("%.0f"%n)
+    emp_cap=(aho_y/rr) if (rr>0 and aho_y>0) else 0.0   # 1 empleado = capital que genera tu ahorro anual
+    amts=[emp_cap,2*emp_cap,3*emp_cap] if emp_cap>0 else [100000,200000,300000]
+    yr1=_yr_to(amts[0]); yr2=_yr_to(amts[1]); yr3=_yr_to(amts[2])
+    _aho_fmt=("{:,.0f} €".format(aho_y).replace(",",".")) if aho_y>0 else "—"
+    if p0>=amts[0]:
+        head="Tu primer empleado invisible ya trabaja para ti."
+    elif yr1 is not None:
+        head="Contratas tu primer empleado invisible en %d años." % yr1
+    else:
+        head="Tu primer empleado invisible: tu próximo gran hito."
+    axm.text(0.11,0.224,head,ha="left",va="center",color=WHITE,fontproperties=L(20),transform=axm.transAxes)
+    sub=("Un «empleado invisible» es el capital que, él solo, te aporta cada año lo mismo que ahorras tú (~%s). "
+         "El primero iguala tu esfuerzo; con tres, tu dinero rinde el triple que tú. Los 100.000 € de Munger son la "
+         "barrera donde ese compuesto se vuelve imparable." % _aho_fmt)
+    yy=0.192
+    for ln in textwrap.wrap(sub,104):
+        axm.text(0.11,yy,ln,ha="left",va="top",color=MUTE,fontproperties=P(8.6),transform=axm.transAxes); yy-=0.022
+    def _yrtxt(yr):
+        if yr is None: return "a largo plazo"
+        if yr<=0: return "ya lo tienes"
+        return "en %d años" % yr
+    cards=[("1.er EMPLEADO",_ck(amts[0]),yr1),("2.º EMPLEADO",_ck(amts[1]),yr2),("3.er EMPLEADO",_ck(amts[2]),yr3)]
+    for (tit,amt,yr),x in zip(cards,[0.13,0.40,0.67]):
+        axm.text(x,0.118,tit,ha="left",va="center",color=accent,fontproperties=Pm(9),transform=axm.transAxes)
+        axm.text(x,0.086,amt,ha="left",va="center",color=WHITE,fontproperties=L(19),transform=axm.transAxes)
+        axm.text(x,0.056,_yrtxt(yr),ha="left",va="center",color=MUTE,fontproperties=P(8.5),transform=axm.transAxes)
+    axm.text(0.11,0.024,"Cada empleado aporta ~%s/año (lo que ahorras tú) a un ~%d%% anual. Ilustrativo, no garantizado."
+             % (_aho_fmt,round(r)),ha="left",va="center",color=FAINT,fontproperties=P(7),transform=axm.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
 def mapa_friccion(out, nA, nB, zonas, accent=BLUE):

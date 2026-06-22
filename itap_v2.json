@@ -3398,6 +3398,32 @@
    ]
   },
   {
+   "id": "SD-19",
+   "tipo": "opcion",
+   "campo": "fiscalidad_nivel",
+   "texto": "En lo fiscal —deducciones, cómo tributan tus inversiones, optimizar tu IRPF—, ¿dónde estás?",
+   "ayuda": "La fiscalidad es la capa silenciosa que se come tu rentabilidad. Saber dónde estás es el primer paso para dejar de regalar dinero a Hacienda.",
+   "opciones": [
+    "Lo controlo: aprovecho deducciones y optimizo la fiscalidad de mis productos cada año",
+    "Lo básico: cumplo, pero sé que dejo deducciones o eficiencia sin aprovechar",
+    "Voy a ciegas: no sé cómo tributan mis productos ni qué deducciones me corresponden",
+    "Nunca me lo he planteado"
+   ]
+  },
+  {
+   "id": "SD-20",
+   "tipo": "opcion",
+   "campo": "fiscalidad_vivienda",
+   "texto": "Y en la fiscalidad de tu vivienda —deducción, plusvalía al vender, tributación del alquiler—, ¿cómo estás?",
+   "ayuda": "La vivienda concentra los mayores ahorros (y los mayores sustos) fiscales: una venta o un alquiler mal planificados pueden costar miles de euros evitables.",
+   "opciones": [
+    "La conozco y la tengo optimizada (compra, venta o alquiler)",
+    "Algo sé, pero seguro que se me escapa más de lo que creo",
+    "Ni idea: no sé qué impuestos pago ni cuáles podría ahorrar",
+    "No tengo vivienda / no aplica"
+   ]
+  },
+  {
    "id": "SD-11",
    "tipo": "opcion",
    "campo": "conciliacion",
