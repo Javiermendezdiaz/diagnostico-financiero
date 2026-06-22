@@ -1313,7 +1313,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   "territorio saludable. Antes de entrar capítulo a capítulo, esta es tu silueta completa:",body),
         Image("_radar.png",width=122*mm,height=122*mm,hAlign="CENTER"),
         PageBreak()]
-    # === Tabla semaforo: las 11 areas, ordenadas de peor a mejor ===
+    # === Tabla semaforo: las 12 areas, ordenadas de peor a mejor ===
     _NOM11={"C1":"Salud emocional","C2":"Libertad financiera","C3":"Resistencia ante shocks","C4":"Control del gasto",
             "C5":"Protección patrimonial","C6":"Gasto con sentido","C7":"Diversificación de ingresos","C8":"Antifragilidad",
             "C9":"Eficiencia del flujo","C10":"Salud de la deuda","C11":"Palanca de crecimiento","C12":"Disciplina de inversión"}
@@ -1332,7 +1332,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             ("LINEBELOW",(0,1),(-1,-1),0.4,colors.HexColor("#E7E3D8")),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
             ("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5),
             ("LEFTPADDING",(0,0),(-1,-1),6),("RIGHTPADDING",(0,0),(-1,-1),6)]))
-    S+=[Paragraph("Tus 11 áreas, de peor a mejor",h_sec),
+    S+=[Paragraph("Tus 12 áreas, de peor a mejor",h_sec),
         Paragraph("La misma silueta del radar, pero en cifras y ordenada: arriba, lo que más pide atención; abajo, lo que "
                   "ya te sostiene. Tu plan empieza por la primera fila.",body),
         Spacer(1,3*mm), _semtab, Spacer(1,3*mm),
@@ -1903,7 +1903,7 @@ def _cargar_v2():
     return _INST_V2
 
 def build_book_v2(resp, datos, cli, outpath, perfil_in=None, depth="completo", baremo=None, sintesis=None, extras=None, arq_override=None):
-    """Genera el libro usando el instrumento v2 (11 capas adaptativas) + secciones brecha/palancas."""
+    """Genera el libro usando el instrumento v2 (12 capas adaptativas) + secciones brecha/palancas."""
     global INST, CAPAS
     inst_v2=_cargar_v2()
     _bak_inst, _bak_capas = INST, CAPAS
