@@ -636,16 +636,19 @@ def proyeccion_chart(datos, path, r=0.05):
     ing=datos.get("ingreso_mensual",0) or 0; gas=datos.get("gasto_mensual",0) or 0
     superavit=max(0,(ing-gas))*12; inv=datos.get("inversiones_liquidas"); colch=datos.get("colchon_liquido") or 0
     xs=list(range(edad,meta_edad+1))
-    def grow(cap0,aport):
+    def grow(cap0,aport,rr=r):
         v=cap0; out=[v]
-        for _ in range(anos): v=v*(1+r)+aport; out.append(v)
+        for _ in range(anos): v=v*(1+rr)+aport; out.append(v)
         return out
+    _rr=(datos.get("rentabilidad_actual") or 0)/100.0     # rentabilidad REAL que declara el cliente
+    if _rr<=0: _rr=0.015                                   # si no invierte o no la sabe: ~parado, apenas crece
+    _r2=max(0.05,_rr)                                      # invertir bien: nunca peor que tu realidad actual
     fig,ax=plt.subplots(figsize=(6.4,3.2))
     if inv is not None:
         inv=inv or 0; parado=max(0,colch-gas*6)
         aport_opt=max(aho,superavit)
-        e1=[v+parado for v in grow(inv,aho)]            # Inaccion: sigues como hoy; lo parado sigue parado, al 5%
-        e2=grow(inv+parado,aport_opt)                   # Invertir tu ahorro: todo trabajando, al 5%
+        e1=[v+parado for v in grow(inv,aho,_rr)]          # Inaccion: TU rentabilidad real actual
+        e2=grow(inv+parado,aport_opt,_r2)                 # Invertir bien: todo trabajando, a mercado
         # Ejecutar el plan (Acelerador 10x10): ingresos +10%/anio los primeros ~10 anios (fase de construccion),
         # gasto -10% una vez y luego plano, rentabilidad 10% -> el patrimonio compone al 10%.
         _ig=ing*12.0; _gs=gas*12.0; _cap=float(inv+parado); e3=[_cap]
@@ -655,8 +658,8 @@ def proyeccion_chart(datos, path, r=0.05):
             _ahy=max(0.0,_ig-_gs)
             _cap=_cap*1.10+_ahy
             e3.append(_cap)
-        ax.plot(xs,e1,color="#9A3B2E",lw=2.0,label="Inacción (como hoy, al 5%)")
-        ax.plot(xs,e2,color="#B8860B",lw=2.0,ls="--",label="Invertir tu ahorro (al 5%)")
+        ax.plot(xs,e1,color="#9A3B2E",lw=2.0,label="Inacción (como hoy, al %g%%)"%round(_rr*100))
+        ax.plot(xs,e2,color="#B8860B",lw=2.0,ls="--",label="Invertir bien (al %g%%)"%round(_r2*100))
         ax.plot(xs,e3,color="#1D6F42",lw=2.4,label="Ejecutar el plan (10×10)")
         ax.fill_between(xs,e1,e3,color="#1D6F42",alpha=0.06)
         for ser,col,va in [(e1,"#9A3B2E","top"),(e3,"#1D6F42","bottom")]:
@@ -853,13 +856,15 @@ def cuadro_financiero(p, datos, fi):
     out.append(PageBreak())
     f65,mid65,m65,medad,modo=proyeccion_chart(datos,"_proy.png")
     if modo=="3":
-        narr=(f"Tres caminos, a los {medad}. <b>1 · Inacción</b> (sigues igual): <b>{_eur(f65)}</b>. "
-              f"<b>2 · Invertir tu ahorro</b> al 5%: <b>{_eur(mid65)}</b>. "
+        _rc=datos.get("rentabilidad_actual") or 0
+        _rctxt=("tu rentabilidad real, ~%g%%"%_rc) if _rc>0 else "tu dinero casi parado"
+        narr=(f"Tres caminos, a los {medad}. <b>1 · Inacción</b> (como hoy, con {_rctxt}): <b>{_eur(f65)}</b>. "
+              f"<b>2 · Invertir bien</b>: <b>{_eur(mid65)}</b>. "
               f"<b>3 · Ejecutar el plan completo</b>: <b>{_eur(m65)}</b> — <b>{_eur(m65-f65)}</b> más que sin hacer nada. "
-              f"La lección es brutal: a un 5% prudente, optimizar o no cambia poco; lo que multiplica tu patrimonio es "
-              f"<b>ejecutar el plan</b>. Eso no es suerte ni mercado: es el coste de no decidir. (El plan asume subir tus "
-              f"ingresos un 10% al año los primeros años, mantener tu estilo de vida —con un recorte puntual del 10%— y un "
-              f"10% de rentabilidad, la media histórica del mercado; orientativo, no una promesa.)")
+              f"La lección es brutal: invertir mejor ayuda, pero lo que multiplica tu patrimonio es <b>ejecutar el plan</b>. "
+              f"Eso no es suerte ni mercado: es el coste de no decidir. (Inacción: tu rentabilidad declarada. Plan: ingresos "
+              f"+10%/año los primeros años, estilo de vida contenido y un 10% —media histórica del mercado—. Orientativo, no "
+              f"una promesa.)")
     else:
         narr=(f"Si mantienes tu ritmo actual, a los {medad} rondarías los <b>{_eur(f65)}</b>. Subiendo tu ahorro cinco "
               f"puntos, esa cifra sube a <b>{_eur(m65)}</b>: la diferencia entre ambas líneas es, literalmente, el precio de "
@@ -1629,6 +1634,30 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                                 "de cualquier estrategia de crecimiento.") % _dias,
                                 St("ff2",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
                     "#FBECE8","#9A3B2E",ancho=160*mm), Spacer(1,4*mm)]
+        # Diagnostico condicional: La jaula de oro (% de gasto fijo inamovible por contrato)
+        _pgf=datos.get("pct_gasto_fijo")
+        if _pgf is not None and _pgf>=60:
+            _gm_j=datos.get("gasto_mensual") or 0
+            _fijo_txt=(" (unos %s al mes)" % _eur(round(_gm_j*_pgf/100.0))) if _gm_j else ""
+            S+=[_box([Paragraph("<b>Tu jaula de oro</b>",St("jo1",fontSize=11.5,leading=15,textColor=colors.HexColor("#9A3B2E"),fontName=FB)),
+                      Paragraph(("Crees que tienes flexibilidad, pero el <b>%g%%</b> de tu gasto%s está atado por contrato —alquiler, "
+                                "hipoteca, colegios, permanencias— y no lo podrías recortar en 24 horas. Si mañana se cortaran tus "
+                                "ingresos, esa parte seguiría saliendo sí o sí. No estás en una casa con muchas puertas: estás en una "
+                                "jaula de oro. Bajar ese porcentaje —renegociar, eliminar permanencias, flexibilizar lo fijo— es lo que "
+                                "convierte una crisis en un susto, en vez de en una espiral.") % (_pgf,_fijo_txt),
+                                St("jo2",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
+                    "#FBECE8","#9A3B2E",ancho=160*mm), Spacer(1,4*mm)]
+        # Diagnostico condicional: Devaluacion silenciosa del perfil (IA/automatizacion)
+        _dev=((extras.get("perfil_in") or {}).get("devaluacion_perfil","") or "").lower() if extras else ""
+        if "menos" in _dev:
+            S+=[_box([Paragraph("<b>La devaluación silenciosa de tu esfuerzo</b>",St("dv1",fontSize=11.5,leading=15,textColor=colors.HexColor("#B45309"),fontName=FB)),
+                      Paragraph("Lo has reconocido tú: tu perfil profesional vale hoy menos que hace cinco años. Y ese es el riesgo que "
+                                "nadie mete en una hoja de cálculo, porque tu mayor activo no es tu casa ni tu cartera — es tu capacidad de "
+                                "generar ingresos. Si esa capacidad se devalúa con la automatización y la IA mientras tú miras solo tus "
+                                "gastos, todo lo demás se tambalea. La inversión más rentable que tienes ahora no es financiera: es "
+                                "actualizar tu habilidad más difícil de automatizar, antes de que el mercado decida por ti.",
+                                St("dv2",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
+                    "#FBF4E4","#B45309",ancho=160*mm), Spacer(1,4*mm)]
     # === ACTO 3: el plan ===
     S+=[Paragraph("Tu plan de acción",h_sec),
         Paragraph("Ordenado por impacto: si solo pudieras mover una palanca esta semana, empieza por la primera.",body)]

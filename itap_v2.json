@@ -3539,6 +3539,26 @@
    ]
   },
   {
+   "id": "SD-21",
+   "tipo": "opcion",
+   "campo": "devaluacion_perfil",
+   "texto": "Con la automatización y la IA entrando en tu sector, tu perfil profesional, ¿vale hoy más o menos que hace 5 años?",
+   "ayuda": "Tu capacidad de generar ingresos es tu mayor activo. Si se devalúa en silencio, todo lo demás se tambalea.",
+   "opciones": [
+    "Más: me he actualizado y soy más valioso y difícil de reemplazar.",
+    "Igual: sigo más o menos donde estaba.",
+    "Menos: noto que lo que hago se automatiza o se paga peor que antes.",
+    "No lo sé / no me lo he planteado."
+   ],
+   "mostrar_si": {
+    "campo": "perfil_laboral",
+    "valor_not_in": [
+     "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
+     "Jubilado / pensionista"
+    ]
+   }
+  },
+  {
    "id": "SD-11",
    "tipo": "opcion",
    "campo": "conciliacion",
@@ -3948,6 +3968,20 @@
    "unidad": "€",
    "texto": "Sin contar tu vivienda habitual, ¿cuánto de tu patrimonio está en inversiones que podrías rescatar o vender en pocos días (fondos, acciones, ETFs, depósitos)? Pon 0 si nada.",
    "ayuda": "Nos dice cuánto de tu patrimonio es realmente realizable ante un imprevisto y cuánto está trabajando, no parado. Sin este dato no asumimos que tu patrimonio esté ni invertido ni parado."
+  },
+  {
+   "id": "NUM-R1",
+   "campo": "rentabilidad_actual",
+   "unidad": "%/año",
+   "texto": "¿Qué rentabilidad media anual sacas hoy a tu dinero invertido? Pon 0 si no inviertes o no lo sabes.",
+   "ayuda": "Es el dato que convierte tu proyección en TU proyección: con él calculamos a dónde te lleva tu ritmo real, no una media genérica."
+  },
+  {
+   "id": "NUM-R2",
+   "campo": "pct_gasto_fijo",
+   "unidad": "%",
+   "texto": "Si mañana te quedaras sin ingresos, ¿qué % de tu gasto mensual NO podrías recortar en 24 horas por estar atado a contratos (alquiler, hipoteca, colegios, permanencias, seguros con penalización)?",
+   "ayuda": "Mide tu «jaula de oro»: cuanto más alto, menos margen real tienes para reaccionar ante un golpe, por mucha flexibilidad que creas tener."
   },
   {
    "id": "NUM-14",
