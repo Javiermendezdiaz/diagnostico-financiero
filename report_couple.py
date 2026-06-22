@@ -182,6 +182,18 @@ def _compartimento(prof, resp):
                 "deja las cartas al descubierto. El patrimonio no se desbloquea con técnica, sino poniendo esto sobre la mesa.")
     return None
 
+def seccion_acelerador_hogar(dA, dB, tmp="/tmp/_lp_"):
+    a=_fill(dA); b=_fill(dB)
+    ing=a["ingreso_mensual"]+b["ingreso_mensual"]; gas=a["gasto_mensual"]+b["gasto_mensual"]
+    pat=a["patrimonio"]+b["patrimonio"]; num=(gas*12.0/0.04) if gas>0 else 0
+    if ing<=0 or num<=0: return []
+    try:
+        import legado_design as LD
+        img=LD.acelerador_tabla(tmp+"acelhog.png", ing, gas, pat, num, vos=True)
+        return [rb.FullBleedImage(img), PageBreak()]
+    except Exception:
+        return []
+
 def seccion_dinero_trabaja(dA, dB):
     a=_fill(dA); b=_fill(dB)
     ing=a["ingreso_mensual"]+b["ingreso_mensual"]
@@ -572,6 +584,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     S+=seccion_dafo_pareja(pA,pB,nA,nB)
     S+=seccion_caminos_hogar(dA,dB)
     S+=seccion_dinero_trabaja(dA,dB)
+    S+=seccion_acelerador_hogar(dA,dB)
     rb.radar_png(pA,"_radarA.png"); rb.radar_png(pB,"_radarB.png")
     try: _exA=sv.computar_extras(rA,_fill(dA),perfilA or {},_iv2)
     except Exception: _exA=None
