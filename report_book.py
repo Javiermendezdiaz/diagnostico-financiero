@@ -1213,7 +1213,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         _pct_frase="mejor que el %d%% de %s" % (round(baremo["pct"]), _cohorte)
         _pct_nota=" \u00b7 muestra real: %d diagn\u00f3sticos" % baremo["n"]
     else:
-        _pct_frase="tu percentil se est\u00e1 calibrando contra nuestra muestra de referencia, que crece con cada diagn\u00f3stico"
+        _pct_frase="una lectura objetiva de tu relaci\u00f3n con el dinero a trav\u00e9s de 11 dimensiones psicofinancieras"
         _pct_nota=""
     bi,bl=banda(CAPAS["C1"],salud); S=[]
     coh=coherencia(salud,fi,datos)

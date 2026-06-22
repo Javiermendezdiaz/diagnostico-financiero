@@ -511,7 +511,7 @@ def calcular_ratios(datos, perfil_in):
         ac = pat / (gasto * 12)
         _val_if = ("%.1f años (~%.0f meses) de vida cubiertos" % (ac, ac*12)) if ac < 2 else ("%.1f años de vida cubiertos" % ac)
         add("Independencia financiera", _val_if, "verde" if ac >= 25 else ("ambar" if ac >= 10 else "rojo"),
-            "Es tu colchón de oxígeno: el tiempo que vivirías con tu patrimonio si hoy se cortaran los ingresos. Proyecta tu hito de libertad y las palancas que lo acercan.")
+            "Ponle número y fecha a tu libertad: fija tu objetivo (25 veces tu gasto anual) y dirige cada mes tu excedente a acercarlo, con tu patrimonio rentando. Es lo que convierte tu trabajo en una elección, no una obligación.")
     rp = _num0(datos, "renta_pasiva")
     if rp is not None and ing:
         pp = 100 * rp / ing
