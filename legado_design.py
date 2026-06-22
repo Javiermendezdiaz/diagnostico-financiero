@@ -18,7 +18,7 @@ def Pb(sz): return _fp("Poppins-Bold.ttf",sz)
 def Pl(sz): return _fp("Poppins-Light.ttf",sz)
 
 BG0="#0A0A0C"; BG1="#121215"; GLOW="#2A2410"
-BLUE="#FDD731"; BLUE_L="#FFE36A"; WHITE="#F3F6FC"; MUTE="#9A958A"; FAINT="#6B655A"; RULE="#33312A"
+BLUE="#FDD731"; BLUE_L="#FFE36A"; WHITE="#F3F6FC"; MUTE="#C7C2B6"; FAINT="#9C968A"; RULE="#33312A"
 GOLD="#E3B341"; GREEN="#3FB984"
 A4=(8.27,11.69)  # portrait inches
 
@@ -214,10 +214,10 @@ def termometro(out, titulo, indice, etiqueta, drivers, accent=BLUE):
         ax.text(0.085,_ey,_ln,ha="left",va="top",color=MUTE,fontproperties=P(9),transform=ax.transAxes); _ey-=0.028
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
-def constitucion(out, reglas, subtit, accent=GOLD):
+def constitucion(out, reglas, subtit, accent=GOLD, titulo="TU CONSTITUCIÓN", kicker="TU LIBRO FINANCIERO · EL CIERRE"):
     fig,ax=_canvas(); _bg(ax,(0.80,0.82),tint="#14202E")
-    ax.text(0.5,0.88,_spaced("TU LIBRO FINANCIERO · EL CIERRE"),ha="center",va="center",color=MUTE,fontproperties=P(9),transform=ax.transAxes)
-    ax.text(0.5,0.80,"TU CONSTITUCIÓN",ha="center",va="center",color=WHITE,fontproperties=L(34),transform=ax.transAxes)
+    ax.text(0.5,0.88,_spaced(kicker),ha="center",va="center",color=MUTE,fontproperties=P(9),transform=ax.transAxes)
+    ax.text(0.5,0.80,titulo,ha="center",va="center",color=WHITE,fontproperties=L(34),transform=ax.transAxes)
     ax.text(0.5,0.735,"FINANCIERA",ha="center",va="center",color=accent,fontproperties=L(34),transform=ax.transAxes)
     ax.plot([0.45,0.55],[0.70,0.70],color=accent,lw=1.3,transform=ax.transAxes)
     yy=0.63

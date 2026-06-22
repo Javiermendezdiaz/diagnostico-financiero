@@ -440,5 +440,5 @@ def pareja_hero(nA,nB,cliA,dA,dB,pA,pB,hogar_num,fecha,tmp="/tmp/_lp_",perfilA=N
         "Las decisiones por encima de %s € las hablamos juntos, antes de decidir."%("{:,.0f}".format(umbral).replace(",",".")),
         "Reconocemos las dos monedas: quien aporta menos dinero puede sostener más hogar.",
         "Revisaremos nuestro número de libertad conjunto cada seis meses, como un equipo."]
-    seq.append(LD.constitucion(tmp+"99.svg",reglas,"Firmado por %s y %s. Un equipo, un plan."%(nA,nB),accent=LD.GOLD))
+    seq.append(LD.constitucion(tmp+"99.svg",reglas,"Firmado por %s y %s. Un equipo, un plan."%(nA,nB),accent=LD.GOLD,titulo="VUESTRA CONSTITUCIÓN",kicker="VUESTRO LIBRO FINANCIERO · EL CIERRE"))
     return seq
