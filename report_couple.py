@@ -182,6 +182,37 @@ def _compartimento(prof, resp):
                 "deja las cartas al descubierto. El patrimonio no se desbloquea con técnica, sino poniendo esto sobre la mesa.")
     return None
 
+def seccion_caminos_hogar(dA, dB):
+    a=_fill(dA); b=_fill(dB)
+    hog={"edad":int(round((a["edad"]+b["edad"])/2)),
+         "patrimonio":a["patrimonio"]+b["patrimonio"],
+         "ahorro_mensual":a["ahorro_mensual"]+b["ahorro_mensual"],
+         "ingreso_mensual":a["ingreso_mensual"]+b["ingreso_mensual"],
+         "gasto_mensual":a["gasto_mensual"]+b["gasto_mensual"],
+         "inversiones_liquidas":(a.get("inversiones_liquidas") or 0)+(b.get("inversiones_liquidas") or 0),
+         "colchon_liquido":(a.get("colchon_liquido") or 0)+(b.get("colchon_liquido") or 0),
+         "rentabilidad_actual":max(a.get("rentabilidad_actual") or 0, b.get("rentabilidad_actual") or 0)}
+    try:
+        f65,mid65,m65,medad,modo=rb.proyeccion_chart(hog,"_proyhogar.png")
+    except Exception:
+        return []
+    out=[PageBreak(), Paragraph("Vuestros tres caminos",h_sec),
+         Paragraph("El patrimonio del hogar a la jubilación, según lo que decidáis juntos: dejarlo como está, invertirlo "
+                   "bien, o ejecutar vuestro plan conjunto. La distancia entre las líneas no la decide el mercado — la decidís vosotros.",body),
+         Image("_proyhogar.png",width=160*mm,height=75*mm,hAlign="CENTER")]
+    if modo=="3":
+        _cl=St("chl",fontSize=8.5,leading=11,textColor=colors.HexColor("#6B7280"))
+        def cn(lab,val,col):
+            return [Paragraph(lab,_cl),Paragraph("<b>%s</b>"%rb._eur(val),St("cnh"+col,fontSize=18,leading=22,textColor=colors.HexColor(col),fontName=rb.FB))]
+        out+=[Spacer(1,3*mm),
+              Table([[cn("Sin hacer nada",f65,"#9A3B2E"),cn("Invirtiendo bien",mid65,"#B8860B"),cn("Ejecutando vuestro plan",m65,"#1D6F42")]],
+                    colWidths=[53*mm,53*mm,54*mm],style=[("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),0),("TOPPADDING",(0,0),(-1,-1),2)]),
+              Spacer(1,2*mm),
+              Paragraph(f"Entre quedaros quietos y ejecutar vuestro plan hay <b>{rb._eur(m65-f65)}</b>. Esa cifra es vuestra "
+                        f"decisión conjunta, repetida cada mes que empezáis — o que aplazáis.",St("chg",fontSize=10.5,leading=15,textColor=INK))]
+    out+=[PageBreak()]
+    return out
+
 def seccion_dafo_pareja(pA,pB,nA,nB):
     sc=lambda c,pp:pp[c]["score"]; capas=list(rb.CAPAS); nom=lambda c:rb.CAPAS[c]["nombre"]
     fuertes=sorted([c for c in capas if max(sc(c,pA),sc(c,pB))<=40], key=lambda c:sc(c,pA)+sc(c,pB))[:3]
@@ -510,6 +541,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                      rb.Chip(zona,zc,w=64,h=13)])
     S+=[tbl(rows,[78*mm,15*mm,15*mm,20*mm,32*mm]),PageBreak()]
     S+=seccion_dafo_pareja(pA,pB,nA,nB)
+    S+=seccion_caminos_hogar(dA,dB)
     rb.radar_png(pA,"_radarA.png"); rb.radar_png(pB,"_radarB.png")
     try: _exA=sv.computar_extras(rA,_fill(dA),perfilA or {},_iv2)
     except Exception: _exA=None
