@@ -103,7 +103,7 @@ a{color:var(--am)}
   <div class="kick">Diagnóstico psicofinanciero · Adapta</div>
   <h1 style="font-size:23px;line-height:1.22;font-weight:800;letter-spacing:-0.3px;margin:6px 0 11px">El diagnóstico psicofinanciero <span style="color:var(--am)">más completo</span> que te van a hacer.</h1>
   <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:15px">
-    <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">11 capas de análisis</span>
+    <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">12 capas de análisis</span>
     <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">Psicología + patrimonio</span>
     <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">Plan de 100 días</span>
     <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">Tu Constitución Financiera</span>
@@ -153,7 +153,7 @@ a{color:var(--am)}
       <button class="back" id="atras" style="display:none" onclick="atras()">← Atrás</button>
     </div>
     <aside class="q-side">
-      <div class="radar-cap"><span>Tu huella patrimonial</span> · <span id="capasCount">0 / 11 capas</span></div>
+      <div class="radar-cap"><span>Tu huella patrimonial</span> · <span id="capasCount">0 / 12 capas</span></div>
       <div id="radarWrap"></div>
       <div class="fuga" id="fugaBox" style="display:none"><span class="fuga-l">Coste de oportunidad<br>detectado · orientativo</span><span class="fuga-v" id="fugaV">0 €/año</span></div>
       <div class="q-side-foot">Analizando tu perfil en tiempo real…</div>
@@ -187,7 +187,7 @@ a{color:var(--am)}
       <div style="flex:1;text-align:center"><div id="tMargen" style="color:var(--tx);font-size:22px;font-weight:800">—</div><div style="color:var(--gr);font-size:11px;margin-top:2px">Tu margen</div></div>
       <div style="flex:1;text-align:center"><div id="tCifra" style="color:var(--tx);font-size:16px;font-weight:700;line-height:1.4">—</div><div style="color:var(--gr);font-size:11px;margin-top:2px">Cifra libertad</div></div>
     </div>
-    <p style="color:var(--gr);font-size:12px;line-height:1.55;margin-top:13px">Y esto es solo la superficie. Tu libro nombra, una a una, las <b style="color:var(--tx)">11 capas</b> de tu perfil, los patrones que te cuestan dinero ahora mismo y tu plan de 100 días para desactivarlos.</p>
+    <p style="color:var(--gr);font-size:12px;line-height:1.55;margin-top:13px">Y esto es solo la superficie. Tu libro nombra, una a una, las <b style="color:var(--tx)">12 capas</b> de tu perfil, los patrones que te cuestan dinero ahora mismo y tu plan de 100 días para desactivarlos.</p>
   </div>
 
   <div id="payBox" style="display:none">
@@ -358,7 +358,7 @@ function nextFade(fn){ if(_qlock){return;} _qlock=true; setTimeout(()=>{try{upda
 const AXES=[
   {k:'Flujo',caps:['C4','C6','C9']},
   {k:'Solidez',caps:['C3','C5','C10']},
-  {k:'Crecimiento',caps:['C2','C7','C8','C11']},
+  {k:'Crecimiento',caps:['C2','C7','C8','C11','C12']},
   {k:'Psique',caps:['C1']}
 ];
 let _radarVals=[0,0,0,0],_radarRAF=null;
@@ -474,7 +474,7 @@ async function finalizar(){
   const _t0=Date.now();
   cajaNegra('genMsg',[
     'Cruzando tu psicología con tus números reales',
-    'Puntuando tus 11 capas psicofinancieras',
+    'Puntuando tus 12 capas psicofinancieras',
     'Calibrando tu percentil contra nuestra muestra',
     'Detectando tu brecha, tus palancas y tus contradicciones',
     'Componiendo Tu Libro Financiero · estándar Adapta'
@@ -540,7 +540,7 @@ function cajaNegra(elId,lines){
 async function descargarConAnalisis(sid){
   show('s-build');
   cycleMsgs('buildMsg',[
-    'Reuniendo tu perfil de las 11 capas.',
+    'Reuniendo tu perfil de las 12 capas.',
     'Trazando tu mapa de tensión y tus palancas.',
     'Calculando tu proyección y tu cifra de libertad.',
     'Redactando tu plan de acción de 100 días.',
