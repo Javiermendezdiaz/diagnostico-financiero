@@ -217,8 +217,9 @@ a{color:var(--am)}
   <div id="parejaCodeBox" style="display:none;max-width:380px;margin:14px auto 0;text-align:center">
     <div style="background:var(--pa);border:1px solid var(--bd);border-radius:14px;padding:18px">
       <div style="color:var(--gr);font-size:11px;text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px">Enlace para tu pareja</div>
-      <div id="parejaCode" style="font-family:monospace;font-size:13px;font-weight:700;color:var(--am);word-break:break-all;line-height:1.45;background:#0e0e11;border:1px solid var(--bd);border-radius:8px;padding:10px 12px">—</div>
-      <button class="btn" id="parejaCopyBtn" style="margin-top:14px" onclick="copiarPareja()">Enviar enlace a mi pareja</button>
+      <div id="parejaCode" onclick="copiarPareja()" title="Pulsa para copiar" style="cursor:pointer;font-family:monospace;font-size:13px;font-weight:700;color:var(--am);word-break:break-all;line-height:1.45;background:#0e0e11;border:1px solid var(--bd);border-radius:8px;padding:10px 12px">—</div>
+      <button class="btn" id="parejaCopyBtn" style="margin-top:14px" onclick="copiarPareja()">📋 Copiar enlace</button>
+      <button id="parejaShareBtn" style="display:none;margin-top:10px;background:none;border:1px solid var(--bd);color:var(--gr);border-radius:10px;padding:9px 16px;font-size:13px;cursor:pointer" onclick="compartirPareja()">Compartir por WhatsApp…</button>
       <p id="parejaCopyMsg" style="color:var(--gr);font-size:11.5px;margin-top:9px;line-height:1.5">Tu pareja abre ese enlace, responde su parte y vuestro libro conjunto se desbloquea.</p>
       <p id="parejaWait" style="display:none;color:var(--am);font-size:11.5px;margin-top:10px;line-height:1.5">Esperando a que tu pareja complete su parte… esta página lo detecta sola y descargará vuestro libro.</p>
     </div>
@@ -671,15 +672,17 @@ async function finalizar(){
 async function copiarPareja(){
   var b=document.getElementById('parejaCopyBtn'), msg=document.getElementById('parejaCopyMsg');
   var link=window.PAREJA_LINK||(document.getElementById('parejaCode')||{}).textContent||'';
-  try{
-    if(navigator.share){ await navigator.share({title:'Diagnóstico de pareja · Adapta',text:'Completa tu parte para desbloquear nuestro libro financiero:',url:link}); return; }
-    await navigator.clipboard.writeText(link);
-    if(b) b.textContent='✓ Enlace copiado';
-    if(msg) msg.textContent='Pégaselo a tu pareja (WhatsApp, etc.). Cuando termine su parte, vuestro libro se desbloquea.';
-  }catch(e){
-    try{ var el=document.getElementById('parejaCode'); var r=document.createRange(); r.selectNodeContents(el); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); }catch(_){}
-    if(msg) msg.textContent='Copia el enlace de arriba y envíaselo a tu pareja.';
+  var ok=false;
+  try{ await navigator.clipboard.writeText(link); ok=true; }
+  catch(e){
+    try{ var el=document.getElementById('parejaCode'); var r=document.createRange(); r.selectNodeContents(el); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); ok=!!(document.execCommand&&document.execCommand('copy')); }catch(_){}
   }
+  if(ok){ if(b) b.textContent='✓ Enlace copiado'; if(msg) msg.textContent='¡Listo! Pégaselo a tu pareja (WhatsApp, etc.). Cuando complete su parte, vuestro libro se desbloquea aquí.'; }
+  else { if(msg) msg.textContent='Mantén pulsado el enlace de arriba para seleccionarlo y cópialo.'; }
+}
+async function compartirPareja(){
+  var link=window.PAREJA_LINK||(document.getElementById('parejaCode')||{}).textContent||'';
+  try{ if(navigator.share) await navigator.share({title:'Diagnóstico de pareja · Adapta',text:'Completa tu parte para desbloquear nuestro libro financiero:',url:link}); }catch(e){}
 }
 async function pagar(){
   const sid=CURSID||(st&&st.sid); if(!sid){document.getElementById('doneTxt').textContent='Sesión no encontrada. Vuelve a empezar.';return;}
@@ -756,6 +759,7 @@ function mostrarEsperaPareja(sid){
   document.getElementById('doneTxt').textContent='Ahora invita a tu pareja. En cuanto complete su parte, descargáis aquí vuestro Libro de Pareja (y te llega por email).';
   var _pc=document.getElementById('parejaCode'); if(_pc) _pc.textContent=window.PAREJA_LINK;
   var _pcb=document.getElementById('parejaCodeBox'); if(_pcb) _pcb.style.display='block';
+  var _sh=document.getElementById('parejaShareBtn'); if(_sh && navigator.share) _sh.style.display='inline-block';
   var _w=document.getElementById('parejaWait'); if(_w) _w.style.display='block';
   var _dl=document.getElementById('dl'); if(_dl){ _dl.style.display='inline-block'; _dl.textContent='Ya ha completado · descargar'; }
   let tries=0;
