@@ -777,8 +777,38 @@ def seccion_ratio_vida(extras):
                 "solo pilar bajo arrastra a todos los demás: puedes tener dinero de sobra, pero si tu tiempo o tu salud están "
                 "por los suelos, tu riqueza real se desploma. El verdadero rico no es quien más tiene, sino quien tiene los "
                 "cuatro en equilibrio. Por eso tu mayor palanca de riqueza está en tu pilar más flojo — y casi nunca es la financiera.",
-                St("rvi",fontSize=10.5,leading=15,textColor=INK))],"#FBF4E4","#B45309",ancho=160*mm),
-          PageBreak()]
+                St("rvi",fontSize=10.5,leading=15,textColor=INK))],"#FBF4E4","#B45309",ancho=160*mm)]
+    # --- Mapa de Tensiones: el coste matemático del desequilibrio (todo medido) ---
+    _imp=rv.get("impuesto",0); _pot=rv.get("iri_potencial",_iri); _ten=rv.get("tension","")
+    _str=rv.get("strongest"); _strv=rv.get("strongest_val",0); _wv=rv.get("weakest_val",0); _brecha=_strv-_wv
+    _lbl=St("rvl",fontSize=9,leading=12,textColor=colors.HexColor("#6B7280"))
+    _n1=St("rvn1",fontSize=26,leading=30,textColor=colors.HexColor("#1D6F42"),fontName=FB)
+    _n2=St("rvn2",fontSize=26,leading=30,textColor=colors.HexColor("#9A3B2E"),fontName=FB)
+    out+=[Spacer(1,6*mm),
+          Paragraph("El coste de tu desequilibrio",St("rvt",fontSize=13,leading=16,textColor=INK,fontName=FB))]
+    if _brecha>=15:
+        _cell=lambda lab,num,sty:[Paragraph(lab,_lbl),Paragraph("<b>%s</b>"%num,sty)]
+        out+=[Paragraph(f"Entre tu pilar más fuerte (<b>{_str}</b>, {_strv}) y el más débil (<b>{rv['weakest']}</b>, {_wv}) "
+                        f"hay una distancia. Esa distancia tiene un nombre y un precio.",body),
+              Spacer(1,3*mm),
+              Table([[_cell("Pilar más fuerte",_strv,_n1),_cell("Pilar más débil",_wv,_n2),_cell("Brecha",_brecha,_n2)]],
+                     colWidths=[53*mm,53*mm,54*mm],
+                     style=[("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),0),
+                            ("TOPPADDING",(0,0),(-1,-1),2),("BOTTOMPADDING",(0,0),(-1,-1),0)]),
+              Spacer(1,3*mm),
+              _box([Paragraph((f"<b>{_ten}</b> " if _ten else "")+
+                    f"Entre tu pilar más fuerte y el más débil hay <b>{_brecha} puntos</b>. En una media geométrica esa brecha "
+                    f"actúa como un techo invisible: te cuesta {_imp} puntos de Ratio real hoy, y no los pierdes por tener poco "
+                    f"&mdash; los pierdes por tenerlo casi todo menos una cosa. Y aquí está lo demoledor: si subes "
+                    f"<b>{rv['weakest']}</b> al nivel del resto, sin tocar nada más, tu Ratio de Vida salta de "
+                    f"<b>{_iri} a {_pot}</b>. Tu mayor retorno no está en ganar más, sino en dejar de descuidar lo que ya tienes.",
+                    St("rvx",fontSize=10.5,leading=15,textColor=INK))],"#FBF4E4","#9A3B2E",ancho=160*mm)]
+    else:
+        out+=[_box([Paragraph("Tus cuatro pilares están prácticamente en equilibrio — y esa es exactamente la forma que tiene "
+                    "la riqueza real. La mayoría sobreinvierte en uno y deja que los otros tres se desangren; tú no. "
+                    "Tu trabajo ahora no es corregir, es <b>proteger</b> ese equilibrio cuando la vida empuje para romperlo.",
+                    St("rvx",fontSize=10.5,leading=15,textColor=INK))],"#EAF3EC","#1D6F42",ancho=160*mm)]
+    out+=[PageBreak()]
     return out
 
 def seccion_fuentes(extras):

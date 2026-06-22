@@ -706,6 +706,7 @@ def calcular_ratio_vida(perfil_in):
         prod *= v
     iri = int(round((prod ** 0.25) * 100))
     weakest = min(vals, key=vals.get)
+    strongest = max(vals, key=vals.get)
     if iri >= 85:
         banda = "El Santo Grial"
     elif iri >= 60:
@@ -714,8 +715,32 @@ def calcular_ratio_vida(perfil_in):
         banda = "Modo supervivencia"
     else:
         banda = "Alerta roja"
+    # --- Mapa de Tensiones: el coste matemático del desequilibrio (todo medido, nada inventado) ---
+    media_simple = sum(vals.values()) / 4.0
+    impuesto = int(round((media_simple - (prod ** 0.25)) * 100))   # media aritmética - geométrica = "impuesto del desequilibrio"
+    # Palanca: ¿y si subes tu pilar más flojo al nivel medio de los otros tres? (resto igual)
+    otros = [v for k, v in vals.items() if k != weakest]
+    objetivo = min(1.0, sum(otros) / 3.0)
+    if objetivo > vals[weakest]:
+        vp = dict(vals); vp[weakest] = objetivo
+        prodp = 1.0
+        for v in vp.values():
+            prodp *= v
+        iri_potencial = int(round((prodp ** 0.25) * 100))
+    else:
+        iri_potencial = iri
+    _TENS = {
+        "Tiempo":    "Rindes y generas, pero no tienes vida para disfrutar de lo que generas.",
+        "Dinero":    "Vives bien hoy, pero sin el respaldo que sostenga el mañana.",
+        "Salud":     "Estás construyendo tu vida sobre un cuerpo que has dejado de cuidar.",
+        "Felicidad": "Tienes los medios, pero se te está escapando el sentido.",
+    }
+    tension = _TENS.get(weakest, "")
     return {"dims": {k: int(round(v * 100)) for k, v in vals.items()}, "iri": iri, "banda": banda,
-            "weakest": weakest, "weakest_val": int(round(vals[weakest] * 100))}
+            "weakest": weakest, "weakest_val": int(round(vals[weakest] * 100)),
+            "strongest": strongest, "strongest_val": int(round(vals[strongest] * 100)),
+            "media_simple": int(round(media_simple * 100)), "impuesto": impuesto,
+            "iri_potencial": iri_potencial, "tension": tension}
 
 
 def calcular_deuda_tipo(resp, datos):
