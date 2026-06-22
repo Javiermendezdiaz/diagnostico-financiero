@@ -1398,6 +1398,39 @@ def seccion_coste_inaccion(extras):
                St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=4)))
     return out
 
+def seccion_resumen_ejecutivo(extras, datos):
+    """Resumen ejecutivo de 1 pagina tras la portada: cifras clave + foco + primer paso + puente Adapta."""
+    if not extras: return []
+    rv=extras.get("ratio_vida"); nudo=extras.get("nudo"); res=extras.get("resiliencia"); acc=extras.get("accion_unica")
+    out=[PageBreak(), Paragraph("Tu diagnóstico en una página", h_sec),
+         Paragraph("Si solo lees esto, ya sabrás lo esencial. El resto del libro es el porqué, el cuánto y el cómo.", body),
+         Spacer(1,5*mm)]
+    _lbl=St("relbl",fontSize=9,leading=12,textColor=colors.HexColor("#6B7280"))
+    cells=[]
+    if rv:
+        _bc="#1D6F42" if rv["iri"]>=60 else ("#C2710C" if rv["iri"]>=40 else "#9A3B2E")
+        cells.append([Paragraph("Tu Ratio de Vida",_lbl),Paragraph("<b>%d</b><font size=11 color='#6B7280'>/100</font>"%rv["iri"],St("ren1",fontSize=26,leading=30,textColor=colors.HexColor(_bc),fontName=FB))])
+    if res and res.get("meses_libertad") is not None:
+        _m=res["meses_libertad"]; _mt=("%.0f meses"%_m) if _m<24 else ("%.1f años"%(_m/12.0))
+        cells.append([Paragraph("Meses de libertad",_lbl),Paragraph("<b>%s</b>"%_mt,St("ren2",fontSize=20,leading=26,textColor=INK,fontName=FB))])
+    if rv:
+        cells.append([Paragraph("Tu eslabón más débil",_lbl),Paragraph("<b>%s</b>"%rv["weakest"],St("ren3",fontSize=20,leading=26,textColor=colors.HexColor("#9A3B2E"),fontName=FB))])
+    if cells:
+        w=160.0/len(cells)
+        out+=[Table([cells],colWidths=[w*mm]*len(cells),style=[("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),0),("TOPPADDING",(0,0),(-1,-1),2)]),Spacer(1,5*mm)]
+    if nudo and nudo.get("principal"):
+        pr=nudo["principal"]
+        out+=[_box([Paragraph("<font color='#9A3B2E'><b>TU FOCO PRINCIPAL</b></font>  "+pr["tit"]+".",St("ref",fontSize=11,leading=16,textColor=INK))],"#FBF4E4","#9A3B2E",ancho=160*mm),Spacer(1,3*mm)]
+    if acc and isinstance(acc,str):
+        out+=[_box([Paragraph("<font color='#1D6F42'><b>TU PRIMER PASO</b></font>  "+acc,St("rea",fontSize=11,leading=16,textColor=INK))],"#EAF3EC","#1D6F42",ancho=160*mm)]
+    _foco = (nudo and nudo.get("principal") and nudo["principal"].get("tit")) or (rv and rv.get("weakest"))
+    if _foco:
+        out+=[Spacer(1,4*mm),
+              Paragraph("En tu sesión con <b>Adapta</b> empezaríamos justo por aquí: convertir este foco en un plan concreto, con números y fechas. El diagnóstico te dice <i>qué</i>; nosotros lo recorremos <i>contigo</i>.",
+                        St("reb",fontSize=10,leading=14,textColor=GREY))]
+    out+=[PageBreak()]
+    return out
+
 def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=None,arq_override=None):
     p,tr,salud=perfil(resp); fi=fi_metrics(datos); radar_png(p,"_radar.png")
     _cohorte=cohorte_txt(cli,datos)
@@ -1467,6 +1500,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                         ("LINEBEFORE",(0,0),(0,-1),2.6,AMARILLO),("LEFTPADDING",(0,0),(0,-1),10),
                         ("TOPPADDING",(0,0),(-1,-1),9),("BOTTOMPADDING",(0,0),(-1,-1),9)]))
     S+=[PageBreak()]
+    if extras: S+=seccion_resumen_ejecutivo(extras,datos)
     # resumen + radar
     S+=[Paragraph("El mapa completo",h_sec)]
     if extras and extras.get("crisis"):
