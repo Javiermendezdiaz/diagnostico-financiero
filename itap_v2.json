@@ -3539,6 +3539,62 @@
    ]
   },
   {
+   "id": "RV-1",
+   "tipo": "opcion",
+   "campo": "rv_salud",
+   "texto": "Tu energía física y tu salud, ¿te dejan disfrutar de verdad tu día a día?",
+   "ayuda": "La riqueza no es solo dinero. Sin salud para disfrutarlo, todo lo demás vale menos.",
+   "opciones": [
+    "Casi nunca: arrastro el día, duermo mal, sin energía.",
+    "A veces: funciono, pero sin chispa.",
+    "Normal: ni bien ni mal.",
+    "Casi siempre: tengo energía para lo que quiero hacer.",
+    "Siempre: salud y energía de sobra, y las disfruto."
+   ]
+  },
+  {
+   "id": "RV-2",
+   "tipo": "opcion",
+   "campo": "rv_dinero",
+   "texto": "Tus finanzas, ¿te dejan vivir sin ansiedad por el próximo mes?",
+   "ayuda": "No es cuánto ganas, es cuánta paz te da. La verdadera riqueza financiera es dormir tranquilo.",
+   "opciones": [
+    "Nada: cada mes es una cuenta atrás angustiosa.",
+    "Poco: llego, pero sin margen ni tranquilidad.",
+    "Lo justo: cubro lo mío sin grandes sustos.",
+    "Bastante: tengo colchón y duermo tranquilo.",
+    "Del todo: el dinero respalda mis decisiones, no las dicta."
+   ]
+  },
+  {
+   "id": "RV-3",
+   "tipo": "opcion",
+   "campo": "rv_tiempo",
+   "texto": "Tu tiempo, ¿lo controlas tú, o tu agenda te controla a ti?",
+   "ayuda": "El tiempo es el único activo que no se recupera. Tener margen para elegir es ser rico de verdad.",
+   "opciones": [
+    "Nada: casi no tengo tiempo libre real.",
+    "Poco: algún hueco suelto, pero voy a remolque.",
+    "A medias: algo de margen, sin más.",
+    "Bastante: tengo 2-3 horas al día para lo que quiero.",
+    "Del todo: decido yo a qué dedico mi tiempo."
+   ]
+  },
+  {
+   "id": "RV-4",
+   "tipo": "opcion",
+   "campo": "rv_felicidad",
+   "texto": "Tu vida, ¿tiene propósito y buenas relaciones a tu alrededor?",
+   "ayuda": "Al final del camino, nadie mide su vida en euros. La mide en sentido y en la gente que tuvo cerca.",
+   "opciones": [
+    "Nada: sin rumbo claro y bastante solo/a.",
+    "Poco: algo de sentido, pero relaciones flojas.",
+    "A medias: ni mal ni especialmente pleno.",
+    "Bastante: propósito y gente que me importa cerca.",
+    "Del todo: una vida con sentido y relaciones que me llenan."
+   ]
+  },
+  {
    "id": "SD-21",
    "tipo": "opcion",
    "campo": "devaluacion_perfil",

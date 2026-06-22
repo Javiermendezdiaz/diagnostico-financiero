@@ -683,6 +683,41 @@ def calcular_fuentes(datos, perfil_in):
     }
 
 
+_RV_FIRST = {"casi nunca": 0, "a veces": 1, "normal": 2, "casi siempre": 3, "siempre": 4,
+             "nada": 0, "poco": 1, "lo justo": 2, "a medias": 2, "bastante": 3, "del todo": 4}
+
+
+def calcular_ratio_vida(perfil_in):
+    """Índice de Riqueza Integral (Ratio de Vida): fusiona Salud, Dinero, Tiempo y Felicidad
+    con una MEDIA GEOMÉTRICA (no una media simple). El producto castiga los extremos: un pilar
+    por los suelos arrastra a todos los demás, igual que en la vida real. Devuelve 0-100 + banda.
+    Requiere las 4 respuestas; si falta alguna, devuelve None."""
+    nm = [("rv_salud", "Salud"), ("rv_dinero", "Dinero"), ("rv_tiempo", "Tiempo"), ("rv_felicidad", "Felicidad")]
+    vals = {}
+    for campo, nombre in nm:
+        sel = ((perfil_in or {}).get(campo, "") or "")
+        key = sel.split(":")[0].strip().lower()
+        if key in _RV_FIRST:
+            vals[nombre] = (_RV_FIRST[key] + 1) / 5.0     # 1..5 -> 0.2..1.0 (nunca 0: la media geométrica no se anula)
+    if len(vals) < 4:
+        return None
+    prod = 1.0
+    for v in vals.values():
+        prod *= v
+    iri = int(round((prod ** 0.25) * 100))
+    weakest = min(vals, key=vals.get)
+    if iri >= 85:
+        banda = "El Santo Grial"
+    elif iri >= 60:
+        banda = "Equilibrio inestable"
+    elif iri >= 40:
+        banda = "Modo supervivencia"
+    else:
+        banda = "Alerta roja"
+    return {"dims": {k: int(round(v * 100)) for k, v in vals.items()}, "iri": iri, "banda": banda,
+            "weakest": weakest, "weakest_val": int(round(vals[weakest] * 100))}
+
+
 def calcular_deuda_tipo(resp, datos):
     """Lee C10-07 (¿la deuda te quita o te da dinero?) y la nombra palanca/neutra/freno."""
     v = resp.get("C10-07")
@@ -913,6 +948,7 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "fortuna_neta": calcular_fortuna_neta(datos),
         "resiliencia": calcular_resiliencia(datos),
         "fuentes": calcular_fuentes(datos, perfil_in),
+        "ratio_vida": calcular_ratio_vida(perfil_in),
         "deuda_tipo": calcular_deuda_tipo(resp, datos),
         "presupuesto": calcular_presupuesto(datos, perfil_in),
         "vivienda": calcular_vivienda(datos, perfil_in),

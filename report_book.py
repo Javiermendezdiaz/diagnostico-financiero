@@ -745,6 +745,42 @@ def report_id(nombre, fecha):
 def valor_hora(datos):
     return max(datos.get("ingreso_mensual",0),0)/160.0
 
+def seccion_ratio_vida(extras):
+    """Ratio de Vida (Índice de Riqueza Integral): fusiona Salud, Dinero, Tiempo y Felicidad."""
+    rv=extras.get("ratio_vida") if extras else None
+    if not rv: return []
+    _iri=rv["iri"]; _bd=rv["banda"]
+    _bcol="#1D6F42" if _iri>=85 else ("#B8860B" if _iri>=60 else ("#C2710C" if _iri>=40 else "#9A3B2E"))
+    out=[PageBreak(), Paragraph("Tu Ratio de Vida",h_sec),
+         Paragraph("Tu verdadera riqueza no es solo dinero. Es el cruce de cuatro cosas: <b>salud</b> para disfrutarla, "
+                   "<b>tiempo</b> que controlas, <b>dinero</b> que respalda y una vida con <b>sentido</b>. Este número las "
+                   "fusiona en uno — y, como la vida real, castiga sin piedad el pilar que descuidas.",body),
+         Table([[Paragraph(f"<font size=44 color='{_bcol}'><b>{_iri}</b></font><font size=13 color='#6B7280'>/100</font>",St("rvb",fontSize=44,leading=48)),
+                 Paragraph(f"<b>{_bd}</b><br/><font size=8 color='#6B7280'>Índice de Riqueza Integral · media geométrica de tus 4 pilares "
+                           f"(un pilar bajo arrastra a todos)</font>",body)]],
+               colWidths=[42*mm,118*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)])]
+    _rh=St("rvh",fontSize=8,leading=11,textColor=colors.HexColor("#FDD731"),fontName=FB)
+    rows=[[Paragraph("PILAR",_rh),Paragraph("TU NOTA /100",_rh),Paragraph("ESTADO",_rh)]]
+    for k in ["Salud","Dinero","Tiempo","Felicidad"]:
+        v=rv["dims"].get(k,0)
+        _c="#1D6F42" if v>=60 else ("#E08A00" if v>=40 else "#C0392B")
+        _e="Sólido" if v>=60 else ("A vigilar" if v>=40 else "Frágil")
+        rows.append([Paragraph(k,small),Paragraph("<b>%d</b>"%v,small),
+                     Paragraph(f"<font color='{_c}'>&#9679;</font>  <font color='{_c}'><b>{_e}</b></font>",small)])
+    tab=Table(rows,colWidths=[78*mm,42*mm,40*mm],
+        style=TableStyle([("BACKGROUND",(0,0),(-1,0),colors.HexColor("#101113")),
+            ("LINEBELOW",(0,1),(-1,-1),0.4,colors.HexColor("#E7E3D8")),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+            ("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5),
+            ("LEFTPADDING",(0,0),(-1,-1),6),("RIGHTPADDING",(0,0),(-1,-1),6)]))
+    out+=[Spacer(1,3*mm),tab,Spacer(1,3*mm),
+          _box([Paragraph(f"<b>Tu eslabón más débil: {rv['weakest']} ({rv['weakest_val']}/100).</b> En una media geométrica, un "
+                "solo pilar bajo arrastra a todos los demás: puedes tener dinero de sobra, pero si tu tiempo o tu salud están "
+                "por los suelos, tu riqueza real se desploma. El verdadero rico no es quien más tiene, sino quien tiene los "
+                "cuatro en equilibrio. Por eso tu mayor palanca de riqueza está en tu pilar más flojo — y casi nunca es la financiera.",
+                St("rvi",fontSize=10.5,leading=15,textColor=INK))],"#FBF4E4","#B45309",ancho=160*mm),
+          PageBreak()]
+    return out
+
 def seccion_fuentes(extras):
     """Mapa de fuentes de ingreso: cuántas, cuánto rinde cada una y a qué precio de tiempo (€/hora)."""
     f=extras.get("fuentes") if extras else None
@@ -1359,6 +1395,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   "<font color='#E08A00'>&#9679;</font> A vigilar (40–59) &#160;·&#160; "
                   "<font color='#1D6F42'>&#9679;</font> Sano (60+). La nota es tu salud en cada área: 100 = óptimo.",small),
         PageBreak()]
+    if extras: S+=seccion_ratio_vida(extras)
     if True:  # resumen (vistazo) en ambos tiers
         orden=sorted(CAPAS,key=lambda c:p[c]["score"])
         fort=orden[:3]; foco=orden[-3:][::-1]
