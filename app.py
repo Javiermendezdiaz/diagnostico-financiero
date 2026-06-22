@@ -60,6 +60,18 @@ def init_db():
                 c.execute("ALTER TABLE sesiones ADD COLUMN %s %s" % (col, ddl))
 init_db()
 
+import threading, gc
+_GEN_LOCK = threading.Lock()   # una sola generacion de PDF a la vez (la de pareja es pesada en RAM)
+def _liberar_memoria():
+    try:
+        import matplotlib.pyplot as _plt; _plt.close("all")
+    except Exception:
+        pass
+    try:
+        gc.collect()
+    except Exception:
+        pass
+
 class StartPayload(BaseModel):
     email: str
     tier: int
@@ -609,31 +621,38 @@ def report(session_id: str, background_tasks: BackgroundTasks):
             raise HTTPException(402, "Pago requerido para acceder al informe.")
     path = os.path.join(REPORTS_DIR, "itap_%s.pdf" % session_id)
     if not os.path.exists(path):
-        with db() as c:
-            row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis,perfil,es_inic FROM sesiones WHERE id=?", (session_id,)).fetchone()
-        if not row or row["respuestas"] in (None, "{}"):
-            raise HTTPException(404, "Informe no encontrado")
-        if row["tier"] == 3 and not row["pareja_de"]:
-            raise HTTPException(409, "Aun falta que tu pareja complete su parte.")
-        try:
+      # Candado global: solo UNA generacion a la vez (evita pico de RAM por builds concurrentes).
+      with _GEN_LOCK:
+        if not os.path.exists(path):
+          try:
+            with db() as c:
+                row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis,perfil,es_inic FROM sesiones WHERE id=?", (session_id,)).fetchone()
+            if not row or row["respuestas"] in (None, "{}"):
+                raise HTTPException(404, "Informe no encontrado")
+            if row["tier"] == 3 and not row["pareja_de"]:
+                raise HTTPException(409, "Aun falta que tu pareja complete su parte.")
             if row["pareja_de"]:
                 with db() as c:
                     prow = c.execute("SELECT email,nombre,respuestas,datos,perfil,sintesis FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
                 if not prow or prow["respuestas"] in (None, "{}"):
                     raise HTTPException(409, "Aun falta que tu pareja complete su parte.")
+                _tmp = path + ".building"
                 # El INICIADOR (es_inic) va primero en el libro de pareja.
                 if row["es_inic"]:
-                    generar_couple(path, row, prow)
+                    generar_couple(_tmp, row, prow)
                 else:
-                    generar_couple(path, prow, row)
+                    generar_couple(_tmp, prow, row)
+                os.replace(_tmp, path)   # escritura atomica: nadie lee un PDF a medias
             else:
                 _resp = json.loads(row["respuestas"])
                 _salud = _guardar_salud(session_id, _resp)
                 generar_pdf(session_id, row["email"], row["nombre"], _resp, json.loads(row["datos"]), row["tier"], baremo(_salud), row["sexo"])
-        except HTTPException:
+          except HTTPException:
             raise
-        except Exception as e:
+          except Exception as e:
             raise HTTPException(500, "Error regenerando informe: %s" % e)
+          finally:
+            _liberar_memoria()
     # El PDF ya existe aqui: enviamos el email en segundo plano (comprador + aviso a Adapta).
     # enviar_copia respeta 'notificado', asi que no duplica en re-descargas.
     try:
@@ -646,27 +665,34 @@ def _asegurar_pdf(session_id):
     path = os.path.join(REPORTS_DIR, "itap_%s.pdf" % session_id)
     if os.path.exists(path):
         return path
-    with db() as c:
-        row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis,perfil,es_inic FROM sesiones WHERE id=?", (session_id,)).fetchone()
-    if not row or row["respuestas"] in (None, "{}"):
-        return None
-    if row["tier"] == 3 and not row["pareja_de"]:
-        return None
-    try:
-        if row["pareja_de"]:
-            with db() as c:
-                prow = c.execute("SELECT email,nombre,respuestas,datos,perfil,sintesis FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
-            if not prow or prow["respuestas"] in (None, "{}"):
-                return None
-            if row["es_inic"]:
-                generar_couple(path, row, prow)
+    with _GEN_LOCK:
+        if os.path.exists(path):
+            return path
+        with db() as c:
+            row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis,perfil,es_inic FROM sesiones WHERE id=?", (session_id,)).fetchone()
+        if not row or row["respuestas"] in (None, "{}"):
+            return None
+        if row["tier"] == 3 and not row["pareja_de"]:
+            return None
+        try:
+            if row["pareja_de"]:
+                with db() as c:
+                    prow = c.execute("SELECT email,nombre,respuestas,datos,perfil,sintesis FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
+                if not prow or prow["respuestas"] in (None, "{}"):
+                    return None
+                _tmp = path + ".building"
+                if row["es_inic"]:
+                    generar_couple(_tmp, row, prow)
+                else:
+                    generar_couple(_tmp, prow, row)
+                os.replace(_tmp, path)
             else:
-                generar_couple(path, prow, row)
-        else:
-            generar_pdf(session_id, row["email"], row["nombre"], json.loads(row["respuestas"]), json.loads(row["datos"]), row["tier"])
-        return path if os.path.exists(path) else None
-    except Exception:
-        return None
+                generar_pdf(session_id, row["email"], row["nombre"], json.loads(row["respuestas"]), json.loads(row["datos"]), row["tier"])
+            return path if os.path.exists(path) else None
+        except Exception:
+            return None
+        finally:
+            _liberar_memoria()
 
 def _resend_email(asunto, html, pdf_bytes, filename, to=None):
     payload = {
