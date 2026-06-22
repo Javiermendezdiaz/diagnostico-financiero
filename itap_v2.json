@@ -1,9 +1,54 @@
 {
  "meta": {
   "producto": "ITAP",
-  "version": "2.0-adaptativo",
-  "umbral_profundizacion": 35
+  "version": "2.1-adaptativo-quirurgico",
+  "umbral_profundizacion": 35,
+  "umbrales": {"C1": 35, "C2": 40, "C3": 30, "C4": 40, "C5": 45, "C6": 45, "C7": 30, "C8": 40, "C9": 35, "C10": 30, "C11": 40, "C12": 35}
  },
+ "cruces": [
+  {
+   "id": "X-01",
+   "tipo": "escala",
+   "dimensiones": "ANTIFRAGILIDAD",
+   "faceta": "punto_unico_fallo",
+   "_b": "Donde se cruza tu vida",
+   "texto": "Tu sustento entra por una sola puerta y tu colchón no aguanta un golpe. Sé sincero: si esa única fuente se cortara este mes, ¿cuánto tiempo sostendrías tu vida tal como es hoy?",
+   "opciones": [
+    {"texto": "Menos de un mes: caería casi todo enseguida.", "score": 100},
+    {"texto": "Unos meses, con recortes y nervios.", "score": 50},
+    {"texto": "Más de un año: tengo con qué aguantar.", "score": 0}
+   ],
+   "activa_cruce": [{"capa": "C7", "min": 55}, {"capa": "C3", "min": 55}]
+  },
+  {
+   "id": "X-02",
+   "tipo": "escala",
+   "dimensiones": "PSIQUE",
+   "faceta": "estatus_vs_libertad",
+   "_b": "Donde se cruza tu vida",
+   "texto": "Gastas en sostener una imagen y a la vez te cuesta ahorrar. Sin público delante: si hoy tuvieras que elegir entre que te vieran con menos o tener un año entero de libertad ahorrado, ¿qué eliges de verdad?",
+   "opciones": [
+    {"texto": "La imagen: me importa más de lo que admito.", "score": 100},
+    {"texto": "Dudo — y esa duda ya me dice algo.", "score": 50},
+    {"texto": "La libertad, sin pensarlo.", "score": 0}
+   ],
+   "activa_cruce": [{"capa": "C6", "min": 55}, {"capa": "C9", "min": 50}]
+  },
+  {
+   "id": "X-03",
+   "tipo": "escala",
+   "dimensiones": "PSIQUE",
+   "faceta": "trampa_dependencia",
+   "_b": "Donde se cruza tu vida",
+   "texto": "Tu cabeza paga el precio de cómo ganas dinero, y lo que ganas depende de que tú sigas tirando cada día. ¿Has diseñado alguna vez una salida que no dependa de aguantar?",
+   "opciones": [
+    {"texto": "Nunca: si paro, se para todo.", "score": 100},
+    {"texto": "Lo he pensado, pero no he hecho nada.", "score": 50},
+    {"texto": "Sí, ya estoy construyendo algo que funcione sin mí.", "score": 0}
+   ],
+   "activa_cruce": [{"capa": "C1", "min": 55}, {"capa": "C7", "min": 50}]
+  }
+ ],
  "capas": [
   {
    "code": "C1",

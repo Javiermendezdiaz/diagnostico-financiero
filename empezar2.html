@@ -217,7 +217,7 @@ function fmt(n){try{return Math.round(n).toLocaleString('es-ES');}catch(e){retur
 const PAREJA=new URLSearchParams(location.search).get('pareja');
 const _qt=new URLSearchParams(location.search).get('tier'); if((_qt==='1'||_qt==='2'||_qt==='3')&&document.getElementById('tier')) document.getElementById('tier').value=_qt; try{descTier();}catch(e){}
 let INST=null, st={email:"",nombre:"",tier:2,sid:null,perfil:{},resp:{},datos:{},abiertas:{},
-   cola:[], i:0, tens:[], reportUrl:null, abierta:new Set(), avisoEstres:false};
+   cola:[], i:0, tens:[], reportUrl:null, abierta:new Set(), insertados:new Set(), inyectados:0, motorLog:[], avisoEstres:false};
 
 async function iniciar(){
   st.nombre=nombre.value.trim(); st.email=email.value.trim(); st.tier=parseInt(tier.value);
@@ -258,7 +258,7 @@ const REFLEX=["La respuesta cómoda y la verdadera casi nunca son la misma. Marc
   "Cada respuesta de relleno es una página en blanco en tu diagnóstico."];
 
 function construirCola(){
-  st.cola=[];
+  st.cola=[]; st.abierta=new Set(); st.insertados=new Set(); st.inyectados=0; st.motorLog=[];
   INST.sociodemografico.forEach(q=>st.cola.push({...q,_b:'Sobre ti',_cap:'SD'}));
   INST.vision_brecha.forEach(q=>st.cola.push({...q,_b:'Tu vida ideal',_cap:'VIS'}));
   INST.numericas_financieras.forEach(q=>st.cola.push({...q,tipo:'numerica',_b:'Tus números',_cap:'NUM'}));
@@ -283,17 +283,83 @@ function aplica(q){
   if(q.depende_de){ const sd=st.resp['SEED-DEUDA']; if(sd==null||sd<q.depende_de.min_idx) return false; }
   return true;
 }
-function abrirProfundizacion(cap){
-  if(st.abierta.has(cap)) return;          // CANDADO: abrir una sola vez por capa (evita bucle)
-  const c=INST.capas.find(x=>x.code===cap); if(!c) return;
+function umbralCapa(cap){
+  const u=(INST.meta&&INST.meta.umbrales)||{};
+  return (u[cap]!=null) ? u[cap] : ((INST.meta&&INST.meta.umbral_profundizacion)||35);
+}
+function statsCapa(cap){
+  const c=INST.capas.find(x=>x.code===cap); if(!c) return null;
   const crib=c.items.filter(it=>it.nivel==='nucleo'&&st.resp[it.id]!=null);
-  if(!crib.length) return;
-  const mean=crib.reduce((a,it)=>a+it.opciones[st.resp[it.id]].score,0)/crib.length;
-  const umbral=(INST.meta&&INST.meta.umbral_profundizacion)||35;
-  if(mean<umbral) return;
-  st.abierta.add(cap);                     // marcar antes de insertar
-  let ins=st.i+1;
-  c.items.filter(it=>it.nivel==='profundizacion').forEach(it=>st.cola.splice(ins++,0,{...it,_b:c.nombre,_cap:cap}));
+  if(!crib.length) return null;
+  const sc=crib.map(it=>{                                   // #blindaje anti-NaN
+    const op=it.opciones[st.resp[it.id]]; let s=op?op.score:undefined;
+    if(typeof s!=='number' || isNaN(s)){ _log('[Step '+st.i+'] ['+cap+'] SCORE_INVALIDO -> '+it.id+' (default 0)'); s=0; }
+    return s;
+  });
+  const mean=sc.reduce((a,b)=>a+b,0)/sc.length;
+  const sd=Math.sqrt(sc.reduce((a,b)=>a+(b-mean)*(b-mean),0)/sc.length);
+  return {mean:mean, sd:sd, n:sc.length};
+}
+// #1 — Consistencia interna 0..1 (1 = coherente, 0 = maxima contradiccion). sd maxima posible en {0,50,100}=50.
+function calcularConsistenciaCapa(cap){
+  const s=statsCapa(cap); if(!s) return null;
+  const consistencia=Math.max(0,Math.min(1, 1-(s.sd/50)));
+  return {mean:s.mean, sd:s.sd, n:s.n, consistencia:consistencia,
+          flagVarianzaAlta:(consistencia<0.6), confiable:(s.n>=3 && consistencia>=0.8)};
+}
+// #4 — Limites por TIER: [inserciones EXTRA totales en la sesion, maximo por capa]. Nucleo SIEMPRE se pregunta.
+function limitesTier(){ return (st.tier===1) ? {global:2, capa:1} : {global:24, capa:5}; }
+function _log(ev){ if(st.motorLog) st.motorLog.push(ev); }       // telemetria ligera (replicar flujo en produccion)
+// #2 + mutacion controlada — unica via de insercion. Filtra unicidad y tope global ANTES de mutar la cola.
+function inyectarEnCola(items, pos){
+  const lim=limitesTier(); let p=pos, puestos=0;
+  for(const it of items){
+    if(!it.id || st.insertados.has(it.id)) continue;                 // unicidad global -> imposible un bucle
+    if(st.inyectados>=lim.global){ _log('[Step '+st.i+'] [tier'+st.tier+'] MAX_TIER -> tope global '+lim.global+' alcanzado'); break; }
+    st.insertados.add(it.id); st.inyectados++; st.cola.splice(p++,0,it); puestos++;
+  }
+  return puestos;
+}
+function presupuestoProf(cap){
+  const cc=calcularConsistenciaCapa(cap); if(!cc) return 0;
+  const u=umbralCapa(cap), tier=st.tier||2, mean=cc.mean;
+  if(tier===1){ return (mean>=Math.max(u+30,70)) ? 1 : 0; }            // T1 conciso: solo capa catastrofica
+  if(mean<u){ return (cc.flagVarianzaAlta && mean>=u-15) ? 2 : 0; }    // bajo umbral: solo si contradictorio
+  let k = (mean>=75)?99 : (mean>=60)?5 : (mean>=45)?3 : 2;
+  if(cc.confiable && mean<75) k=Math.max(2,k-1);                       // medido con confianza -> recorta
+  if(cc.flagVarianzaAlta) k+=1;                                        // contradictorio -> una mas para resolver
+  return k;
+}
+function abrirProfundizacion(cap){
+  if(st.abierta.has(cap)) return;          // CANDADO de capa: una sola vez
+  const c=INST.capas.find(x=>x.code===cap); if(!c) return;
+  st.abierta.add(cap);
+  const cc=calcularConsistenciaCapa(cap);
+  let k=presupuestoProf(cap); k=Math.min(k, limitesTier().capa);       // tope por capa (reparto justo)
+  if(k<=0){ if(cc && cc.confiable) _log('[Step '+st.i+'] ['+cap+'] STOP_CONFIANZA -> consistencia '+cc.consistencia.toFixed(2)+' con '+cc.n+' items'); return; }
+  const cands=[];
+  for(const it of c.items){
+    if(it.nivel!=='profundizacion') continue;
+    if(!emostrar(it.mostrar_si)) continue;     // gating de perfil
+    cands.push({...it,_b:c.nombre,_cap:cap});
+    if(cands.length>=k) break;
+  }
+  const n=inyectarEnCola(cands, st.i+1);
+  if(n>0) _log('[Step '+st.i+'] ['+cap+'] PROFUNDIZA -> '+n+' items'+(cc&&cc.flagVarianzaAlta?', varianza alta':'')+' (mean '+Math.round(cc.mean)+')');
+}
+function abrirCruces(){
+  // #3 — Reglas declarativas en JSON (INST.cruces[].activa_cruce). La logica solo EVALUA la matriz.
+  const cruces=(INST.cruces||[]); const tier=st.tier||2;
+  for(const cr of cruces){
+    const key='X:'+cr.id; if(st.abierta.has(key)) continue;
+    if(tier===1 && !cr.t1) continue;        // los cruces son profundidad: T1 solo los marcados t1
+    const cond=cr.activa_cruce||[];
+    const ok = cond.length>0 && cond.every(cc=>{ const s=statsCapa(cc.capa); return s && s.mean>=cc.min; });
+    if(!ok) continue;
+    if(cr.mostrar_si && !emostrar(cr.mostrar_si)) continue;
+    st.abierta.add(key);
+    if(inyectarEnCola([{...cr,_b:cr._b||'Donde se cruza tu vida',_cap:'X'}], st.i+1)>0) _log('[Step '+st.i+'] ['+cr.id+'] INJECT_CRUCE -> triggered: '+cond.map(x=>x.capa).join('+'));
+  }
 }
 function capaBand(cap){
   const c=INST.capas.find(x=>x.code===cap); if(!c) return null;
@@ -457,7 +523,8 @@ function avanzar(q){
   if(q._cap && q._cap[0]==='C'){
     const sig=st.cola[st.i+1];
     if(!sig || sig._cap!==q._cap){
-      abrirProfundizacion(q._cap);
+      abrirProfundizacion(q._cap);   // profundizacion por varianza -> al final de la capa en curso
+      abrirCruces();                 // PRIORIDAD: cruce (peligro agudo) -> inmediatamente despues de la actual
       const sig2=st.cola[st.i+1];
       if(!sig2 || sig2._cap!==q._cap) scanCapa=q._cap;
     }
@@ -480,6 +547,7 @@ async function finalizar(){
     'Componiendo Tu Libro Financiero · estándar Adapta'
   ]);
   try{
+    st.datos._motor=st.motorLog;
     const body={session_id:st.sid,email:st.email,respuestas:st.resp,datos:st.datos,abiertas:st.abiertas,perfil:st.perfil,v2:true};
     if(PAREJA) body.pareja_de=PAREJA;
     const r=await fetch(API+'/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
