@@ -643,19 +643,27 @@ def proyeccion_chart(datos, path, r=0.05):
     fig,ax=plt.subplots(figsize=(6.4,3.2))
     if inv is not None:
         inv=inv or 0; parado=max(0,colch-gas*6)
-        aport_opt=max(aho,superavit)                   # optimizar nunca aporta menos que hoy -> garantiza e1<=e2<=e3
-        e1=[v+parado for v in grow(inv,aho)]          # Inaccion: sigues como hoy; lo parado sigue parado
-        e2=[v+parado for v in grow(inv,aport_opt)]     # Optimizar flujo: capturas todo tu superavit real
-        e3=grow(inv+parado,aport_opt)                  # Completa: ademas pones a trabajar lo parado
-        ax.plot(xs,e1,color="#9A3B2E",lw=2.0,label="Inacción (como hoy)")
-        ax.plot(xs,e2,color="#B8860B",lw=2.0,ls="--",label="Optimizar tu flujo")
-        ax.plot(xs,e3,color="#1D6F42",lw=2.4,label="Estrategia completa")
+        aport_opt=max(aho,superavit)
+        e1=[v+parado for v in grow(inv,aho)]            # Inaccion: sigues como hoy; lo parado sigue parado, al 5%
+        e2=grow(inv+parado,aport_opt)                   # Invertir tu ahorro: todo trabajando, al 5%
+        # Ejecutar el plan (Acelerador 10x10): ingresos +10%/anio los primeros ~10 anios (fase de construccion),
+        # gasto -10% una vez y luego plano, rentabilidad 10% -> el patrimonio compone al 10%.
+        _ig=ing*12.0; _gs=gas*12.0; _cap=float(inv+parado); e3=[_cap]
+        for _y in range(anos):
+            if _y<10: _ig*=1.10
+            if _y==0: _gs*=0.90
+            _ahy=max(0.0,_ig-_gs)
+            _cap=_cap*1.10+_ahy
+            e3.append(_cap)
+        ax.plot(xs,e1,color="#9A3B2E",lw=2.0,label="Inacción (como hoy, al 5%)")
+        ax.plot(xs,e2,color="#B8860B",lw=2.0,ls="--",label="Invertir tu ahorro (al 5%)")
+        ax.plot(xs,e3,color="#1D6F42",lw=2.4,label="Ejecutar el plan (10×10)")
         ax.fill_between(xs,e1,e3,color="#1D6F42",alpha=0.06)
         for ser,col,va in [(e1,"#9A3B2E","top"),(e3,"#1D6F42","bottom")]:
             ax.scatter([meta_edad],[ser[-1]],color=col,zorder=5)
             ax.annotate(_eur(ser[-1]),(meta_edad,ser[-1]),ha="right",va=va,size=8,color=col,weight="bold")
         lo,hi,modo=e1[-1],e3[-1],"3"
-        titulo="Tres caminos para tu patrimonio (sobre tu liquidez invertible, al 5%/año)"
+        titulo="Tres caminos para tu patrimonio (sobre tu liquidez invertible)"
     else:
         base=grow(pat,aho); mejora=grow(pat,aho+0.05*ing*12)  # ahorro ACTUAL + 5 puntos extra (no sustituir)
         ax.plot(xs,base,color="#0284C7",lw=2.2,label="Si sigues igual")
@@ -845,10 +853,12 @@ def cuadro_financiero(p, datos, fi):
     out.append(PageBreak())
     f65,m65,medad,modo=proyeccion_chart(datos,"_proy.png")
     if modo=="3":
-        narr=(f"Si dejas tu dinero como hoy, a los {medad} rondarías los <b>{_eur(f65)}</b>. Poniendo a trabajar tu "
-              f"liquidez ociosa e invirtiendo tu excedente real, llegarías a <b>{_eur(m65)}</b>. Esa diferencia "
-              f"—<b>{_eur(m65-f65)}</b>— no es suerte ni mercado: es el coste de no decidir. (Estimación al 5% anual sobre "
-              f"tu liquidez invertible, sin contar tu vivienda; orientativa, no una promesa.)")
+        narr=(f"Tres caminos. Si dejas tu dinero como hoy, a los {medad} rondarías los <b>{_eur(f65)}</b>. Solo con invertir "
+              f"tu ahorro y tu liquidez ociosa al 5% ya subes. Pero si <b>ejecutas el plan completo</b> llegarías a "
+              f"<b>{_eur(m65)}</b>: <b>{_eur(m65-f65)}</b> más que sin hacer nada. Esa diferencia no es suerte ni mercado: es "
+              f"el coste de no decidir. (El plan asume subir tus ingresos un 10% al año durante los primeros años, mantener "
+              f"tu estilo de vida —con un recorte puntual del 10%— y un 10% de rentabilidad, la media histórica del mercado. "
+              f"Las otras dos líneas, un 5% prudente. Sin contar tu vivienda; orientativo, no una promesa.)")
     else:
         narr=(f"Si mantienes tu ritmo actual, a los {medad} rondarías los <b>{_eur(f65)}</b>. Subiendo tu ahorro cinco "
               f"puntos, esa cifra sube a <b>{_eur(m65)}</b>: la diferencia entre ambas líneas es, literalmente, el precio de "
