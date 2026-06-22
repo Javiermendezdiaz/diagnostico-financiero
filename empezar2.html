@@ -424,7 +424,8 @@ function pintar(){
   repProg(q);
   saveProgreso();
   const _rem=Math.max(0,st.cola.length-st.i), _mins=_rem>2?'  ·  ~'+Math.max(1,Math.round(_rem*8/60))+' min':'';
-  document.getElementById('bloque').textContent=q._b+'  ·  Análisis '+progresoPct(q)+'%'+_mins;
+  const _tot=Math.max(st.cola.length,({1:80,2:95,3:100}[st.tier]||95)), _n=Math.min(st.i+1,_tot);
+  document.getElementById('bloque').textContent=q._b+'  ·  Pregunta '+_n+'/~'+_tot+'  ·  '+progresoPct(q)+'%'+_mins;
   progreso(q);
   qtext.textContent=q.texto||q.pregunta;
   const ay=document.getElementById('ayuda'); ay.classList.remove('ai');
