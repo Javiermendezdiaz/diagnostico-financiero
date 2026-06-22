@@ -1479,6 +1479,16 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                                    f"tienes solo <b>{_mliq:g} meses</b>. Tu casa o tu negocio valen, pero no pagan el súper del mes que "
                                    f"viene: conviene tener una parte realizable en días.",
                                    St("mlh3",fontSize=9.4,leading=13,textColor=colors.HexColor("#9A3B2E"),spaceBefore=5)))
+        if _niv=="libertad":
+            _parr.append(Paragraph("<b>¿Y si vives más de 100 años?</b> Tu patrimonio ya es perpetuo: al 4% renta más de lo que "
+                                   "gastas, así que no se agota con los años. Vivas hasta los 90 o los 110, te cubre — el escenario de "
+                                   "longevidad que casi nadie contempla, tú ya lo tienes resuelto.",
+                                   St("mlon",fontSize=9.4,leading=13,textColor=colors.HexColor("#0F766E"),spaceBefore=5)))
+        else:
+            _parr.append(Paragraph(("<b>¿Y si vives más de 100 años?</b> Hoy, sin ingresos, tu patrimonio cubre unos %g años de vida. "
+                                    "Blindar la longevidad —que no se agote vivas lo que vivas— es justo para lo que sirve cruzar tu número "
+                                    "de libertad: a partir de ahí, la renta al 4%% cubre tu vida para siempre.") % _an_p,
+                                    St("mlon",fontSize=9.4,leading=13,textColor=GREY,spaceBefore=5)))
         S+=[_box(_parr,"#FBF9EC","#C9962B",ancho=160*mm), Spacer(1,4*mm)]
     # === ACTO 1: Ratio de Esclavitud Temporal (dinamico y honesto, derivado del flujo real) ===
     _ingm_e=max(datos.get("ingreso_mensual",0),0); _ahom_e=datos.get("ahorro_mensual",0) or 0
