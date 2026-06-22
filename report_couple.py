@@ -193,7 +193,7 @@ def seccion_caminos_hogar(dA, dB):
          "colchon_liquido":(a.get("colchon_liquido") or 0)+(b.get("colchon_liquido") or 0),
          "rentabilidad_actual":max(a.get("rentabilidad_actual") or 0, b.get("rentabilidad_actual") or 0)}
     try:
-        f65,mid65,m65,medad,modo=rb.proyeccion_chart(hog,"_proyhogar.png")
+        f65,mid65,m65,medad,modo=rb.proyeccion_chart(hog,"_proyhogar.png",titulo_override="Tres caminos para vuestro patrimonio (sobre vuestra liquidez invertible)")
     except Exception:
         return []
     out=[PageBreak(), Paragraph("Vuestros tres caminos",h_sec),
@@ -272,7 +272,7 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
         out.append(Paragraph(f"<font color='#1A1A17'>&#8226;</font>  <b>{ti}</b>",small))
         out.append(Paragraph(tx,St("ii",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=6)))
     if extras:
-        try: out += rb.seccion_ratio_vida(extras) + rb.seccion_nudo(extras)
+        try: out += rb.seccion_ratio_vida(extras) + rb.seccion_nudo(extras) + rb.seccion_coste_inaccion(extras)
         except Exception: pass
     out.append(PageBreak())
     out.append(Paragraph(f"{pn}: resumen capa por capa",h_sub))

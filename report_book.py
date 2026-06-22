@@ -629,7 +629,7 @@ def cashflow_waterfall(datos, path):
     plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
     return libre
 
-def proyeccion_chart(datos, path, r=0.05):
+def proyeccion_chart(datos, path, r=0.05, titulo_override=None):
     import matplotlib.pyplot as plt
     edad=int(datos.get("edad",40)); meta_edad=max(EDAD_JUBILACION, edad+5); anos=max(meta_edad-edad,1)
     pat=datos.get("patrimonio",0) or 0; aho=(datos.get("ahorro_mensual",0) or 0)*12
@@ -681,6 +681,7 @@ def proyeccion_chart(datos, path, r=0.05):
     ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
     ax.spines["left"].set_color("#CBC6B6"); ax.spines["bottom"].set_color("#CBC6B6"); ax.grid(False)
     ax.legend(fontsize=8,frameon=False,loc="upper left",labelcolor="#2C313A")
+    if titulo_override: titulo=titulo_override
     ax.set_title(titulo,size=10,color="#17181C",weight="bold",pad=8)
     plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
     return lo,mid,hi,meta_edad,modo
