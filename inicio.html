@@ -156,17 +156,16 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 <section class="hero"><div class="wrap">
   <div class="kick">Diagnóstico psicofinanciero · Adapta</div>
   <h1 class="hero-t serif">El diagnóstico psicofinanciero<br><span class="hl">más completo que te van a hacer</span></h1>
-  <p class="serif" style="font-size:clamp(17px,2.3vw,23px);color:var(--am);font-style:italic;margin:18px auto 0;max-width:540px;font-weight:500;line-height:1.4;animation:rise .7s .24s both">«Lo que no se mira, te gobierna.»</p>
+  <p class="serif" style="font-size:clamp(17px,2.3vw,23px);color:var(--am);font-style:italic;margin:16px auto 0;max-width:540px;font-weight:500;line-height:1.4;animation:rise .7s .24s both">«Lo que no se mira, te gobierna.»</p>
   <div class="chips">
-    <span class="chip"><span class="pt" style="background:var(--am)"></span><b>12 capas</b>&nbsp;de análisis integral</span>
-    <span class="chip"><span class="pt" style="background:var(--bl)"></span><b>Psicología</b>&nbsp;+ patrimonio real</span>
-    <span class="chip"><span class="pt" style="background:var(--em)"></span>Plan accionable de&nbsp;<b>100 días</b></span>
-    <span class="chip"><span class="pt" style="background:var(--pu)"></span>Tu&nbsp;<b>Constitución Financiera</b></span>
+    <span class="chip"><span class="pt" style="background:var(--am)"></span><b>12 capas</b>&nbsp;de análisis</span>
+    <span class="chip"><span class="pt" style="background:var(--bl)"></span><b>Psicología</b>&nbsp;+ patrimonio</span>
+    <span class="chip"><span class="pt" style="background:var(--em)"></span>Plan de&nbsp;<b>100 días</b></span>
   </div>
-  <p class="lede">Tres niveles, una misma profundidad de análisis. <b style="color:var(--tx);font-weight:500">Elige el tuyo abajo</b> — tu diagnóstico se calcula con tus propias respuestas.</p>
-  <div class="cta-row">
-    <a class="btn btn-am" href="#planes">Elegir mi diagnóstico →</a>
+  <div class="cta-row" style="margin-top:22px">
+    <a class="btn btn-am" href="#planes">Quiero probarlo ahora →</a>
   </div>
+  <p style="color:var(--gr);font-size:12.5px;margin:12px 0 0">15 min · tu libro personalizado al instante · pago seguro</p>
 </div></section>
 
 <!-- SEÑAL DE AUTORIDAD -->
@@ -634,5 +633,7 @@ function simBM(){
 sim10(); simG(); simC(); simBM();
 $('arq-t').textContent=ARQ.escasez.t; $('arq-d').textContent=ARQ.escasez.d;
 </script>
+<a id="stickyCta" href="#planes" style="position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:60;background:var(--am);color:#000;font-weight:700;font-size:14px;padding:13px 28px;border-radius:999px;text-decoration:none;box-shadow:0 12px 34px -8px rgba(253,215,49,.55);opacity:0;pointer-events:none;transition:opacity .3s">Quiero probarlo →</a>
+<script>(function(){var s=document.getElementById('stickyCta');if(!s)return;function f(){var on=window.scrollY>560;s.style.opacity=on?'1':'0';s.style.pointerEvents=on?'auto':'none';}addEventListener('scroll',f,{passive:true});f();})();</script>
 </body>
 </html>
