@@ -1432,8 +1432,27 @@ def seccion_resumen_ejecutivo(extras, datos):
     out+=[PageBreak()]
     return out
 
+def _realidad(p, datos):
+    """Guardarrail de coherencia: si la realidad numerica dura contradice la nota de la escala, la capa.
+    Solo se activa en casos inequivocos (no afecta a perfiles normales)."""
+    try:
+        ing=float(datos.get("ingreso_mensual") or 0); gas=float(datos.get("gasto_mensual") or 0)
+        if ing>0 and (ing-gas)/ing<=0.0 and "C4" in p and p["C4"]["score"]<55:
+            p["C4"]["score"]=55; bi,bl=banda(CAPAS["C4"],55); p["C4"]["bi"]=bi; p["C4"]["banda"]=bl
+        invl=datos.get("inversiones_liquidas"); pat=float(datos.get("patrimonio") or 0)
+        if invl is not None and float(invl)<=0 and pat>0 and "C2" in p:
+            fac=p["C2"].get("facetas") or {}
+            if fac.get("inversion",0)<55: fac["inversion"]=55
+            if p["C2"]["score"]<50:
+                p["C2"]["score"]=50; bi,bl=banda(CAPAS["C2"],50); p["C2"]["bi"]=bi; p["C2"]["banda"]=bl
+    except Exception:
+        pass
+    return p
+
 def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=None,arq_override=None):
-    p,tr,salud=perfil(resp); fi=fi_metrics(datos); radar_png(p,"_radar.png")
+    p,tr,salud=perfil(resp); p=_realidad(p,datos)
+    salud=round(statistics.mean([v["score"] for v in p.values()]),1)
+    fi=fi_metrics(datos); radar_png(p,"_radar.png")
     _cohorte=cohorte_txt(cli,datos)
     if baremo and baremo.get("pct") is not None:
         _pct_frase="mejor que el %d%% de %s" % (round(baremo["pct"]), _cohorte)
