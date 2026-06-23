@@ -1930,6 +1930,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                ["Años estimados a la libertad","más de 100" if fi[3] is None else ("+40 años (a este ritmo)" if fi[3]>40 else f"{fi[3]:.0f} años")]],
               colWidths=[105*mm,55*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
               ("FONTNAME",(1,0),(1,-1),FB),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
+              ("ALIGN",(1,0),(1,-1),"RIGHT"),
               ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)]))]
     if _pens>0 and _gm_lib>0:
         S+=[Paragraph("<b>Ajustado por tu pensión:</b> si cobrarás ~<b>%s</b>/mes de pensión pública, esa renta ya cubrirá parte de tu vida al jubilarte. El capital PROPIO que necesitarías para el resto baja de %s a <b>%s</b>. (El número 25× de arriba asume que te financias el 100%%; este lo ajusta a tu pensión.)" % (_eur(_pens),_eur(fi[0]),_eur(_num_aj)),St("plib",fontSize=9.3,leading=13,textColor=INK,spaceBefore=5))]
