@@ -133,6 +133,21 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
       <div class="card-foot">adaptafamilyoffice.com · Diagnóstico psicofinanciero ITAP</div>
     </div>
 
+    <div id="storyCard" style="position:absolute;left:-9999px;top:0;width:360px;height:640px;background:#020203;box-sizing:border-box;padding:44px 34px;font-family:Poppins,Arial,sans-serif;display:flex;flex-direction:column;justify-content:space-between">
+      <div style="font-weight:800;color:#FDD731;font-size:19px">ADAPTA <span style="color:#B9B9BD;font-weight:500;font-size:13px">family office</span></div>
+      <div>
+        <div style="width:8px;height:50px;background:#FDD731;margin-bottom:16px"></div>
+        <div style="color:#B9B9BD;font-size:13px;letter-spacing:1.5px;text-transform:uppercase">Mi arquetipo del dinero</div>
+        <div id="stName" style="color:#fff;font-weight:800;font-size:40px;line-height:1.05;margin:6px 0 8px"></div>
+        <div id="stLema" style="color:#FDD731;font-size:17px;font-style:italic"></div>
+        <div id="stDesc" style="color:#D7D7DB;font-size:13.5px;line-height:1.5;margin-top:18px"></div>
+      </div>
+      <div style="border-top:1px solid #26262B;padding-top:16px">
+        <div style="color:#fff;font-size:17px;font-weight:700">¿Y tú? Descúbrelo en 60 seg 👇</div>
+        <div style="color:#FDD731;font-size:15px;font-weight:600;margin-top:4px">adaptafamilyoffice.com</div>
+      </div>
+    </div>
+
     <div class="share-title">Reta a tu pareja o a un amigo</div>
     <button class="btn block" style="margin:0 0 14px" onclick="reto()">⚔️ Retar por WhatsApp →</button>
     <div class="share-row">
@@ -141,12 +156,15 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
     </div>
     <div class="share-row">
       <button class="share" onclick="copyLink()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg> <span id="copyTxt">Copiar enlace</span></button>
-      <button class="share" onclick="downloadCard()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg> Descargar tarjeta</button>
+      <button class="share" onclick="downloadCard()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg> Tarjeta (post)</button>
+    </div>
+    <div class="share-row">
+      <button class="share" onclick="downloadStory()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg> Descargar para Stories</button>
     </div>
 
     <div class="cta">
-      <h3>Esto es el <b>5%</b> de lo que ITAP ve de ti</h3>
-      <p>Tu arquetipo es solo la superficie. El diagnóstico completo cruza 131 señales y te entrega tu libro financiero: tus números, tus puntos ciegos y un plan de acción. Desde 19&nbsp;€.</p>
+      <h3 id="ctaH">Esto es el <b>5%</b> de lo que ITAP ve de ti</h3>
+      <p id="ctaP">Tu arquetipo es solo la superficie. El diagnóstico completo cruza 131 señales y te entrega tu libro financiero: tus números, tus puntos ciegos y un plan de acción. Desde 19&nbsp;€.</p>
       <a class="btn block" href="./" id="ctaBtn">Quiero mi diagnóstico completo →</a>
     </div>
 
@@ -181,19 +199,27 @@ const META={
  SEG:{n:"El Guardián",l:"El dinero es protección.",
    d:"Para ti el dinero es, antes que nada, un escudo. Priorizas el colchón, te incomoda el riesgo y duermes mejor sabiendo que hay margen.",
    luz:"Aportas estabilidad y red de seguridad a cualquier decisión.",
-   s:"Puedes confundir prudencia con parálisis y perder oportunidades por exceso de cautela."},
+   s:"Puedes confundir prudencia con parálisis y perder oportunidades por exceso de cautela.",
+   pagoTit:"El punto ciego del Guardián te cuesta dinero",
+   pago:"Duermes tranquilo — pero la prudencia mal calibrada también se paga: cada año de más en \"lo seguro\" es rentabilidad que no vuelve. Tu diagnóstico te dice cuánto te cuesta y dónde aflojar sin perder el sueño."},
  LIB:{n:"El Explorador",l:"El dinero es libertad.",
    d:"El dinero, para ti, compra lo único que no se recupera: tiempo y opciones. Lo quieres para decidir cómo vives, no para acumular.",
    luz:"Mantienes el foco en lo que de verdad importa: vivir a tu manera.",
-   s:"Puedes despreciar la planificación y quedarte sin la base que sostiene la libertad."},
+   s:"Puedes despreciar la planificación y quedarte sin la base que sostiene la libertad.",
+   pagoTit:"Tu libertad necesita una base que aún no ves",
+   pago:"Quieres libertad — pero sin cimientos es frágil. Tu diagnóstico te da tu cifra exacta de libertad y el plan de 100 días para que sea de verdad, no un deseo."},
  EST:{n:"El Vividor",l:"El dinero es para vivir bien.",
    d:"Crees que el dinero existe para disfrutarse, y vives el presente sin culpa. Sabes gozar lo ganado como pocos.",
    luz:"Le das sentido y disfrute al dinero hoy, no sólo en una hoja de cálculo.",
-   s:"El gasto de estilo de vida puede asfixiar el ahorro sin que lo notes."},
+   s:"El gasto de estilo de vida puede asfixiar el ahorro sin que lo notes.",
+   pagoTit:"El tren de vida del Vividor crece sin avisar",
+   pago:"Disfrutas como pocos — y ahí está la trampa: el nivel de vida sube sin que lo notes y se come tu futuro. Tu diagnóstico te enseña cuánto, y cómo gozar hoy sin hipotecar el mañana."},
  MUL:{n:"El Constructor",l:"El dinero es una herramienta.",
    d:"Ves el dinero como materia prima para construir y multiplicar. Te sientes cómodo con el riesgo calculado y piensas en sistemas, no en sueldos.",
    luz:"Conviertes recursos en más recursos: piensas a largo plazo.",
-   s:"Puedes asumir más riesgo del que tu entorno tolera y generar tensión."}
+   s:"Puedes asumir más riesgo del que tu entorno tolera y generar tensión.",
+   pagoTit:"El Constructor asume más riesgo del que cree",
+   pago:"Piensas en multiplicar — pero el punto ciego es la exposición: más riesgo del que tu vida aguanta si algo se tuerce. Tu diagnóstico estresa tu plan y te enseña dónde estás al descubierto."}
 };
 const ORDER=["SEG","LIB","EST","MUL"];
 let i=0, votes={SEG:0,LIB:0,EST:0,MUL:0}, current="";
@@ -213,6 +239,9 @@ function finish(){
   current=best;const m=META[best];
   $("rName").textContent=m.n;$("rLema").textContent="«"+m.l+"»";$("rDesc").textContent=m.d;
   $("rLuz").textContent=m.luz;$("rSombra").textContent=m.s;
+  if($("ctaH")) $("ctaH").textContent=m.pagoTit;
+  if($("ctaP")) $("ctaP").innerHTML=m.pago+" <b>Tu libro financiero, desde 19&nbsp;€.</b>";
+  if($("stName")){ $("stName").textContent=m.n; $("stLema").textContent="«"+m.l+"»"; $("stDesc").textContent=m.d; }
   const url=location.origin+location.pathname;
   const txt="Soy "+m.n+" 💰 ¿Y tú? Descubre tu arquetipo del dinero en 60 segundos:";
   $("shWa").href="https://wa.me/?text="+encodeURIComponent(txt+" "+url);
@@ -220,6 +249,12 @@ function finish(){
   $("quiz").style.display="none";$("result").style.display="block";window.scrollTo(0,0);
 }
 function restart(){$("result").style.display="none";$("hero").style.display="block";window.scrollTo(0,0);}
+function downloadStory(){
+  const el=document.getElementById("storyCard");
+  html2canvas(el,{backgroundColor:"#020203",scale:3,width:360,height:640}).then(c=>{
+    const a=document.createElement("a");a.download="mi-arquetipo-stories.png";a.href=c.toDataURL("image/png");a.click();
+  });
+}
 function reto(){
   const url=location.origin+location.pathname;
   const m=META[current]||{n:"mi arquetipo"};
