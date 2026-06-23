@@ -201,7 +201,11 @@ def seccion_dinero_trabaja(dA, dB):
     if ing<=0: return []
     pasivo=min(pasivo,ing); activo=ing-pasivo
     ppa=round(activo/ing*100); ppp=100-ppa
-    wA=max(3.0,160.0*activo/ing); wP=max(3.0,160.0*pasivo/ing)
+    _totbar=154.0
+    wA=_totbar*activo/ing; wP=_totbar*pasivo/ing
+    wA=max(0.5,wA); wP=max(0.5,wP)
+    if wA+wP>_totbar:                       # nunca exceder el ancho de pagina (evita ancho negativo -> crash)
+        _f=_totbar/(wA+wP); wA*=_f; wP*=_f
     out=[PageBreak(), Paragraph("¿Trabajáis vosotros, o trabaja vuestro dinero?",h_sec),
          Paragraph("De cada euro que entra en casa: cuánto exige vuestro tiempo (trabajo activo) y cuánto trabaja sin vosotros "
                    "(rentas, dividendos, alquileres). Toda economía que aspira a la libertad busca lo mismo: que esa segunda barra crezca.",body),
@@ -210,7 +214,7 @@ def seccion_dinero_trabaja(dA, dB):
                  Paragraph(f"<font color='white'><b>{ppp}%</b></font>",small) if wP>14 else Paragraph("",small)]],
                colWidths=[wA*mm,wP*mm],rowHeights=[13*mm],
                style=[("BACKGROUND",(0,0),(0,0),colors.HexColor("#C65C4E")),("BACKGROUND",(1,0),(1,0),colors.HexColor("#E3B341")),
-                      ("VALIGN",(0,0),(-1,-1),"MIDDLE"),("ALIGN",(0,0),(-1,-1),"CENTER"),("LEFTPADDING",(0,0),(-1,-1),4)]),
+                      ("VALIGN",(0,0),(-1,-1),"MIDDLE"),("ALIGN",(0,0),(-1,-1),"CENTER"),("LEFTPADDING",(0,0),(-1,-1),0),("RIGHTPADDING",(0,0),(-1,-1),0)]),
          Spacer(1,2*mm),
          Table([[Paragraph("<font color='#C65C4E'>●</font>  Depende de vuestro esfuerzo",small),
                  Paragraph("<font color='#E3B341'>●</font>  Trabaja sin vosotros",small)]],colWidths=[80*mm,80*mm],
@@ -486,6 +490,9 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     nB=(cliB["nombre"].split()[0] if (cliB.get("nombre") or "").strip() else "Persona B")
     rb.CLIENTE_NOMBRE="%s & %s"%(nA,nB)                       # evita que se filtre el nombre de un informe anterior
     pA,trA,saludA=rb.perfil(rA); pB,trB,saludB=rb.perfil(rB)
+    pA=rb._realidad(pA,_fill(dA)); pB=rb._realidad(pB,_fill(dB))   # guardarrail de realidad tambien en pareja
+    saludA=round(statistics.mean([v["score"] for v in pA.values()]),1)
+    saludB=round(statistics.mean([v["score"] for v in pB.values()]),1)
     gaps=[abs(pA[c]["score"]-pB[c]["score"]) for c in CAPAS]
     compat=max(0,round(100-statistics.mean(gaps)))
     divs=divergencias_item(rA,rB)
