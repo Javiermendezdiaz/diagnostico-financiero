@@ -596,6 +596,24 @@ def arquetipo(resp):
 def _eur(n):
     try: return ("%s"%format(int(round(n)),",d")).replace(",",".")+" €"
     except Exception: return "—"
+def _en_tiempo(euros, datos):
+    """Traduce un importe a tiempo de vida trabajando: lo unico que no se recupera."""
+    try:
+        ing=float((datos or {}).get("ingreso_mensual") or 0); euros=float(euros or 0)
+        if ing<=0 or euros<=0: return ""
+        meses=euros/ing
+        if meses>=18:
+            anos=meses/12.0
+            if anos>45: return ""   # mas que una vida entera de trabajo: traducirlo no aporta, confunde
+            return (("%.1f"%anos).replace(".",",")+" años de tu trabajo") if anos<10 else ("%.0f años de tu trabajo"%round(anos))
+        if meses>=1:
+            return "%.0f meses de tu trabajo"%round(meses)
+        return "%.0f horas de tu vida"%round(euros/(ing/160.0))
+    except Exception:
+        return ""
+def _tt(euros, datos, plantilla=" (≈%s)"):
+    t=_en_tiempo(euros,datos)
+    return (plantilla % t) if t else ""
 
 def cashflow_waterfall(datos, path):
     ing=max(datos.get("ingreso_mensual",0),1); gas=datos.get("gasto_mensual",0); aho=datos.get("ahorro_mensual",0)
@@ -1019,7 +1037,7 @@ def cuadro_financiero(p, datos, fi):
                     style=[("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),0),
                            ("TOPPADDING",(0,0),(-1,-1),2),("BOTTOMPADDING",(0,0),(-1,-1),0)]),
               Spacer(1,2*mm),
-              Paragraph(f"La distancia entre quedarte quieto y ejecutar tu plan es <b>{_eur(m65-f65)}</b>. No la decide "
+              Paragraph(f"La distancia entre quedarte quieto y ejecutar tu plan es <b>{_eur(m65-f65)}</b>{_tt(m65-f65,datos,' — o, en lo unico que no se recupera, <b>≈%s</b>')}. No la decide "
                         f"el mercado ni la suerte: la decides tú, cada mes que empiezas — o que aplazas.",
                         St("cmg",fontSize=10.5,leading=15,textColor=INK)),
               Spacer(1,3*mm)]
@@ -1221,7 +1239,7 @@ def seccion_extras(extras):
         _na=(f" Para tu vida actual: {_eur(br['numero_actual'])}." if br.get("numero_actual") else "")
         out+=[Spacer(1,3*mm),
               _box([Paragraph(linea,St("brx",fontSize=10.5,leading=15)),
-                    Paragraph(f"Tu número de libertad para <b>esa</b> vida (regla 25×): <b>{_eur(br['numero_ideal'])}</b>.{_na}",
+                    Paragraph(f"Tu número de libertad para <b>esa</b> vida (regla 25×): <b>{_eur(br['numero_ideal'])}</b>{_tt(br['numero_ideal'],datos,' — <b>≈%s</b>')}.{_na}",
                               St("brx2",fontSize=9.6,leading=14,textColor=GREY,spaceBefore=4))],
                    "#FBF4E4","#B45309",ancho=160*mm)]
         mapr={"en rumbo":"Y tú mismo lo lees así: <b>en rumbo</b>. Las matemáticas te acompañan; el trabajo es no desviarte.",
@@ -1906,6 +1924,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     _num_aj=max(0.0,(_gm_lib-_pens))*12*25
     S+=[pt,Spacer(1,5*mm),Paragraph("Tus números de libertad",h_sub),
         Table([["Número de libertad financiera (regla 25×)",f"{fi[0]:,.0f} €".replace(",",".")],
+               ["En tiempo de tu trabajo actual",(_en_tiempo(fi[0],datos) or "—")],
                ["Progreso hacia la libertad",f"{fi[1]} %"],
                ["Tasa de ahorro actual",f"{fi[2]} %"],
                ["Años estimados a la libertad","más de 100" if fi[3] is None else ("+40 años (a este ritmo)" if fi[3]>40 else f"{fi[3]:.0f} años")]],
