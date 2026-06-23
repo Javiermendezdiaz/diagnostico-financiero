@@ -566,6 +566,44 @@ function contMulti(q){
   nextFade(()=>avanzar(q));
 }
 function contAbierta(q){ const t=(document.getElementById('abierta').value||'').trim(); if(q.id) st.abiertas[q.id]=t; nextFade(()=>avanzar(q)); }
+// Auditoría de coherencia de las cifras del cliente. Si only=campo, filtra a los cruces que lo tocan.
+// Devuelve la lista de incoherencias detectadas (vacía = todo cuadra).
+function auditCoherencia(only){
+  var D=st.datos||{}, out=[];
+  var pat=+D.patrimonio||0,inv=+D.inversiones_liquidas||0,col=+D.colchon_liquido||0;
+  var ing=+D.ingreso_mensual||0,gas=+D.gasto_mensual||0,aho=+D.ahorro_mensual||0;
+  var dt=+D.deuda_total||0,cuo=+D.cuota_deuda||0,viv=+D.coste_vivienda||0;
+  var rp=+D.renta_pasiva||0,est=+D.gasto_estatus||0,pen=+D.pension_estimada||0;
+  function push(campos,msg){ if(!only||campos.indexOf(only)>=0) out.push(msg); }
+  // 1) el líquido (invertido + parado) no puede superar el patrimonio neto, que ya los incluye
+  if(pat>0 && (inv+col)>pat*1.02) push(['patrimonio','inversiones_liquidas','colchon_liquido'],
+    'Tu dinero líquido (invertido '+Math.round(inv)+' € + parado '+Math.round(col)+' €) supera tu patrimonio neto ('+Math.round(pat)+' €), que ya los incluye');
+  // 2) no puedes ahorrar más de lo que te sobra (ingreso − gasto)
+  if(ing>0 && gas>0 && aho>(ing-gas)+Math.max(50,ing*0.02)) push(['ahorro_mensual','ingreso_mensual','gasto_mensual'],
+    'Dices que ahorras '+Math.round(aho)+' €/mes, pero tu ingreso menos tu gasto deja '+Math.round(ing-gas)+' €');
+  // 3) déficit declarado y a la vez ahorras
+  if(ing>0 && gas>ing && aho>0) push(['ahorro_mensual','ingreso_mensual','gasto_mensual'],
+    'Gastas más de lo que ingresas y aun así dices que ahorras '+Math.round(aho)+' €');
+  // 4) renta pasiva mayor que tu ingreso total neto
+  if(ing>0 && rp>ing) push(['renta_pasiva','ingreso_mensual'],
+    'Tu renta pasiva ('+Math.round(rp)+' €) supera tu ingreso neto total ('+Math.round(ing)+' €)');
+  // 5) cuota mensual de deuda mayor que toda la deuda
+  if(dt>0 && cuo>dt) push(['cuota_deuda','deuda_total'],
+    'Tu cuota mensual de deuda ('+Math.round(cuo)+' €) es mayor que toda tu deuda ('+Math.round(dt)+' €)');
+  // 6) vivienda + cuotas de deuda mayores que el gasto mensual
+  if(gas>0 && (viv+cuo)>gas) push(['coste_vivienda','cuota_deuda','gasto_mensual'],
+    'Tu vivienda ('+Math.round(viv)+' €) + cuotas de deuda ('+Math.round(cuo)+' €) suman más que tu gasto mensual ('+Math.round(gas)+' €)');
+  // 7) gasto de imagen/estatus mayor que el gasto total
+  if(gas>0 && est>gas) push(['gasto_estatus','gasto_mensual'],
+    'Tu gasto de imagen/estatus ('+Math.round(est)+' €) supera tu gasto mensual total ('+Math.round(gas)+' €)');
+  // 8) lo que pagas de vivienda supera tu ingreso
+  if(ing>0 && viv>ing) push(['coste_vivienda','ingreso_mensual'],
+    'Lo que pagas de vivienda ('+Math.round(viv)+' €) supera tu ingreso mensual ('+Math.round(ing)+' €)');
+  // 9) pensión estimada muy por encima del ingreso actual
+  if(ing>0 && pen>ing*1.2) push(['pension_estimada','ingreso_mensual'],
+    'La pensión que estimas ('+Math.round(pen)+' €) supera tu ingreso actual ('+Math.round(ing)+' €), algo inusual');
+  return out;
+}
 function contNum(){
   const q=st.cola[st.i]; const v=document.getElementById('num').value;
   if(v===''){alert('Introduce un número');return}
@@ -583,6 +621,11 @@ function contNum(){
     if(q.campo==='gasto_mensual' && st.datos['ingreso_mensual']>0 && _g>st.datos['ingreso_mensual']*2){
       toast(100,'⚠ Tu gasto supera con mucho tu ingreso. ¿Es correcto? Si no, ← Atrás para revisarlo.');
     }
+  }
+  // === Auditoría de coherencia: alerta SIEMPRE que una posición no cuadre, para corregir ===
+  if(q.campo){
+    var _iss=auditCoherencia(q.campo);
+    if(_iss.length) toast(100, _iss[0]+' — pulsa ← Atrás para revisarlo.');
   }
   // ancla real: margen de maniobra (ingreso - gasto)
   if((q.campo==='gasto_mensual'||q.campo==='ingreso_mensual') && st.datos['ingreso_mensual'] && st.datos['gasto_mensual']){
@@ -628,6 +671,16 @@ function avanzar(q){
 function atras(){ if(st.i<=0)return; st.i--; while(st.i>0 && !aplica(st.cola[st.i])) st.i--; pintar(); }
 
 async function finalizar(){
+  // Guarda final: si alguna cifra no cuadra, avísalo antes de generar y deja volver a corregir
+  var _coh=auditCoherencia();
+  if(_coh.length && !st._cohConfirmado){
+    st._cohConfirmado=true;
+    var _msg='Antes de generar tu diagnóstico, repasa esto: algunas cifras no cuadran del todo.\n\n· '+_coh.join('\n· ')+'\n\nTu diagnóstico es tan preciso como tus datos.\n\n[ Aceptar ] vuelvo a tus números para corregir\n[ Cancelar ] continúo igualmente';
+    if(confirm(_msg)){
+      var _ni=st.cola.findIndex(function(x){return x._cap==='NUM';});
+      st.i=_ni>=0?_ni:0; show('s-q'); pintar(); return;
+    }
+  }
   limpiarProgreso();
   show('s-gen');
   const _t0=Date.now();

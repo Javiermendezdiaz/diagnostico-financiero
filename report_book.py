@@ -1010,7 +1010,15 @@ def cuadro_financiero(p, datos, fi):
             St("tp",fontSize=10.5,leading=15))],"#FBF4E4","#B45309",ancho=160*mm))
     out.append(PageBreak())
     f65,mid65,m65,medad,modo=proyeccion_chart(datos,"_proy.png")
-    if modo=="3":
+    if modo=="3" and f65<1000 and mid65<1000:
+        # Sin liquidez invertible las dos primeras vias salen ~0 EUR y parecen un error: reencuadre honesto al plan
+        narr=(f"Hoy tu liquidez invertible es casi cero, así que las dos primeras vías —seguir igual o solo invertir "
+              f"mejor— apenas mueven la aguja: sin capital que crezca, el interés compuesto no tiene de dónde partir. "
+              f"Lo que de verdad cambia tu futuro es <b>construir ese capital cada mes</b>: ejecutando el plan (ahorro "
+              f"sistemático, ingresos +10%/año los primeros años y un 10% —media histórica del mercado—), a los {medad} "
+              f"podrías rondar los <b>{_eur(m65)}</b>. La palabra clave es empezar: el primer euro invertido es el que "
+              f"pone en marcha todo lo demás. Orientativo, no una promesa.")
+    elif modo=="3":
         _rc=datos.get("rentabilidad_actual") or 0
         _rctxt=("tu rentabilidad real, ~%g%%"%_rc) if _rc>0 else "tu dinero casi parado"
         narr=(f"Tres caminos, a los {medad}. <b>1 · Inacción</b> (como hoy, con {_rctxt}): <b>{_eur(f65)}</b>. "
@@ -1113,7 +1121,7 @@ def glosario(p, datos, fi):
     # Nucleo siempre presente
     g.append(("Número de libertad financiera",
         "El patrimonio que, invertido, cubre tus gastos para siempre (regla práctica: gasto anual × 25).",
-        f"El tuyo ronda los {_eur(fi[0])}; hoy lo tienes cubierto en torno a un {fi[1]:.0f}%.",
+        (f"El tuyo ronda los {_eur(fi[0])}; hoy lo tienes cubierto en torno a un {fi[1]:.0f}%." if fi[1]<100 else f"El tuyo ronda los {_eur(fi[0])}, y hoy ya lo superas (cobertura ~{fi[1]:.0f}%): por patrimonio, estás en libertad financiera."),
         "Es tu meta-marco: cada decisión acerca o aleja esa cifra. Tenerla puesta cambia cómo priorizas."))
     g.append(("Tasa de ahorro",
         "El porcentaje de lo que ingresas que consigues retener cada mes.",
@@ -1458,11 +1466,19 @@ def _realidad(p, datos):
         if ing>0 and (ing-gas)/ing<=0.0 and "C4" in p and p["C4"]["score"]<55:
             p["C4"]["score"]=55; bi,bl=banda(CAPAS["C4"],55); p["C4"]["bi"]=bi; p["C4"]["banda"]=bl
         invl=datos.get("inversiones_liquidas"); pat=float(datos.get("patrimonio") or 0)
+        aho=float(datos.get("ahorro_mensual") or 0)
         if invl is not None and float(invl)<=0 and pat>0 and "C2" in p:
             fac=p["C2"].get("facetas") or {}
             if fac.get("inversion",0)<55: fac["inversion"]=55
             if p["C2"]["score"]<50:
                 p["C2"]["score"]=50; bi,bl=banda(CAPAS["C2"],50); p["C2"]["bi"]=bi; p["C2"]["banda"]=bl
+        # C12 Disciplina de Inversion: sin nada invertido en mercados (RV/RF) no hay disciplina inversora probada.
+        # inversiones_liquidas ya solo cuenta lo invertido de verdad (no c/c ni depositos -> esos van a colchon_liquido).
+        if "C12" in p and float(invl or 0)<=0 and p["C12"]["score"]<50:
+            p["C12"]["score"]=50; bi,bl=banda(CAPAS["C12"],50); p["C12"]["bi"]=bi; p["C12"]["banda"]=bl
+        # C9 Gobierno del Flujo de Caja: gastar todo lo que entra contradice un gobierno de flujo perfecto
+        if ing>0 and (ing-gas)/ing<=0.0 and "C9" in p and p["C9"]["score"]<50:
+            p["C9"]["score"]=50; bi,bl=banda(CAPAS["C9"],50); p["C9"]["bi"]=bi; p["C9"]["banda"]=bl
     except Exception:
         pass
     return p

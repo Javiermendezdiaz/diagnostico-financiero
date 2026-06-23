@@ -3,7 +3,20 @@
   "producto": "ITAP",
   "version": "2.1-adaptativo-quirurgico",
   "umbral_profundizacion": 35,
-  "umbrales": {"C1": 35, "C2": 40, "C3": 30, "C4": 40, "C5": 45, "C6": 45, "C7": 30, "C8": 40, "C9": 35, "C10": 30, "C11": 40, "C12": 35}
+  "umbrales": {
+   "C1": 35,
+   "C2": 40,
+   "C3": 30,
+   "C4": 40,
+   "C5": 45,
+   "C6": 45,
+   "C7": 30,
+   "C8": 40,
+   "C9": 35,
+   "C10": 30,
+   "C11": 40,
+   "C12": 35
+  }
  },
  "cruces": [
   {
@@ -14,11 +27,29 @@
    "_b": "Donde se cruza tu vida",
    "texto": "Tu sustento entra por una sola puerta y tu colchón no aguanta un golpe. Sé sincero: si esa única fuente se cortara este mes, ¿cuánto tiempo sostendrías tu vida tal como es hoy?",
    "opciones": [
-    {"texto": "Menos de un mes: caería casi todo enseguida.", "score": 100},
-    {"texto": "Unos meses, con recortes y nervios.", "score": 50},
-    {"texto": "Más de un año: tengo con qué aguantar.", "score": 0}
+    {
+     "texto": "Menos de un mes: caería casi todo enseguida.",
+     "score": 100
+    },
+    {
+     "texto": "Unos meses, con recortes y nervios.",
+     "score": 50
+    },
+    {
+     "texto": "Más de un año: tengo con qué aguantar.",
+     "score": 0
+    }
    ],
-   "activa_cruce": [{"capa": "C7", "min": 55}, {"capa": "C3", "min": 55}]
+   "activa_cruce": [
+    {
+     "capa": "C7",
+     "min": 55
+    },
+    {
+     "capa": "C3",
+     "min": 55
+    }
+   ]
   },
   {
    "id": "X-02",
@@ -28,11 +59,29 @@
    "_b": "Donde se cruza tu vida",
    "texto": "Gastas en sostener una imagen y a la vez te cuesta ahorrar. Sin público delante: si hoy tuvieras que elegir entre que te vieran con menos o tener un año entero de libertad ahorrado, ¿qué eliges de verdad?",
    "opciones": [
-    {"texto": "La imagen: me importa más de lo que admito.", "score": 100},
-    {"texto": "Dudo — y esa duda ya me dice algo.", "score": 50},
-    {"texto": "La libertad, sin pensarlo.", "score": 0}
+    {
+     "texto": "La imagen: me importa más de lo que admito.",
+     "score": 100
+    },
+    {
+     "texto": "Dudo — y esa duda ya me dice algo.",
+     "score": 50
+    },
+    {
+     "texto": "La libertad, sin pensarlo.",
+     "score": 0
+    }
    ],
-   "activa_cruce": [{"capa": "C6", "min": 55}, {"capa": "C9", "min": 50}]
+   "activa_cruce": [
+    {
+     "capa": "C6",
+     "min": 55
+    },
+    {
+     "capa": "C9",
+     "min": 50
+    }
+   ]
   },
   {
    "id": "X-03",
@@ -42,11 +91,29 @@
    "_b": "Donde se cruza tu vida",
    "texto": "Tu cabeza paga el precio de cómo ganas dinero, y lo que ganas depende de que tú sigas tirando cada día. ¿Has diseñado alguna vez una salida que no dependa de aguantar?",
    "opciones": [
-    {"texto": "Nunca: si paro, se para todo.", "score": 100},
-    {"texto": "Lo he pensado, pero no he hecho nada.", "score": 50},
-    {"texto": "Sí, ya estoy construyendo algo que funcione sin mí.", "score": 0}
+    {
+     "texto": "Nunca: si paro, se para todo.",
+     "score": 100
+    },
+    {
+     "texto": "Lo he pensado, pero no he hecho nada.",
+     "score": 50
+    },
+    {
+     "texto": "Sí, ya estoy construyendo algo que funcione sin mí.",
+     "score": 0
+    }
    ],
-   "activa_cruce": [{"capa": "C1", "min": 55}, {"capa": "C7", "min": 50}]
+   "activa_cruce": [
+    {
+     "capa": "C1",
+     "min": 55
+    },
+    {
+     "capa": "C7",
+     "min": 50
+    }
+   ]
   }
  ],
  "capas": [
@@ -3298,10 +3365,26 @@
    "code": "C12",
    "nombre": "Tu Disciplina de Inversión",
    "bandas": [
-    {"min": 0, "max": 25, "etiqueta": "Sólido"},
-    {"min": 26, "max": 50, "etiqueta": "Con margen"},
-    {"min": 51, "max": 75, "etiqueta": "Sobrecarga"},
-    {"min": 76, "max": 100, "etiqueta": "Crítico"}
+    {
+     "min": 0,
+     "max": 25,
+     "etiqueta": "Sólido"
+    },
+    {
+     "min": 26,
+     "max": 50,
+     "etiqueta": "Con margen"
+    },
+    {
+     "min": 51,
+     "max": 75,
+     "etiqueta": "Sobrecarga"
+    },
+    {
+     "min": 76,
+     "max": 100,
+     "etiqueta": "Crítico"
+    }
    ],
    "facetas": {
     "capital_invertido": "Capital invertido",
@@ -3320,9 +3403,18 @@
      "texto": "Del dinero que NO necesitas a corto plazo, ¿qué parte está invertido y creciendo (fondos, acciones, inmuebles…) en vez de parado en cuentas?",
      "nivel": "nucleo",
      "opciones": [
-      {"texto": "Casi todo: lo que no uso a corto está trabajando para mí.", "score": 0},
-      {"texto": "Una parte; el resto sigue parado en cuentas.", "score": 50},
-      {"texto": "Casi nada o nada: mi dinero está quieto.", "score": 100}
+      {
+       "texto": "Casi todo: lo que no uso a corto está trabajando para mí.",
+       "score": 0
+      },
+      {
+       "texto": "Una parte; el resto sigue parado en cuentas.",
+       "score": 50
+      },
+      {
+       "texto": "Casi nada o nada: mi dinero está quieto.",
+       "score": 100
+      }
      ],
      "tier1": true,
      "ayuda": "El dinero parado pierde valor cada año contra la inflación. Invertir es la única forma de que crezca."
@@ -3335,9 +3427,18 @@
      "texto": "¿Con qué constancia inviertes?",
      "nivel": "nucleo",
      "opciones": [
-      {"texto": "De forma periódica y automática, pase lo que pase en los mercados.", "score": 0},
-      {"texto": "Cuando me acuerdo o cuando me sobra algo.", "score": 50},
-      {"texto": "No invierto de forma regular.", "score": 100}
+      {
+       "texto": "De forma periódica y automática, pase lo que pase en los mercados.",
+       "score": 0
+      },
+      {
+       "texto": "Cuando me acuerdo o cuando me sobra algo.",
+       "score": 50
+      },
+      {
+       "texto": "No invierto de forma regular.",
+       "score": 100
+      }
      ],
      "tier1": true,
      "ayuda": "La constancia, no el acierto puntual, es lo que construye patrimonio a largo plazo."
@@ -3350,9 +3451,18 @@
      "texto": "¿Inviertes con un plan y un horizonte claros?",
      "nivel": "nucleo",
      "opciones": [
-      {"texto": "Sí: sé para qué invierto, a qué plazo y con qué estrategia.", "score": 0},
-      {"texto": "Tengo una idea vaga, pero sin un plan definido.", "score": 50},
-      {"texto": "Voy reaccionando a lo que oigo o a corazonadas.", "score": 100}
+      {
+       "texto": "Sí: sé para qué invierto, a qué plazo y con qué estrategia.",
+       "score": 0
+      },
+      {
+       "texto": "Tengo una idea vaga, pero sin un plan definido.",
+       "score": 50
+      },
+      {
+       "texto": "Voy reaccionando a lo que oigo o a corazonadas.",
+       "score": 100
+      }
      ],
      "tier1": true,
      "ayuda": "Sin un plan y un horizonte, la inversión se vuelve apuesta — y las apuestas se pierden."
@@ -3365,11 +3475,23 @@
      "texto": "Cuando los mercados caen con fuerza (un −20% o −30%), ¿qué haces normalmente?",
      "nivel": "profundizacion",
      "opciones": [
-      {"texto": "Mantengo o aprovecho para comprar más barato; sé que es temporal.", "score": 0},
-      {"texto": "Aguanto, pero con mucha angustia y dudas.", "score": 50},
-      {"texto": "Vendo para frenar la pérdida.", "score": 100}
+      {
+       "texto": "Mantengo o aprovecho para comprar más barato; sé que es temporal.",
+       "score": 0
+      },
+      {
+       "texto": "Aguanto, pero con mucha angustia y dudas.",
+       "score": 50
+      },
+      {
+       "texto": "Vendo para frenar la pérdida.",
+       "score": 100
+      }
      ],
-     "activa_si": {"capa": "C12", "min_score": 35},
+     "activa_si": {
+      "capa": "C12",
+      "min_score": 35
+     },
      "ayuda": "Vender en las caídas convierte una bajada temporal en pérdida permanente: es el error que más rentabilidad destruye."
     },
     {
@@ -3380,11 +3502,23 @@
      "texto": "Tu dinero invertido, ¿cómo está repartido?",
      "nivel": "profundizacion",
      "opciones": [
-      {"texto": "Diversificado por tipos de activo y geografías; nada depende de una sola apuesta.", "score": 0},
-      {"texto": "Algo repartido, pero con bastante peso en una o dos cosas.", "score": 50},
-      {"texto": "Concentrado en pocas apuestas (una empresa, una cripto, un único activo).", "score": 100}
+      {
+       "texto": "Diversificado por tipos de activo y geografías; nada depende de una sola apuesta.",
+       "score": 0
+      },
+      {
+       "texto": "Algo repartido, pero con bastante peso en una o dos cosas.",
+       "score": 50
+      },
+      {
+       "texto": "Concentrado en pocas apuestas (una empresa, una cripto, un único activo).",
+       "score": 100
+      }
      ],
-     "activa_si": {"capa": "C12", "min_score": 35},
+     "activa_si": {
+      "capa": "C12",
+      "min_score": 35
+     },
      "ayuda": "La diversificación es lo más parecido a una comida gratis que existe en inversión: baja el riesgo sin sacrificar rentabilidad esperada."
     },
     {
@@ -3395,11 +3529,23 @@
      "texto": "¿Sabes cuánto pagas al año en comisiones y gastos por tus inversiones?",
      "nivel": "profundizacion",
      "opciones": [
-      {"texto": "Sí, lo sé y lo tengo optimizado con productos de bajo coste.", "score": 0},
-      {"texto": "Más o menos, pero no estoy seguro de no pagar de más.", "score": 50},
-      {"texto": "Ni idea de lo que pago.", "score": 100}
+      {
+       "texto": "Sí, lo sé y lo tengo optimizado con productos de bajo coste.",
+       "score": 0
+      },
+      {
+       "texto": "Más o menos, pero no estoy seguro de no pagar de más.",
+       "score": 50
+      },
+      {
+       "texto": "Ni idea de lo que pago.",
+       "score": 100
+      }
      ],
-     "activa_si": {"capa": "C12", "min_score": 35},
+     "activa_si": {
+      "capa": "C12",
+      "min_score": 35
+     },
      "ayuda": "Una comisión del 1,5% anual puede costarte, a 20 años y por interés compuesto, cerca de un tercio de lo que habrías acumulado."
     }
    ],
@@ -3895,8 +4041,8 @@
    "id": "NUM-6",
    "campo": "colchon_liquido",
    "unidad": "€",
-   "texto": "¿Cuánto tienes ahora mismo en dinero disponible de verdad (cuentas, ahorro líquido), sin contar inversiones ni vivienda?",
-   "ayuda": "Es tu colchón real ante un imprevisto: la base del fondo de emergencia."
+   "texto": "¿Cuánto tienes ahora mismo en dinero parado y disponible — cuenta corriente, cuentas de ahorro, depósitos y efectivo —, sin contar inversiones ni vivienda?",
+   "ayuda": "Es tu colchón ante un imprevisto. Dinero seguro, pero que apenas renta: lo que tengas por encima de tu fondo de emergencia pierde valor con la inflación."
   },
   {
    "id": "NUM-7",
@@ -4067,8 +4213,8 @@
    "id": "NUM-13",
    "campo": "inversiones_liquidas",
    "unidad": "€",
-   "texto": "Sin contar tu vivienda habitual, ¿cuánto de tu patrimonio está en inversiones que podrías rescatar o vender en pocos días (fondos, acciones, ETFs, depósitos)? Pon 0 si nada.",
-   "ayuda": "Nos dice cuánto de tu patrimonio es realmente realizable ante un imprevisto y cuánto está trabajando, no parado. Sin este dato no asumimos que tu patrimonio esté ni invertido ni parado."
+   "texto": "¿Cuánto tienes invertido en mercados — bolsa, fondos, ETFs o renta fija —, sin contar cuenta corriente, depósitos ni tu vivienda? Pon 0 si no tienes nada invertido.",
+   "ayuda": "Esto es tu dinero que trabaja de verdad: solo lo que está en mercados (renta variable o fija), no lo que tienes parado en el banco. Es la base sobre la que proyectamos tu crecimiento."
   },
   {
    "id": "NUM-R1",
