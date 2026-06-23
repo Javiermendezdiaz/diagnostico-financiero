@@ -151,8 +151,10 @@ def acelerador(seq, tmp, datos, extras, p):
     r0=1.5 if ("nada" in inv.lower() or inv=="") else (5.5 if "importante" in inv.lower() else 4.0)
     nuevo=aho+0.10*ing+0.10*gas
     y0=_years_to(num,pat,aho,r0); y10=_years_to(num,pat,nuevo,10.0)
+    _inalc=(y0>=80)
+    if _inalc and y10>=80: return   # ni con plan llega: no mostramos un payoff enganoso
     delta=max(0,y0-y10)
-    if delta<0.5: return
+    if (not _inalc) and delta<0.5: return
     cil=[("Ingresos",_eu(ing),_eu(ing*1.1),"+10%"),
          ("Gastos",_eu(gas),_eu(gas*0.9),"−10%"),
          ("Rentabilidad","~%d%%"%round(r0),"~10%","S&P 500"),
@@ -168,7 +170,7 @@ def acelerador(seq, tmp, datos, extras, p):
         en=("Ingresos","dependes demasiado de una sola fuente; subirla un 10% es frágil hasta que la diversifiques")
     else:
         en=("Gastos","mantener el gasto plano cuando suben los ingresos es donde casi todos fallan")
-    try: seq.append(LD.acelerador_10x10(tmp+"ace.svg",cil,delta,en[0],en[1]))
+    try: seq.append(LD.acelerador_10x10(tmp+"ace.svg",cil,delta,en[0],en[1],y_plan=y10,inalcanzable=_inalc))
     except Exception: pass
 
 

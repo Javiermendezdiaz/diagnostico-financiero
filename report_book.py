@@ -1914,6 +1914,19 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
               ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)]))]
     if _pens>0 and _gm_lib>0:
         S+=[Paragraph("<b>Ajustado por tu pensión:</b> si cobrarás ~<b>%s</b>/mes de pensión pública, esa renta ya cubrirá parte de tu vida al jubilarte. El capital PROPIO que necesitarías para el resto baja de %s a <b>%s</b>. (El número 25× de arriba asume que te financias el 100%%; este lo ajusta a tu pensión.)" % (_eur(_pens),_eur(fi[0]),_eur(_num_aj)),St("plib",fontSize=9.3,leading=13,textColor=INK,spaceBefore=5))]
+    # Alerta de jubilacion: a este ritmo, ¿llegaras a tu libertad antes de los 67?
+    try:
+        _edad_j=int(float(datos.get("edad") or 0)); _y0_j=fi[3]; _JUB=67
+        if _edad_j>0 and (_y0_j is None or (_edad_j+_y0_j)>_JUB):
+            if _y0_j is None or (_edad_j+_y0_j)>95:
+                _mj="<b>Aviso — a este ritmo, trabajarás más allá de tu jubilación.</b> Con tu ahorro y rentabilidad de hoy, tu patrimonio no alcanza tu libertad financiera. Al llegar a los 67 dependerías solo de tu pensión pública y, muy probablemente, tendrías que seguir generando ingresos despues de la edad de jubilacion. No es destino: acelerar el ahorro o poner a trabajar tu capital cambia esta foto."
+            else:
+                _desp=int(round(_edad_j+_y0_j-_JUB)); _lleg=int(round(_edad_j+_y0_j))
+                _mj=("<b>Aviso — a este ritmo, trabajarás más allá de tu jubilación.</b> A tu ritmo actual alcanzarías tu libertad hacia los <b>%d años</b>: unos <b>%d años después</b> de la edad de jubilacion (67). Es decir, al jubilarte no podrias dejar de depender de tus ingresos. Cada punto que subas tu ahorro o tu rentabilidad adelanta esa fecha.") % (_lleg,_desp)
+            _mj += " Y no es solo dinero: cada ano de mas atado al trabajo es salud que no vuelve, tiempo con los tuyos, relaciones y aficiones que no se recuperan. Tu libertad financiera es, en el fondo, libertad de vida."
+            S+=[Spacer(1,3*mm),_box([Paragraph(_mj,St("jub1",fontSize=10,leading=14,textColor=INK))],"#FBF4E4","#B45309",ancho=160*mm)]
+    except Exception:
+        pass
     # Fase patrimonial (construccion vs gestion) + palanca del 20% (solo en construccion)
     _rentista_f=bool(extras and extras.get("rentista"))
     _prog_f=fi[1] if (fi and len(fi)>1 and fi[1] is not None) else None

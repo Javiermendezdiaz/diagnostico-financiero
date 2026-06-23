@@ -439,7 +439,7 @@ def arrepentimiento(out, findes, edad_hijo, accent=GOLD):
     ax.text(0.10,0.085,"Tu libertad financiera no es para ti: es para estar.",ha="left",va="center",color=accent,fontproperties=Li(13),transform=ax.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
-def acelerador_10x10(out, cilindros, anos_delta, enemy_nombre, enemy_motivo, accent=GOLD):
+def acelerador_10x10(out, cilindros, anos_delta, enemy_nombre, enemy_motivo, accent=GOLD, y_plan=None, inalcanzable=False):
     """4 cilindros (panel de control) + payoff en años. cilindros=[(nombre,actual,objetivo,signo),...]"""
     fig,ax=_canvas(); _bg(ax,(0.84,0.20),tint="#13202A")
     _vbar(ax,0.085,0.90,"El Acelerador 10×10",accent,sz=23)
@@ -460,9 +460,13 @@ def acelerador_10x10(out, cilindros, anos_delta, enemy_nombre, enemy_motivo, acc
         ax.fill([x-0.008,x+0.008,x],[cy0-0.058,cy0-0.058,cy0-0.072],color=accent,transform=ax.transAxes,zorder=5)
         ax.text(x,cy0-0.098,objetivo,ha="center",va="center",color=WHITE,fontproperties=Pm(10),transform=ax.transAxes)
     # payoff
-    ax.text(0.5,0.30,"Resultado: tu libertad llega",ha="center",va="center",color=MUTE,fontproperties=P(12),transform=ax.transAxes)
-    txt=("%.0f"%anos_delta) if anos_delta==int(anos_delta) else ("%.1f"%anos_delta).replace(".",",")
-    ax.text(0.5,0.205,txt+" años antes",ha="center",va="center",color=accent,fontproperties=L(46),transform=ax.transAxes)
+    if inalcanzable and y_plan is not None and y_plan<80:
+        ax.text(0.5,0.30,"Hoy, a tu ritmo actual, tu libertad no llega.",ha="center",va="center",color=MUTE,fontproperties=P(12),transform=ax.transAxes)
+        ax.text(0.5,0.205,"Con el plan: en ~%d años"%int(round(y_plan)),ha="center",va="center",color=accent,fontproperties=L(40),transform=ax.transAxes)
+    else:
+        ax.text(0.5,0.30,"Resultado: tu libertad llega",ha="center",va="center",color=MUTE,fontproperties=P(12),transform=ax.transAxes)
+        txt=("%.0f"%anos_delta) if anos_delta==int(anos_delta) else ("%.1f"%anos_delta).replace(".",",")
+        ax.text(0.5,0.205,txt+" años antes",ha="center",va="center",color=accent,fontproperties=L(46),transform=ax.transAxes)
     import textwrap
     cap="Tu cilindro más difícil será %s: %s. Ahí es donde se gana o se pierde la fórmula."%(enemy_nombre,enemy_motivo)
     yy=0.115

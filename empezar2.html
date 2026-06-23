@@ -570,6 +570,20 @@ function contNum(){
   const q=st.cola[st.i]; const v=document.getElementById('num').value;
   if(v===''){alert('Introduce un número');return}
   if(q.campo) st.datos[q.campo]=parseFloat(v);
+  // === Validación de coherencia: si una cifra no cuadra, avisa al cliente para que revise ===
+  if(q.campo){
+    if(['pct_gasto_fijo','pct_vivienda','rentabilidad_actual'].indexOf(q.campo)>=0 && st.datos[q.campo]>100){
+      st.datos[q.campo]=100;
+      toast(100,'⚠ Eso es un porcentaje (0–100). Lo he ajustado a 100% — si te confundiste, pulsa ← Atrás para corregirlo.');
+    }
+    var _g=st.datos['gasto_mensual']||0, _viv=st.datos['coste_vivienda']||0, _cuo=st.datos['cuota_deuda']||0;
+    if(_g>0 && (q.campo==='cuota_deuda'||q.campo==='coste_vivienda') && (_viv+_cuo)>_g){
+      toast(100,'⚠ Tu vivienda ('+Math.round(_viv)+' €) + cuotas de deuda ('+Math.round(_cuo)+' €) suman más que tu gasto mensual ('+Math.round(_g)+' €). Revisa si te equivocaste — pulsa ← Atrás.');
+    }
+    if(q.campo==='gasto_mensual' && st.datos['ingreso_mensual']>0 && _g>st.datos['ingreso_mensual']*2){
+      toast(100,'⚠ Tu gasto supera con mucho tu ingreso. ¿Es correcto? Si no, ← Atrás para revisarlo.');
+    }
+  }
   // ancla real: margen de maniobra (ingreso - gasto)
   if((q.campo==='gasto_mensual'||q.campo==='ingreso_mensual') && st.datos['ingreso_mensual'] && st.datos['gasto_mensual']){
     const mg=Math.round((st.datos['ingreso_mensual']-st.datos['gasto_mensual'])/st.datos['ingreso_mensual']*100);
