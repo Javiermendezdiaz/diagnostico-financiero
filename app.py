@@ -189,6 +189,17 @@ def datos_completos(d):
     d = dict(d or {})
     d.setdefault("gasto_mensual", 2000); d.setdefault("ingreso_mensual", 3000)
     d.setdefault("ahorro_mensual", 300); d.setdefault("patrimonio", 30000); d.setdefault("edad", 40)
+    # Saneamiento anti-GIGO: una cifra disparatada del cliente no debe romper el informe.
+    for _k in ("pct_gasto_fijo", "pct_vivienda", "rentabilidad_actual"):
+        if d.get(_k) is not None:
+            try: d[_k] = max(0.0, min(100.0, float(d[_k])))
+            except Exception: d[_k] = None
+    for _k in ("gasto_mensual", "ingreso_mensual", "ahorro_mensual", "patrimonio", "coste_vivienda",
+               "cuota_deuda", "deuda_total", "pension_estimada", "gasto_estatus", "renta_pasiva",
+               "inversiones_liquidas", "gastos_comunes"):
+        if d.get(_k) is not None:
+            try: d[_k] = max(0.0, float(d[_k]))
+            except Exception: pass
     return d
 
 def baremo(salud_score):

@@ -848,6 +848,10 @@ def calcular_presupuesto(datos, perfil_in):
     ing = _num(datos, "ingreso_mensual")
     viv = _num(datos, "coste_vivienda") or 0
     cuota = _num(datos, "cuota_deuda") or 0
+    # Coherencia: vivienda + deuda no pueden exceder el gasto declarado. Si el cliente se contradice,
+    # mostramos un desglose que cuadra en lugar de cifras imposibles (la DTI real se mide aparte).
+    viv = min(viv, gasto)
+    cuota = min(cuota, max(0.0, gasto - viv))
     resto = max(0.0, gasto - viv - cuota)
     rec = None
     if ing:

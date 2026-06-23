@@ -1834,6 +1834,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                     "#FBECE8","#9A3B2E",ancho=160*mm), Spacer(1,4*mm)]
         # Diagnostico condicional: La jaula de oro (% de gasto fijo inamovible por contrato)
         _pgf=datos.get("pct_gasto_fijo")
+        try: _pgf=max(0.0,min(100.0,float(_pgf))) if _pgf is not None else None
+        except Exception: _pgf=None
         if _pgf is not None and _pgf>=60:
             _gm_j=datos.get("gasto_mensual") or 0
             _fijo_txt=(" (unos %s al mes)" % _eur(round(_gm_j*_pgf/100.0))) if _gm_j else ""
@@ -1881,6 +1883,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     pt=Table(rows,colWidths=[8*mm,40*mm,82*mm,30*mm]); pt.setStyle(TableStyle([
         ("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
         ("VALIGN",(0,0),(-1,-1),"MIDDLE"),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
+    _pens=float(datos.get("pension_estimada") or 0); _gm_lib=float(datos.get("gasto_mensual") or 0)
+    _num_aj=max(0.0,(_gm_lib-_pens))*12*25
     S+=[pt,Spacer(1,5*mm),Paragraph("Tus números de libertad",h_sub),
         Table([["Número de libertad financiera (regla 25×)",f"{fi[0]:,.0f} €".replace(",",".")],
                ["Progreso hacia la libertad",f"{fi[1]} %"],
@@ -1889,6 +1893,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
               colWidths=[105*mm,55*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
               ("FONTNAME",(1,0),(1,-1),FB),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
               ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)]))]
+    if _pens>0 and _gm_lib>0:
+        S+=[Paragraph("<b>Ajustado por tu pensión:</b> si cobrarás ~<b>%s</b>/mes de pensión pública, esa renta ya cubrirá parte de tu vida al jubilarte. El capital PROPIO que necesitarías para el resto baja de %s a <b>%s</b>. (El número 25× de arriba asume que te financias el 100%%; este lo ajusta a tu pensión.)" % (_eur(_pens),_eur(fi[0]),_eur(_num_aj)),St("plib",fontSize=9.3,leading=13,textColor=INK,spaceBefore=5))]
     # Fase patrimonial (construccion vs gestion) + palanca del 20% (solo en construccion)
     _rentista_f=bool(extras and extras.get("rentista"))
     _prog_f=fi[1] if (fi and len(fi)>1 and fi[1] is not None) else None
