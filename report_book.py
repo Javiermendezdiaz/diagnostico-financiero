@@ -625,6 +625,16 @@ def seccion_adapta(p):
           Paragraph("<b>Reserva tu conversaci\u00f3n:</b> <a href='https://www.adaptafamilyoffice.com/informe'><font color='#0284C7'>adaptafamilyoffice.com</font></a>  &#183;  "
                     "<b>WhatsApp:</b> <a href='https://wa.me/34683343531'><font color='#0284C7'>+34 683 34 35 31</font></a>  &#183;  info@adaptafamilyoffice.com",
                     St("cta2",fontSize=9.5,leading=14))]
+    try:
+        cierre_cta("_cierre_ind.png", "TU SIGUIENTE\nPASO",
+                   "Este libro es tu mapa. Adapta Family Office es quien lo recorre contigo, con visión integral de tu patrimonio.",
+                   ["Una sesión estratégica para pasar del diagnóstico a la ejecución.",
+                    "Sin productos propios ni conflictos de interés: solo tu mejor decisión.",
+                    "Te escuchamos primero, te proponemos después. Sin llamadas de presión."],
+                   "adaptafamilyoffice.com    ·    WhatsApp +34 683 34 35 31    ·    info@adaptafamilyoffice.com")
+        out += [PageBreak(), FullBleedImage("_cierre_ind.png")]
+    except Exception:
+        pass
     return out
 
 def coherencia(salud, fi, datos):
@@ -751,6 +761,71 @@ def cashflow_waterfall(datos, path):
     ax.set_title("De cada euro que entra, a dónde va",size=10,color="#17181C",weight="bold",pad=8)
     plt.tight_layout(); fig.savefig(path,dpi=200,transparent=True); plt.close(fig); gc.collect()
     return libre
+
+def panel_compat(path, compat, nA, nB, notaA, notaB):
+    """Heroe oscuro de compatibilidad de pareja: el numero titular del libro."""
+    import matplotlib.pyplot as plt, numpy as np
+    from matplotlib.patches import Rectangle, FancyBboxPatch
+    BG="#0E1018"; CARD="#161A24"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"
+    A_COL="#E8C861"; B_COL="#6FA8DC"
+    c=max(0,min(100,round(compat)))
+    ccol="#5FB98E" if c>=75 else ("#E8C861" if c>=50 else "#D9755B")
+    if c>=80: lect="Vivís el dinero de forma muy parecida. Vuestro reto no es entenderos: es no acomodaros."
+    elif c>=60: lect="Hay sintonía de fondo y diferencias sanas. Bien habladas, esas diferencias os suman."
+    elif c>=40: lect="Veis el dinero distinto en varias capas. No es incompatibilidad: es trabajo de traducción."
+    else: lect="Partís de lugares muy distintos. La buena noticia: ahora sabéis exactamente dónde y por qué."
+    fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
+    ax=fig.add_axes([0,0,1,1]); ax.set_xlim(0,100); ax.set_ylim(0,141.6); ax.axis("off")
+    ax.add_patch(Rectangle((0,0),100,141.6,color=BG,zorder=0))
+    ax.add_patch(Rectangle((0,131.5),100,0.4,color=GOLD,zorder=2))
+    ax.text(8,123,"VUESTRA RELACIÓN CON EL DINERO",color=GOLD,fontsize=13,fontweight="bold",va="center",zorder=3)
+    ax.text(7.6,112,"COMPATIBILIDAD",color=TX,fontsize=30,fontweight="bold",va="center",zorder=3)
+    ax.text(7.4,74,str(c),color=ccol,fontsize=128,fontweight="bold",va="center",zorder=4)
+    # /100 a la derecha del numero
+    ax.text(58,60,"/ 100",color=MUT,fontsize=24,fontweight="bold",va="center",zorder=4)
+    import textwrap as _tw
+    _ly=50.5
+    for _ln in _tw.wrap(lect,58):
+        ax.text(8,_ly,_ln,color=MUT,fontsize=12,va="center",zorder=4); _ly-=4.6
+    # nombres con su salud
+    ax.add_patch(FancyBboxPatch((8,28),40,14,boxstyle="round,pad=0.6,rounding_size=2",fc=CARD,ec="#2A3140",lw=1,zorder=3))
+    from matplotlib.patches import Circle
+    ax.add_patch(Circle((11.5,38.5),0.9,color=A_COL,zorder=5))
+    ax.text(13.8,38.5,str(nA).upper(),color=TX,fontsize=11,fontweight="bold",va="center",zorder=5)
+    ax.text(10.6,32.5,"Salud psicofinanciera  %d/100"%round(notaA),color=MUT,fontsize=9,va="center",zorder=5)
+    ax.add_patch(FancyBboxPatch((52,28),40,14,boxstyle="round,pad=0.6,rounding_size=2",fc=CARD,ec="#2A3140",lw=1,zorder=3))
+    ax.add_patch(Circle((55.5,38.5),0.9,color=B_COL,zorder=5))
+    ax.text(57.8,38.5,str(nB).upper(),color=TX,fontsize=11,fontweight="bold",va="center",zorder=5)
+    ax.text(54.6,32.5,"Salud psicofinanciera  %d/100"%round(notaB),color=MUT,fontsize=9,va="center",zorder=5)
+    ax.text(8,9,"ADAPTA FAMILY OFFICE",color=GOLD,fontsize=8.2,fontweight="bold",va="center",zorder=4)
+    fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
+
+def cierre_cta(path, titulo, subtitulo, puntos, contacto):
+    """Pagina de cierre a sangre: el siguiente paso con Adapta (CTA)."""
+    import matplotlib.pyplot as plt, textwrap
+    from matplotlib.patches import Rectangle, FancyBboxPatch, Circle
+    BG="#0E1018"; CARD="#161A24"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"
+    fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
+    ax=fig.add_axes([0,0,1,1]); ax.set_xlim(0,100); ax.set_ylim(0,141.6); ax.axis("off")
+    ax.add_patch(Rectangle((0,0),100,141.6,color=BG,zorder=0))
+    ax.add_patch(Rectangle((0,131.5),100,0.4,color=GOLD,zorder=2))
+    ax.text(8,123,"ADAPTA FAMILY OFFICE",color=GOLD,fontsize=13,fontweight="bold",va="center",zorder=3)
+    ax.text(7.6,110,titulo,color=TX,fontsize=33,fontweight="bold",va="top",zorder=3,linespacing=1.05)
+    y=92
+    for ln in textwrap.wrap(subtitulo, 64):
+        ax.text(8,y,ln,color=MUT,fontsize=11.5,va="top",zorder=3); y-=4.4
+    y-=4
+    for p in puntos:
+        ax.add_patch(Circle((9.2,y-0.6),0.9,color=GOLD,zorder=4))
+        for j,ln in enumerate(textwrap.wrap(p,58)):
+            ax.text(12,y-(j*4.0),ln,color=TX,fontsize=11.5,fontweight=("bold" if j==0 else "normal"),va="top",zorder=4)
+        y-=4.0*max(1,len(textwrap.wrap(p,58)))+3.5
+    # bloque de contacto
+    ax.add_patch(FancyBboxPatch((8,16),84,15,boxstyle="round,pad=0.7,rounding_size=2.5",fc=CARD,ec=GOLD,lw=1.3,zorder=3))
+    ax.text(11,26.5,"RESERVA TU CONVERSACIÓN, SIN COMPROMISO",color=GOLD,fontsize=10,fontweight="bold",va="center",zorder=4)
+    ax.text(11,20.5,contacto,color=TX,fontsize=10.5,va="center",zorder=4)
+    ax.text(8,8,"25 años cuidando patrimonios familiares · sin productos propios · sin conflictos de interés",color=MUT,fontsize=8,va="center",zorder=4)
+    fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
 
 def portadilla(path, acto, titulo, subtitulo):
     """Divisor de acto a sangre: numero filigrana, kicker dorado, titulo grande, subtitulo."""

@@ -404,6 +404,16 @@ def seccion_adapta_pareja(pA,pB,nA,nB):
           Paragraph("<b>Reserva vuestra conversaci\u00f3n:</b> <a href='https://www.adaptafamilyoffice.com/informe'><font color='#1A1A17'>adaptafamilyoffice.com</font></a>  &#183;  "
                     "<b>WhatsApp:</b> <a href='https://wa.me/34683343531'><font color='#1A1A17'>+34 683 34 35 31</font></a>  &#183;  info@adaptafamilyoffice.com",
                     St("pcta2",fontSize=9.5,leading=14))]
+    try:
+        rb.cierre_cta("_cierre_par.png", "VUESTRO\nSIGUIENTE PASO",
+                      "Este libro es vuestro mapa. Adapta Family Office es quien lo recorre con vosotros, juntos o por separado.",
+                      ["Una conversación inicial, sin compromiso, los dos.",
+                       "Visión integral del patrimonio del hogar: sin productos propios ni conflictos.",
+                       "Os escuchamos primero, os proponemos después. Sin llamadas de presión."],
+                      "adaptafamilyoffice.com    ·    WhatsApp +34 683 34 35 31    ·    info@adaptafamilyoffice.com")
+        out += [PageBreak(), rb.FullBleedImage("_cierre_par.png")]
+    except Exception:
+        pass
     return out
 
 CHOQUE_ARQ = {
@@ -828,6 +838,11 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
            "pct_gasto_fijo":_pfh,
            "edad":(dAf["edad"]+dBf["edad"])/2}
     fi_h=rb.fi_metrics(hogar)
+    try:
+        rb.panel_compat("_compat.png", compat, nA, nB, 100-saludA, 100-saludB)
+        S+=[rb.FullBleedImage("_compat.png"), PageBreak()]
+    except Exception:
+        pass
     S+=[Paragraph("Vuestro mapa conjunto",h_sec),
         Table([[Paragraph(f"<font size=40 color='#1A1A17'><b>{compat}</b></font><font size=13 color='#6B7280'>/100</font>",body),
                 Paragraph(f"<b>Compatibilidad financiera</b><br/><font size=8 color='#6B7280'>Cuanto más alto, más "
