@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """ITAP — Generador del 'Libro Financiero' (informe PDF narrativo, Tier 2)."""
-import json, math, statistics
+import json, math, statistics, gc
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
@@ -357,7 +357,7 @@ def radar_png(p,path):
     ax.fill(ang,v,color=fill,alpha=0.40,zorder=4)
     ax.plot(ang,v,color="#17181C",linewidth=2.4,zorder=5)
     ax.scatter(ang[:-1],vsal,s=30,color="#17181C",zorder=6,edgecolors="white",linewidths=1.1)
-    plt.tight_layout(); fig.savefig(path,dpi=160,transparent=True); plt.close(fig)
+    plt.tight_layout(); fig.savefig(path,dpi=110,transparent=True); plt.close(fig); gc.collect()
 
 class Chip(Flowable):
     def __init__(s,t,c,w=92,h=14): s.t=t; s.c=colors.HexColor(c); s.w=w; s.h=h; Flowable.__init__(s)
@@ -686,7 +686,7 @@ def cashflow_waterfall(datos, path):
     ax.set_ylim(0,ing*1.15); ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
     ax.spines["left"].set_color("#CBC6B6"); ax.tick_params(axis="y",labelsize=7,colors="#9CA3AF")
     ax.set_title("De cada euro que entra, a dónde va",size=10,color="#17181C",weight="bold",pad=8)
-    plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
+    plt.tight_layout(); fig.savefig(path,dpi=110,transparent=True); plt.close(fig); gc.collect()
     return libre
 
 def proyeccion_chart(datos, path, r=0.05, titulo_override=None):
@@ -743,7 +743,7 @@ def proyeccion_chart(datos, path, r=0.05, titulo_override=None):
     ax.legend(fontsize=8,frameon=False,loc="upper left",labelcolor="#2C313A")
     if titulo_override: titulo=titulo_override
     ax.set_title(titulo,size=10,color="#17181C",weight="bold",pad=8)
-    plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
+    plt.tight_layout(); fig.savefig(path,dpi=110,transparent=True); plt.close(fig); gc.collect()
     return lo,mid,hi,meta_edad,modo
 
 def donut_asignacion(asig, path):
@@ -762,7 +762,7 @@ def donut_asignacion(asig, path):
     ax.legend([f"{l}  ·  {_eur(v)}  ({v/tot*100:.0f}%)" for l,v,_ in pares],
               loc="center left",bbox_to_anchor=(1.0,0.5),frameon=False,fontsize=8.6,labelcolor="#2C313A")
     ax.set(aspect="equal"); plt.tight_layout()
-    fig.savefig(path,dpi=150,transparent=True,bbox_inches="tight"); plt.close(fig)
+    fig.savefig(path,dpi=110,transparent=True,bbox_inches="tight"); plt.close(fig); gc.collect()
     return True
 
 def tapon_coste(datos, real=0.025):

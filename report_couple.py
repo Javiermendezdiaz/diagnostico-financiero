@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """ITAP — Libro de Pareja (Tier 3). Cruza dos perfiles y mapea el conflicto financiero."""
-import json, statistics
+import json, statistics, gc
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
@@ -52,7 +52,7 @@ def dual_radar(pA,pB,path):
         ax.plot(ang,v,color=col,linewidth=2.2,label=lab); ax.fill(ang,v,color=col,alpha=0.14)
     ax.spines["polar"].set_color("#D5DBE3"); ax.grid(color="#E5E7EB")
     ax.legend(loc="upper right",bbox_to_anchor=(1.18,1.12),fontsize=9,frameon=False)
-    plt.tight_layout(); fig.savefig(path,dpi=150,transparent=True); plt.close(fig)
+    plt.tight_layout(); fig.savefig(path,dpi=110,transparent=True); plt.close(fig); gc.collect()
 
 def divergencias_item(rA,rB):
     out=[]
