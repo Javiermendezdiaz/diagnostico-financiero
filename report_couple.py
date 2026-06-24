@@ -693,6 +693,42 @@ def seccion_hoja_ruta_12m(pA,pB,nA,nB,hogar):
         ("LEFTPADDING",(0,0),(-1,-1),8),("BACKGROUND",(0,0),(0,-1),LIGHT)])),PageBreak()]
     return out
 
+def mapa_relacion(path, capas, compat, nA, nB):
+    """Infografico a sangre: dumbbell por capa (donde coincide/diverge la pareja)."""
+    from matplotlib.patches import FancyBboxPatch, Rectangle, Circle
+    BG="#0E1018"; PANEL="#161A24"; GOLD="#E8C861"; TXC="#F4F1E8"; GRC="#8A93A6"; GREEN="#2FB36B"; RED="#D8674F"; AMB="#E0A93B"; BLUE="#5B8DEF"
+    fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
+    ax=fig.add_axes([0,0,1,1]); ax.axis("off"); ax.set_xlim(0,100); ax.set_ylim(0,141.6)
+    def T(x,y,s,sz,c=TXC,w="normal",ha="left"): ax.text(x,y,s,fontsize=sz,color=c,ha=ha,fontweight=w,family="DejaVu Sans",zorder=6)
+    def bx(x,y,w,h,fc,r=1.4,ec=None,lw=0): ax.add_patch(FancyBboxPatch((x,y),w,h,boxstyle="round,pad=0,rounding_size=%s"%r,fc=fc,ec=ec or fc,lw=lw,zorder=2))
+    ax.add_patch(Rectangle((0,128),100,13.6,fc="#141A28",zorder=1))
+    T(8,134,"ADAPTA",13,GOLD,"bold"); T(24.2,134.2,"FAMILY OFFICE",7,GRC)
+    ax.plot([8,92],[131.4,131.4],color="#262C3A",lw=1,zorder=3)
+    T(8,123,"EL MAPA DE VUESTRA RELACIÓN CON EL DINERO",9.5,GOLD,"bold")
+    T(8,116.8,"Dónde os encontráis y dónde chocáis",18,TXC,"bold")
+    bx(8,108,26,5.6,PANEL,1.4); T(10.5,109.9,"COMPATIBILIDAD",6.6,GRC,"bold"); T(31.5,109.4,"%d/100"%compat,12,GOLD,"bold",ha="right")
+    ax.add_patch(Circle((40,110.8),0.9,color=GOLD,zorder=6)); T(42,110.2,(nA or "")[:14],8,TXC,"bold")
+    ax.add_patch(Circle((54,110.8),0.9,color=BLUE,zorder=6)); T(56,110.2,(nB or "")[:14],8,TXC,"bold")
+    T(73,110.2,"línea corta = alineados",7,GRC)
+    x0,x1=40,90; n=len(capas); top=103; bot=33; step=(top-bot)/max(1,n-1)
+    def mx(v): return x0+(x1-x0)*max(0,min(100,v))/100.0
+    for i,(nm,a,b) in enumerate(capas):
+        va,vb=100-a,100-b; g=abs(va-vb); y=top-i*step
+        col=RED if g>=30 else (AMB if g>=18 else GREEN)
+        ax.plot([x0,x1],[y,y],color="#1E2430",lw=0.8,zorder=2)
+        ax.plot([mx(va),mx(vb)],[y,y],color=col,lw=2.6,zorder=4,solid_capstyle="round")
+        ax.add_patch(Circle((mx(va),y),0.95,color=GOLD,ec="#0E1018",lw=0.8,zorder=5))
+        ax.add_patch(Circle((mx(vb),y),0.95,color=BLUE,ec="#0E1018",lw=0.8,zorder=5))
+        T(8,y-0.9,(nm or "")[:22],7.6,(TXC if g<30 else "#F2C9BE"),("bold" if g>=30 else "normal"))
+    fuerte=sorted(capas,key=lambda t:-(((100-t[1])+(100-t[2]))/2))[0]
+    fric=sorted(capas,key=lambda t:-abs(t[1]-t[2]))[0]
+    bx(8,20,40,8.2,"#1C2433",1.6,ec=RED,lw=1.1); T(11,25.4,"VUESTRA MAYOR FRICCIÓN",6.6,RED,"bold"); T(11,22,(fric[0] or "")[:26],9.5,TXC,"bold")
+    bx(52,20,40,8.2,"#16241C",1.6,ec=GREEN,lw=1.1); T(55,25.4,"VUESTRA MAYOR FUERZA",6.6,GREEN,"bold"); T(55,22,(fuerte[0] or "")[:26],9.5,TXC,"bold")
+    T(8,14,"Cada línea es una conversación pendiente. Las rojas, las que más os cuesta tener — y las que más os unen al tenerlas.",7,GRC)
+    ax.plot([8,92],[6.5,6.5],color="#262C3A",lw=1)
+    T(8,4,"DOCUMENTO CONFIDENCIAL · ADAPTA FAMILY OFFICE",6.2,GRC)
+    fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
+
 def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=None):
     global INST, CAPAS
     _iv2=rb._cargar_v2(); _c2={c["code"]:c for c in _iv2["capas"]}
@@ -838,6 +874,14 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         Paragraph("De cada euro que entra en casa, esto es lo que se queda y lo que se va. Si la barra «sin asignar» "
                   "es grande, no es libertad: es dinero esperando una decisión que aún no habéis tomado juntos.",small)]),
         PageBreak()]
+    # === MAPA DE LA RELACIÓN (infografico a sangre) ===
+    try:
+        _short={"C1":"Estrés con el dinero","C2":"Libertad","C3":"Resistencia","C4":"Estilo de vida","C5":"Protección legal","C6":"Gasto de imagen","C7":"Dependencia de ingresos","C8":"Antifragilidad","C9":"Control del flujo","C10":"Salud de la deuda","C11":"Crecimiento","C12":"Inversión"}
+        _caps=[(_short.get(c, CAPAS[c]["nombre"]), pA[c]["score"], pB[c]["score"]) for c in CAPAS]
+        mapa_relacion("_relmap.png", _caps, compat, nA, nB)
+        S+=[rb.FullBleedImage("_relmap.png"), PageBreak()]
+    except Exception:
+        pass
     # mapa de divergencias por capa
     S+=[Paragraph("Dónde coincidís y dónde no",h_sec),
         Paragraph("Capa por capa: vuestras dos puntuaciones y la distancia entre ambas. En rojo, las zonas que "
