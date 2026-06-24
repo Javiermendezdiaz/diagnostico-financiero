@@ -365,6 +365,66 @@ def radar_png(p,path):
     ax.scatter(ang[:-1],vsal,s=15,color="#FFFFFF",zorder=7)
     plt.tight_layout(); fig.savefig(path,dpi=200,transparent=True); plt.close(fig); gc.collect()
 
+def panel_dashboard(path, salud_disp, banda_lbl, cifra_lib, cobertura, tasa_ahorro, inv, par, ili, ing_act, ing_pas, g_fij, g_var, dormido, fecha):
+    """Pagina-panel a sangre (oscura): resumen ejecutivo visual del libro, de un vistazo."""
+    from matplotlib.patches import FancyBboxPatch, Rectangle
+    BG="#0E1018"; PANEL="#161A24"; GOLD="#E8C861"; AM="#FDD731"; TX="#F4F1E8"; GR="#8A93A6"; GREEN="#2FB36B"; RED="#D8674F"; SLATE="#3A4150"
+    def _e(n):
+        try: return ("%s €"%format(float(n),",.0f")).replace(",",".")
+        except Exception: return "—"
+    fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
+    ax=fig.add_axes([0,0,1,1]); ax.axis("off"); ax.set_xlim(0,100); ax.set_ylim(0,141.6)
+    def box(x,y,w,h,fc,r=1.4,ec=None,lw=0):
+        ax.add_patch(FancyBboxPatch((x,y),w,h,boxstyle="round,pad=0,rounding_size=%s"%r,fc=fc,ec=ec or fc,lw=lw,zorder=2))
+    def T(x,y,s,size,c=TX,w="normal",ha="left",style="normal"):
+        ax.text(x,y,s,fontsize=size,color=c,ha=ha,fontweight=w,family="DejaVu Sans",zorder=5,fontstyle=style)
+    ax.add_patch(Rectangle((0,128),100,13.6,fc="#141A28",zorder=1))
+    T(8,134,"ADAPTA",13,GOLD,"bold"); T(24.2,134.2,"FAMILY OFFICE",7,GR)
+    ax.plot([8,92],[131.4,131.4],color="#262C3A",lw=1,zorder=3)
+    T(8,123,"TU PANEL FINANCIERO",10,GOLD,"bold")
+    T(8,116.5,"Tu vida económica, de un vistazo",19,TX,"bold")
+    box(8,92,40,20,PANEL,2)
+    T(28,108.5,"SALUD PSICOFINANCIERA",7,GR,"bold",ha="center")
+    T(28,99,"%.0f"%salud_disp,46,AM,"bold",ha="center")
+    T(28,93.6,"/100  ·  %s"%(banda_lbl or ""),8,GR,ha="center")
+    cards=[("CIFRA DE LIBERTAD",_e(cifra_lib),GOLD),("COBERTURA ACTUAL","%.0f%%"%cobertura,TX),("TASA DE AHORRO","%.0f%%"%tasa_ahorro,GREEN)]
+    cx=51
+    for i,(lab,val,col) in enumerate(cards):
+        yy=92+(2-i)*6.6; box(cx,yy,41,6.0,PANEL,1.4); T(cx+2.5,yy+3.6,lab,6.6,GR,"bold"); T(cx+38.5,yy+1.9,val,11,col,"bold",ha="right")
+    tot=inv+par+ili
+    T(8,90,"QUÉ TRABAJA Y QUÉ DUERME",8,GOLD,"bold")
+    if tot>0:
+        x=8
+        for val,col,dark in [(inv,GREEN,True),(par,GOLD,True),(ili,SLATE,False)]:
+            w=84*val/tot
+            if w>0.5: box(x,83,max(w-0.4,0.6),5.0,col,1.0)
+            if w>9: T(x+w/2,85.3,"%.0f%%"%(100*val/tot),9,"#0E1018" if dark else TX,"bold",ha="center")
+            x+=w
+        trab=100*inv/tot
+        T(8,79.6,"●  %.0f%% TRABAJA para ti"%trab,7.5,GREEN,"bold")
+        T(46,79.6,"●  %.0f%% DUERME — parado o en ladrillo/negocio"%(100-trab),7.5,GR)
+    else:
+        T(8,80,"Aún sin patrimonio que medir.",8,GR)
+    ing=ing_act+ing_pas; gas=g_fij+g_var; mx=max(ing,gas,1.0)
+    T(8,73.5,"DE DÓNDE VIENE Y A DÓNDE VA",8,GOLD,"bold")
+    def flujo(y,lab,parts):
+        T(8,y+4.4,lab,7,GR,"bold"); x=8
+        for v,col in parts:
+            w=84*v/mx
+            if w>0.4: box(x,y,max(w-0.4,0.6),3.4,col,0.9)
+            x+=w
+    flujo(67.5,"INGRESOS",[(ing_act,"#5B6472"),(ing_pas,GREEN)])
+    flujo(60.5,"GASTOS",[(g_fij,RED),(g_var,GOLD)])
+    T(8,57.2,"●  activo   ●  pasivo (te libera)",6.8,GR); T(50,57.2,"●  fijo (te ata)   ●  variable",6.8,GR)
+    if dormido and dormido>15000 and cobertura<100:
+        box(8,46,84,7.6,"#1C2433",1.6,ec=GOLD,lw=1.2)
+        T(11,51.2,"TU PALANCA #1",7,GOLD,"bold")
+        T(11,47.8,"Tienes %s dormidos. Moverlos a renta sube tu cobertura del %.0f%% sin ganar un euro más."%(_e(dormido),cobertura),8.2,TX)
+    T(8,40,"Las cifras de esta página son el resumen ejecutivo de tu Libro. El detalle, capa a capa, viene a continuación.",7,GR)
+    ax.plot([8,92],[6.5,6.5],color="#262C3A",lw=1)
+    T(8,4,"DOCUMENTO CONFIDENCIAL · ADAPTA FAMILY OFFICE · %s"%fecha,6.2,GR)
+    fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
+
 class Chip(Flowable):
     def __init__(s,t,c,w=92,h=14): s.t=t; s.c=colors.HexColor(c); s.w=w; s.h=h; Flowable.__init__(s)
     def wrap(s,*a): return (s.w,s.h)
@@ -513,7 +573,7 @@ def deco(cv,doc):
         cv.setFillColor(AMARILLO); cv.setFont(FB,9.5); cv.drawString(22*mm,A4[1]-7.4*mm,"ADAPTA")
         cv.setFillColor(colors.HexColor("#E9E4D6")); cv.setFont(FR,7)
         cv.drawString(40*mm,A4[1]-7.1*mm,"FAMILY OFFICE")
-        cv.drawRightString(A4[0]-22*mm,A4[1]-7.1*mm,((getattr(doc,"_cliente",None) or CLIENTE_NOMBRE or "")[:42]).upper())
+        cv.drawRightString(A4[0]-22*mm,A4[1]-7.1*mm,"DIAGNÓSTICO PATRIMONIAL")
     # Pie: nota confidencial (el numero de pagina lo pone NumberedCanvas)
     cv.setStrokeColor(LINE); cv.setLineWidth(0.6); cv.line(22*mm,16*mm,A4[0]-22*mm,16*mm)
     cv.setFillColor(GREY); cv.setFont(FR,7)
@@ -1589,6 +1649,17 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   "individualizado ni atención psicológica. Si el dinero te genera un malestar que te desborda, "
                   "apóyate también en un profesional de confianza.",small),
         PageBreak()]
+    # === PANEL FINANCIERO (resumen ejecutivo visual, pagina a sangre) ===
+    try:
+        _inv=float(datos.get("inversiones_liquidas") or 0); _par=float(datos.get("colchon_liquido") or 0)
+        _pat=float(datos.get("patrimonio") or 0); _ili=max(0.0,_pat-_inv-_par)
+        _ing=float(datos.get("ingreso_mensual") or 0); _ipas=min(float(datos.get("renta_pasiva") or 0),_ing); _iact=max(0.0,_ing-_ipas)
+        _gas=float(datos.get("gasto_mensual") or 0); _pf=float(datos.get("pct_gasto_fijo") or 0)
+        _gfij=min(_gas,(_gas*_pf/100.0) if _pf>0 else (float(datos.get("coste_vivienda") or 0)+float(datos.get("cuota_deuda") or 0))); _gvar=max(0.0,_gas-_gfij)
+        panel_dashboard("_panel.png", 100-salud, bl, fi[0], fi[1] or 0, fi[2] or 0, _inv,_par,_ili, _iact,_ipas, _gfij,_gvar, _ili, cli.get("fecha",""))
+        S+=[FullBleedImage("_panel.png"), PageBreak()]
+    except Exception:
+        pass
     # === Indice: el mapa de los 5 actos ===
     _ix=[("APERTURA","Portada · carta de bienvenida"),
          ("ACTO 1 · DIAGNÓSTICO","Tu foto de hoy: radar, las 12 capas y tu síntesis financiera"),

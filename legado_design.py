@@ -53,8 +53,7 @@ def cover(out, cliente, fecha, tier_txt="Informe Avanzado · Tier II", ref="ITAP
     ax.text(0.5,0.485,"PATRIMONIAL",ha="center",va="center",color=BLUE,fontproperties=L(43),transform=ax.transAxes)
     ax.plot([0.42,0.58],[0.43,0.43],color=BLUE,lw=1.6,transform=ax.transAxes)
     ax.text(0.5,0.385,_spaced("PASADO · PRESENTE · FUTURO",1),ha="center",va="center",color=MUTE,fontproperties=P(10.5),transform=ax.transAxes)
-    ax.text(0.5,0.175,"Preparado en exclusiva para",ha="center",va="center",color=FAINT,fontproperties=P(9.5),transform=ax.transAxes)
-    ax.text(0.5,0.14,cliente,ha="center",va="center",color=WHITE,fontproperties=L(17),transform=ax.transAxes)
+    ax.text(0.5,0.15,"Una lectura honesta de tu relación con el dinero",ha="center",va="center",color=FAINT,fontproperties=P(10),transform=ax.transAxes)
     ax.text(0.5,0.075,_spaced("DOCUMENTO CONFIDENCIAL · %s · USO PRIVADO"%ref,0).replace("  "," "),ha="center",va="center",color=FAINT,fontproperties=P(7),transform=ax.transAxes)
     ax.text(0.5,0.05,fecha,ha="center",va="center",color=FAINT,fontproperties=P(7.5),transform=ax.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out
