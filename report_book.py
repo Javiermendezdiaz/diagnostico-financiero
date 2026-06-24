@@ -111,9 +111,11 @@ def perfil(resp):
 def fi_metrics(d):
     gasto=d.get("gasto_mensual") or 0; ingreso=d.get("ingreso_mensual") or 0
     pat=d.get("patrimonio") or 0; aho=d.get("ahorro_mensual") or 0
-    fi=gasto*12*25; pct=round(100*pat/fi,1) if fi else 0.0
+    # Capital INVERTIBLE = lo que genera renta del 4% (mercados + liquido). NO la vivienda ni el negocio iliquido.
+    invertible=max(0.0, float(d.get("inversiones_liquidas") or 0)+float(d.get("colchon_liquido") or 0))
+    fi=gasto*12*25; pct=round(100*invertible/fi,1) if fi else 0.0
     tasa=round(100*aho/ingreso,1) if ingreso else 0.0
-    r,pv,m,n=0.05/12,pat,aho,0
+    r,pv,m,n=0.05/12,invertible,aho,0
     while pv<fi and n<1200: pv=pv*(1+r)+m; n+=1
     return fi,pct,tasa,(round(n/12,1) if n<1200 else None)
 
@@ -371,6 +373,46 @@ class Bar(Flowable):
         h=100-s.v  # se dibuja SALUD (alto=bien): barra llena y verde = sano
         col=BANDC[0] if h>=75 else BANDC[1] if h>=50 else BANDC[2] if h>=25 else BANDC[3]
         c.setFillColor(colors.HexColor(col)); c.roundRect(0,0,max(3,W*h/100),s.h,2,fill=1,stroke=0)
+
+class FotoPatrimonio(Flowable):
+    """Barra apilada: cuanto del patrimonio esta invertido (trabaja), parado (liquido) e iliquido (ladrillo/negocio)."""
+    def __init__(s,inv,par,ili,w=160,h=12):
+        s.inv=max(0.0,inv); s.par=max(0.0,par); s.ili=max(0.0,ili); s.w=w; s.h=h; Flowable.__init__(s)
+    def wrap(s,*a): return (s.w*mm, s.h*mm)
+    def draw(s):
+        c=s.canv; W=s.w*mm; H=s.h*mm; tot=s.inv+s.par+s.ili
+        c.setFillColor(colors.HexColor("#E7E3D8")); c.roundRect(0,0,W,H,3,fill=1,stroke=0)
+        if tot<=0: return
+        x=0.0
+        for val,col in [(s.inv,"#1D6F42"),(s.par,"#E3B341"),(s.ili,"#9CA3AF")]:
+            ww=W*val/tot
+            if ww>0.4:
+                c.setFillColor(colors.HexColor(col)); c.rect(x,0,ww,H,fill=1,stroke=0)
+                if ww>34:   # etiqueta de % dentro del segmento si cabe
+                    c.setFillColor(colors.white); c.setFont(FB,8)
+                    c.drawCentredString(x+ww/2,H/2-3,"%.0f%%"%(100*val/tot))
+                x+=ww
+
+class FlujoEstructura(Flowable):
+    """Dos barras comparables: arriba ingresos (activo|pasivo), abajo gastos (fijo|variable). El hueco = ahorro o deficit."""
+    def __init__(s,act,pas,fij,var,w=160,h=12):
+        s.act=max(0.0,act); s.pas=max(0.0,pas); s.fij=max(0.0,fij); s.var=max(0.0,var); s.w=w; s.h=h; Flowable.__init__(s)
+    def wrap(s,*a): return (s.w*mm, s.h*2*mm+9*mm)
+    def _seg(s,segs,y,W,maxv,H):
+        c=s.canv; c.setFillColor(colors.HexColor("#EFEce3")); c.roundRect(0,y,W,H,2,fill=1,stroke=0)
+        x=0.0
+        for val,col in segs:
+            ww=W*val/maxv if maxv>0 else 0
+            if ww>0.4:
+                c.setFillColor(colors.HexColor(col)); c.rect(x,y,ww,H,fill=1,stroke=0); x+=ww
+    def draw(s):
+        c=s.canv; W=s.w*mm; H=s.h*mm; ing=s.act+s.pas; gas=s.fij+s.var; maxv=max(ing,gas,1.0)
+        y2=0; y1=H+6   # gastos abajo, ingresos arriba
+        c.setFillColor(colors.HexColor("#6B7280")); c.setFont(FB,8.5)
+        c.drawString(0,y1+H+2,"INGRESOS")
+        c.drawString(0,y2-9.5,"GASTOS")
+        s._seg([(s.act,"#6B7280"),(s.pas,"#1D6F42")],y1,W,maxv,H)
+        s._seg([(s.fij,"#C65C4E"),(s.var,"#E3B341")],y2,W,maxv,H)
 
 def St(n,**k): k.setdefault("fontName",FR); k.setdefault("textColor",INK); return ParagraphStyle(n,**k)
 h_book=St("hb",fontSize=17,leading=21,textColor=ACCDK,fontName=SB,spaceAfter=2)
@@ -1523,6 +1565,10 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         PageBreak()]
     # carta de apertura
     S+=[Paragraph("Antes de empezar",h_sec),
+        _box([Paragraph("<font color='#234E70'><b>&#9656;  Eres de los primeros — y lo afinamos contigo</b></font>",St("fbk1",fontSize=11,leading=15,fontName=FB)),
+              Paragraph("Respaldamos cada cifra de este informe. Y como eres de nuestros primeros clientes, lo construimos también contigo: si al leerlo ves algún número o conclusión que no te encaje, escríbenos a <font color='#234E70'><b>info@adaptafamilyoffice.com</b></font>. Lo revisamos al momento, lo corregimos y te reenviamos tu informe actualizado, sin coste. Tu mirada lo hace mejor — para ti y para quienes vengan detrás.",St("fbk2",fontSize=10,leading=15,spaceBefore=2,textColor=INK))],
+             "#EEF2F6","#234E70",ancho=160*mm),
+        Spacer(1,4*mm),
         Paragraph("Este libro no es un cuestionario más ni una sentencia. "
                   "Es un espejo. Cada página nace de tus propias respuestas y las ordena para que veas, sin ruido, "
                   "dónde tu dinero te sostiene y dónde te pesa.",body),
@@ -1948,6 +1994,56 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
               ("FONTNAME",(1,0),(1,-1),FB),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
               ("ALIGN",(1,0),(1,-1),"RIGHT"),
               ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)]))]
+    # --- Foto del patrimonio: invertido / parado / iliquido ---
+    _f_inv=float(datos.get("inversiones_liquidas") or 0); _f_par=float(datos.get("colchon_liquido") or 0)
+    _f_pat=float(datos.get("patrimonio") or 0); _f_ili=max(0.0,_f_pat-_f_inv-_f_par)
+    _f_tot=_f_inv+_f_par+_f_ili
+    if _f_tot>0:
+        def _pcf(v): return "%.0f%%"%(100*v/_f_tot)
+        _trab=100*_f_inv/_f_tot; _duerme=100-_trab
+        S+=[Spacer(1,4*mm),Paragraph("Tu foto patrimonial: qué trabaja y qué duerme",h_sub),
+            Paragraph("No es lo mismo tener patrimonio que tener renta. En <font color='#1D6F42'><b>verde</b></font>, el dinero que <b>trabaja</b> para ti (invertido, generando renta). En <font color='#C9A227'><b>ámbar</b></font> y <font color='#9CA3AF'><b>gris</b></font>, el que <b>no trabaja</b>: parado en el banco o atrapado en ladrillo y negocio.",body),
+            Spacer(1,2*mm),
+            FotoPatrimonio(_f_inv,_f_par,_f_ili,w=160,h=13),
+            Spacer(1,1.5*mm),
+            Table([[Paragraph("<font color='#1D6F42'>●</font> <b>%.0f%% TRABAJA</b> para ti"%_trab,St("ft1",fontSize=10,leading=13)),
+                    Paragraph("<font color='#9CA3AF'>●</font> <b>%.0f%% DUERME</b> (parado + ilíquido)"%_duerme,St("ft2",fontSize=10,leading=13,alignment=2))]],
+                   colWidths=[80*mm,80*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0),("RIGHTPADDING",(0,0),(-1,-1),0)]),
+            Spacer(1,2*mm),
+            Table([[Paragraph("<font color='#1D6F42'>●</font> <b>Invertido</b> (mercados) — <font color='#1D6F42'>trabaja</font>: %s · %s"%(_eur(_f_inv),_pcf(_f_inv)),small),
+                    Paragraph("<font color='#C9A227'>●</font> <b>Parado</b> (c/c, depósitos) — no trabaja: %s · %s"%(_eur(_f_par),_pcf(_f_par)),small),
+                    Paragraph("<font color='#9CA3AF'>●</font> <b>Ilíquido</b> (vivienda, negocio) — no renta: %s · %s"%(_eur(_f_ili),_pcf(_f_ili)),small)]],
+                   colWidths=[54*mm,53*mm,53*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0),("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),2)]),
+            Spacer(1,3*mm)]
+    # --- Foto del flujo: ingresos (activo/pasivo) vs gastos (fijo/variable) ---
+    _x_ing=float(datos.get("ingreso_mensual") or 0); _x_gas=float(datos.get("gasto_mensual") or 0)
+    _x_pas=min(float(datos.get("renta_pasiva") or 0),_x_ing)
+    _x_it=datos.get("ing_trabajo")
+    _x_act=float(_x_it) if (_x_it and float(_x_it)>0) else max(0.0,_x_ing-_x_pas)
+    _x_pf=min(100.0,max(0.0,float(datos.get("pct_gasto_fijo") or 0)))
+    _x_fij=_x_gas*_x_pf/100.0 if _x_pf>0 else min(_x_gas,float(datos.get("coste_vivienda") or 0)+float(datos.get("cuota_deuda") or 0))
+    _x_fij=min(_x_fij,_x_gas); _x_var=max(0.0,_x_gas-_x_fij)
+    if _x_ing>0 and _x_gas>0:
+        _pp_pas=100*_x_pas/_x_ing if _x_ing else 0; _pp_fij=100*_x_fij/_x_gas if _x_gas else 0
+        S+=[Spacer(1,2*mm),Paragraph("Tu foto del flujo: de dónde viene y a dónde va",h_sub),
+            Paragraph("Cada mes entra dinero y sale dinero. En <font color='#1D6F42'><b>verde</b></font>, el ingreso <b>pasivo</b> (el que te libera, no depende de tu tiempo). En <font color='#C65C4E'><b>rojo</b></font>, el gasto <b>fijo</b> (el que te ata pase lo que pase). Cuanto más verde arriba y menos rojo abajo, más libre eres.",body),
+            Spacer(1,1.5*mm),
+            FlujoEstructura(_x_act,_x_pas,_x_fij,_x_var,w=160,h=12),
+            Spacer(1,2*mm),
+            Table([[Paragraph("<font color='#6B7280'>●</font> Ingreso <b>activo</b> (tu tiempo): %s"%_eur(_x_act),small),
+                    Paragraph("<font color='#1D6F42'>●</font> Ingreso <b>pasivo</b> (te libera): %s · %.0f%%"%(_eur(_x_pas),_pp_pas),small)]],
+                   colWidths=[80*mm,80*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0),("VALIGN",(0,0),(-1,-1),"TOP")]),
+            Table([[Paragraph("<font color='#C65C4E'>●</font> Gasto <b>fijo</b> (te ata): %s · %.0f%%"%(_eur(_x_fij),_pp_fij),small),
+                    Paragraph("<font color='#C9A227'>●</font> Gasto <b>variable</b> (flexible): %s"%_eur(_x_var),small)]],
+                   colWidths=[80*mm,80*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0),("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),2)]),
+            Spacer(1,3*mm)]
+    _inv_lib=float(datos.get("inversiones_liquidas") or 0)+float(datos.get("colchon_liquido") or 0)
+    _pat_lib=float(datos.get("patrimonio") or 0)
+    if _pat_lib > _inv_lib*1.5 + 20000:
+        _cob_pot=round(100*_pat_lib/fi[0]) if fi[0] else 0      # potencial movilizando TODO el patrimonio (incluida la vivienda, llegado el momento de simplificar)
+        _libre_txt=" — con eso quedarías en <b>libertad financiera</b>" if _cob_pot>=100 else ""
+        S+=[Paragraph("<b>Patrimonio no es lo mismo que renta — y ahí está tu mayor oportunidad:</b> tu patrimonio total ronda los %s, pero hoy solo unos %s están invertidos o líquidos generando renta (la cobertura del %s%% de arriba). El resto vive en ladrillo o en tu negocio: es patrimonio, pero no dinero que puedas gastar cada mes." % (_eur(_pat_lib),_eur(_inv_lib),("%.0f"%fi[1])),St("plib2",fontSize=9.3,leading=13,textColor=INK,spaceBefore=5)),
+            Paragraph("<b>Y si lo movilizaras:</b> si convirtieras en líquido y pusieras a rentar ese patrimonio ilíquido —rentabilizando lo que está parado y, llegado el momento de simplificar, vendiendo o reduciendo la vivienda que ya no necesites—, tu cobertura pasaría del <b>%s%%</b> de hoy al <b>%s%%</b>%s. Convertir patrimonio dormido en renta es, justamente, donde más mueve la aguja un family office: no se trata solo de ganar más, sino de poner a trabajar lo que ya tienes." % (("%.0f"%fi[1]),("%.0f"%_cob_pot),_libre_txt),St("plib3",fontSize=9.3,leading=13,textColor=INK,spaceBefore=4))]
     if _pens>0 and _gm_lib>0:
         S+=[Paragraph("<b>Ajustado por tu pensión:</b> si cobrarás ~<b>%s</b>/mes de pensión pública, esa renta ya cubrirá parte de tu vida al jubilarte. El capital PROPIO que necesitarías para el resto baja de %s a <b>%s</b>. (El número 25× de arriba asume que te financias el 100%%; este lo ajusta a tu pensión.)" % (_eur(_pens),_eur(fi[0]),_eur(_num_aj)),St("plib",fontSize=9.3,leading=13,textColor=INK,spaceBefore=5))]
     # Alerta de jubilacion: a este ritmo, ¿llegaras a tu libertad antes de los 67?

@@ -529,6 +529,10 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         PageBreak()]
     # apertura
     S+=[Paragraph("Antes de empezar",h_sec),
+        rb._box([Paragraph("<font color='#234E70'><b>&#9656;  Sois de los primeros — y lo afinamos con vosotros</b></font>",body),
+                 Paragraph("Respaldamos cada cifra de este informe. Y como sois de nuestros primeros clientes, lo construimos también con vosotros: si al leerlo veis algún número o conclusión que no os encaje, escribidnos a <font color='#234E70'><b>info@adaptafamilyoffice.com</b></font>. Lo revisamos al momento, lo corregimos y os reenviamos vuestro informe actualizado, sin coste. Vuestra mirada lo hace mejor — para vosotros y para quienes vengan detrás.",body)],
+                "#EEF2F6","#234E70",ancho=160*mm),
+        Spacer(1,4*mm),
         Paragraph(f"{nA} y {nB}: el dinero es una de las causas más citadas de ruptura en las parejas — y casi "
                   "nunca por cuánto hay, sino porque cada uno lo vive distinto y no se habla. La grieta no la abre "
                   "la falta de dinero: la abre la diferencia callada. Este libro pone esas diferencias sobre la "
@@ -540,10 +544,19 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     S+=seccion_arquetipos(rA,rB,nA,nB)
     # compatibilidad + radar
     dAf=_fill(dA); dBf=_fill(dB)
-    hogar={"gasto_mensual":dAf["gasto_mensual"]+dBf["gasto_mensual"],
+    _gA=dAf["gasto_mensual"]; _gB=dBf["gasto_mensual"]; _gh=_gA+_gB
+    _pfh=(((dAf.get("pct_gasto_fijo") or 0)*_gA+(dBf.get("pct_gasto_fijo") or 0)*_gB)/_gh) if _gh>0 else 0
+    hogar={"gasto_mensual":_gh,
            "ingreso_mensual":dAf["ingreso_mensual"]+dBf["ingreso_mensual"],
            "ahorro_mensual":dAf["ahorro_mensual"]+dBf["ahorro_mensual"],
            "patrimonio":dAf["patrimonio"]+dBf["patrimonio"],
+           "inversiones_liquidas":(dAf.get("inversiones_liquidas") or 0)+(dBf.get("inversiones_liquidas") or 0),
+           "colchon_liquido":(dAf.get("colchon_liquido") or 0)+(dBf.get("colchon_liquido") or 0),
+           "renta_pasiva":(dAf.get("renta_pasiva") or 0)+(dBf.get("renta_pasiva") or 0),
+           "coste_vivienda":(dAf.get("coste_vivienda") or 0)+(dBf.get("coste_vivienda") or 0),
+           "cuota_deuda":(dAf.get("cuota_deuda") or 0)+(dBf.get("cuota_deuda") or 0),
+           "pension_estimada":(dAf.get("pension_estimada") or 0)+(dBf.get("pension_estimada") or 0),
+           "pct_gasto_fijo":_pfh,
            "edad":(dAf["edad"]+dBf["edad"])/2}
     fi_h=rb.fi_metrics(hogar)
     S+=[Paragraph("Vuestro mapa conjunto",h_sec),
@@ -568,6 +581,46 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
               colWidths=[105*mm,51*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
               ("FONTNAME",(1,0),(1,-1),"Helvetica-Bold"),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
               ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)]))]
+    # --- Foto patrimonial del hogar (invertido/parado/iliquido) ---
+    _h_inv=float(hogar["inversiones_liquidas"]); _h_par=float(hogar["colchon_liquido"]); _h_pat=float(hogar["patrimonio"])
+    _h_ili=max(0.0,_h_pat-_h_inv-_h_par); _h_tot=_h_inv+_h_par+_h_ili
+    if _h_tot>0:
+        _pf=lambda v:"%.0f%%"%(100*v/_h_tot); _trab=100*_h_inv/_h_tot
+        S+=[Spacer(1,3*mm),Paragraph("Vuestra foto patrimonial: qué trabaja y qué duerme",h_sub),
+            Paragraph("En <font color='#1D6F42'><b>verde</b></font>, el dinero invertido que trabaja para vosotros; en <font color='#C9A227'><b>ámbar</b></font> y <font color='#9CA3AF'><b>gris</b></font>, el que no: parado en el banco o atrapado en ladrillo y negocio.",small),
+            Spacer(1,1.5*mm),
+            rb.FotoPatrimonio(_h_inv,_h_par,_h_ili,w=160,h=13),
+            Spacer(1,1.5*mm),
+            Table([[Paragraph("<font color='#1D6F42'>●</font> <b>%.0f%% TRABAJA</b> para vosotros"%_trab,small),
+                    Paragraph("<font color='#9CA3AF'>●</font> <b>%.0f%% DUERME</b> (parado + ilíquido)"%(100-_trab),small)]],
+                   colWidths=[80*mm,80*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0)]),
+            Table([[Paragraph("<font color='#1D6F42'>●</font> Invertido: %s · %s"%(rb._eur(_h_inv),_pf(_h_inv)),small),
+                    Paragraph("<font color='#C9A227'>●</font> Parado: %s · %s"%(rb._eur(_h_par),_pf(_h_par)),small),
+                    Paragraph("<font color='#9CA3AF'>●</font> Ilíquido: %s · %s"%(rb._eur(_h_ili),_pf(_h_ili)),small)]],
+                   colWidths=[54*mm,53*mm,53*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0),("VALIGN",(0,0),(-1,-1),"TOP")]),
+            Spacer(1,2*mm)]
+        if _h_pat > (_h_inv+_h_par)*1.5+20000:
+            _cobp=round(100*_h_pat/fi_h[0]) if fi_h[0] else 0   # potencial movilizando todo (incluida la vivienda, llegado el momento)
+            _lt=" — con eso quedaríais en <b>libertad financiera</b>" if _cobp>=100 else ""
+            S+=[Paragraph("<b>Patrimonio no es renta — y es vuestra mayor oportunidad:</b> tenéis %s de patrimonio, pero hoy solo %s está invertido o líquido generando renta (la cobertura del %s%% de arriba). Si movilizarais lo ilíquido —rentabilizando lo parado y, llegado el momento de simplificar, vendiendo o reduciendo la vivienda que ya no necesitéis—, vuestra cobertura pasaría del %s%% al <b>%s%%</b>%s. Convertir patrimonio dormido en renta es donde más mueve la aguja un family office."%(rb._eur(_h_pat),rb._eur(_h_inv+_h_par),("%.0f"%fi_h[1]),("%.0f"%fi_h[1]),("%.0f"%_cobp),_lt),small),Spacer(1,2*mm)]
+    # --- Foto del flujo del hogar (activo/pasivo, fijo/variable) ---
+    _x_ing=float(hogar["ingreso_mensual"]); _x_gas=float(hogar["gasto_mensual"])
+    _x_pas=min(float(hogar["renta_pasiva"]),_x_ing); _x_act=max(0.0,_x_ing-_x_pas)
+    _x_pf=min(100.0,max(0.0,float(hogar.get("pct_gasto_fijo") or 0)))
+    _x_fij=min(_x_gas,(_x_gas*_x_pf/100.0) if _x_pf>0 else (float(hogar["coste_vivienda"])+float(hogar["cuota_deuda"]))); _x_var=max(0.0,_x_gas-_x_fij)
+    if _x_ing>0 and _x_gas>0:
+        S+=[Paragraph("Vuestra foto del flujo: de dónde viene y a dónde va",h_sub),
+            Paragraph("En <font color='#1D6F42'><b>verde</b></font>, el ingreso <b>pasivo</b> (os libera); en <font color='#C65C4E'><b>rojo</b></font>, el gasto <b>fijo</b> (os ata). Más verde arriba y menos rojo abajo, más libres sois.",small),
+            Spacer(1,1.5*mm),
+            rb.FlujoEstructura(_x_act,_x_pas,_x_fij,_x_var,w=160,h=12),
+            Spacer(1,2*mm),
+            Table([[Paragraph("<font color='#6B7280'>●</font> Ingreso <b>activo</b>: %s"%rb._eur(_x_act),small),
+                    Paragraph("<font color='#1D6F42'>●</font> Ingreso <b>pasivo</b> (libera): %s · %.0f%%"%(rb._eur(_x_pas),(100*_x_pas/_x_ing if _x_ing else 0)),small)]],
+                   colWidths=[80*mm,80*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0)]),
+            Table([[Paragraph("<font color='#C65C4E'>●</font> Gasto <b>fijo</b> (ata): %s · %.0f%%"%(rb._eur(_x_fij),(100*_x_fij/_x_gas if _x_gas else 0)),small),
+                    Paragraph("<font color='#C9A227'>●</font> Gasto <b>variable</b>: %s"%rb._eur(_x_var),small)]],
+                   colWidths=[80*mm,80*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0)]),
+            Spacer(1,3*mm)]
     rb.cashflow_waterfall(hogar,"_cashH.png")
     S+=[KeepTogether([Paragraph("Vuestro flujo de caja conjunto",h_sub),
         Image("_cashH.png",width=158*mm,height=74*mm,hAlign="CENTER"),
