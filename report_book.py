@@ -356,17 +356,14 @@ def radar_png(p,path):
     ax.fill(ang,v,color=fill,alpha=0.12,zorder=3)
     ax.fill(ang,v,color=fill,alpha=0.22,zorder=3)
     ax.fill(ang,v,color=fill,alpha=0.46,zorder=4)
-    # halo de luz bajo la linea (pasadas anchas y tenues del propio tono)
     for _lw,_al in [(9.0,0.05),(6.0,0.08),(3.6,0.14)]:
         ax.plot(ang,v,color=fill,linewidth=_lw,alpha=_al,zorder=4,solid_capstyle="round")
     ax.plot(ang,v,color="#17181C",linewidth=2.4,zorder=5,solid_capstyle="round")
-    # vertices premium: relleno del tono, borde grafito, nucleo blanco
     ax.scatter(ang[:-1],vsal,s=52,color=fill,zorder=6,edgecolors="#17181C",linewidths=1.5)
     ax.scatter(ang[:-1],vsal,s=15,color="#FFFFFF",zorder=7)
     plt.tight_layout(); fig.savefig(path,dpi=200,transparent=True); plt.close(fig); gc.collect()
 
 def panel_dashboard(path, salud_disp, banda_lbl, cifra_lib, cobertura, tasa_ahorro, inv, par, ili, ing_act, ing_pas, g_fij, g_var, dormido, fecha):
-    """Pagina-panel a sangre (oscura): resumen ejecutivo visual del libro, de un vistazo."""
     from matplotlib.patches import FancyBboxPatch, Rectangle
     BG="#0E1018"; PANEL="#161A24"; GOLD="#E8C861"; AM="#FDD731"; TX="#F4F1E8"; GR="#8A93A6"; GREEN="#2FB36B"; RED="#D8674F"; SLATE="#3A4150"
     def _e(n):
@@ -376,8 +373,8 @@ def panel_dashboard(path, salud_disp, banda_lbl, cifra_lib, cobertura, tasa_ahor
     ax=fig.add_axes([0,0,1,1]); ax.axis("off"); ax.set_xlim(0,100); ax.set_ylim(0,141.6)
     def box(x,y,w,h,fc,r=1.4,ec=None,lw=0):
         ax.add_patch(FancyBboxPatch((x,y),w,h,boxstyle="round,pad=0,rounding_size=%s"%r,fc=fc,ec=ec or fc,lw=lw,zorder=2))
-    def T(x,y,s,size,c=TX,w="normal",ha="left",style="normal"):
-        ax.text(x,y,s,fontsize=size,color=c,ha=ha,fontweight=w,family="DejaVu Sans",zorder=5,fontstyle=style)
+    def T(x,y,ss,size,c=TX,w="normal",ha="left"):
+        ax.text(x,y,ss,fontsize=size,color=c,ha=ha,fontweight=w,family="DejaVu Sans",zorder=5)
     ax.add_patch(Rectangle((0,128),100,13.6,fc="#141A28",zorder=1))
     T(8,134,"ADAPTA",13,GOLD,"bold"); T(24.2,134.2,"FAMILY OFFICE",7,GR)
     ax.plot([8,92],[131.4,131.4],color="#262C3A",lw=1,zorder=3)
@@ -755,6 +752,103 @@ def cashflow_waterfall(datos, path):
     plt.tight_layout(); fig.savefig(path,dpi=200,transparent=True); plt.close(fig); gc.collect()
     return libre
 
+def panel_proyeccion(path, datos):
+    """Pagina cinematografica a sangre: tres caminos del patrimonio + LA BRECHA + hito de libertad."""
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import FancyBboxPatch, Rectangle
+    BG="#0E1018"; CARD="#161A24"; PANEL="#1B2030"; GOLD="#E8C861"; RED="#D9755B"; GREEN="#5FB98E"; BLUE="#6FA8DC"; TX="#EDEAE2"; MUT="#8A93A6"
+    edad=int(datos.get("edad",40)); meta_edad=max(EDAD_JUBILACION, edad+5); anos=max(meta_edad-edad,1)
+    pat=datos.get("patrimonio",0) or 0; aho=(datos.get("ahorro_mensual",0) or 0)*12
+    ing=datos.get("ingreso_mensual",0) or 0; gas=datos.get("gasto_mensual",0) or 0
+    superavit=max(0,(ing-gas))*12; inv=datos.get("inversiones_liquidas"); colch=datos.get("colchon_liquido") or 0
+    xs=list(range(edad,meta_edad+1))
+    _rr=(datos.get("rentabilidad_actual") or 0)/100.0
+    if _rr<=0:_rr=0.015
+    _r2=max(0.05,_rr)
+    def grow(c0,ap,rr):
+        v=float(c0);out=[v]
+        for _ in range(anos):v=v*(1+rr)+ap;out.append(v)
+        return out
+    if inv is not None:
+        inv=inv or 0; parado=max(0,colch-gas*6); aport_opt=max(aho,superavit)
+        e1=[v+parado for v in grow(inv,aho,_rr)]
+        _ig=ing*12.0;_gs=gas*12.0;_cap=float(inv+parado);e3=[_cap]
+        for _y in range(anos):
+            if _y<10:_ig*=1.10
+            if _y==0:_gs*=0.90
+            _ahy=max(0.0,_ig-_gs);_cap=_cap*1.10+_ahy;e3.append(_cap)
+        e2=grow(inv+parado,aport_opt,_r2)
+        series=[("Inacción · como hoy",e1,RED,"-"),("Invertir bien",e2,GOLD,"--"),("Ejecutar el plan 10×10",e3,GREEN,"-")]
+        lo,hi=e1[-1],e3[-1]
+    else:
+        e1=grow(pat,aho,0.05); e3=grow(pat,aho+0.05*ing*12,0.05)
+        series=[("Si sigues igual",e1,BLUE,"-"),("Si ahorras 5 puntos más",e3,GREEN,"--")]
+        lo,hi=e1[-1],e3[-1]
+    brecha=hi-lo
+    objetivo=gas*12*25 if gas>0 else None   # regla del 4%: patrimonio que cubre tu vida
+    edad_libre=None
+    if objetivo:
+        for i,v in enumerate(e3):
+            if v>=objetivo: edad_libre=edad+i; break
+
+    fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
+    bg=fig.add_axes([0,0,1,1]); bg.set_xlim(0,100); bg.set_ylim(0,141.6); bg.axis("off")
+    bg.add_patch(Rectangle((0,0),100,141.6,color=BG,zorder=0))
+    # banda superior
+    bg.add_patch(Rectangle((0,128.5),100,13.1,color=CARD,zorder=1))
+    bg.add_patch(Rectangle((0,128.3),100,0.35,color=GOLD,zorder=2))
+    bg.text(8,135.6,"EL MAPA DE TU FUTURO",color=GOLD,fontsize=22,fontweight="bold",va="center",zorder=3)
+    bg.text(8,131.4,"Tres caminos parten del mismo punto. La distancia entre ellos es lo que decides hoy.",
+            color=MUT,fontsize=10.5,va="center",zorder=3)
+    # --- chart inset ---
+    cx=fig.add_axes([0.085,0.355,0.85,0.475]); cx.set_facecolor("none")
+    allv=[v for _,s,_,_ in series for v in s]; ymax=max(allv)*1.08; ymin=0
+    # banda de la brecha entre inaccion y plan
+    cx.fill_between(xs,e1,e3,color=GREEN,alpha=0.10,zorder=1)
+    for nombre,s,col,ls in series:
+        cx.plot(xs,s,color=col,lw=2.8 if ls=="-" else 2.2,ls=ls,zorder=4,solid_capstyle="round")
+        cx.scatter([xs[-1]],[s[-1]],s=46,color=col,zorder=6,edgecolor=BG,linewidth=1.4)
+    # etiquetas euro en los finales
+    cx.annotate(_eur(hi),(xs[-1],hi),xytext=(-4,6),textcoords="offset points",ha="right",va="bottom",color=GREEN,fontsize=12,fontweight="bold",zorder=7)
+    cx.annotate(_eur(lo),(xs[-1],lo),xytext=(-4,-4),textcoords="offset points",ha="right",va="top",color=RED,fontsize=11,fontweight="bold",zorder=7)
+    # linea objetivo de libertad
+    if objetivo and objetivo<=ymax:
+        cx.axhline(objetivo,color=GOLD,lw=1.0,ls=(0,(4,3)),alpha=0.55,zorder=3)
+        cx.annotate("Libertad financiera  "+_eur(objetivo),(xs[0],objetivo),xytext=(2,4),textcoords="offset points",ha="left",va="bottom",color=GOLD,fontsize=8.5,alpha=0.9,zorder=7)
+        if edad_libre:
+            iy=e3[edad_libre-edad]
+            cx.scatter([edad_libre],[iy],s=120,facecolor=GOLD,edgecolor=BG,linewidth=1.6,zorder=8,marker="*")
+            cx.annotate("a los %d"%edad_libre,(edad_libre,iy),xytext=(0,10),textcoords="offset points",ha="center",va="bottom",color=GOLD,fontsize=8.5,fontweight="bold",zorder=8)
+    cx.set_xlim(xs[0],xs[-1]); cx.set_ylim(ymin,ymax)
+    cx.set_xlabel("Tu edad",color=MUT,fontsize=9)
+    for sp in ["top","right"]: cx.spines[sp].set_visible(False)
+    for sp in ["left","bottom"]: cx.spines[sp].set_color("#39414F")
+    cx.tick_params(colors=MUT,labelsize=8)
+    import matplotlib.ticker as mtick
+    cx.yaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: ("%.0fk"%(v/1000)) if v<1e6 else ("%.1fM"%(v/1e6))))
+    cx.grid(axis="y",color="#262C3A",lw=0.6,zorder=0)
+    # leyenda manual
+    lx=8.5; ly=44.5
+    for nombre,s,col,ls in series:
+        bg.plot([lx,lx+3.2],[ly,ly],color=col,lw=3,solid_capstyle="round",zorder=5)
+        bg.text(lx+4.2,ly,nombre,color=TX,fontsize=9.5,va="center",zorder=5); lx+=4.2+len(nombre)*1.62+5
+    # --- LA BRECHA: callout grande ---
+    bg.add_patch(FancyBboxPatch((7,17.5),53,20,boxstyle="round,pad=0.6,rounding_size=2.2",fc=PANEL,ec=GREEN,lw=1.3,zorder=3))
+    bg.text(10.5,33.5,"LA BRECHA",color=MUT,fontsize=11,fontweight="bold",va="center",zorder=4)
+    bg.text(10.5,26.5,_eur(brecha),color=GREEN,fontsize=30,fontweight="bold",va="center",zorder=4)
+    bg.text(10.5,20.6,"Lo que separa actuar de no actuar, a los %d años."%meta_edad,color=MUT,fontsize=8.6,va="center",zorder=4)
+    # caja derecha: coste de un anio perdido
+    coste_ano=brecha/anos if anos else 0
+    bg.add_patch(FancyBboxPatch((63,17.5),30,20,boxstyle="round,pad=0.6,rounding_size=2.2",fc=CARD,ec="#39414F",lw=1.0,zorder=3))
+    bg.text(64.8,33.5,"CADA AÑO QUE ESPERAS",color=MUT,fontsize=8.4,fontweight="bold",va="center",zorder=4)
+    bg.text(64.8,27.2,"−"+_eur(coste_ano),color=RED,fontsize=18,fontweight="bold",va="center",zorder=4)
+    bg.text(64.8,21.2,"de patrimonio futuro,\nde media.",color=MUT,fontsize=8.2,va="center",zorder=4,linespacing=1.25)
+    # pie
+    bg.text(8,9.2,"Proyección orientativa, no una promesa. Interés compuesto sobre tu liquidez invertible.",color="#5C6470",fontsize=7.6,va="center",zorder=4)
+    bg.text(8,5.6,"ADAPTA FAMILY OFFICE",color=GOLD,fontsize=8.2,fontweight="bold",va="center",zorder=4)
+    fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
+    return brecha, edad_libre
+
 def proyeccion_chart(datos, path, r=0.05, titulo_override=None):
     import matplotlib.pyplot as plt
     edad=int(datos.get("edad",40)); meta_edad=max(EDAD_JUBILACION, edad+5); anos=max(meta_edad-edad,1)
@@ -1117,6 +1211,11 @@ def cuadro_financiero(p, datos, fi):
             f"preserve su valor es de las decisiones más rentables y menos arriesgadas que tienes sobre la mesa.</font>",
             St("tp",fontSize=10.5,leading=15))],"#FBF4E4","#B45309",ancho=160*mm))
     out.append(PageBreak())
+    try:
+        panel_proyeccion("_proypanel.png", datos)
+        out += [FullBleedImage("_proypanel.png"), PageBreak()]
+    except Exception:
+        pass
     f65,mid65,m65,medad,modo=proyeccion_chart(datos,"_proy.png")
     if modo=="3" and f65<1000 and mid65<1000:
         # Sin liquidez invertible las dos primeras vias salen ~0 EUR y parecen un error: reencuadre honesto al plan
@@ -1649,7 +1748,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   "individualizado ni atención psicológica. Si el dinero te genera un malestar que te desborda, "
                   "apóyate también en un profesional de confianza.",small),
         PageBreak()]
-    # === PANEL FINANCIERO (resumen ejecutivo visual, pagina a sangre) ===
+    # === PANEL FINANCIERO ===
     try:
         _inv=float(datos.get("inversiones_liquidas") or 0); _par=float(datos.get("colchon_liquido") or 0)
         _pat=float(datos.get("patrimonio") or 0); _ili=max(0.0,_pat-_inv-_par)
