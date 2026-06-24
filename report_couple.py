@@ -820,7 +820,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                   "divergís (vuestros focos de fricción). Al final encontraréis un guion para hablarlo.",body),
         Paragraph("Leedlo juntos. Esa es la mitad del valor.",body),
         PageBreak()]
-    S+=seccion_arquetipos(rA,rB,nA,nB)
+    S+=rb._secsafe(seccion_arquetipos,rA,rB,nA,nB)
     # compatibilidad + radar
     dAf=_fill(dA); dBf=_fill(dB)
     _gA=dAf["gasto_mensual"]; _gB=dBf["gasto_mensual"]; _gh=_gA+_gB
@@ -933,10 +933,10 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                      Paragraph(f"{100-b:.0f}",small),Paragraph(f"{g:.0f}",small),
                      rb.Chip(zona,zc,w=64,h=13)])
     S+=[tbl(rows,[78*mm,15*mm,15*mm,20*mm,32*mm]),PageBreak()]
-    S+=seccion_dafo_pareja(pA,pB,nA,nB)
-    S+=seccion_caminos_hogar(dA,dB)
-    S+=seccion_dinero_trabaja(dA,dB)
-    S+=seccion_acelerador_hogar(dA,dB)
+    S+=rb._secsafe(seccion_dafo_pareja,pA,pB,nA,nB)
+    S+=rb._secsafe(seccion_caminos_hogar,dA,dB)
+    S+=rb._secsafe(seccion_dinero_trabaja,dA,dB)
+    S+=rb._secsafe(seccion_acelerador_hogar,dA,dB)
     rb.radar_png(pA,"_radarA.png"); rb.radar_png(pB,"_radarB.png")
     try: _exA=sv.computar_extras(rA,_fill(dA),perfilA or {},_iv2)
     except Exception: _exA=None
@@ -947,8 +947,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         S+=[PageBreak(), rb.FullBleedImage("_pa_indiv.png")]
     except Exception:
         pass
-    S+=seccion_individual(cliA["nombre"] or nA,pA,trA,saludA,dA,"_radarA.png",fi_h,rA,extras=_exA)
-    S+=seccion_individual(cliB["nombre"] or nB,pB,trB,saludB,dB,"_radarB.png",fi_h,rB,extras=_exB)
+    S+=rb._secsafe(seccion_individual,cliA["nombre"] or nA,pA,trA,saludA,dA,"_radarA.png",fi_h,rA,extras=_exA)
+    S+=rb._secsafe(seccion_individual,cliB["nombre"] or nB,pB,trB,saludB,dB,"_radarB.png",fi_h,rB,extras=_exB)
     # capitulos comparativos por capa
     try:
         rb.portadilla("_pa_cruce.png", "Acto 3", 'DÓNDE CHOCÁIS\nY DÓNDE ENCAJÁIS', 'Las doce capas, enfrentadas. Dónde os sostenéis y dónde salta la fricción.')
@@ -1031,7 +1031,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                     colWidths=[26*mm,130*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),3),("VALIGN",(0,0),(-1,-1),"TOP")])]
         S.append(KeepTogether(card)); S.append(Spacer(1,4*mm))
     S+=[PageBreak()]
-    S+=seccion_coste_no_hablarlo(pA,pB,nA,nB,hogar,fi_h,divs)
+    S+=rb._secsafe(seccion_coste_no_hablarlo,pA,pB,nA,nB,hogar,fi_h,divs)
     # cruce semantico de pareja (sintesis IA de las abiertas)
     if sintesis and str(sintesis).strip():
         S+=[Paragraph("Análisis de asimetría y brecha de comunicación",h_sec),
@@ -1084,16 +1084,16 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         S+=[PageBreak(), rb.FullBleedImage("_pa_plan.png")]
     except Exception:
         pass
-    S+=seccion_constitucion_hogar(pA,pB,nA,nB,hogar,fi_h,divs)
-    S+=seccion_hoja_ruta_12m(pA,pB,nA,nB,hogar)
-    S+=laboratorio_pareja(rA,rB,pA,pB,nA,nB,dA,dB,hogar,divs)
+    S+=rb._secsafe(seccion_constitucion_hogar,pA,pB,nA,nB,hogar,fi_h,divs)
+    S+=rb._secsafe(seccion_hoja_ruta_12m,pA,pB,nA,nB,hogar)
+    S+=rb._secsafe(laboratorio_pareja,rA,rB,pA,pB,nA,nB,dA,dB,hogar,divs)
     S+=[Spacer(1,4*mm),
         Paragraph("Cómo seguir",h_sub),
         Paragraph("Repetid el diagnóstico por separado dentro de unos meses: veréis cómo vuestras distancias se "
                   "acortan a medida que habláis. Eso es, exactamente, construir patrimonio en pareja.",body),
         Paragraph("Este libro es una herramienta de autoconocimiento; no sustituye asesoramiento profesional ni "
                   "terapia de pareja.",small)]
-    S+=seccion_adapta_pareja(pA,pB,nA,nB)
+    S+=rb._secsafe(seccion_adapta_pareja,pA,pB,nA,nB)
     # ANEXO: respuestas de ambos (sin scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
     S+=[PageBreak(), Paragraph("Anexo \u2014 Vuestras respuestas",h_sec),

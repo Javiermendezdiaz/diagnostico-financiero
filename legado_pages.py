@@ -109,7 +109,7 @@ def joyas_0001(seq, tmp, cli, datos, extras, p):
         s_desp=max(0,min(1,realizable/9.0))
         s_cisne=max(0,min(1,((col+0.7*invl)/gas/9.0) if gas else 0))*0.6+c8*0.4
         s_inval=c5*0.6+max(0,min(1,(pat/(gas*60)) if gas else 0))*0.4
-        esc=[("Cisne negro","Inflación al 10% y bolsas -30%: tu vida resiste %d meses con lo líquido."%round((col+0.7*invl)/gas) if gas else "—",max(0,min(1,s_cisne))),
+        esc=[("Cisne negro",(("Inflación al 10%% y bolsas -30%%: tu vida resiste %d meses con lo líquido."%round((col+0.7*invl)/gas)) if gas else "—"),max(0,min(1,s_cisne))),
              ("Despido temprano","Tu ingreso principal cae a 0 mañana: aguantas %d meses con lo disponible."%round(realizable),s_desp),
              ("Invalidez","Un accidente te impide trabajar: %s."%("tu protección y patrimonio te dan margen" if s_inval>=0.5 else "hoy quedarías muy expuesto"),max(0,min(1,s_inval)))]
         seq.append(LD.escudo(tmp+"esc.svg",esc))

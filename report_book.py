@@ -1854,6 +1854,16 @@ def _realidad(p, datos):
         pass
     return p
 
+def _secsafe(fn, *a, **k):
+    """Red de seguridad: si una seccion falla, se salta y se registra — nunca tumba el PDF entero."""
+    try:
+        return fn(*a, **k) or []
+    except Exception as _e:
+        import sys, traceback
+        sys.stderr.write("[secsafe] seccion %s fallo (se omite): %s\n" % (getattr(fn,"__name__","?"), _e))
+        traceback.print_exc()
+        return []
+
 def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=None,arq_override=None):
     p,tr,salud=perfil(resp); p=_realidad(p,datos)
     salud=round(statistics.mean([v["score"] for v in p.values()]),1)
@@ -1943,7 +1953,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                         ("LINEBEFORE",(0,0),(0,-1),2.6,AMARILLO),("LEFTPADDING",(0,0),(0,-1),10),
                         ("TOPPADDING",(0,0),(-1,-1),9),("BOTTOMPADDING",(0,0),(-1,-1),9)]))
     S+=[PageBreak()]
-    if extras: S+=seccion_resumen_ejecutivo(extras,datos)
+    if extras: S+=_secsafe(seccion_resumen_ejecutivo,extras,datos)
     # resumen + radar
     if depth!="esencial":
         try:
@@ -2003,8 +2013,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   "<font color='#E08A00'>&#9679;</font> A vigilar (40–59) &#160;·&#160; "
                   "<font color='#1D6F42'>&#9679;</font> Sano (60+). La nota es tu salud en cada área: 100 = óptimo.",small),
         PageBreak()]
-    if extras: S+=seccion_ratio_vida(extras)
-    if extras: S+=seccion_nudo(extras)
+    if extras: S+=_secsafe(seccion_ratio_vida,extras)
+    if extras: S+=_secsafe(seccion_nudo,extras)
     if True:  # resumen (vistazo) en ambos tiers
         orden=sorted(CAPAS,key=lambda c:p[c]["score"])
         fort=orden[:3]; foco=orden[-3:][::-1]
@@ -2145,7 +2155,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             S.append(Paragraph(_e,body))
         S+=[PageBreak()]
     # === ACTO 1 (cierre): sintesis financiera (FODA + flujo + proyeccion) ANTES de planificar ===
-    S+=cuadro_financiero(p,datos,fi)
+    S+=_secsafe(cuadro_financiero,p,datos,fi)
     # === ACTO 1: Meses de Libertad Financiera — la cifra objetiva que de verdad te mide ===
     _res=(extras or {}).get("resiliencia")
     if _res:
@@ -2228,7 +2238,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                      "#FBF4E4","#B45309",ancho=160*mm),
                 Spacer(1,3*mm)]
     # === ACTO 1: mapa de fuentes de ingreso (diversificacion + €/hora por fuente) ===
-    if extras: S+=seccion_fuentes(extras)
+    if extras: S+=_secsafe(seccion_fuentes,extras)
     # === TRANSICION ACTO 1 -> ACTO 2: el golpe de realidad (dinamico segun perfil) ===
     _ingm_h=max(datos.get("ingreso_mensual",0),0); _gasm_h=datos.get("gasto_mensual",0) or 0
     _tasa_h=fi[2] if (len(fi)>2 and fi[2] is not None) else 0
@@ -2260,8 +2270,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         except Exception:
             pass
     # === ACTO 2: la brecha y las palancas (vida ideal vs actual + coste de no hacer nada) ===
-    if extras: S+=seccion_extras(extras, datos)
-    if extras and depth!="esencial": S+=seccion_coste_inaccion(extras)
+    if extras: S+=_secsafe(seccion_extras,extras,datos)
+    if extras and depth!="esencial": S+=_secsafe(seccion_coste_inaccion,extras)
     if depth!="esencial":
         # Diagnostico condicional: Gasto Anestesico (solo si estres alto Y gasto sin sentido alto)
         _c1s=p.get("C1",{}).get("score",0) or 0; _c6s=p.get("C6",{}).get("score",0) or 0
@@ -2546,7 +2556,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         Paragraph("Instrumento de 12 capas con dimensiones psicométricas de polaridad consistente. Los percentiles "
                   "se calibran empíricamente frente a la cohorte real de respondentes; mientras la muestra de tu grupo crece, se indican como provisionales. Herramienta "
                   "de autoconocimiento; no sustituye asesoramiento profesional individualizado.",small)]
-    if extras and depth!="esencial": S+=seccion_compromiso(extras)
+    if extras and depth!="esencial": S+=_secsafe(seccion_compromiso,extras)
     # === PUENTE ACTO 3 -> ACTO 4: el plan da el QUE; Adapta, el COMO (el siguiente nivel) ===
     if depth!="esencial":
         S+=[_box([Paragraph("<b>Ya tienes el qué. Falta el cómo.</b>",St("pte1",fontSize=12.5,leading=16,textColor=ACCDK,fontName=FB)),
@@ -2562,7 +2572,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             S+=[PageBreak(), FullBleedImage("_pa_t2_4.png")]
         except Exception:
             pass
-    S+=seccion_adapta(p)
+    S+=_secsafe(seccion_adapta,p)
     # === ACTO 4 (cierre): Matriz de Decision Bifurcada (Inaccion vs Adapta), cifras reales ===
     if extras and depth!="esencial":
         _ba=(extras.get("brecha") or {}).get("brecha_anual"); _nl=fi[0] if (fi and fi[0]) else None
@@ -2607,7 +2617,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
               "quieras llevarla— es lo que cambia la realidad de tus finanzas, de tu tiempo y, con ellos, de tu vida.",
               St("debc",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=2))]
         S+=[PageBreak()]+_dp
-    if extras: S+=seccion_conclusion(extras)
+    if extras: S+=_secsafe(seccion_conclusion,extras)
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
     S+=[PageBreak(), Paragraph("Anexo \u2014 Tus respuestas",h_sec),
