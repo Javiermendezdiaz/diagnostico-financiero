@@ -1081,6 +1081,84 @@ def validar_finanzas(datos):
     confirmacion=("Esto es lo que hemos entendido: "+", ".join(partes)+".") if partes else ""
     return {"derivados":der,"alertas":a,"confirmacion":confirmacion}
 
+
+def frase_capa(code, datos, p=None):
+    """Frase de 'tu caso, en numeros' por capa, tejida con las cifras REALES del cliente.
+    Devuelve '' si faltan datos para esa capa. Tono neutral (vale para score alto o bajo)."""
+    g = lambda k: (_num0(datos, k) or 0)
+    ing, gas, aho = g("ingreso_mensual"), g("gasto_mensual"), g("ahorro_mensual")
+    pat, col, inv = g("patrimonio"), g("colchon_liquido"), g("inversiones_liquidas")
+    deu, cuo, rp = g("deuda_total"), g("cuota_deuda"), g("renta_pasiva")
+    ge, viv, horas = g("gasto_estatus"), g("coste_vivienda"), g("horas_semana")
+    superavit = ing - gas
+    liquido = col + inv
+    e = _eur
+    meses = (lambda x: ("%.1f" % x).rstrip("0").rstrip("."))
+    def mcol(): return (col / gas) if gas > 0 else None
+    def mresist(): return (liquido / gas) if gas > 0 else None
+    f = ""
+    if code == "C1":   # agotamiento
+        if ing > 0 and gas > 0:
+            if superavit < 0:
+                f = "Cada mes gastas %s mas de lo que ingresas: ese numero en rojo es parte del ruido que te pesa en la cabeza." % e(-superavit)
+            else:
+                _m = round(superavit / ing * 100)
+                f = "Cada mes te queda un margen de %s (%d%% de lo que entra). %s" % (e(superavit), _m,
+                    "Poco aire deja poco descanso mental." if _m < 10 else "Ese colchon de maniobra juega a favor de tu calma.")
+    elif code == "C2":  # libertad financiera
+        if gas > 0:
+            num = gas * 12 * 25
+            cob = (pat / num * 100) if num > 0 else 0
+            f = "Tu vida cuesta %s/ano, asi que tu numero de libertad (regla del 4%%) es %s. Hoy tu patrimonio neto (%s) cubre el %d%% de ese objetivo." % (e(gas * 12), e(num), e(pat), round(cob))
+    elif code == "C3":  # resistencia / stress-test
+        mr = mresist()
+        if mr is not None:
+            f = "Si tus ingresos se cortaran manana, aguantarias %s meses con lo que tienes liquido y realizable (%s). %s" % (meses(mr), e(liquido),
+                "Por debajo de 3 meses, cualquier golpe te obliga a decidir con prisa." if mr < 3 else "Es un margen que te deja decidir sin panico.")
+    elif code == "C4":  # estilo de vida
+        if ing > 0 and gas > 0:
+            tasa = round(aho / ing * 100) if aho > 0 else round(max(0, superavit) / ing * 100)
+            f = "De cada 100 EUR que entran, %d se quedan contigo y %d se van en tu estilo de vida." % (tasa, 100 - tasa)
+    elif code == "C5":  # proteccion / herencia
+        if pat > 0:
+            f = "Tienes un patrimonio neto de %s%s. La pregunta no es cuanto, sino quien lo recibiria y como, si tu faltaras manana." % (e(pat), (" y %s de deuda asociada" % e(deu)) if deu > 0 else "")
+    elif code == "C6":  # estatus
+        if gas > 0 and ge > 0:
+            f = "Declaras %s/mes de gasto de imagen o estatus: son %s al ano, el %d%% de todo lo que gastas." % (e(ge), e(ge * 12), round(ge / gas * 100))
+    elif code == "C7":  # concentracion de ingresos
+        if ing > 0:
+            act = round((1 - min(rp, ing) / ing) * 100)
+            f = "El %d%% de lo que entra en tu casa depende de tu trabajo activo; solo el %d%% (%s/mes) llega sin cambiar tu tiempo por dinero." % (act, 100 - act, e(min(rp, ing)))
+    elif code == "C8":  # antifragilidad
+        mr = mresist()
+        if mr is not None:
+            f = "Ante un imprevisto, tu musculo real es de %s meses (%s entre colchon e inversiones realizables). Eso es lo que te separa de tener que improvisar." % (meses(mr), e(liquido))
+    elif code == "C9":  # flujo de caja
+        if ing > 0 and gas > 0:
+            f = "Tu flujo: entran %s, salen %s, te quedan %s al mes. %s" % (e(ing), e(gas), e(superavit),
+                "El sistema gotea: hay que cerrar la fuga." if superavit < 0 else "Ese superavit es la materia prima de todo lo demas.")
+    elif code == "C10":  # salud de deuda
+        if deu > 0:
+            apal = round(deu / pat * 100) if pat > 0 else None
+            _ap = (" Tu deuda equivale al %d%% de tu patrimonio neto." % apal) if apal is not None else ""
+            _cu = (" La cuota (%s/mes) se lleva el %d%% de tus ingresos." % (e(cuo), round(cuo / ing * 100))) if (cuo > 0 and ing > 0) else ""
+            f = "Debes %s en total.%s%s" % (e(deu), _ap, _cu)
+        elif ing > 0:
+            f = "Hoy no declaras deuda: empiezas cada mes sin que nadie haya cobrado antes que tu. Es una ventaja real."
+    elif code == "C11":  # crecimiento / palanca
+        if ing > 0:
+            vh = ing / 160.0
+            f = "Tu hora vale hoy unos %s (sobre tus ingresos y una jornada estandar). Crecer es subir ese numero o que el dinero trabaje sin ti." % e(vh)
+    elif code == "C12":  # inversion / disciplina
+        if pat > 0:
+            dormido = max(0.0, pat - inv - col)
+            if inv > 0 or col > 0:
+                f = "De tu patrimonio, %s esta invertido y trabajando, %s parado en liquido, y unos %s en activos que no rentan (vivienda, ilíquido). El dinero dormido es tu mayor oportunidad silenciosa." % (e(inv), e(col), e(dormido))
+            else:
+                f = "Con %s de patrimonio, la pregunta es cuanto esta de verdad trabajando para ti hoy y cuanto solo espera."
+                f = f % e(pat)
+    return f or ""
+
 def computar_extras(resp, datos, perfil_in, inst=None):
     """Punto de entrada unico. Devuelve dict listo para report_book + arq_code."""
     inst = inst or cargar_inst()
@@ -1097,6 +1175,7 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "palancas": calcular_palancas(datos, p, perfil_in, resp),
         "contradicciones": calcular_contradicciones(datos, resp, perfil_in, p),
         "coherencia": validar_finanzas(datos),
+        "frases": {c["code"]: frase_capa(c["code"], datos, p) for c in inst["capas"]},
         "energia": calcular_energia(perfil_in),
         "conciliacion": calcular_conciliacion(perfil_in),
         "preguntas_asesor": calcular_preguntas_asesor(perfil_in, p),

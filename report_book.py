@@ -2025,10 +2025,14 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         for c in fort:
             S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({100-p[c]['score']:.0f}/100). {OPORTUNIDAD[c]}",
                      St("ef",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
+            _frf=(extras or {}).get("frases",{}).get(c) if extras else None
+            if _frf: S.append(Paragraph("<font color='#B45309'>&#9656;</font> <i>"+_frf+"</i>",St("eff",fontSize=9.3,leading=12.5,leftIndent=14,spaceAfter=6,textColor=GREY)))
         S.append(Paragraph("Tus tres focos",h_sub))
         for c in foco:
             S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({100-p[c]['score']:.0f}/100). {RIESGO[c]}",
                      St("ec",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
+            _frc=(extras or {}).get("frases",{}).get(c) if extras else None
+            if _frc: S.append(Paragraph("<font color='#B45309'>&#9656;</font> <i>"+_frc+"</i>",St("ecf",fontSize=9.3,leading=12.5,leftIndent=14,spaceAfter=6,textColor=GREY)))
         S+=[Spacer(1,3*mm),
             Paragraph(f"En una frase: tu salud psicofinanciera global es de <b>{100-salud:.0f}/100</b>"
                       f"({_pct_frase}{_pct_nota}). No es una condena ni un trofeo: es tu punto "
@@ -2067,6 +2071,10 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
              Spacer(1,3*mm),
              Paragraph("Qu\u00e9 significa para ti",h_sub),
              Paragraph(interpretar(pc["nombre"],pc["score"],pc["banda"],pc["bi"],pc["peor"],code),body)]
+        _frp=(extras or {}).get("frases",{}).get(code) if extras else None
+        if _frp:
+            cab.append(_box([Paragraph("<b>Tu caso, en números:</b> "+_frp,St("tcn",fontSize=10.5,leading=15,textColor=INK))],"#FBF4E4","#B45309",ancho=160*mm))
+            cab.append(Spacer(1,2*mm))
         _cit=citas_capa(code,resp)
         if _cit:
             cab.append(Paragraph("Lo que reconociste",h_sub))

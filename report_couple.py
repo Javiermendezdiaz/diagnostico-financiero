@@ -353,6 +353,9 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
                       rb.Chip(prof[_c]["banda"],BANDC[prof[_c]["bi"]],w=84,h=13)]],
                      colWidths=[118*mm,40*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),3)]),
               Paragraph("<b>Qué mide en ti:</b> "+rb.QMIDE[_c],St("dxq",fontSize=9.4,leading=13,leftIndent=4))]
+        _fr=(extras or {}).get("frases",{}).get(_c) if extras else None
+        if _fr:
+            _blk.append(rb._box([Paragraph("<b>Tu caso, en números:</b> "+_fr,St("dxtcn",fontSize=9.2,leading=12.5,textColor=INK))],"#FBF4E4","#B45309",ancho=160*mm))
         _facd=(_facmap[_c].get("facetas",{}) if isinstance(_facmap[_c],dict) else {})
         _fr=[]
         for _fk,_fv in prof[_c]["facetas"].items():
