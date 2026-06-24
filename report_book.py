@@ -1729,16 +1729,7 @@ def seccion_compromiso(extras):
     """Cierre: protocolo de revisión a 6 meses + Contrato contigo mismo (firma presente/futuro)."""
     if not extras: return []
     cmp=extras.get("compromiso")
-    out=[PageBreak(), Paragraph("Tu revisión a 6 meses",h_sec),
-         Paragraph("Un patrimonio no se gestiona una vez: se revisa. Cada seis meses, sin excepciones, "
-                   "siéntate treinta minutos y recalcula. Esto es lo que se mira:",body), Spacer(1,2*mm)]
-    for t in ["Tu fortuna neta: activos menos deudas. ¿Subió o bajó respecto a hace seis meses?",
-              "Tus ingresos y tus gastos: cuánto entró, cuánto salió y cuánto convertiste en patrimonio.",
-              "El desarrollo de tus inversiones: ¿hacen lo que esperabas? ¿Qué comisiones pagaste?",
-              "Tus objetivos: ¿siguen siendo los mismos o la vida pide ajustarlos?",
-              "Tu tasa de cumplimiento: del plan que te marcaste, ¿qué porcentaje hiciste de verdad?"]:
-        out.append(Paragraph("<font face='Helvetica'>[   ]</font>  %s"%t,St("rv6",fontSize=9.8,leading=14,leftIndent=8,spaceAfter=3)))
-    out.append(Paragraph("Lo que no se mide, no se gobierna. Lo que no se revisa, se deteriora en silencio.",St("rv6n",fontSize=9.5,leading=13,textColor=GREY,spaceBefore=3)))
+    out=[PageBreak()]   # "revision a 6 meses" eliminada (compresion); el contrato sigue debajo
     if cmp:
         if cmp.get("crisis"):
             out+=[Spacer(1,7*mm), Paragraph("Tu compromiso: primero, recuperar el aire",h_sec),
@@ -2564,7 +2555,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 Paragraph(f"<b>Por qu\u00e9 importa:</b> {impacto}",St("gi",fontSize=9.6,leading=13,textColor=colors.HexColor("#9A3412"),spaceAfter=7))]))
         S+=[PageBreak()]
     if depth!="esencial":
-        S+=laboratorio_individual(p,datos,fi,salud,resp)
+        pass  # cuaderno de trabajo eliminado (compresion)
     # cierre
     S+=[Paragraph("Cómo seguir",h_sec),
         Paragraph("Este libro es una foto de hoy, no una condena. La mayoría de las cifras que más te incomodan "
@@ -2595,7 +2586,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             pass
     S+=_secsafe(seccion_adapta,p)
     # === ACTO 4 (cierre): Matriz de Decision Bifurcada (Inaccion vs Adapta), cifras reales ===
-    if extras and depth!="esencial":
+    if False:  # "Dos caminos desde aqui" eliminado (compresion)
         _ba=(extras.get("brecha") or {}).get("brecha_anual"); _nl=fi[0] if (fi and fi[0]) else None
         _izq=[]
         if _ba and _ba>0: _izq.append("Sigues dejando escapar unos <b>%s al año</b> que tu trayectoria aún no genera." % _eur(_ba))
@@ -2624,7 +2615,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             Paragraph("El diagnóstico ya está hecho. Lo único que queda es elegir desde dónde sigues:",body),
             Spacer(1,3*mm), _mz]
     # === Manifiesto de cierre: Tus deberes (principios, voz Adapta) ===
-    if depth!="esencial":
+    if False:  # "Tus deberes" eliminado (compresion)
         _deb=["Mide.","Corrige.","No hagas ceros.","Mejora cada día un poco.","Comprométete a lograrlo.",
               "Haz más cosas que funcionen.","Elimina lo que no te acerque a tus objetivos.","Define tu estilo de vida y cómo sufragarlo.",
               "Piensa en tu peor escenario.","Detecta oportunidades.","Rentabiliza tu dinero.","Ahorra para invertir.",
