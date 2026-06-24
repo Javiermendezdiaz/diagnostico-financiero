@@ -752,7 +752,9 @@ def cashflow_waterfall(datos, path):
     plt.tight_layout(); fig.savefig(path,dpi=200,transparent=True); plt.close(fig); gc.collect()
     return libre
 
-def panel_proyeccion(path, datos):
+def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
+                     subtitulo="Tres caminos parten del mismo punto. La distancia entre ellos es lo que decides hoy.",
+                     brecha_cap=None):
     """Pagina cinematografica a sangre: tres caminos del patrimonio + LA BRECHA + hito de libertad."""
     import matplotlib.pyplot as plt
     from matplotlib.patches import FancyBboxPatch, Rectangle
@@ -797,9 +799,8 @@ def panel_proyeccion(path, datos):
     # banda superior
     bg.add_patch(Rectangle((0,128.5),100,13.1,color=CARD,zorder=1))
     bg.add_patch(Rectangle((0,128.3),100,0.35,color=GOLD,zorder=2))
-    bg.text(8,135.6,"EL MAPA DE TU FUTURO",color=GOLD,fontsize=22,fontweight="bold",va="center",zorder=3)
-    bg.text(8,131.4,"Tres caminos parten del mismo punto. La distancia entre ellos es lo que decides hoy.",
-            color=MUT,fontsize=10.5,va="center",zorder=3)
+    bg.text(8,135.6,titulo,color=GOLD,fontsize=22,fontweight="bold",va="center",zorder=3)
+    bg.text(8,131.4,subtitulo,color=MUT,fontsize=10.5,va="center",zorder=3)
     # --- chart inset ---
     cx=fig.add_axes([0.085,0.355,0.85,0.475]); cx.set_facecolor("none")
     allv=[v for _,s,_,_ in series for v in s]; ymax=max(allv)*1.08; ymin=0
@@ -836,7 +837,7 @@ def panel_proyeccion(path, datos):
     bg.add_patch(FancyBboxPatch((7,17.5),53,20,boxstyle="round,pad=0.6,rounding_size=2.2",fc=PANEL,ec=GREEN,lw=1.3,zorder=3))
     bg.text(10.5,33.5,"LA BRECHA",color=MUT,fontsize=11,fontweight="bold",va="center",zorder=4)
     bg.text(10.5,26.5,_eur(brecha),color=GREEN,fontsize=30,fontweight="bold",va="center",zorder=4)
-    bg.text(10.5,20.6,"Lo que separa actuar de no actuar, a los %d años."%meta_edad,color=MUT,fontsize=8.6,va="center",zorder=4)
+    bg.text(10.5,20.6,(brecha_cap or "Lo que separa actuar de no actuar, a los %d años.")%meta_edad,color=MUT,fontsize=8.6,va="center",zorder=4)
     # caja derecha: coste de un anio perdido
     coste_ano=brecha/anos if anos else 0
     bg.add_patch(FancyBboxPatch((63,17.5),30,20,boxstyle="round,pad=0.6,rounding_size=2.2",fc=CARD,ec="#39414F",lw=1.0,zorder=3))

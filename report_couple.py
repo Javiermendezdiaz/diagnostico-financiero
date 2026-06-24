@@ -241,7 +241,16 @@ def seccion_caminos_hogar(dA, dB):
         f65,mid65,m65,medad,modo=rb.proyeccion_chart(hog,"_proyhogar.png",titulo_override="Tres caminos para vuestro patrimonio (sobre vuestra liquidez invertible)")
     except Exception:
         return []
-    out=[PageBreak(), Paragraph("Vuestros tres caminos",h_sec),
+    out=[]
+    try:
+        rb.panel_proyeccion("_proyhogarpanel.png", hog,
+            titulo="EL MAPA DE VUESTRO FUTURO",
+            subtitulo="Tres caminos parten del mismo punto. La distancia la decidís vosotros, cada mes.",
+            brecha_cap="Lo que separa actuar de no hacerlo, juntos, a los %d años.")
+        out += [PageBreak(), rb.FullBleedImage("_proyhogarpanel.png")]
+    except Exception:
+        pass
+    out += [PageBreak(), Paragraph("Vuestros tres caminos",h_sec),
          Paragraph("El patrimonio del hogar a la jubilación, según lo que decidáis juntos: dejarlo como está, invertirlo "
                    "bien, o ejecutar vuestro plan conjunto. La distancia entre las líneas no la decide el mercado — la decidís vosotros.",body),
          Image("_proyhogar.png",width=160*mm,height=75*mm,hAlign="CENTER")]
@@ -694,12 +703,11 @@ def seccion_hoja_ruta_12m(pA,pB,nA,nB,hogar):
     return out
 
 def mapa_relacion(path, capas, compat, nA, nB):
-    """Infografico a sangre: dumbbell por capa (donde coincide/diverge la pareja)."""
     from matplotlib.patches import FancyBboxPatch, Rectangle, Circle
     BG="#0E1018"; PANEL="#161A24"; GOLD="#E8C861"; TXC="#F4F1E8"; GRC="#8A93A6"; GREEN="#2FB36B"; RED="#D8674F"; AMB="#E0A93B"; BLUE="#5B8DEF"
     fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
     ax=fig.add_axes([0,0,1,1]); ax.axis("off"); ax.set_xlim(0,100); ax.set_ylim(0,141.6)
-    def T(x,y,s,sz,c=TXC,w="normal",ha="left"): ax.text(x,y,s,fontsize=sz,color=c,ha=ha,fontweight=w,family="DejaVu Sans",zorder=6)
+    def T(x,y,ss,sz,c=TXC,w="normal",ha="left"): ax.text(x,y,ss,fontsize=sz,color=c,ha=ha,fontweight=w,family="DejaVu Sans",zorder=6)
     def bx(x,y,w,h,fc,r=1.4,ec=None,lw=0): ax.add_patch(FancyBboxPatch((x,y),w,h,boxstyle="round,pad=0,rounding_size=%s"%r,fc=fc,ec=ec or fc,lw=lw,zorder=2))
     ax.add_patch(Rectangle((0,128),100,13.6,fc="#141A28",zorder=1))
     T(8,134,"ADAPTA",13,GOLD,"bold"); T(24.2,134.2,"FAMILY OFFICE",7,GRC)
@@ -874,7 +882,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         Paragraph("De cada euro que entra en casa, esto es lo que se queda y lo que se va. Si la barra «sin asignar» "
                   "es grande, no es libertad: es dinero esperando una decisión que aún no habéis tomado juntos.",small)]),
         PageBreak()]
-    # === MAPA DE LA RELACIÓN (infografico a sangre) ===
+    # === MAPA DE LA RELACIÓN ===
     try:
         _short={"C1":"Estrés con el dinero","C2":"Libertad","C3":"Resistencia","C4":"Estilo de vida","C5":"Protección legal","C6":"Gasto de imagen","C7":"Dependencia de ingresos","C8":"Antifragilidad","C9":"Control del flujo","C10":"Salud de la deuda","C11":"Crecimiento","C12":"Inversión"}
         _caps=[(_short.get(c, CAPAS[c]["nombre"]), pA[c]["score"], pB[c]["score"]) for c in CAPAS]
