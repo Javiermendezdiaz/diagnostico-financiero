@@ -829,10 +829,10 @@ def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
     cx.yaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: ("%.0fk"%(v/1000)) if v<1e6 else ("%.1fM"%(v/1e6))))
     cx.grid(axis="y",color="#262C3A",lw=0.6,zorder=0)
     # leyenda manual
-    lx=8.5; ly=44.5
+    lx=6.5; ly=44.5
     for nombre,s,col,ls in series:
-        bg.plot([lx,lx+3.2],[ly,ly],color=col,lw=3,solid_capstyle="round",zorder=5)
-        bg.text(lx+4.2,ly,nombre,color=TX,fontsize=9.5,va="center",zorder=5); lx+=4.2+len(nombre)*1.62+5
+        bg.plot([lx,lx+2.6],[ly,ly],color=col,lw=3,solid_capstyle="round",zorder=5)
+        bg.text(lx+3.4,ly,nombre,color=TX,fontsize=8.4,va="center",zorder=5); lx+=3.4+len(nombre)*1.15+4
     # --- LA BRECHA: callout grande ---
     bg.add_patch(FancyBboxPatch((7,17.5),53,20,boxstyle="round,pad=0.6,rounding_size=2.2",fc=PANEL,ec=GREEN,lw=1.3,zorder=3))
     bg.text(10.5,33.5,"LA BRECHA",color=MUT,fontsize=11,fontweight="bold",va="center",zorder=4)
