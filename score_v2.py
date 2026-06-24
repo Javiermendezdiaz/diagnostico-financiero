@@ -1108,8 +1108,9 @@ def frase_capa(code, datos, p=None):
     elif code == "C2":  # libertad financiera
         if gas > 0:
             num = gas * 12 * 25
-            cob = (pat / num * 100) if num > 0 else 0
-            f = "Tu vida cuesta %s/ano, asi que tu numero de libertad (regla del 4%%) es %s. Hoy tu patrimonio neto (%s) cubre el %d%% de ese objetivo." % (e(gas * 12), e(num), e(pat), round(cob))
+            cob_pat = round(pat / num * 100) if num > 0 else 0
+            cob_liq = round((col + inv) / num * 100) if num > 0 else 0
+            f = "Tu vida cuesta %s/ano, asi que tu numero de libertad (regla del 4%%) es %s. De ese objetivo, tu patrimonio total cubre el %d%%, pero solo el %d%% esta liquido o invertido trabajando de verdad hacia el (el resto sigue en activos que aun no rentan)." % (e(gas * 12), e(num), cob_pat, cob_liq)
     elif code == "C3":  # resistencia / stress-test
         mr = mresist()
         if mr is not None:

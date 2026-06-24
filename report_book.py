@@ -1753,7 +1753,7 @@ def seccion_compromiso(extras):
         if cmp.get("objetivo_ingresos"): metas.append("Mis ingresos medios serán, como mínimo, de <b>%s/mes</b>."%_eur(cmp["objetivo_ingresos"]))
         if cmp.get("numero_libertad"):
             pl=(" — mi horizonte: <b>%d años</b>"%cmp["plazo_anios"]) if cmp.get("plazo_anios") else ""
-            metas.append("Mi número de libertad es <b>%s</b>%s. Cada decisión me acerca o me aleja de él."%(_eur(cmp["numero_libertad"]),pl))
+            metas.append("Mi número de libertad <b>para la vida que quiero</b> es <b>%s</b>%s. Cada decisión me acerca o me aleja de él."%(_eur(cmp["numero_libertad"]),pl))
         if metas:
             inner.append(Paragraph("<font color='#B45309'><b>MIS OBJETIVOS IRRENUNCIABLES</b></font>",St("c1",fontSize=9.8,leading=14,spaceBefore=7)))
             for m in metas: inner.append(Paragraph("&#9656;  %s"%m,St("c2",fontSize=9.7,leading=14,leftIndent=8,spaceAfter=1)))
