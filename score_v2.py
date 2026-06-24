@@ -1028,6 +1028,59 @@ def calcular_vivienda(datos, perfil_in):
     return {"modo": None}
 
 
+
+def validar_finanzas(datos):
+    """Cruza los numeros que da el cliente, deriva magnitudes y detecta incoherencias.
+    Devuelve {derivados, alertas:[{campo,nivel,mensaje}], confirmacion}. Tolerante (sin falsos positivos)."""
+    g=lambda k:(_num0(datos,k) or 0)
+    ing=g("ingreso_mensual"); gas=g("gasto_mensual"); aho=g("ahorro_mensual"); rp=g("renta_pasiva")
+    cv=g("coste_vivienda"); cd=g("cuota_deuda"); pat=g("patrimonio"); col=g("colchon_liquido")
+    deu=g("deuda_total"); inv=g("inversiones_liquidas"); pen=g("pension_estimada"); ge=g("gasto_estatus")
+    ift=g("ing_trabajo"); iiv=g("ing_inversion"); ial=g("ing_alquiler"); iot=g("ing_otros")
+    superavit=ing-gas
+    liquido=col+inv
+    activos=pat+deu                      # patrimonio es NETO -> activos brutos = neto + deuda
+    tasa=round(100*aho/ing,1) if ing>0 else None
+    col_meses=round(col/gas,1) if gas>0 else None
+    a=[]   # alertas
+    def flag(campo,nivel,msg): a.append({"campo":campo,"nivel":nivel,"mensaje":msg})
+    tol=lambda base:max(50.0,0.12*abs(base))   # 12% o 50€, lo que sea mayor
+    # 1) ahorro no puede superar el superavit real
+    if ing>0 and gas>0 and aho>0 and aho>superavit+tol(ing):
+        flag("ahorro_mensual","alta","Dices que ahorras %s/mes, pero con tus ingresos (%s) menos gastos (%s) quedan %s. ¿El ahorro sale de otro sitio o revisamos alguna cifra?"%(_eur(aho),_eur(ing),_eur(gas),_eur(superavit)))
+    # 2) vivienda + cuota de deuda no pueden exceder el gasto total
+    if gas>0 and (cv+cd)>gas+tol(gas):
+        flag("gasto_mensual","alta","Vivienda (%s) + cuota de deuda (%s) ya suman %s, mas que tu gasto total declarado (%s). ¿El gasto total es mayor?"%(_eur(cv),_eur(cd),_eur(cv+cd),_eur(gas)))
+    # 3) liquido + invertido no puede superar los activos brutos
+    if pat>0 and liquido>activos+tol(activos):
+        flag("patrimonio","alta","Tu dinero liquido + invertido (%s) supera tus activos totales (%s). ¿Falta sumar algun activo (vivienda, inmuebles) al patrimonio?"%(_eur(liquido),_eur(activos)))
+    # 4) la renta pasiva no puede superar el ingreso total (que ya la incluye)
+    if ing>0 and rp>ing+tol(ing):
+        flag("renta_pasiva","media","Tu renta pasiva (%s) supera tu ingreso total (%s). El ingreso total deberia incluirla — revisemoslo."%(_eur(rp),_eur(ing)))
+    # 5) las fuentes por separado deberian cuadrar con el ingreso total
+    sf=ift+iiv+ial+iot
+    if ing>0 and sf>0 and abs(sf-ing)>max(150.0,0.20*ing):
+        flag("ingreso_mensual","media","La suma de tus fuentes (%s) no cuadra con tu ingreso mensual (%s). ¿Falta alguna fuente o sobra?"%(_eur(sf),_eur(ing)))
+    # 6) gasto de estatus dentro del gasto total
+    if gas>0 and ge>gas+tol(gas):
+        flag("gasto_estatus","media","Tu gasto de imagen/estatus (%s) supera tu gasto total (%s). ¿Es parte del gasto o adicional?"%(_eur(ge),_eur(gas)))
+    # 7) deuda con cuota cero (aviso suave)
+    if deu>5000 and cd==0:
+        flag("cuota_deuda","baja","Tienes %s de deuda pero 0 de cuota mensual. ¿Esta en carencia o sin cuota fija ahora mismo?"%_eur(deu))
+    # 8) pension estimada implausible frente al ingreso
+    if ing>0 and pen>ing*1.6:
+        flag("pension_estimada","baja","La pension que estimas (%s) es bastante mayor que tu ingreso actual (%s). ¿La revisamos?"%(_eur(pen),_eur(ing)))
+    der={"superavit":superavit,"patrimonio_neto":pat,"activos_brutos":activos,"liquido":liquido,
+         "tasa_ahorro_pct":tasa,"colchon_meses":col_meses,"renta_pasiva":rp}
+    # confirmacion en lenguaje claro
+    partes=[]
+    if ing>0: partes.append("ingresas %s/mes"%_eur(ing))
+    if gas>0: partes.append("gastas %s"%_eur(gas))
+    if aho>0: partes.append("ahorras %s%s"%(_eur(aho),(" (%s%% de tus ingresos)"%tasa) if tasa is not None else ""))
+    if pat>0: partes.append("tu patrimonio neto es %s"%_eur(pat))
+    confirmacion=("Esto es lo que hemos entendido: "+", ".join(partes)+".") if partes else ""
+    return {"derivados":der,"alertas":a,"confirmacion":confirmacion}
+
 def computar_extras(resp, datos, perfil_in, inst=None):
     """Punto de entrada unico. Devuelve dict listo para report_book + arq_code."""
     inst = inst or cargar_inst()
@@ -1043,6 +1096,7 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "accion_unica": calcular_accion_unica(ratios, p),
         "palancas": calcular_palancas(datos, p, perfil_in, resp),
         "contradicciones": calcular_contradicciones(datos, resp, perfil_in, p),
+        "coherencia": validar_finanzas(datos),
         "energia": calcular_energia(perfil_in),
         "conciliacion": calcular_conciliacion(perfil_in),
         "preguntas_asesor": calcular_preguntas_asesor(perfil_in, p),

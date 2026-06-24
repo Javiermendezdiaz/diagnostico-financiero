@@ -683,6 +683,16 @@ function contNum(){
     var _iss=auditCoherencia(q.campo);
     if(_iss.length) toast(100, _iss[0]+' — pulsa ← Atrás para revisarlo.');
   }
+  // === Confirmacion positiva: cuando ya tenemos el nucleo, le devolvemos lo entendido (una vez) ===
+  if(!st._confirmado){
+    var _Dc=st.datos||{};
+    if((+_Dc.ingreso_mensual>0)&&(+_Dc.gasto_mensual>0)&&(_Dc.patrimonio!=null)&&!auditCoherencia().length){
+      st._confirmado=1;
+      var _ts=Math.round(((+_Dc.ahorro_mensual||0)/(+_Dc.ingreso_mensual))*100);
+      var _aho=(+_Dc.ahorro_mensual>0)?(', ahorras '+Math.round(+_Dc.ahorro_mensual)+' € ('+_ts+'%)'):'';
+      toast(0,'✓ Confirmado: ingresas '+Math.round(+_Dc.ingreso_mensual)+' €/mes, gastas '+Math.round(+_Dc.gasto_mensual)+' €'+_aho+', patrimonio neto '+Math.round(+_Dc.patrimonio)+' €. Lo he entendido — si algo no cuadra, ← Atrás.');
+    }
+  }
   // ancla real: margen de maniobra (ingreso - gasto)
   if((q.campo==='gasto_mensual'||q.campo==='ingreso_mensual') && st.datos['ingreso_mensual'] && st.datos['gasto_mensual']){
     const mg=Math.round((st.datos['ingreso_mensual']-st.datos['gasto_mensual'])/st.datos['ingreso_mensual']*100);
