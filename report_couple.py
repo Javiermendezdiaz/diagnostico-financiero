@@ -691,24 +691,7 @@ def seccion_coste_no_hablarlo(pA,pB,nA,nB,hogar,fi_h,divs):
         out+=[rb._box([Paragraph("<b>Lo que cuesta en la relación</b>",St("cr0",fontSize=10.5,leading=14,fontName="Helvetica-Bold")),
                        Paragraph(rel,St("cr1",fontSize=9.8,leading=14,spaceBefore=2))],"#FBF3E8","#B45309",ancho=160*mm),
               Spacer(1,4*mm)]
-    izq=["Lo invertible sigue dormido y el número de libertad apenas se mueve.",
-         "Las mismas diferencias, sin hablar, se repiten cada mes.",
-         "Cada uno decide por su lado; el hogar avanza a tirones."]
-    der=["Ponéis a trabajar lo que está parado, con un plan común.",
-         "Convertís cada divergencia en un acuerdo concreto.",
-         "Decidís como equipo, con un solo rumbo y roles claros."]
-    filas=[[Paragraph("<font color='white'><b>Si no lo habláis</b></font>",St("mzi",fontSize=11,leading=14,textColor=colors.white,fontName="Helvetica-Bold")),
-            Paragraph("<font color='white'><b>Si lo trabajáis juntos</b></font>",St("mzd",fontSize=11,leading=14,textColor=colors.white,fontName="Helvetica-Bold"))]]
-    for i in range(max(len(izq),len(der))):
-        filas.append([Paragraph(("&#9656;  "+izq[i]) if i<len(izq) else "",small),
-                      Paragraph(("&#9656;  "+der[i]) if i<len(der) else "",small)])
-    mz=Table(filas,colWidths=[80*mm,80*mm])
-    mz.setStyle(TableStyle([("BACKGROUND",(0,0),(0,0),colors.HexColor("#9A3B2E")),("BACKGROUND",(1,0),(1,0),colors.HexColor("#1D6F42")),
-        ("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),9),("RIGHTPADDING",(0,0),(-1,-1),9),
-        ("TOPPADDING",(0,0),(-1,-1),7),("BOTTOMPADDING",(0,0),(-1,-1),7),
-        ("BACKGROUND",(0,1),(0,-1),colors.HexColor("#FBECE8")),("BACKGROUND",(1,1),(1,-1),colors.HexColor("#EAF5EE")),
-        ("LINEBELOW",(0,0),(-1,-1),0.4,LINE)]))
-    out+=[Paragraph("Dos caminos desde aquí",h_sub),mz,PageBreak()]
+    out+=[PageBreak()]   # matriz "Dos caminos desde aqui" eliminada (redundante con "Vuestros tres caminos")
     return out
 
 def seccion_hoja_ruta_12m(pA,pB,nA,nB,hogar):
@@ -1105,11 +1088,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         pass
     S+=rb._secsafe(seccion_constitucion_hogar,pA,pB,nA,nB,hogar,fi_h,divs)
     S+=rb._secsafe(seccion_hoja_ruta_12m,pA,pB,nA,nB,hogar)
-    S+=rb._secsafe(laboratorio_pareja,rA,rB,pA,pB,nA,nB,dA,dB,hogar,divs)
-    S+=[Spacer(1,4*mm),
-        Paragraph("Cómo seguir",h_sub),
-        Paragraph("Repetid el diagnóstico por separado dentro de unos meses: veréis cómo vuestras distancias se "
-                  "acortan a medida que habláis. Eso es, exactamente, construir patrimonio en pareja.",body),
+    pass  # laboratorio_pareja eliminado (cuaderno de trabajo redundante)
+    S+=[Spacer(1,4*mm),   # "Como seguir / repetid el diagnostico" eliminado; queda solo el descargo
         Paragraph("Este libro es una herramienta de autoconocimiento; no sustituye asesoramiento profesional ni "
                   "terapia de pareja.",small)]
     S+=rb._secsafe(seccion_adapta_pareja,pA,pB,nA,nB)
