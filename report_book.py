@@ -752,13 +752,49 @@ def cashflow_waterfall(datos, path):
     plt.tight_layout(); fig.savefig(path,dpi=200,transparent=True); plt.close(fig); gc.collect()
     return libre
 
+def panel_persona(path, nombre, salud, arq_code, prof):
+    """Portada-heroe oscura del perfil individual: nombre, arquetipo, salud gigante, fortaleza/foco."""
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Rectangle, FancyBboxPatch, Circle
+    BG="#0E1018"; CARD="#161A24"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"
+    nota=max(0,min(100,round(100-salud)))
+    arq=ARQ_META.get(arq_code) if arq_code else None
+    arqcol=arq.get("color",GOLD) if arq else GOLD
+    scol="#5FB98E" if nota>=70 else ("#E8C861" if nota>=45 else "#D9755B")
+    orden=sorted([c for c in CAPAS if c in prof],key=lambda c:prof[c]["score"])
+    fuerte=_SHORT12.get(orden[0],CAPAS[orden[0]]["nombre"]) if orden else "—"
+    foco=_SHORT12.get(orden[-1],CAPAS[orden[-1]]["nombre"]) if orden else "—"
+    fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
+    ax=fig.add_axes([0,0,1,1]); ax.set_xlim(0,100); ax.set_ylim(0,141.6); ax.axis("off")
+    ax.add_patch(Rectangle((0,0),100,141.6,color=BG,zorder=0))
+    ax.add_patch(Rectangle((0,131.5),100,0.4,color=GOLD,zorder=2))
+    ax.text(8,123,"PERFIL INDIVIDUAL",color=GOLD,fontsize=13,fontweight="bold",va="center",zorder=3)
+    ax.text(7.4,111,str(nombre).upper(),color=TX,fontsize=44,fontweight="bold",va="center",zorder=3)
+    if arq:
+        ax.add_patch(Circle((9.0,101.5),1.05,color=arqcol,zorder=4))
+        ax.text(11.6,101.5,arq["nombre"].upper(),color=arqcol,fontsize=15,fontweight="bold",va="center",zorder=4)
+        ax.text(8,95.5,arq.get("lema",""),color=MUT,fontsize=11.5,style="italic",va="center",zorder=4)
+    ax.text(7.6,70,str(nota),color=scol,fontsize=104,fontweight="bold",va="center",zorder=4)
+    ax.text(8,52.5,"/ 100   ·   SALUD PSICOFINANCIERA",color=MUT,fontsize=12.5,fontweight="bold",va="center",zorder=4)
+    ax.text(8,47,"Cómo vive el dinero por dentro. 100 = en paz; 0 = en tensión constante.",color=MUT,fontsize=9.5,va="center",zorder=4)
+    ax.add_patch(FancyBboxPatch((8,26),40,14,boxstyle="round,pad=0.6,rounding_size=2",fc=CARD,ec="#2A3140",lw=1,zorder=3))
+    ax.text(10.6,36,"SU MAYOR FORTALEZA",color="#5FB98E",fontsize=8.4,fontweight="bold",va="center",zorder=4)
+    ax.text(10.6,30.5,fuerte,color=TX,fontsize=13,fontweight="bold",va="center",zorder=4)
+    ax.add_patch(FancyBboxPatch((52,26),40,14,boxstyle="round,pad=0.6,rounding_size=2",fc=CARD,ec="#2A3140",lw=1,zorder=3))
+    ax.text(54.6,36,"SU FOCO PRINCIPAL",color="#D9755B",fontsize=8.4,fontweight="bold",va="center",zorder=4)
+    ax.text(54.6,30.5,foco,color=TX,fontsize=13,fontweight="bold",va="center",zorder=4)
+    ax.text(8,9,"ADAPTA FAMILY OFFICE",color=GOLD,fontsize=8.2,fontweight="bold",va="center",zorder=4)
+    fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
+
+_SHORT12={"C1":"Agotamiento","C2":"Libertad FI","C3":"Resistencia","C4":"Estilo de vida","C5":"Protección","C6":"Estatus","C7":"Concentración","C8":"Antifragilidad","C9":"Flujo de caja","C10":"Salud deuda","C11":"Crecimiento","C12":"Inversión"}
+
 def panel_capas(path, p, titulo="TUS 12 DIMENSIONES",
                 subtitulo="Una mirada a cada palanca de tu vida financiera. El verde sostiene; el rojo pide acción."):
     """Pagina a sangre: las 12 dimensiones en diales (vista de un vistazo)."""
     import matplotlib.pyplot as plt, numpy as np
     from matplotlib.patches import Rectangle
     BG="#0E1018"; CARD="#161A24"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"; TRACK="#2A3140"
-    SHORT={"C1":"Agotamiento","C2":"Libertad FI","C3":"Resistencia","C4":"Estilo de vida","C5":"Protección","C6":"Estatus","C7":"Concentración","C8":"Antifragilidad","C9":"Flujo de caja","C10":"Salud deuda","C11":"Crecimiento","C12":"Inversión"}
+    SHORT=_SHORT12
     codes=[c for c in CAPAS if c in p]
     fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
     ax=fig.add_axes([0,0,1,1]); ax.set_xlim(0,100); ax.set_ylim(0,141.6); ax.axis("off")

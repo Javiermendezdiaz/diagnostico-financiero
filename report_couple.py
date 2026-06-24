@@ -298,7 +298,14 @@ def seccion_dafo_pareja(pA,pB,nA,nB):
 def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, resp=None, extras=None):
     pn=(nombre.split()[0] if (nombre or "").strip() else "esta persona")
     bi_g,bl_g=rb.banda(rb.CAPAS["C1"],salud)
-    out=[Paragraph("PERFIL INDIVIDUAL",kick), Paragraph(nombre,h_sec),
+    out=[]
+    try:
+        _ac,_,_=rb.arquetipo(resp or {})
+        rb.panel_persona(radar_path+".hero.png", pn, salud, _ac, prof)
+        out += [rb.FullBleedImage(radar_path+".hero.png"), PageBreak()]
+    except Exception:
+        pass
+    out += [Paragraph("PERFIL INDIVIDUAL",kick), Paragraph(nombre,h_sec),
          Paragraph(f"Antes de cruzaros, esta es la foto psicol\u00f3gica de {pn}: c\u00f3mo vive el dinero por dentro. Las cifras del hogar son comunes (las ver\u00e9is juntas); lo que cambia de uno a otro es la percepci\u00f3n, el miedo y la prioridad.",body),
          Image(radar_path,width=112*mm,height=112*mm,hAlign="CENTER"),
          Paragraph(f"<b>{100-salud:.0f}</b>/100 \u2014 salud psicofinanciera global de {pn} (100 = \u00f3ptimo).",body)]
