@@ -630,13 +630,15 @@ def verify_payment(session_id: str, background_tasks: BackgroundTasks, cs: str =
         if ok and ref == session_id:
             with db() as c:
                 c.execute("UPDATE sesiones SET pagado=1 WHERE id=?", (session_id,))
+            try: background_tasks.add_task(enviar_copia, session_id)   # entrega aunque cierre la pestana
+            except Exception: pass
             return {"pagado": True}
         return {"pagado": False, "reason": "no_completado"}
     except Exception as e:
         return {"pagado": False, "reason": "error_%s" % type(e).__name__}
 
 @app.post("/api/stripe-webhook")
-async def stripe_webhook(request: Request):
+async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
     if not STRIPE_WEBHOOK_SECRET:
         return {"ok": False, "reason": "webhook_no_configurado"}
     payload = await request.body()
@@ -651,6 +653,8 @@ async def stripe_webhook(request: Request):
         if ref:
             with db() as c:
                 c.execute("UPDATE sesiones SET pagado=1 WHERE id=?", (ref,))
+            try: background_tasks.add_task(enviar_copia, ref)   # entrega garantizada via webhook
+            except Exception: pass
     return {"ok": True}
 
 @app.get("/api/report/{session_id}")
@@ -751,56 +755,120 @@ def _resend_email(asunto, html, pdf_bytes, filename, to=None):
     with urllib.request.urlopen(req, timeout=20) as r:
         return r.status, r.read().decode("utf-8", "ignore")
 
+def _pdf_fallback(path, cliente, tier):
+    """PDF de respaldo de 1 pagina: el cliente SIEMPRE recibe algo aunque la generacion del libro falle."""
+    try:
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.units import mm
+        c=canvas.Canvas(path, pagesize=A4); W,H=A4
+        c.setFillColorRGB(0.055,0.063,0.094); c.rect(0,0,W,H,fill=1,stroke=0)
+        c.setFillColorRGB(0.91,0.78,0.38); c.setFont("Helvetica-Bold",22); c.drawString(26*mm,H-40*mm,"ADAPTA FAMILY OFFICE")
+        c.setFillColorRGB(0.93,0.92,0.89); c.setFont("Helvetica-Bold",16); c.drawString(26*mm,H-56*mm,"Tu Libro Financiero esta en preparacion")
+        c.setFont("Helvetica",11.5); c.setFillColorRGB(0.62,0.65,0.71)
+        for i,ln in enumerate(["Hola %s,"%(cliente or ""),"","Tu pago se ha recibido correctamente y tu informe se esta generando.",
+                "Te lo enviaremos a este mismo correo en cuanto este listo (unos minutos).","",
+                "Si en una hora no lo has recibido, escribenos y te lo entregamos al instante:",
+                "info@adaptafamilyoffice.com   -   WhatsApp +34 683 34 35 31","","Gracias por confiar en Adapta Family Office."]):
+            c.drawString(26*mm, H-76*mm-i*7*mm, ln)
+        c.showPage(); c.save()
+        return path if os.path.exists(path) else None
+    except Exception:
+        return None
+
+def _enviar_resend(asunto, html, pdf_bytes, filename, to, reintentos=3):
+    """Envia por Resend con reintentos. Devuelve True si entrego."""
+    import time
+    for _i in range(reintentos):
+        try:
+            st,_=_resend_email(asunto, html, pdf_bytes, filename, to=to)
+            if 200<=st<300: return True
+        except Exception:
+            pass
+        time.sleep(2)
+    return False
+
 def enviar_copia(session_id):
+    """Entrega DURABLE y multicanal. notificado: 0=nada, 2=respaldo enviado (real pendiente), 1=real entregado.
+    Idempotente: si ya se entrego el real, no hace nada. La pareja solo se entrega cuando esta lista."""
     if not RESEND_API_KEY:
         return {"ok": False, "reason": "resend_no_configurado"}
     with db() as c:
-        row = c.execute("SELECT email,nombre,tier,respuestas,notificado FROM sesiones WHERE id=?", (session_id,)).fetchone()
+        row = c.execute("SELECT email,nombre,tier,respuestas,notificado,pareja_de FROM sesiones WHERE id=?", (session_id,)).fetchone()
     if not row or row["respuestas"] in (None, "{}"):
         return {"ok": False, "reason": "sesion_sin_respuestas"}
-    if row["notificado"]:
+    if row["notificado"] == 1:
         return {"ok": True, "ya_enviado": True}
-    path = _asegurar_pdf(session_id)
-    if not path:
-        return {"ok": False, "reason": "pdf_no_disponible"}
-    tier_nombre = {1: "Diagnostico Rapido (19 EUR)", 2: "Informe Avanzado (39 EUR)", 3: "Analisis de Pareja (54 EUR)"}.get(row["tier"], "Tier %s" % row["tier"])
+    if row["tier"] == 3 and not row["pareja_de"]:
+        return {"ok": False, "reason": "pareja_pendiente"}   # no entregar hasta que la pareja complete
     cliente = (row["nombre"] or "").strip() or "(sin nombre)"
-    email_cli = row["email"] or "(sin email)"
-    asunto = "Nueva compra ITAP - %s - %s" % (cliente, tier_nombre)
-    html = ("<h2>Nueva compra ITAP</h2>"
-            "<p><b>Cliente:</b> %s<br><b>Email:</b> %s<br><b>Producto:</b> %s</p>"
-            "<p>Adjunto va una copia del libro financiero generado.</p>"
-            "<p style='color:#888;font-size:12px'>Notificacion automatica - Adapta Family Office</p>") % (cliente, email_cli, tier_nombre)
+    email_cli = (row["email"] or "").strip()
+    cli_valido = bool(email_cli) and ("@" in email_cli) and (not email_cli.lower().endswith(".test"))
+    nuevo = (row["notificado"] != 2)   # primera vez que entramos en estado de espera
+    tier_nombre = {1:"Diagnostico Rapido (19 EUR)",2:"Informe Avanzado (39 EUR)",3:"Analisis de Pareja (54 EUR)"}.get(row["tier"], "Tier %s"%row["tier"])
+    # 1) Generar el PDF real; si falla, respaldo de 1 pagina (nunca dejamos al cliente sin nada)
+    path = _asegurar_pdf(session_id); fallback = False
+    if not path:
+        path = os.path.join(REPORTS_DIR, "fallback_%s.pdf" % session_id)
+        if not _pdf_fallback(path, cliente, row["tier"]):
+            try: _resend_email("[CRITICO] ITAP no genera - %s"%cliente, "<p>Generacion y respaldo fallaron para %s (%s). Regenerar manualmente.</p>"%(cliente,email_cli), b"x", "aviso.txt", to=[NOTIFY_EMAIL])
+            except Exception: pass
+            return {"ok": False, "reason": "pdf_y_respaldo_fallaron"}
+        fallback = True
     try:
-        with open(path, "rb") as f:
-            pdf_bytes = f.read()
-        # 1) Entrega al COMPRADOR (si su email es real y no de prueba)
-        if email_cli and ("@" in email_cli) and (not email_cli.lower().endswith(".test")):
-            html_cli = ("<div style='font-family:Helvetica,Arial,sans-serif;color:#222;max-width:560px'>"
-                        "<h2 style='color:#0a0a0b'>Tu Libro Financiero</h2>"
-                        "<p>Hola %s,</p>"
-                        "<p>Aqui tienes tu <b>diagnostico psicofinanciero completo</b>, en el PDF adjunto. "
-                        "Guardalo: es tu mapa de los proximos 100 dias.</p>"
-                        "<p>Gracias por confiar en Adapta Family Office.</p>"
-                        "<p style='color:#888;font-size:12px'>Adapta Family Office</p></div>") % cliente
-            try:
-                _resend_email("Tu Libro Financiero - Adapta Family Office", html_cli, pdf_bytes,
-                              "Tu_Libro_Financiero_Adapta.pdf", to=[email_cli])
-            except Exception:
-                pass
-        # 2) Aviso de venta para Adapta
-        status, _ = _resend_email(asunto, html, pdf_bytes, "ITAP_%s.pdf" % cliente.replace(" ", "_"), to=[NOTIFY_EMAIL])
-    except urllib.error.HTTPError as e:
-        try: detalle = e.read().decode("utf-8","ignore")[:400]
-        except Exception: detalle = ""
-        return {"ok": False, "reason": "resend_error_%s" % e.code, "detalle": detalle}
-    except Exception as e:
-        return {"ok": False, "reason": "error_%s" % type(e).__name__}
-    if 200 <= status < 300:
+        with open(path,"rb") as f: pdf_bytes=f.read()
+    except Exception:
+        return {"ok": False, "reason": "pdf_lectura"}
+    # 2) Entrega al CLIENTE (el real siempre; el de espera solo una vez)
+    cli_ok = False
+    if cli_valido:
+        if fallback:
+            if nuevo:
+                html_cli="<div style='font-family:Helvetica,Arial;color:#222;max-width:560px'><h2>Tu Libro Financiero esta en camino</h2><p>Hola %s, tu pago se recibio correctamente. Tu informe se esta terminando de generar y te llegara a este mismo correo en unos minutos. Si en una hora no lo tienes, escribenos a info@adaptafamilyoffice.com y te lo entregamos al instante.</p><p style='color:#888;font-size:12px'>Adapta Family Office</p></div>"%cliente
+                cli_ok=_enviar_resend("Tu Libro Financiero esta en camino - Adapta", html_cli, pdf_bytes, "Adapta_en_preparacion.pdf", to=[email_cli])
+        else:
+            html_cli="<div style='font-family:Helvetica,Arial;color:#222;max-width:560px'><h2 style='color:#0a0a0b'>Tu Libro Financiero</h2><p>Hola %s,</p><p>Aqui tienes tu <b>diagnostico psicofinanciero completo</b>, en el PDF adjunto. Guardalo: es tu mapa de los proximos 100 dias.</p><p>Gracias por confiar en Adapta Family Office.</p><p style='color:#888;font-size:12px'>Adapta Family Office</p></div>"%cliente
+            cli_ok=_enviar_resend("Tu Libro Financiero - Adapta Family Office", html_cli, pdf_bytes, "Tu_Libro_Financiero_Adapta.pdf", to=[email_cli])
+    # 3) Adapta SIEMPRE recibe copia + estado (al entregar real, o la primera vez que algo va mal)
+    if (not fallback) or nuevo:
+        estado = "[REGENERAR-GENERACION-FALLO] " if fallback else ("[EMAIL-CLIENTE-FALLO] " if (cli_valido and not cli_ok) else ("[SIN-EMAIL-CLIENTE] " if not cli_valido else ""))
+        html_adm="<h2>%sCompra ITAP</h2><p><b>Cliente:</b> %s<br><b>Email:</b> %s<br><b>Producto:</b> %s</p><p>%s</p>"%(estado or "", cliente, email_cli or "(sin email)", tier_nombre, ("ATENCION: requiere accion manual." if estado else "Copia del libro adjunta."))
+        _enviar_resend(("%sITAP - %s - %s"%(estado, cliente, tier_nombre)).strip(), html_adm, pdf_bytes, "ITAP_%s.pdf"%cliente.replace(" ","_"), to=[NOTIFY_EMAIL])
+    # 4) Estado de entrega
+    if not fallback and (cli_ok or not cli_valido):
+        with db() as c: c.execute("UPDATE sesiones SET notificado=1 WHERE id=?", (session_id,))
+        return {"ok": True, "entregado": "real"}
+    if fallback and row["notificado"] != 2:
+        with db() as c: c.execute("UPDATE sesiones SET notificado=2 WHERE id=?", (session_id,))
+    return {"ok": False, "reason": ("respaldo_enviado_real_pendiente" if fallback else "email_cliente_fallo")}
+
+@app.get("/api/reconciliar")
+def reconciliar(key: str = "", limite: int = 100):
+    """Barre sesiones PAGADAS sin entrega confirmada y reintenta la entrega garantizada.
+    Pensado para ejecutarse cada pocos minutos (tarea programada). Idempotente y seguro."""
+    _k = os.environ.get("FUNNEL_KEY") or os.environ.get("RECONCILE_KEY")
+    if _k and key != _k:
+        return {"error": "protegido"}
+    res = {"revisados": 0, "entregados": 0, "pendientes": 0, "detalle": []}
+    try:
         with db() as c:
-            c.execute("UPDATE sesiones SET notificado=1 WHERE id=?", (session_id,))
-        return {"ok": True}
-    return {"ok": False, "reason": "resend_status_%s" % status}
+            rows = c.execute("SELECT id FROM sesiones WHERE pagado=1 AND (notificado IS NULL OR notificado<>1) "
+                             "AND respuestas IS NOT NULL AND respuestas<>'{}' ORDER BY creado DESC LIMIT ?", (limite,)).fetchall()
+        for r in rows:
+            sid = r["id"]
+            try:
+                out = enviar_copia(sid)
+            except Exception as e:
+                out = {"ok": False, "reason": "excepcion_%s" % type(e).__name__}
+            res["revisados"] += 1
+            if out.get("ok") and out.get("entregado") == "real":
+                res["entregados"] += 1
+            else:
+                res["pendientes"] += 1
+            res["detalle"].append({"sid": sid[:8], "estado": out.get("reason") or ("entregado" if out.get("ok") else "?")})
+    except Exception as e:
+        res["error"] = "%s" % e
+    return res
 
 @app.post("/api/notify-purchase")
 def notify_purchase(payload: NotifyPayload):
@@ -823,3 +891,20 @@ def borrar_datos(payload: BorrarPayload):
             try: os.remove(p)
             except OSError: pass
     return {"ok": True, "borrados": len(ids), "mensaje": "Hemos eliminado todos los datos asociados a ese correo."}
+
+
+# === Reconciliador automatico en segundo plano: garantiza la entrega sin depender de cron externo ===
+def _sweeper_loop():
+    import time
+    time.sleep(90)   # margen tras el arranque
+    while True:
+        try:
+            reconciliar(key=(os.environ.get("FUNNEL_KEY") or os.environ.get("RECONCILE_KEY") or ""))
+        except Exception:
+            pass
+        time.sleep(600)   # cada 10 minutos barre pagos sin entrega y reintenta
+
+try:
+    threading.Thread(target=_sweeper_loop, daemon=True).start()
+except Exception:
+    pass
