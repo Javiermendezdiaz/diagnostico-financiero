@@ -1403,8 +1403,7 @@ def cuadro_financiero(p, datos, fi):
         narr=(f"Si mantienes tu ritmo actual, a los {medad} rondarías los <b>{_eur(f65)}</b>. Subiendo tu ahorro cinco "
               f"puntos, esa cifra sube a <b>{_eur(m65)}</b>: la diferencia entre ambas líneas es, literalmente, el precio de "
               f"no decidir. (Estimación a un 5% anual; orientativa, no una promesa de rentabilidad.)")
-    out.append(KeepTogether([Paragraph("Hacia dónde vas",h_sub),
-          Image("_proy.png",width=160*mm,height=75*mm,hAlign="CENTER")]))
+    out.append(Paragraph("Hacia dónde vas",h_sub))   # el grafico va en la pagina oscura "El mapa de tu futuro"; aqui solo numeros + narrativa
     _cl=St("cmL",fontSize=8.5,leading=11,textColor=colors.HexColor("#6B7280"))
     def _cn(lab,val,col):
         return [Paragraph(lab,_cl),
@@ -2005,7 +2004,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             ("LINEBELOW",(0,1),(-1,-1),0.4,colors.HexColor("#E7E3D8")),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
             ("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5),
             ("LEFTPADDING",(0,0),(-1,-1),6),("RIGHTPADDING",(0,0),(-1,-1),6)]))
-    S+=[Paragraph("Tus 12 áreas, de peor a mejor",h_sec),
+    if depth=="esencial":
+      S+=[Paragraph("Tus 12 áreas, de peor a mejor",h_sec),
         Paragraph("La misma silueta del radar, pero en cifras y ordenada: arriba, lo que más pide atención; abajo, lo que "
                   "ya te sostiene. Tu plan empieza por la primera fila.",body),
         Spacer(1,3*mm), _semtab, Spacer(1,3*mm),
@@ -2015,7 +2015,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         PageBreak()]
     if extras: S+=_secsafe(seccion_ratio_vida,extras)
     if extras: S+=_secsafe(seccion_nudo,extras)
-    if True:  # resumen (vistazo) en ambos tiers
+    if depth=="esencial":  # resumen (vistazo) solo en T1 (T2 ya lo cubren diales + capitulos)
         orden=sorted(CAPAS,key=lambda c:p[c]["score"])
         fort=orden[:3]; foco=orden[-3:][::-1]
         S+=[Paragraph("Tu lectura de un vistazo",h_sec),
