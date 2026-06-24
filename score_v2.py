@@ -1160,6 +1160,81 @@ def frase_capa(code, datos, p=None):
                 f = f % e(pat)
     return f or ""
 
+
+def plan_maestro(datos, p=None, perfil_in=None):
+    """Los 3 movimientos que mas mueven la aguja, SECUENCIADOS y cuantificados.
+    Devuelve [{orden,frente,titulo,porque,accion,gana,nivel}] (1 = primer movimiento)."""
+    g = lambda k: (_num0(datos, k) or 0)
+    ing, gas, aho = g("ingreso_mensual"), g("gasto_mensual"), g("ahorro_mensual")
+    col, inv, pat = g("colchon_liquido"), g("inversiones_liquidas"), g("patrimonio")
+    deu, cuo, rp = g("deuda_total"), g("cuota_deuda"), g("renta_pasiva")
+    cvm, pen = g("coste_vivienda"), g("pension_estimada")
+    e = _eur
+    sup = max(0.0, ing - gas)
+    cand = []   # (prioridad_palanca, nivel, frente, titulo, porque, accion, gana)
+    def add(pal, niv, fr, ti, pq, ac, ga): cand.append((pal, niv, fr, ti, pq, ac, ga))
+    # 1) COLCHON / supervivencia (la base de todo)
+    if gas > 0:
+        m = col / gas
+        if m < 3:
+            obj = gas * 3; falta = max(0.0, obj - col); ap = round(falta / 12) if falta else 0
+            add(1, "rojo", "Colchon", "Construye tu suelo de seguridad",
+                "Hoy aguantarias %s meses con tu colchon liquido. Por debajo de 3, cualquier imprevisto te obliga a malvender o pedir prestado." % (("%.1f" % m).rstrip("0").rstrip(".")),
+                "Abre una cuenta remunerada SEPARADA del dia a dia y automatiza %s/mes el dia de cobro." % e(ap or round(gas*0.1)),
+                "En 12 meses pasas de %s a 3 meses de colchon: de vulnerable a a prueba de sustos." % (("%.1f" % m).rstrip("0").rstrip(".")))
+    # 2) DEUDA cara
+    if ing > 0 and cuo > 0 and (100 * cuo / ing) >= 35:
+        add(2, "rojo", "Deuda", "Desactiva la deuda que te asfixia",
+            "Tu cuota de deuda (%s/mes) se lleva el %d%% de lo que ingresas. Por encima del 35%%, cada mes empiezas cuesta arriba." % (e(cuo), round(100*cuo/ing)),
+            "Lista tus deudas con su TAE real y vuelca todo el excedente a amortizar la MAS CARA primero (metodo avalancha).",
+            "Cada %s de deuda cara que liquidas te devuelve su cuota al bolsillo, libre, para siempre." % e(round(deu*0.1) if deu else 1000))
+    elif pat > 0 and deu > 0 and (100 * deu / pat) >= 80:
+        add(2, "rojo", "Deuda", "Baja tu apalancamiento",
+            "Tu deuda equivale al %d%% de tu patrimonio neto. Es mucho peso para cualquier viento en contra." % round(100*deu/pat),
+            "Antes de asumir mas riesgo, dirige tu excedente a reducir la deuda mas cara hasta bajar de ese umbral.",
+            "Menos deuda = mas margen y menos intereses: la rentabilidad mas segura que existe.")
+    # 3) TASA DE AHORRO < 20%
+    if ing > 0 and gas > 0:
+        tasa = (aho / ing * 100) if aho > 0 else (sup / ing * 100)
+        if tasa < 20:
+            extra = max(0.0, 0.20 * ing - max(aho, 0)); anual = round(extra * 12)
+            gap = max(0.0, sup - aho)
+            ac = ("Automatiza %s/mes el dia 1 hacia una cuenta de inversion — ese excedente ya lo tienes, solo no tiene destino." % e(round(gap))) if gap > 50 else ("Sube tu ahorro automatico hasta el 20%% de tus ingresos (%s/mes) y auditalo desde tus 3 mayores gastos fijos." % e(round(0.20*ing)))
+            add(3, "ambar", "Ahorro", "Lleva tu ahorro al 20%",
+                "Hoy guardas el %d%% de lo que entra. El 20%% es el umbral donde el interes compuesto empieza a trabajar de verdad a tu favor." % round(tasa),
+                ac,
+                "Cada punto que subes son ~%s mas invertidos al ano. Llegar al 20%% adelanta tu libertad varios anos." % e(round(0.01*ing*12)))
+    # 4) DINERO DORMIDO (liquido parado por encima de un colchon sano)
+    if gas > 0:
+        exceso = max(0.0, col - gas * 6)
+        if exceso >= 5000 and inv <= exceso:
+            add(5, "ambar", "Inversion", "Despierta tu dinero dormido",
+                "Tienes unos %s parados por encima de un colchon sano de 6 meses. Quietos, pierden valor cada ano contra la inflacion." % e(round(exceso)),
+                "Mueve una parte a una cartera diversificada de bajo coste (fondos indexados); empieza pequeno y automatiza aportaciones.",
+                "Solo preservar su valor frente a una inflacion del 3%% son ~%s/ano que hoy regalas." % e(round(exceso * 0.03)))
+    # 5) CONCENTRACION DE INGRESOS (casi todo activo)
+    if ing > 0:
+        pp = 100 * min(rp, ing) / ing
+        if pp < 10:
+            add(6, "ambar", "Diversificacion", "Crea tu primera renta que no dependa de ti",
+                "El %d%% de lo que entra en tu casa depende de que tu sigas trabajando. Una sola fuente es tu mayor riesgo silencioso." % round(100 - pp),
+                "Elige UNA via (dividendos, alquiler, un proyecto digital) y dale un primer paso concreto este mes — no las tres a la vez.",
+                "150 EUR/mes de renta nueva son 1.800 EUR/ano que entran sin cambiar tu tiempo por dinero. Y solo es el principio.")
+    # 6) GAP DE PENSION
+    if gas > 0 and pen > 0 and (gas - pen) > 0:
+        gpen = gas - pen
+        add(7, "ambar", "Jubilacion", "Cierra tu brecha de pension",
+            "Tu coste de vida (%s) supera tu pension publica estimada (%s): faltan %s/mes el dia que dejes de trabajar." % (e(gas), e(pen), e(round(gpen))),
+            "Abre un plan de pensiones o una inversion periodica y automatiza una aportacion mensual desde ya — el tiempo es tu mayor aliado aqui.",
+            "Empezar 10 anos antes puede multiplicar por 2-3 el capital final, por el interes compuesto. Cada ano cuenta.")
+    # ordenar: rojo antes que ambar, luego por palanca; quedarnos con 3
+    orden_niv = {"rojo": 0, "ambar": 1}
+    cand.sort(key=lambda x: (orden_niv.get(x[1], 2), x[0]))
+    out = []
+    for i, (pal, niv, fr, ti, pq, ac, ga) in enumerate(cand[:3], 1):
+        out.append({"orden": i, "frente": fr, "titulo": ti, "porque": pq, "accion": ac, "gana": ga, "nivel": niv})
+    return out
+
 def computar_extras(resp, datos, perfil_in, inst=None):
     """Punto de entrada unico. Devuelve dict listo para report_book + arq_code."""
     inst = inst or cargar_inst()
@@ -1177,6 +1252,7 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "contradicciones": calcular_contradicciones(datos, resp, perfil_in, p),
         "coherencia": validar_finanzas(datos),
         "frases": {c["code"]: frase_capa(c["code"], datos, p) for c in inst["capas"]},
+        "plan_maestro": plan_maestro(datos, p, perfil_in),
         "energia": calcular_energia(perfil_in),
         "conciliacion": calcular_conciliacion(perfil_in),
         "preguntas_asesor": calcular_preguntas_asesor(perfil_in, p),

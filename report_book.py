@@ -2339,6 +2339,19 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             pass
     S+=[Paragraph("Tu plan de acción",h_sec),
         Paragraph("Ordenado por impacto: si solo pudieras mover una palanca esta semana, empieza por la primera.",body)]
+    _plan=(extras or {}).get("plan_maestro") if extras else None
+    if _plan:
+        S.append(Spacer(1,2*mm))
+        for mv in _plan:
+            _es="TU PRIMER MOVIMIENTO" if mv["orden"]==1 else ("MOVIMIENTO %d"%mv["orden"])
+            _pc="#B45309" if mv["orden"]==1 else "#6B7280"
+            _pbg="#FBF4E4" if mv["orden"]==1 else "#F6F4EC"
+            _pin=[Paragraph("<font color='%s'><b>%s</b></font>  &#183;  <b>%s</b>"%(_pc,_es,mv["titulo"]),St("pm0",fontSize=11.5,leading=15,textColor=ACCDK,fontName=FB)),
+                  Paragraph("<b>Por qué:</b> "+mv["porque"],St("pm1",fontSize=9.8,leading=14,textColor=INK,spaceBefore=3)),
+                  Paragraph("<font color='%s'><b>&#9656; Esta semana:</b></font> %s"%(_pc,mv["accion"]),St("pm2",fontSize=9.8,leading=14,textColor=INK,spaceBefore=2)),
+                  Paragraph("<b>En 12 meses ganas:</b> <i>%s</i>"%mv["gana"],St("pm3",fontSize=9.5,leading=13,textColor=GREY,spaceBefore=2))]
+            S.append(_box(_pin,_pbg,_pc,ancho=160*mm)); S.append(Spacer(1,3*mm))
+        S.append(Paragraph("Haz el primero hasta tenerlo en marcha — no pases al siguiente antes. Una palanca movida vale más que diez planeadas.",St("pmf",fontSize=9.5,leading=13,textColor=GREY,fontName="Helvetica-Oblique",spaceAfter=3)))
     # Lineas Rojas: no-negociables de tu Constitucion (derivados de tu situacion real)
     _lr=[]
     if tapon_coste(datos): _lr.append("No mantener más de 3 meses de gasto en cuentas al 0%: el excedente parado pierde valor cada mes.")
