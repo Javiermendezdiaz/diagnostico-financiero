@@ -1941,6 +1941,12 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     S+=[PageBreak()]
     if extras: S+=seccion_resumen_ejecutivo(extras,datos)
     # resumen + radar
+    if depth!="esencial":
+        try:
+            portadilla("_pa_t2_1.png", "Acto 1", 'TU FOTO\nDE HOY', 'El diagnóstico completo: radar, las 12 capas y tu cuadro financiero.')
+            S+=[PageBreak(), FullBleedImage("_pa_t2_1.png")]
+        except Exception:
+            pass
     S+=[Paragraph("El mapa completo",h_sec)]
     if extras and extras.get("crisis"):
         S+=[_box([Paragraph("<font color='#7A5A00'><b>&#9656;  Primero, lo primero</b></font>",St("cri1",fontSize=11,leading=15,fontName=FB)),
@@ -2243,6 +2249,12 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         Paragraph(_hostia,St("hostia",fontSize=13,leading=19,textColor=ACCDK,fontName=FB,spaceBefore=4,spaceAfter=5)),
         Table([[""]],colWidths=[62*mm],style=[("LINEBELOW",(0,0),(-1,-1),3,AMARILLO)]),
         Spacer(1,9*mm)]
+    if depth!="esencial":
+        try:
+            portadilla("_pa_t2_2.png", "Acto 2", 'LA BRECHA', 'Tu vida ideal frente a la real, tus palancas, y el coste de no hacer nada.')
+            S+=[PageBreak(), FullBleedImage("_pa_t2_2.png")]
+        except Exception:
+            pass
     # === ACTO 2: la brecha y las palancas (vida ideal vs actual + coste de no hacer nada) ===
     if extras: S+=seccion_extras(extras)
     if extras and depth!="esencial": S+=seccion_coste_inaccion(extras)
@@ -2297,6 +2309,12 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                                 St("dv2",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
                     "#FBF4E4","#B45309",ancho=160*mm), Spacer(1,4*mm)]
     # === ACTO 3: el plan ===
+    if depth!="esencial":
+        try:
+            portadilla("_pa_t2_3.png", "Acto 3", 'TU PLAN', 'De la foto a los hechos: tu constitución financiera y hoja de ruta.')
+            S+=[PageBreak(), FullBleedImage("_pa_t2_3.png")]
+        except Exception:
+            pass
     S+=[Paragraph("Tu plan de acción",h_sec),
         Paragraph("Ordenado por impacto: si solo pudieras mover una palanca esta semana, empieza por la primera.",body)]
     # Lineas Rojas: no-negociables de tu Constitucion (derivados de tu situacion real)
@@ -2534,6 +2552,12 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                             "un family office hace por ti. Lo que viene no es un anuncio: es el siguiente nivel lógico de tu plan.",
                             St("pte2",fontSize=10.5,leading=15,textColor=INK,spaceBefore=3))],
                 "#FBF9EC","#C9962B",ancho=160*mm), Spacer(1,4*mm)]
+    if depth!="esencial":
+        try:
+            portadilla("_pa_t2_4.png", "Acto 4", 'EL SIGUIENTE\nPASO', 'Ejecutar el plan, contigo, con tu family office.')
+            S+=[PageBreak(), FullBleedImage("_pa_t2_4.png")]
+        except Exception:
+            pass
     S+=seccion_adapta(p)
     # === ACTO 4 (cierre): Matriz de Decision Bifurcada (Inaccion vs Adapta), cifras reales ===
     if extras and depth!="esencial":
@@ -2619,6 +2643,15 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         sub="Tu Libro Financiero · Documento confidencial",
         legal="Adapta Family Office · Herramienta de autoconocimiento financiero; no constituye asesoramiento personalizado regulado. Las estimaciones son orientativas. © 2026.")]
     global CLIENTE_NOMBRE; CLIENTE_NOMBRE=(cli.get("nombre") or "")
+    # --- saneador: colapsa PageBreaks consecutivos (evita paginas en blanco) ---
+    _clean=[]
+    for _f in S:
+        if isinstance(_f, PageBreak) and _clean and isinstance(_clean[-1], PageBreak):
+            continue
+        _clean.append(_f)
+    while _clean and isinstance(_clean[-1], PageBreak):
+        _clean.pop()
+    S=_clean
     doc=SimpleDocTemplate(out,pagesize=A4,topMargin=22*mm,bottomMargin=20*mm,leftMargin=22*mm,rightMargin=22*mm,
                           title="Tu Libro Financiero — ITAP")
     doc._cliente=(cli.get("nombre") or "")
