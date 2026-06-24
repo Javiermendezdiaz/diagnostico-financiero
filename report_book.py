@@ -727,7 +727,11 @@ def _en_tiempo(euros, datos):
     except Exception:
         return ""
 def _tt(euros, datos, plantilla=" (≈%s)"):
-    t=_en_tiempo(euros,datos)
+    if not datos: return ""
+    try:
+        t=_en_tiempo(euros,datos)
+    except Exception:
+        return ""
     return (plantilla % t) if t else ""
 
 def cashflow_waterfall(datos, path):
@@ -1576,7 +1580,7 @@ def citas_capa(code, resp, k=2, min_score=50):
     out.sort(key=lambda x:-x[0])
     return out[:k]
 
-def seccion_extras(extras):
+def seccion_extras(extras, datos=None):
     """Secciones v2: brecha vital, palancas de crecimiento y contradicciones. Devuelve flowables."""
     if not extras: return []
     br=extras.get("brecha"); pal=extras.get("palancas") or []; con=extras.get("contradicciones") or []
@@ -2256,7 +2260,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         except Exception:
             pass
     # === ACTO 2: la brecha y las palancas (vida ideal vs actual + coste de no hacer nada) ===
-    if extras: S+=seccion_extras(extras)
+    if extras: S+=seccion_extras(extras, datos)
     if extras and depth!="esencial": S+=seccion_coste_inaccion(extras)
     if depth!="esencial":
         # Diagnostico condicional: Gasto Anestesico (solo si estres alto Y gasto sin sentido alto)
