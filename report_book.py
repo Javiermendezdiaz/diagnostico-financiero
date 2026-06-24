@@ -752,6 +752,24 @@ def cashflow_waterfall(datos, path):
     plt.tight_layout(); fig.savefig(path,dpi=200,transparent=True); plt.close(fig); gc.collect()
     return libre
 
+def portadilla(path, acto, titulo, subtitulo):
+    """Divisor de acto a sangre: numero filigrana, kicker dorado, titulo grande, subtitulo."""
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Rectangle
+    BG="#0E1018"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"; FAINT="#171C28"
+    num="".join(ch for ch in (acto or "") if ch.isdigit())
+    fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
+    ax=fig.add_axes([0,0,1,1]); ax.set_xlim(0,100); ax.set_ylim(0,141.6); ax.axis("off")
+    ax.add_patch(Rectangle((0,0),100,141.6,color=BG,zorder=0))
+    if num:
+        ax.text(99,74,num,color=FAINT,fontsize=235,fontweight="bold",ha="right",va="center",zorder=1)
+    ax.add_patch(Rectangle((8,58),1.3,26,color=GOLD,zorder=3))
+    ax.text(12.5,80,(acto or "").upper(),color=GOLD,fontsize=14,fontweight="bold",va="center",zorder=4)
+    ax.text(12.5,70,titulo,color=TX,fontsize=31,fontweight="bold",va="top",zorder=4,linespacing=1.05)
+    ax.text(12.5,52,subtitulo,color=MUT,fontsize=12,va="top",zorder=4,linespacing=1.3)
+    ax.text(8,9,"ADAPTA FAMILY OFFICE",color=GOLD,fontsize=8.2,fontweight="bold",va="center",zorder=4)
+    fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
+
 def panel_persona(path, nombre, salud, arq_code, prof):
     """Portada-heroe oscura del perfil individual: nombre, arquetipo, salud gigante, fortaleza/foco."""
     import matplotlib.pyplot as plt

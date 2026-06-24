@@ -927,9 +927,19 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     except Exception: _exA=None
     try: _exB=sv.computar_extras(rB,_fill(dB),perfilB or {},_iv2)
     except Exception: _exB=None
+    try:
+        rb.portadilla("_pa_indiv.png", "Acto 2", 'VOSOTROS DOS,\nPOR DENTRO', 'La foto psicológica de cada uno antes de cruzaros: cómo vive el dinero por dentro.')
+        S+=[PageBreak(), rb.FullBleedImage("_pa_indiv.png")]
+    except Exception:
+        pass
     S+=seccion_individual(cliA["nombre"] or nA,pA,trA,saludA,dA,"_radarA.png",fi_h,rA,extras=_exA)
     S+=seccion_individual(cliB["nombre"] or nB,pB,trB,saludB,dB,"_radarB.png",fi_h,rB,extras=_exB)
     # capitulos comparativos por capa
+    try:
+        rb.portadilla("_pa_cruce.png", "Acto 3", 'DÓNDE CHOCÁIS\nY DÓNDE ENCAJÁIS', 'Las doce capas, enfrentadas. Dónde os sostenéis y dónde salta la fricción.')
+        S+=[PageBreak(), rb.FullBleedImage("_pa_cruce.png")]
+    except Exception:
+        pass
     S+=[Paragraph("Capa por capa, los dos",h_sec),
         Paragraph("El corazon de vuestro libro: las doce dimensiones, leidas en pareja. La barra dorada es "
                   f"{nA}; la gris, {nB}. Mas corta = mas sano.",body),PageBreak()]
@@ -1054,6 +1064,11 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         _crows.append([Paragraph(f"<b>{_i}</b>",small),Paragraph(rb.CAPAS[_c]["nombre"],small),
                        Paragraph(MICROACUERDO.get(_c,paso_pareja(_c)),small)])
     S+=[tbl(_crows,[20*mm,52*mm,88*mm]),PageBreak()]
+    try:
+        rb.portadilla("_pa_plan.png", "Acto 4", 'VUESTRO PLAN,\nEN MARCHA', 'De la conversación a los hechos: constitución, hoja de ruta y vuestro laboratorio.')
+        S+=[PageBreak(), rb.FullBleedImage("_pa_plan.png")]
+    except Exception:
+        pass
     S+=seccion_constitucion_hogar(pA,pB,nA,nB,hogar,fi_h,divs)
     S+=seccion_hoja_ruta_12m(pA,pB,nA,nB,hogar)
     S+=laboratorio_pareja(rA,rB,pA,pB,nA,nB,dA,dB,hogar,divs)
