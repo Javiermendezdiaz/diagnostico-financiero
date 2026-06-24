@@ -752,6 +752,35 @@ def cashflow_waterfall(datos, path):
     plt.tight_layout(); fig.savefig(path,dpi=200,transparent=True); plt.close(fig); gc.collect()
     return libre
 
+def panel_capas(path, p):
+    """Pagina a sangre: las 12 dimensiones en diales (vista de un vistazo)."""
+    import matplotlib.pyplot as plt, numpy as np
+    from matplotlib.patches import Rectangle
+    BG="#0E1018"; CARD="#161A24"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"; TRACK="#2A3140"
+    SHORT={"C1":"Agotamiento","C2":"Libertad FI","C3":"Resistencia","C4":"Estilo de vida","C5":"Protección","C6":"Estatus","C7":"Concentración","C8":"Antifragilidad","C9":"Flujo de caja","C10":"Salud deuda","C11":"Crecimiento","C12":"Inversión"}
+    codes=[c for c in CAPAS if c in p]
+    fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
+    ax=fig.add_axes([0,0,1,1]); ax.set_xlim(0,100); ax.set_ylim(0,141.6); ax.axis("off")
+    ax.add_patch(Rectangle((0,0),100,141.6,color=BG,zorder=0))
+    ax.add_patch(Rectangle((0,128.5),100,13.1,color=CARD,zorder=1))
+    ax.add_patch(Rectangle((0,128.3),100,0.35,color=GOLD,zorder=2))
+    ax.text(8,135.6,"TUS 12 DIMENSIONES",color=GOLD,fontsize=22,fontweight="bold",va="center",zorder=3)
+    ax.text(8,131.4,"Una mirada a cada palanca de tu vida financiera. El verde sostiene; el rojo pide acción.",color=MUT,fontsize=10.5,va="center",zorder=3)
+    cols=[14,38,62,86]; rows=[107,72,37]; R=10.0
+    for idx,code in enumerate(codes[:12]):
+        cxp=cols[idx%4]; cyp=rows[idx//4]
+        sc=float(p[code]["score"]); nota=max(0,min(100,100-sc)); col=_sevcol(sc)
+        th=np.linspace(np.pi,0,90)
+        ax.plot(cxp+R*np.cos(th), cyp+R*np.sin(th), color=TRACK, lw=5.2, solid_capstyle="round", zorder=3)
+        frac=nota/100.0
+        th2=np.linspace(np.pi, np.pi*(1-frac), 90)
+        ax.plot(cxp+R*np.cos(th2), cyp+R*np.sin(th2), color=col, lw=5.2, solid_capstyle="round", zorder=4)
+        ax.text(cxp, cyp+1.0, "%d"%nota, color=col, fontsize=18, fontweight="bold", ha="center", va="center", zorder=5)
+        ax.text(cxp, cyp-5.0, SHORT.get(code,code), color=TX, fontsize=8.6, ha="center", va="center", zorder=5)
+    ax.text(8,6.5,"ADAPTA FAMILY OFFICE",color=GOLD,fontsize=8.2,fontweight="bold",va="center",zorder=4)
+    ax.text(92,6.5,"0 = crítico   ·   100 = sólido",color=MUT,fontsize=8,ha="right",va="center",zorder=4)
+    fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
+
 def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
                      subtitulo="Tres caminos parten del mismo punto. La distancia entre ellos es lo que decides hoy.",
                      brecha_cap=None):
@@ -1758,6 +1787,9 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         _gfij=min(_gas,(_gas*_pf/100.0) if _pf>0 else (float(datos.get("coste_vivienda") or 0)+float(datos.get("cuota_deuda") or 0))); _gvar=max(0.0,_gas-_gfij)
         panel_dashboard("_panel.png", 100-salud, bl, fi[0], fi[1] or 0, fi[2] or 0, _inv,_par,_ili, _iact,_ipas, _gfij,_gvar, _ili, cli.get("fecha",""))
         S+=[FullBleedImage("_panel.png"), PageBreak()]
+        if depth!="esencial":
+            panel_capas("_capas.png", p)
+            S+=[FullBleedImage("_capas.png"), PageBreak()]
     except Exception:
         pass
     # === Indice: el mapa de los 5 actos ===
