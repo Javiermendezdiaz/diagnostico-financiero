@@ -720,6 +720,22 @@ def seccion_hoja_ruta_12m(pA,pB,nA,nB,hogar):
     out=[PageBreak(), Paragraph("Vuestra hoja de ruta a 12 meses",h_sec),
          Paragraph("El plan de 90 días, estirado a un año. No para hacerlo todo ya, sino para saber siempre cuál es el "
                    "siguiente paso del hogar.",body),Spacer(1,3*mm)]
+    try:
+        _ph=sv.plan_hogar(hogar)
+    except Exception:
+        _ph=[]
+    if _ph:
+        out.append(Paragraph("Vuestros tres movimientos prioritarios",h_sub))
+        for mv in _ph:
+            _es="VUESTRO PRIMER MOVIMIENTO" if mv["orden"]==1 else ("MOVIMIENTO %d"%mv["orden"])
+            _pc="#B45309" if mv["orden"]==1 else "#6B7280"
+            _pbg="#FBF4E4" if mv["orden"]==1 else "#F6F4EC"
+            _pin=[Paragraph("<font color='%s'><b>%s</b></font>  &#183;  <b>%s</b>"%(_pc,_es,mv["titulo"]),St("ph0",fontSize=11.3,leading=15,textColor=INK)),
+                  Paragraph("<b>Por qué:</b> "+mv["porque"],St("ph1",fontSize=9.6,leading=13.5,textColor=INK,spaceBefore=3)),
+                  Paragraph("<font color='%s'><b>&#9656; Esta semana:</b></font> %s"%(_pc,mv["accion"]),St("ph2",fontSize=9.6,leading=13.5,textColor=INK,spaceBefore=2)),
+                  Paragraph("<b>En 12 meses ganáis:</b> <i>%s</i>"%mv["gana"],St("ph3",fontSize=9.4,leading=13,textColor=GREY,spaceBefore=2))]
+            out.append(rb._box(_pin,_pbg,_pc,ancho=160*mm)); out.append(Spacer(1,3*mm))
+        out.append(Paragraph("Haced el primero hasta tenerlo en marcha — juntos. Una palanca movida vale más que diez planeadas.",St("phf",fontSize=9.4,leading=13,textColor=GREY,fontName="Helvetica-Oblique",spaceAfter=4)))
     rows=[]
     for tit,lema,desc in q:
         rows.append([Paragraph(f"<font color='#1A1A17'><b>{tit}</b></font><br/><font color='{A_COL}' size=8><b>{lema.upper()}</b></font>",small),

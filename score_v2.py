@@ -1161,6 +1161,70 @@ def frase_capa(code, datos, p=None):
     return f or ""
 
 
+
+def plan_hogar(hogar):
+    """Los 3 movimientos prioritarios del HOGAR, en plural, cuantificados. Para el libro de pareja."""
+    g = lambda k: (_num0(hogar, k) or 0)
+    ing, gas, aho = g("ingreso_mensual"), g("gasto_mensual"), g("ahorro_mensual")
+    col, inv, pat = g("colchon_liquido"), g("inversiones_liquidas"), g("patrimonio")
+    deu, cuo, rp = g("deuda_total"), g("cuota_deuda"), g("renta_pasiva")
+    pen = g("pension_estimada")
+    e = _eur; sup = max(0.0, ing - gas)
+    m1 = lambda x: ("%.1f" % x).rstrip("0").rstrip(".")
+    cand = []
+    def add(pal, niv, ti, pq, ac, ga): cand.append((pal, niv, ti, pq, ac, ga))
+    if gas > 0:
+        m = col / gas
+        if m < 3:
+            obj = gas * 3; ap = round(max(0.0, obj - col) / 12)
+            add(1, "rojo", "Construid vuestro suelo de seguridad",
+                "Como hogar aguantariais %s meses con vuestro colchon liquido. Por debajo de 3, un imprevisto os obliga a malvender o endeudaros." % m1(m),
+                "Abrid UNA cuenta remunerada conjunta, separada del dia a dia, y automatizad %s/mes el dia de cobro." % e(ap or round(gas*0.1)),
+                "En 12 meses pasais de %s a 3 meses de colchon: de vulnerables a a prueba de sustos." % m1(m))
+    if ing > 0 and cuo > 0 and (100 * cuo / ing) >= 35:
+        add(2, "rojo", "Desactivad la deuda que os asfixia",
+            "Vuestras cuotas de deuda (%s/mes) se llevan el %d%% de lo que entra en casa." % (e(cuo), round(100*cuo/ing)),
+            "Listad TODAS vuestras deudas con su TAE y volcad el excedente del hogar a amortizar la mas cara primero (metodo avalancha).",
+            "Cada deuda cara que liquidais os devuelve su cuota al bolsillo comun, libre, para siempre.")
+    elif pat > 0 and deu > 0 and (100 * deu / pat) >= 80:
+        add(2, "rojo", "Bajad vuestro apalancamiento",
+            "Vuestra deuda equivale al %d%% del patrimonio neto del hogar. Es mucho peso ante cualquier viento en contra." % round(100*deu/pat),
+            "Antes de asumir mas riesgo, dirigid el excedente conjunto a reducir la deuda mas cara.",
+            "Menos deuda compartida = mas margen y menos intereses para los dos.")
+    if ing > 0 and gas > 0:
+        tasa = (aho / ing * 100) if aho > 0 else (sup / ing * 100)
+        if tasa < 20:
+            gap = max(0.0, sup - aho)
+            ac = ("Automatizad %s/mes el dia 1 a una cuenta de inversion conjunta — ese excedente ya lo teneis, solo no tiene destino." % e(round(gap))) if gap > 50 else ("Subid vuestro ahorro automatico hasta el 20%% de los ingresos del hogar (%s/mes)." % e(round(0.20*ing)))
+            add(3, "ambar", "Llevad vuestro ahorro al 20%",
+                "Hoy el hogar guarda el %d%% de lo que entra. El 20%% es el umbral donde el interes compuesto empieza a trabajar de verdad." % round(tasa),
+                ac,
+                "Cada punto que subis son ~%s mas invertidos al ano. Llegar al 20%% adelanta vuestra libertad varios anos." % e(round(0.01*ing*12)))
+    if gas > 0:
+        exceso = max(0.0, col - gas * 6)
+        if exceso >= 5000 and inv <= exceso:
+            add(5, "ambar", "Despertad vuestro dinero dormido",
+                "Teneis unos %s parados por encima de un colchon sano de 6 meses. Quietos, pierden valor cada ano contra la inflacion." % e(round(exceso)),
+                "Moved una parte a una cartera diversificada de bajo coste y automatizad aportaciones conjuntas.",
+                "Solo preservar su valor frente a una inflacion del 3%% son ~%s/ano que hoy regalais." % e(round(exceso*0.03)))
+    if ing > 0:
+        pp = 100 * min(rp, ing) / ing
+        if pp < 10:
+            add(6, "ambar", "Cread una renta que no dependa de vuestro tiempo",
+                "El %d%% de lo que entra en casa depende de que sigais trabajando. Una sola fuente es vuestro mayor riesgo silencioso." % round(100 - pp),
+                "Elegid UNA via juntos (dividendos, alquiler, un proyecto) y dad un primer paso este mes — no las tres a la vez.",
+                "150 EUR/mes de renta nueva son 1.800 EUR/ano que entran sin cambiar vuestro tiempo por dinero.")
+    if gas > 0 and pen > 0 and (gas - pen) > 0:
+        gp = gas - pen
+        add(7, "ambar", "Cerrad vuestra brecha de pension",
+            "Vuestro coste de vida (%s) supera la pension publica estimada conjunta (%s): faltan %s/mes el dia que dejeis de trabajar." % (e(gas), e(pen), e(round(gp))),
+            "Abrid un plan de pensiones o inversion periodica y automatizad una aportacion mensual desde ya.",
+            "Empezar 10 anos antes puede multiplicar por 2-3 el capital final. Cada ano cuenta.")
+    orden_niv = {"rojo": 0, "ambar": 1}
+    cand.sort(key=lambda x: (orden_niv.get(x[1], 2), x[0]))
+    return [{"orden": i, "titulo": t, "porque": pq, "accion": ac, "gana": ga, "nivel": niv}
+            for i, (pal, niv, t, pq, ac, ga) in enumerate(cand[:3], 1)]
+
 def plan_maestro(datos, p=None, perfil_in=None):
     """Los 3 movimientos que mas mueven la aguja, SECUENCIADOS y cuantificados.
     Devuelve [{orden,frente,titulo,porque,accion,gana,nivel}] (1 = primer movimiento)."""
