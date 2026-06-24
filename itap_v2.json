@@ -1618,7 +1618,7 @@
      "faceta": "mapa_patrimonial",
      "tipo": "escala",
      "dimensiones": "VINCULO",
-     "texto": "¿Tus herederos o personas de confianza sabrían dónde están tus cuentas, inversiones y deudas?",
+     "texto": "Si te pasara algo, ¿tus personas de confianza sabrían dónde está tu dinero y cómo acceder a él (cuentas, ahorros, lo que tengas)?",
      "nivel": "nucleo",
      "opciones": [
       {
@@ -2972,15 +2972,23 @@
      "nivel": "nucleo",
      "opciones": [
       {
-       "texto": "Más de 50 €/hora; mi tiempo es muy productivo.",
+       "texto": "Más de 80 €/hora; mi tiempo es muy valioso.",
        "score": 0
       },
       {
-       "texto": "Entre 15 y 50 €/hora; produce, pero con techo por horas.",
+       "texto": "Entre 40 y 80 €/hora; bien pagado.",
+       "score": 25
+      },
+      {
+       "texto": "Entre 20 y 40 €/hora; correcto, pero con techo por horas.",
        "score": 50
       },
       {
-       "texto": "Menos de 15 €/hora; mi tiempo está devaluado para el esfuerzo.",
+       "texto": "Entre 10 y 20 €/hora; produce poco para el esfuerzo que pones.",
+       "score": 75
+      },
+      {
+       "texto": "Menos de 10 €/hora; mi tiempo está muy devaluado.",
        "score": 100
       }
      ],
@@ -3029,6 +3037,10 @@
       {
        "texto": "Suscripciones, caprichos y goteos de ocio que sé que no me hacen feliz.",
        "score": 0
+      },
+      {
+       "texto": "Un poco de varias: repartiría el recorte entre suscripciones, ocio y algún confort.",
+       "score": 25
       },
       {
        "texto": "Comidas fuera, transporte premium, confort; me costaría pero sé de dónde.",
@@ -3998,13 +4010,6 @@
  ],
  "numericas_financieras": [
   {
-   "id": "NUM-1",
-   "campo": "gasto_mensual",
-   "unidad": "€/mes",
-   "texto": "¿Cuánto gastas al mes, como mínimo, para vivir con dignidad (sin lujos)?",
-   "ayuda": "Tu coste de vida real (vivienda, comida, suministros, día a día): la base de casi todos los cálculos. No incluyas aquí los impuestos: ya van descontados de tu ingreso neto de arriba; meterlos otra vez sería contarlos dos veces."
-  },
-  {
    "id": "NUM-2",
    "campo": "ingreso_mensual",
    "unidad": "€/mes",
@@ -4018,38 +4023,24 @@
    "texto": "¿Cuánto ahorras o inviertes de media cada mes, de verdad?"
   },
   {
-   "id": "NUM-4",
-   "campo": "patrimonio",
-   "unidad": "€",
-   "texto": "¿Cuál es tu patrimonio neto aproximado?",
-   "ayuda": "Patrimonio neto = todo lo que tienes menos todo lo que debes."
+   "id": "NUM-12",
+   "campo": "renta_pasiva",
+   "unidad": "€/mes",
+   "texto": "¿Cuánto ingresas al mes de fuentes que NO dependen de tu trabajo activo (alquileres, dividendos, intereses, royalties, un negocio que funciona sin ti)? Pon 0 solo si de verdad no tienes ninguna.",
+   "ayuda": "Cada euro que entra sin tu tiempo es un euro de libertad real. Es la vía de subir ingresos sin vender más horas."
   },
   {
-   "id": "NUM-5",
-   "campo": "horas_semana",
-   "unidad": "horas/semana",
-   "texto": "¿Cuántas horas reales dedicas a la semana a generar tus ingresos (todo incluido)?",
-   "ayuda": "Con esto y tu ingreso calculamos lo que vale de verdad tu hora.",
-   "mostrar_si": {
-    "campo": "perfil_laboral",
-    "valor_not_in": [
-     "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
-     "Jubilado / pensionista"
-    ]
-   }
-  },
-  {
-   "id": "NUM-6",
-   "campo": "colchon_liquido",
-   "unidad": "€",
-   "texto": "¿Cuánto tienes ahora mismo en dinero parado y disponible — cuenta corriente, cuentas de ahorro, depósitos y efectivo —, sin contar inversiones ni vivienda?",
-   "ayuda": "Es tu colchón ante un imprevisto. Dinero seguro, pero que apenas renta: lo que tengas por encima de tu fondo de emergencia pierde valor con la inflación."
+   "id": "NUM-1",
+   "campo": "gasto_mensual",
+   "unidad": "€/mes",
+   "texto": "Ahora tus gastos. ¿Cuánto gastas al mes, como mínimo, para vivir con dignidad (sin lujos)?",
+   "ayuda": "Tu coste de vida real (vivienda, comida, suministros, día a día): la base de casi todos los cálculos. No incluyas aquí los impuestos: ya van descontados de tu ingreso neto de arriba; meterlos otra vez sería contarlos dos veces."
   },
   {
    "id": "NUM-7",
    "campo": "coste_vivienda",
    "unidad": "€/mes",
-   "texto": "¿Cuánto pagas al mes por tu vivienda (hipoteca o alquiler)? Pon 0 si no pagas.",
+   "texto": "¿Cuánto pagas al mes por tu vivienda (hipoteca o alquiler)? Pon 0 solo si no pagas nada (vivienda en propiedad ya pagada o cedida).",
    "ayuda": "Para ver cuánto pesa el techo sobre tus ingresos."
   },
   {
@@ -4064,6 +4055,20 @@
      "No tengo ninguna deuda"
     ]
    }
+  },
+  {
+   "id": "NUM-4",
+   "campo": "patrimonio",
+   "unidad": "€",
+   "texto": "¿Cuál es tu patrimonio neto aproximado?",
+   "ayuda": "Patrimonio neto = todo lo que tienes menos todo lo que debes."
+  },
+  {
+   "id": "NUM-6",
+   "campo": "colchon_liquido",
+   "unidad": "€",
+   "texto": "¿Cuánto tienes ahora mismo en dinero parado y disponible — cuenta corriente, cuentas de ahorro, depósitos y efectivo —, sin contar inversiones ni vivienda?",
+   "ayuda": "Es tu colchón ante un imprevisto. Dinero seguro, pero que apenas renta: lo que tengas por encima de tu fondo de emergencia pierde valor con la inflación."
   },
   {
    "id": "NUM-9",
@@ -4082,15 +4087,15 @@
    "id": "NUM-10",
    "campo": "pct_vivienda",
    "unidad": "%",
-   "texto": "Aproximadamente, ¿qué % de tu patrimonio está concentrado en un solo activo (normalmente tu vivienda)?",
-   "ayuda": "Demasiada concentración en un activo es un riesgo silencioso."
+   "texto": "Aproximadamente, ¿qué % de tu patrimonio está concentrado en tu mayor activo (tu vivienda, tu empresa o una sola inversión)?",
+   "ayuda": "Si vives de alquiler y no tienes un activo que destaque, será un porcentaje bajo. Demasiada concentración en uno solo es un riesgo silencioso."
   },
   {
    "id": "NUM-11",
    "campo": "pension_estimada",
    "unidad": "€/mes",
-   "texto": "Si tienes una estimación, ¿qué pensión pública crees que cobrarás al jubilarte? Pon 0 si no lo sabes.",
-   "ayuda": "Para estimar la brecha entre tu pensión y tu coste de vida.",
+   "texto": "¿Qué pensión pública estimas que cobrarás al jubilarte? Haz tu mejor cálculo aproximado — no lo dejes en cero salvo que de verdad no vayas a tener pensión.",
+   "ayuda": "Como orientación, la pensión suele rondar el 50-60 % de tu último sueldo neto (la Seguridad Social tiene un simulador oficial). Nos sirve para medir la brecha entre tu pensión y tu coste de vida.",
    "mostrar_si": {
     "campo": "perfil_laboral",
     "valor_not_in": [
@@ -4100,11 +4105,18 @@
    }
   },
   {
-   "id": "NUM-12",
-   "campo": "renta_pasiva",
-   "unidad": "€/mes",
-   "texto": "¿Cuánto ingresas al mes de fuentes que NO dependen de tu trabajo activo (alquileres, dividendos, intereses, royalties, un negocio que funciona sin ti)? Pon 0 si ninguna.",
-   "ayuda": "Cada euro que entra sin tu tiempo es un euro de libertad real. Es la vía de subir ingresos sin vender más horas."
+   "id": "NUM-5",
+   "campo": "horas_semana",
+   "unidad": "horas/semana",
+   "texto": "¿Cuántas horas reales dedicas cada semana a generar tus ingresos, incluyendo el desplazamiento al trabajo y los correos o llamadas fuera de horario?",
+   "ayuda": "Cuenta el tiempo que el trabajo te quita de verdad, no solo el horario oficial. Con esto y tu ingreso calculamos lo que vale realmente tu hora.",
+   "mostrar_si": {
+    "campo": "perfil_laboral",
+    "valor_not_in": [
+     "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
+     "Jubilado / pensionista"
+    ]
+   }
   },
   {
    "id": "NUM-F1",

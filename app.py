@@ -88,11 +88,19 @@ def _build_isolated(fn, *a, **k):
     elif pid > 0:                      # --- padre: espera al hijo ---
         try:
             _, status = os.waitpid(pid, 0)
-            if os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0:
-                return
         except Exception:
-            pass
-    fn(*a, **k)                        # fallback en proceso (fork no disponible o hijo fallo)
+            status = None
+        if status is not None and os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0:
+            return                     # OK: el hijo generó el PDF y liberó la RAM al morir
+        if status is not None and os.WIFSIGNALED(status):
+            # Muerte por señal (SIGKILL=9 en Render = casi seguro OOM). NO reintentamos en proceso:
+            # eso cargaría el pico en el padre y tumbaría el servicio. Registramos alto y avisamos.
+            _sig = os.WTERMSIG(status)
+            print("!!! PDF_OOM_KILL · generación abortada por señal %d (probable falta de memoria en Render). "
+                  "El servicio sigue vivo; reintentar. Si se repite, subir el plan de Render." % _sig, flush=True)
+            raise MemoryError("Generación de PDF interrumpida por falta de memoria (señal %d). Reinténtalo en unos segundos." % _sig)
+        # salida != 0 sin señal = error de código del hijo -> reintenta en proceso para propagar el traceback real
+    fn(*a, **k)                        # fallback en proceso (fork no disponible, o error de código no-OOM)
 
 class StartPayload(BaseModel):
     email: str
@@ -306,10 +314,10 @@ def generar_pdf(sid, email, nombre, respuestas, datos, tier, bar=None, sexo=None
             extras = score_v2.computar_extras(respuestas, d, perfil, rb._cargar_v2())
         except Exception:
             extras = None
-        _build_isolated(rb.build_book_v2, respuestas, d, _cli(email, nombre, sexo), out, perfil_in=perfil,
+        rb.build_book_v2(respuestas, d, _cli(email, nombre, sexo), out, perfil_in=perfil,
                         depth=TIER_DEPTH.get(tier, "completo"), baremo=bar, sintesis=sintesis, extras=extras)
     else:
-        _build_isolated(rb.build_book, respuestas, d, _cli(email, nombre, sexo), out,
+        rb.build_book(respuestas, d, _cli(email, nombre, sexo), out,
                         depth=TIER_DEPTH.get(tier, "completo"), baremo=bar, sintesis=sintesis)
     return out
 
@@ -325,7 +333,7 @@ def generar_couple(out, arow, brow, sintesis=None):
             return json.loads(row["perfil"] or "{}") if ("perfil" in row.keys() and row["perfil"]) else {}
         except Exception:
             return {}
-    _build_isolated(rc.build_couple, json.loads(arow["respuestas"]), datos_completos(json.loads(arow["datos"])), _cli(arow["email"], arow["nombre"]),
+    rc.build_couple(json.loads(arow["respuestas"]), datos_completos(json.loads(arow["datos"])), _cli(arow["email"], arow["nombre"]),
                     json.loads(brow["respuestas"]), datos_completos(json.loads(brow["datos"])), _cli(brow["email"], brow["nombre"]), out, sintesis=sintesis,
                     perfilA=_pf(arow), perfilB=_pf(brow))
 

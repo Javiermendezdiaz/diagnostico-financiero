@@ -379,7 +379,10 @@ function construirCola(){
   st.cola=[]; st.abierta=new Set(); st.insertados=new Set(); st.inyectados=0; st.motorLog=[]; st._prog=0; st._lastIdx=null;
   INST.sociodemografico.forEach(q=>st.cola.push({...q,_b:'Sobre ti',_cap:'SD'}));
   INST.vision_brecha.forEach(q=>st.cola.push({...q,_b:'Tu vida ideal',_cap:'VIS'}));
-  INST.numericas_financieras.forEach(q=>st.cola.push({...q,tipo:'numerica',_b:'Tus números',_cap:'NUM'}));
+  INST.numericas_financieras.forEach(q=>{
+    if(st.tier===1 && (/^NUM-F/.test(q.id||'') || q.campo==='horas_semana' || q.campo==='pension_estimada')) return; // T1 (vistazo rápido): sin desglose de fuentes ni números de profundidad
+    st.cola.push({...q,tipo:'numerica',_b:'Tus números',_cap:'NUM'});
+  });
   INST.capas.forEach(c=>c.items.filter(it=>it.nivel==='nucleo').forEach(it=>st.cola.push({...it,_b:c.nombre,_cap:c.code})));
   (INST._abiertas||[]).forEach(q=>st.cola.push({...q,tipo:'abierta',_b:'En tus palabras',_cap:'OPEN',ayuda:'Sin filtro y sin prisa. Esto es lo que se analiza para escribir tu retrato.'}));
 }
@@ -498,7 +501,7 @@ function pintar(){
   repProg(q);
   saveProgreso();
   const _rem=Math.max(0,st.cola.length-st.i), _mins=_rem>2?'  ·  ~'+Math.max(1,Math.round(_rem*8/60))+' min':'';
-  const _tot=Math.max(st.cola.length,({1:80,2:95,3:100}[st.tier]||95)), _n=Math.min(st.i+1,_tot);
+  const _tot=Math.max(st.cola.length,st.i+1), _n=Math.min(st.i+1,_tot);
   document.getElementById('bloque').textContent=q._b+'  ·  Pregunta '+_n+'/~'+_tot+'  ·  '+progresoPct(q)+'%'+_mins;
   progreso(q);
   qtext.textContent=q.texto||q.pregunta;
@@ -562,10 +565,10 @@ function calcFuga(){const d=st.datos||{};const g=+d.gasto_mensual||0,col=+d.colc
 let _fugaCur=0,_fugaRAF=null;
 function _actualizarFuga(){const f=calcFuga();const fb=document.getElementById('fugaBox');if(!fb)return;if(f<=0){fb.style.display='none';return;}fb.style.display='flex';const from=_fugaCur,t0=performance.now(),D=750;cancelAnimationFrame(_fugaRAF);(function s(now){const t=Math.min(1,(now-t0)/D),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;const v=Math.round(from+(f-from)*e);const el=document.getElementById('fugaV');if(el)el.textContent=v.toLocaleString('es-ES')+' €/año';if(t<1)_fugaRAF=requestAnimationFrame(s);else _fugaCur=f;})(t0);}
 function progresoPct(q){
-  const orden=['SD','VIS','NUM',...INST.capas.map(c=>c.code),'OPEN'];
-  let idx=orden.indexOf(q._cap);
-  if(idx<0) idx=(st._lastIdx!=null?st._lastIdx:0); else st._lastIdx=idx;   // cruces 'X': mantienen posicion, no saltan a 0
-  let pct=Math.min(98,Math.round(((idx+0.5)/orden.length)*100));
+  const tot=Math.max(st.cola.length,1);
+  const frac=Math.min(1,(st.i+1)/tot);
+  // curva cóncava: el avance se siente rápido y da antes la sensación de "queda poco"
+  let pct=Math.min(98,Math.round(100*Math.pow(frac,0.68)));
   pct=Math.max(pct, st._prog||0); st._prog=pct;                            // MONOTONO: nunca retrocede
   return pct;
 }
