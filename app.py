@@ -2,7 +2,7 @@
 import os, uuid, json, datetime, tempfile, sqlite3, base64, urllib.request, urllib.error
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 import report_book as rb
@@ -841,6 +841,64 @@ def enviar_copia(session_id):
     if fallback and row["notificado"] != 2:
         with db() as c: c.execute("UPDATE sesiones SET notificado=2 WHERE id=?", (session_id,))
     return {"ok": False, "reason": ("respaldo_enviado_real_pendiente" if fallback else "email_cliente_fallo")}
+
+@app.get("/api/entregas")
+def entregas(key: str = "", limite: int = 150):
+    """Panel visual de entregas: cada venta y si el cliente recibio su PDF. Abre la URL con ?key=TU_CLAVE."""
+    _k = os.environ.get("FUNNEL_KEY") or os.environ.get("RECONCILE_KEY")
+    if _k and key != _k:
+        return HTMLResponse("<body style='font-family:sans-serif;padding:40px'><h3>Panel protegido</h3><p>Anade <code>?key=TU_CLAVE</code> a la URL.</p></body>", status_code=403)
+    try:
+        with db() as c:
+            rows = c.execute("SELECT id,nombre,email,tier,pagado,notificado,creado FROM sesiones "
+                             "WHERE pagado=1 ORDER BY creado DESC LIMIT ?", (limite,)).fetchall()
+    except Exception as e:
+        return HTMLResponse("<body><h3>Error: %s</h3></body>" % e, status_code=500)
+    TN = {1:"T1 - Rapido (19)", 2:"T2 - Avanzado (39)", 3:"T3 - Pareja (54)"}
+    def estado(n):
+        if n == 1: return (0, "ENTREGADO", "#1f9d55", "#e7f6ec")
+        if n == 2: return (1, "EN CURSO",  "#b7791f", "#fdf6e3")
+        return (2, "PENDIENTE", "#c53030", "#fdecec")  # pagado pero sin entregar -> el reconciliador lo reintenta
+    data = []
+    for r in rows:
+        pr, txt, col, bg = estado(r["notificado"])
+        data.append((pr, txt, col, bg, r))
+    data.sort(key=lambda x: (-x[0], ))  # pendientes y en curso arriba
+    n_ent = sum(1 for d in data if d[1]=="ENTREGADO")
+    n_cur = sum(1 for d in data if d[1]=="EN CURSO")
+    n_pen = sum(1 for d in data if d[1]=="PENDIENTE")
+    filas = []
+    for pr, txt, col, bg, r in data:
+        nom = (r["nombre"] or "-"); em = (r["email"] or "-"); cr = (r["creado"] or "")[:16].replace("T", " ")
+        filas.append("<tr style='background:%s'><td><b style='color:%s'>%s</b></td><td>%s</td><td>%s</td><td>%s</td><td style='color:#888'>%s</td></tr>"
+                     % (bg, col, txt, nom, em, TN.get(r["tier"], r["tier"]), cr))
+    html = """<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
+<meta http-equiv='refresh' content='60'><title>Entregas - Adapta</title>
+<style>body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;background:#0e1018;color:#edeae2}
+.wrap{max-width:920px;margin:0 auto;padding:24px}
+h1{color:#e8c861;font-size:20px;margin:0 0 4px} .sub{color:#8a93a6;font-size:13px;margin-bottom:18px}
+.cards{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.card{flex:1;min-width:120px;background:#161a24;border:1px solid #2a3140;border-radius:10px;padding:14px 16px}
+.card .n{font-size:26px;font-weight:700} .card .l{font-size:11px;color:#8a93a6;text-transform:uppercase;letter-spacing:.05em}
+table{width:100%;border-collapse:collapse;background:#fff;color:#222;border-radius:10px;overflow:hidden;font-size:13px}
+th{background:#161a24;color:#e8c861;text-align:left;padding:9px 11px;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+td{padding:9px 11px;border-bottom:1px solid #eee}
+.foot{color:#5c6470;font-size:11px;margin-top:14px}</style></head>
+<body><div class='wrap'>
+<h1>Entregas - Adapta Family Office</h1>
+<div class='sub'>Cada venta y si el cliente recibio su PDF. Se actualiza solo cada 60 s.</div>
+<div class='cards'>
+<div class='card'><div class='n' style='color:#5fb98e'>__ENT__</div><div class='l'>Entregados</div></div>
+<div class='card'><div class='n' style='color:#e8c861'>__CUR__</div><div class='l'>En curso</div></div>
+<div class='card'><div class='n' style='color:#d9755b'>__PEN__</div><div class='l'>Pendientes</div></div>
+</div>
+<table><thead><tr><th>Estado</th><th>Cliente</th><th>Email</th><th>Producto</th><th>Fecha</th></tr></thead>
+<tbody>__FILAS__</tbody></table>
+<div class='foot'>Total pagados: __TOT__ . Los pendientes se reintentan solos cada 10 min. Si alguno sigue rojo, escribe al cliente o avisame.</div>
+</div></body></html>"""
+    html = (html.replace("__ENT__", str(n_ent)).replace("__CUR__", str(n_cur)).replace("__PEN__", str(n_pen))
+                .replace("__TOT__", str(len(data))).replace("__FILAS__", "".join(filas) or "<tr><td colspan=5 style='padding:20px;text-align:center;color:#888'>Aun no hay ventas.</td></tr>"))
+    return HTMLResponse(html)
 
 @app.get("/api/reconciliar")
 def reconciliar(key: str = "", limite: int = 100):
