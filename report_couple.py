@@ -308,6 +308,13 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
     est=_compartimento(prof, resp or {})
     if est:
         out+=[Spacer(1,3*mm), _callout(est[0], est[1], "#B45309", "#FBF3E8")]
+    try:
+        _dialp = radar_path + ".dials.png"
+        rb.panel_capas(_dialp, prof, titulo=("%s · SUS 12 DIMENSIONES" % pn).upper(),
+                       subtitulo="Cómo vive %s cada palanca del dinero. El verde sostiene; el rojo pide acción." % pn)
+        out += [PageBreak(), rb.FullBleedImage(_dialp)]
+    except Exception:
+        pass
     out+=[PageBreak(), Paragraph(f"{pn}: fortalezas y focos",h_sub)]
     orden=sorted(rb.CAPAS,key=lambda c:prof[c]["score"])
     out.append(Paragraph("<b>Tus tres fortalezas</b>",small))
@@ -1088,6 +1095,15 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
             ("LEFTPADDING",(0,0),(-1,-1),7),("RIGHTPADDING",(0,0),(-1,-1),7),
             ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]+bgs))
         S+=[Paragraph("%s \u00b7 %s"%(capa["code"],capa["nombre"]),h_sub), t]
+    # --- saneador: colapsa PageBreaks consecutivos (elimina paginas en blanco) ---
+    _clean=[]
+    for _f in S:
+        if isinstance(_f, PageBreak) and _clean and isinstance(_clean[-1], PageBreak):
+            continue
+        _clean.append(_f)
+    while _clean and isinstance(_clean[-1], PageBreak):
+        _clean.pop()
+    S=_clean
     doc=SimpleDocTemplate(out,pagesize=A4,topMargin=22*mm,bottomMargin=20*mm,leftMargin=22*mm,rightMargin=22*mm,
                           title="Vuestro Libro Financiero — ITAP")
     doc._cliente="%s & %s"%(nA,nB)

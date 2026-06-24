@@ -752,7 +752,8 @@ def cashflow_waterfall(datos, path):
     plt.tight_layout(); fig.savefig(path,dpi=200,transparent=True); plt.close(fig); gc.collect()
     return libre
 
-def panel_capas(path, p):
+def panel_capas(path, p, titulo="TUS 12 DIMENSIONES",
+                subtitulo="Una mirada a cada palanca de tu vida financiera. El verde sostiene; el rojo pide acción."):
     """Pagina a sangre: las 12 dimensiones en diales (vista de un vistazo)."""
     import matplotlib.pyplot as plt, numpy as np
     from matplotlib.patches import Rectangle
@@ -764,8 +765,8 @@ def panel_capas(path, p):
     ax.add_patch(Rectangle((0,0),100,141.6,color=BG,zorder=0))
     ax.add_patch(Rectangle((0,128.5),100,13.1,color=CARD,zorder=1))
     ax.add_patch(Rectangle((0,128.3),100,0.35,color=GOLD,zorder=2))
-    ax.text(8,135.6,"TUS 12 DIMENSIONES",color=GOLD,fontsize=22,fontweight="bold",va="center",zorder=3)
-    ax.text(8,131.4,"Una mirada a cada palanca de tu vida financiera. El verde sostiene; el rojo pide acción.",color=MUT,fontsize=10.5,va="center",zorder=3)
+    ax.text(8,135.6,titulo,color=GOLD,fontsize=22,fontweight="bold",va="center",zorder=3)
+    ax.text(8,131.4,subtitulo,color=MUT,fontsize=10.5,va="center",zorder=3)
     cols=[14,38,62,86]; rows=[107,72,37]; R=10.0
     for idx,code in enumerate(codes[:12]):
         cxp=cols[idx%4]; cyp=rows[idx//4]
