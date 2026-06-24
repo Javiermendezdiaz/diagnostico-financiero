@@ -72,6 +72,28 @@ def _liberar_memoria():
     except Exception:
         pass
 
+def _build_isolated(fn, *a, **k):
+    """Genera el PDF en un proceso HIJO que muere al terminar -> devuelve TODA la RAM al sistema (anti-OOM Render).
+    El worker de uvicorn (padre) nunca acumula el pico. Si fork no esta disponible (Windows) o el hijo falla,
+    cae a generacion en proceso: mismo comportamiento de siempre, cero riesgo."""
+    try:
+        pid = os.fork()
+    except Exception:
+        pid = -1
+    if pid == 0:                       # --- proceso hijo: genera y muere ---
+        try:
+            fn(*a, **k); os._exit(0)
+        except BaseException:
+            os._exit(1)
+    elif pid > 0:                      # --- padre: espera al hijo ---
+        try:
+            _, status = os.waitpid(pid, 0)
+            if os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0:
+                return
+        except Exception:
+            pass
+    fn(*a, **k)                        # fallback en proceso (fork no disponible o hijo fallo)
+
 class StartPayload(BaseModel):
     email: str
     tier: int
@@ -284,11 +306,11 @@ def generar_pdf(sid, email, nombre, respuestas, datos, tier, bar=None, sexo=None
             extras = score_v2.computar_extras(respuestas, d, perfil, rb._cargar_v2())
         except Exception:
             extras = None
-        rb.build_book_v2(respuestas, d, _cli(email, nombre, sexo), out, perfil_in=perfil,
-                         depth=TIER_DEPTH.get(tier, "completo"), baremo=bar, sintesis=sintesis, extras=extras)
+        _build_isolated(rb.build_book_v2, respuestas, d, _cli(email, nombre, sexo), out, perfil_in=perfil,
+                        depth=TIER_DEPTH.get(tier, "completo"), baremo=bar, sintesis=sintesis, extras=extras)
     else:
-        rb.build_book(respuestas, d, _cli(email, nombre, sexo), out,
-                      depth=TIER_DEPTH.get(tier, "completo"), baremo=bar, sintesis=sintesis)
+        _build_isolated(rb.build_book, respuestas, d, _cli(email, nombre, sexo), out,
+                        depth=TIER_DEPTH.get(tier, "completo"), baremo=bar, sintesis=sintesis)
     return out
 
 def generar_couple(out, arow, brow, sintesis=None):
@@ -303,7 +325,7 @@ def generar_couple(out, arow, brow, sintesis=None):
             return json.loads(row["perfil"] or "{}") if ("perfil" in row.keys() and row["perfil"]) else {}
         except Exception:
             return {}
-    rc.build_couple(json.loads(arow["respuestas"]), datos_completos(json.loads(arow["datos"])), _cli(arow["email"], arow["nombre"]),
+    _build_isolated(rc.build_couple, json.loads(arow["respuestas"]), datos_completos(json.loads(arow["datos"])), _cli(arow["email"], arow["nombre"]),
                     json.loads(brow["respuestas"]), datos_completos(json.loads(brow["datos"])), _cli(brow["email"], brow["nombre"]), out, sintesis=sintesis,
                     perfilA=_pf(arow), perfilB=_pf(brow))
 

@@ -4002,13 +4002,14 @@
    "campo": "gasto_mensual",
    "unidad": "€/mes",
    "texto": "¿Cuánto gastas al mes, como mínimo, para vivir con dignidad (sin lujos)?",
-   "ayuda": "Tu coste de vida real: la base de casi todos los cálculos."
+   "ayuda": "Tu coste de vida real (vivienda, comida, suministros, día a día): la base de casi todos los cálculos. No incluyas aquí los impuestos: ya van descontados de tu ingreso neto de arriba; meterlos otra vez sería contarlos dos veces."
   },
   {
    "id": "NUM-2",
    "campo": "ingreso_mensual",
    "unidad": "€/mes",
-   "texto": "¿Cuál es tu ingreso neto mensual (lo que te queda tras impuestos)?"
+   "texto": "¿Cuál es tu ingreso neto mensual? Es decir, lo que de verdad te queda en el bolsillo cada mes, ya descontados todos los impuestos.",
+   "ayuda": "Si eres autónomo o empresario, NO pongas tu facturación bruta: pon lo que te queda tras IRPF, IVA y cuota de autónomo (y si te pagas por nómina + dividendos de tu sociedad, suma lo neto de ambos). Importante: los impuestos NO son un gasto aparte — ya van restados aquí, en el ingreso."
   },
   {
    "id": "NUM-3",
@@ -4109,8 +4110,8 @@
    "id": "NUM-F1",
    "campo": "ing_trabajo",
    "unidad": "€/mes",
-   "texto": "De tu trabajo activo (empleo, autónomo), ¿cuánto ingresas al mes?",
-   "ayuda": "Solo lo que depende de que tú estés ahí.",
+   "texto": "De tu trabajo activo (empleo, autónomo), ¿cuánto te queda NETO al mes, tras impuestos?",
+   "ayuda": "Solo lo que depende de que tú estés ahí, ya descontados impuestos (no la facturación bruta).",
    "mostrar_si": {
     "campo": "fuentes_ingreso",
     "valor_in": [

@@ -320,6 +320,35 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
         try: out += rb.seccion_ratio_vida(extras) + rb.seccion_nudo(extras) + rb.seccion_coste_inaccion(extras)
         except Exception: pass
     out.append(PageBreak())
+    out.append(Paragraph(f"{pn}: tus doce capas, una a una",h_sub))
+    out.append(Paragraph("Tu lectura individual, capa por capa — las que más te pesan, primero. El cruce con tu pareja viene después.",small))
+    _facmap=rb.CAPAS
+    for _c in sorted(rb.CAPAS,key=lambda c:prof[c]["score"],reverse=True):
+        _sc=prof[_c]["score"]
+        _ps=rb.PASO[_c]; _ps=_ps[0] if isinstance(_ps,(list,tuple)) else _ps
+        _blk=[Table([[Paragraph("<b>%s</b>  <font color='#6B7280'>%.0f/100</font>"%(rb.CAPAS[_c]["nombre"],100-_sc),small),
+                      rb.Chip(prof[_c]["banda"],BANDC[prof[_c]["bi"]],w=84,h=13)]],
+                     colWidths=[118*mm,40*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),3)]),
+              Paragraph("<b>Qué mide en ti:</b> "+rb.QMIDE[_c],St("dxq",fontSize=9.4,leading=13,leftIndent=4))]
+        _facd=(_facmap[_c].get("facetas",{}) if isinstance(_facmap[_c],dict) else {})
+        _fr=[]
+        for _fk,_fv in prof[_c]["facetas"].items():
+            _fr.append([Paragraph(_facd.get(_fk,_fk),St("dxfl",fontSize=8.4,leading=11)),
+                        rb.Bar(_fv,w=66*mm),
+                        Paragraph("<font color='#6B7280'>%.0f</font>"%(100-_fv),St("dxfn",fontSize=8.4,leading=11))])
+        if _fr:
+            _blk.append(Table(_fr,colWidths=[58*mm,72*mm,12*mm],
+                              style=[("LEFTPADDING",(0,0),(0,-1),8),("LEFTPADDING",(1,0),(-1,-1),5),
+                                     ("BOTTOMPADDING",(0,0),(-1,-1),2),("TOPPADDING",(0,0),(-1,-1),2),("VALIGN",(0,0),(-1,-1),"MIDDLE")]))
+        if _sc>=50:
+            _blk.append(Paragraph("<font color='#9A3B2E'><b>Tu foco:</b></font> "+rb.RIESGO[_c],St("dxr",fontSize=9.4,leading=13,leftIndent=4)))
+            _blk.append(Paragraph("<font color='%s'><b>Tu paso:</b></font> "%A_COL+_ps,St("dxp",fontSize=9.4,leading=13,leftIndent=4)))
+        else:
+            _blk.append(Paragraph("<font color='#1D6F42'><b>Tu fortaleza:</b></font> "+rb.OPORTUNIDAD[_c],St("dxo",fontSize=9.4,leading=13,leftIndent=4)))
+        _blk.append(Paragraph("<i>Para pensar:</i> "+rb.REFLEX[_c],St("dxrf",fontSize=8.9,leading=12,leftIndent=4,textColor=INK)))
+        _blk.append(Paragraph("“%s”"%rb.PRINCIPIO[_c],St("dxpr",fontSize=9,leading=12,leftIndent=4,textColor=GREY,fontName="Helvetica-Oblique",spaceAfter=8)))
+        out.append(KeepTogether(_blk))
+    out.append(PageBreak())
     out.append(Paragraph(f"{pn}: resumen capa por capa",h_sub))
     rows=[[Paragraph("<b>Capa</b>",small),Paragraph("<b>Score</b>",small),Paragraph("<b>Banda</b>",small)]]
     for c in rb.CAPAS:
@@ -480,6 +509,188 @@ def laboratorio_pareja(rA,rB,pA,pB,nA,nB,dA,dB,hogar,divs):
                     f"fondo de seguridad no se toque y das el visto bueno antes de cualquier inversión. {ejec} ejecuta, "
                     f"pero {guard} firma la conformidad.",small),
           Spacer(1,3*mm)]
+    return out
+
+# ---------------------------------------------------------------------------
+# Enriquecimiento Tier 3: día a día, trampa y micro-acuerdo por capa (voz pareja)
+# ---------------------------------------------------------------------------
+DIADIA={
+ "C1":"En las noches en que uno no duerme por una factura y el otro ni se entera; en el silencio tenso cuando llega un cargo inesperado.",
+ "C2":"Cuando habláis del futuro y cada uno imagina una jubilación distinta, sin una fecha ni una cifra común sobre la mesa.",
+ "C3":"En el nivel de alarma —muy distinto— con que cada uno reacciona ante un imprevisto de mil euros.",
+ "C4":"En esa sensación de que el dinero entra pero no se sabe a dónde va, y en las pequeñas compras que uno justifica y el otro no entiende.",
+ "C5":"En todo lo que dais por hecho que «ya está resuelto» sin haberlo hablado: seguros, testamento, accesos a las cuentas.",
+ "C6":"En las cenas, la ropa, el coche o el viaje que para uno son normales y para el otro un exceso.",
+ "C7":"En la calma o el vértigo con que cada uno vive el depender de un solo sueldo.",
+ "C8":"En cómo reaccionaría cada uno si mañana llegara una crisis — o una gran oportunidad.",
+ "C9":"En quién mira las cuentas y quién no; en ese reparto invisible de la «fontanería» del dinero.",
+ "C10":"En cómo pesa la deuda sobre el ánimo de cada uno, aunque sea exactamente la misma deuda.",
+ "C11":"En quién propone mover el dinero y poner segundas fuentes en marcha, y quién prefiere no tocar nada.",
+ "C12":"En la inversión que uno ve como crecimiento y el otro como riesgo; en el ahorro parado que uno quiere mover y el otro dejar quieto.",
+}
+TRAMPA={
+ "C1":"Que el que más se preocupa cargue solo con la alerta de toda la casa. El estrés no hablado no protege: solo desgasta a uno de los dos.",
+ "C2":"Posponer fijar el número común «hasta que tengamos más». Sin meta, cualquier cantidad parece insuficiente y nunca llega el momento.",
+ "C3":"Confundir tener ingresos con tener red. Sin colchón, hasta un buen sueldo se evapora al primer golpe.",
+ "C4":"Dejar que cada subida de ingreso se convierta en gasto fijo. Lo que sube callado, no baja.",
+ "C5":"Aplazar el blindaje legal «porque da mal rollo». El día que hace falta, ya no se puede improvisar.",
+ "C6":"Discutir la compra concreta en vez del significado que hay detrás. La cena nunca es el problema.",
+ "C7":"Sentirse seguro porque hoy el sueldo llega. La dependencia de una sola fuente solo se ve cuando ya ha fallado.",
+ "C8":"Paralizarse esperando el momento perfecto. En una crisis, no decidir también es una decisión — la peor.",
+ "C9":"Que uno lleve las cuentas en la cabeza y el otro las ignore. Lo que nadie mira, lo decide la inercia.",
+ "C10":"Esconder o minimizar una deuda «para no preocupar». El secreto acaba costando más que los propios intereses.",
+ "C11":"Esperar a «tener tiempo» para poner el dinero a trabajar. El tiempo no aparece; se reserva.",
+ "C12":"Dejar el ahorro parado «hasta decidir». La indecisión también es una decisión: la de perder contra la inflación.",
+}
+MICROACUERDO={
+ "C1":"Una vez por semana, cinco minutos: cada uno dice en voz alta su mayor preocupación de dinero. Solo escuchar, sin resolver.",
+ "C2":"Acordad esta semana UN número de libertad común y la edad a la que lo queréis. Escribidlo y ponedlo donde lo veáis.",
+ "C3":"Fijad el tamaño del colchón del hogar (3-6 meses de gastos) y quién aporta cuánto cada mes.",
+ "C4":"Elegid juntos un gasto fijo que ninguno defendería ante el otro y dadlo de baja este mes.",
+ "C5":"Reservad una tarde para responder: si faltara uno, ¿el otro tiene accesos, liquidez y un testamento? Apuntad qué falta.",
+ "C6":"Daos cada uno una «caja de autonomía» mensual sin explicaciones; fuera de ella, las decisiones son de los dos.",
+ "C7":"Calculad qué % del hogar depende de un solo ingreso y nombrad una segunda fuente posible a explorar.",
+ "C8":"Escribid en un folio qué haríais juntos si mañana llegara una crisis — y qué, si llegara una oportunidad.",
+ "C9":"Montad un presupuesto de tres cajas y poned una cita fija mensual de 20 min para revisarlo los dos.",
+ "C10":"Poned toda la deuda sobre la mesa, sin secretos, con su TAE, y haced un único plan de amortización.",
+ "C11":"Elegid UNA palanca de crecimiento para este año y repartíos por escrito quién la lidera.",
+ "C12":"Decidid un % fijo del ahorro que se invierte automáticamente cada mes, pactado entre los dos.",
+}
+
+def seccion_constitucion_hogar(pA,pB,nA,nB,hogar,fi_h,divs):
+    """Plan conjunto 72h/30/90 + cifras del hogar + contingencia + pacto firmado."""
+    comb=sorted(CAPAS,key=lambda c:(pA[c]["score"]+pB[c]["score"]),reverse=True)
+    confl=sorted([c for c in CAPAS if abs(pA[c]["score"]-pB[c]["score"])>=30],
+                 key=lambda c:-abs(pA[c]["score"]-pB[c]["score"]))
+    pasos=[]; seen=set()
+    for c in confl+comb:
+        if c in seen: continue
+        p=paso_pareja(c)
+        if p: pasos.append(p); seen.add(c)
+        if len(pasos)>=5: break
+    def _p(i): return pasos[i] if i<len(pasos) else None
+    out=[PageBreak(), Paragraph("Vuestra Constitución del Hogar",h_sec),
+         Paragraph("Esto no es una lista de buenos propósitos: es la ley por la que se regirán vuestras decisiones de "
+                   "dinero a partir de hoy. Está construida desde donde más flojeáis juntos y donde más divergís. "
+                   "Empezad por arriba — el orden importa.",body),
+         Spacer(1,3*mm)]
+    fases=[("#0F766E","Fase 1 · Próximas 72 horas","Cortafuegos: parar la fuga y el silencio",[_p(0),_p(1)]),
+           ("#B45309","Fase 2 · Días 4-30","Estructura: montar el sistema del hogar",[_p(2),_p(3)]),
+           ("#0284C7","Fase 3 · Días 31-90","Construir: poner el patrimonio a trabajar",
+            [_p(4),"Repetid el diagnóstico por separado y comparad: veréis cuánto se han acortado vuestras distancias."])]
+    rt=[]
+    for col,fase,lema,accs in fases:
+        rt.append([Paragraph(f"<font color='white'><b>{fase}</b>  ·  {lema}</font>",
+                   St("rf",fontSize=9.5,leading=12,textColor=colors.white)),""])
+        for a in accs:
+            if a: rt.append([Paragraph(a,St("ra",fontSize=9.6,leading=13)),""])
+    rtab=Table(rt,colWidths=[148*mm,12*mm])
+    sty=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6),
+         ("LEFTPADDING",(0,0),(-1,-1),9),("LINEBELOW",(0,0),(-1,-1),0.4,LINE)]
+    ri=0
+    for col,fase,lema,accs in fases:
+        sty.append(("BACKGROUND",(0,ri),(-1,ri),colors.HexColor(col))); sty.append(("SPAN",(0,ri),(0,ri)))
+        for a in accs:
+            if a: ri+=1; sty.append(("BOX",(1,ri),(1,ri),0.8,colors.HexColor("#9CA3AF")))
+        ri+=1
+    rtab.setStyle(TableStyle(sty))
+    out+=[rtab, Spacer(1,5*mm)]
+    gm=hogar.get("gasto_mensual") or 0; pat=hogar.get("patrimonio") or 0
+    colobj=round(gm*3) if gm else 0
+    cif=[]
+    if colobj:
+        cif.append("<b>Vuestro colchón objetivo: %s</b> (3 meses de gastos del hogar). Abridlo en una cuenta remunerada aparte y "
+                   "alimentadlo con una transferencia automática el día 1, repartida entre los dos." % rb._eur(colobj))
+    if pat and colobj and pat>colobj:
+        cif.append("Dividid vuestro patrimonio: <b>%s</b> congelados como fondo intocable de la pareja y <b>%s</b> como base "
+                   "para invertir o amortizar, con mando compartido." % (rb._eur(colobj),rb._eur(pat-colobj)))
+    cif.append("Pagaos primero, como hogar: el día 1, antes de gastar, sale el ahorro conjunto a una cuenta separada. "
+               "Ahorrar lo que sobra no funciona; forzar el reparto, sí.")
+    cp=[Paragraph("<b>Vuestro plan, en cifras</b>",St("cif0",fontSize=11,leading=15,textColor=ACCDK,fontName="Helvetica-Bold"))]
+    for x in cif: cp.append(Paragraph("<font color='#B45309'>&#9656;</font>  "+x,St("cifx",fontSize=9.8,leading=14,textColor=INK,leftIndent=4,spaceBefore=3)))
+    out+=[rb._box(cp,"#FBF4E4","#B45309",ancho=160*mm), Spacer(1,4*mm)]
+    col6=gm*6
+    out+=[rb._box([Paragraph("<font color='#B45309'><b>Vuestra regla de contingencia</b></font><br/>"
+            f"<font size=9.5>Todo plan necesita un freno de emergencia. El vuestro: si el fondo líquido del hogar baja de "
+            f"<b>{rb._eur(col6)}</b> (seis meses de gastos) o llega un imprevisto grande, <b>pausad las fases 2 y 3</b> y "
+            f"volcad todo el excedente a reconstruir el colchón antes de seguir. Proteger la base va siempre primero.</font>",
+            St("kc",fontSize=10.5,leading=15))],"#FBF4E4","#B45309",ancho=160*mm), Spacer(1,4*mm),
+          Paragraph("Vuestro pacto",h_sub),
+          rb._box([Paragraph(f"<b>{nA} y {nB} nos comprometemos</b>, antes de 30 días, a dar juntos el primer paso de la Fase 1 "
+                f"y a reservar una cita mensual de 20 minutos para revisar las cuentas del hogar. Firmamos:",
+                St("pac",fontSize=10.5,leading=15)),
+                Spacer(1,8*mm),
+                Table([["Firma "+nA,"Firma "+nB]],colWidths=[78*mm,78*mm],
+                  style=TableStyle([("LINEABOVE",(0,0),(-1,0),0.6,colors.HexColor("#9CA3AF")),
+                    ("TEXTCOLOR",(0,0),(-1,0),colors.HexColor("#9CA3AF")),("FONTSIZE",(0,0),(-1,0),8),
+                    ("TOPPADDING",(0,0),(-1,0),3)]))],"#FBF6E0","#1A1A17",ancho=160*mm),
+          PageBreak()]
+    return out
+
+def seccion_coste_no_hablarlo(pA,pB,nA,nB,hogar,fi_h,divs):
+    """Coste de inacción conjunto: en dinero y en relación, + matriz dos caminos."""
+    pat=float(hogar.get("patrimonio") or 0)
+    inv=float(hogar.get("inversiones_liquidas") or 0)+float(hogar.get("colchon_liquido") or 0)
+    dormido=max(0.0,pat-inv)
+    nconf=len([c for c in CAPAS if abs(pA[c]["score"]-pB[c]["score"])>=30])
+    nfric=len(divs)
+    out=[PageBreak(), Paragraph("El coste de no hablarlo",h_sec),
+         Paragraph("Una conversación que no ocurre también tiene precio. No aparece en ninguna cuenta, pero lo pagáis "
+                   "—en dinero parado, en decisiones aplazadas y en distancia que se acumula mes a mes.",body)]
+    fin=[]
+    if dormido>20000:
+        fin.append("<b>%s</b> de vuestro patrimonio está hoy parado o ilíquido, sin generar renta. Cada año que sigue "
+                   "dormido es rentabilidad que no vuelve." % rb._eur(dormido))
+    if fi_h and fi_h[1] is not None and fi_h[1]<100:
+        fin.append("Estáis al <b>%.0f%%</b> de vuestro número de libertad. Sin un plan común, ese porcentaje se mueve "
+                   "despacio — o no se mueve." % fi_h[1])
+    if fin:
+        cp=[Paragraph("<b>Lo que cuesta en dinero</b>",St("cn0",fontSize=10.5,leading=14,fontName="Helvetica-Bold"))]
+        for x in fin: cp.append(Paragraph("<font color='#9A3B2E'>&#9656;</font>  "+x,St("cnx",fontSize=9.8,leading=14,leftIndent=4,spaceBefore=3)))
+        out+=[rb._box(cp,"#FBECE8","#9A3B2E",ancho=160*mm), Spacer(1,3*mm)]
+    if nconf or nfric:
+        rel=("Tenéis <b>%d</b> %s de conflicto y <b>%d</b> %s de fricción concretos sin resolver. Cada uno, callado, "
+             "se repite en decenas de pequeñas decisiones al mes y se convierte, con el tiempo, en reproche. "
+             "Hablados, se desactivan." % (nconf,"zona" if nconf==1 else "zonas",nfric,"punto" if nfric==1 else "puntos"))
+        out+=[rb._box([Paragraph("<b>Lo que cuesta en la relación</b>",St("cr0",fontSize=10.5,leading=14,fontName="Helvetica-Bold")),
+                       Paragraph(rel,St("cr1",fontSize=9.8,leading=14,spaceBefore=2))],"#FBF3E8","#B45309",ancho=160*mm),
+              Spacer(1,4*mm)]
+    izq=["Lo invertible sigue dormido y el número de libertad apenas se mueve.",
+         "Las mismas diferencias, sin hablar, se repiten cada mes.",
+         "Cada uno decide por su lado; el hogar avanza a tirones."]
+    der=["Ponéis a trabajar lo que está parado, con un plan común.",
+         "Convertís cada divergencia en un acuerdo concreto.",
+         "Decidís como equipo, con un solo rumbo y roles claros."]
+    filas=[[Paragraph("<font color='white'><b>Si no lo habláis</b></font>",St("mzi",fontSize=11,leading=14,textColor=colors.white,fontName="Helvetica-Bold")),
+            Paragraph("<font color='white'><b>Si lo trabajáis juntos</b></font>",St("mzd",fontSize=11,leading=14,textColor=colors.white,fontName="Helvetica-Bold"))]]
+    for i in range(max(len(izq),len(der))):
+        filas.append([Paragraph(("&#9656;  "+izq[i]) if i<len(izq) else "",small),
+                      Paragraph(("&#9656;  "+der[i]) if i<len(der) else "",small)])
+    mz=Table(filas,colWidths=[80*mm,80*mm])
+    mz.setStyle(TableStyle([("BACKGROUND",(0,0),(0,0),colors.HexColor("#9A3B2E")),("BACKGROUND",(1,0),(1,0),colors.HexColor("#1D6F42")),
+        ("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),9),("RIGHTPADDING",(0,0),(-1,-1),9),
+        ("TOPPADDING",(0,0),(-1,-1),7),("BOTTOMPADDING",(0,0),(-1,-1),7),
+        ("BACKGROUND",(0,1),(0,-1),colors.HexColor("#FBECE8")),("BACKGROUND",(1,1),(1,-1),colors.HexColor("#EAF5EE")),
+        ("LINEBELOW",(0,0),(-1,-1),0.4,LINE)]))
+    out+=[Paragraph("Dos caminos desde aquí",h_sub),mz,PageBreak()]
+    return out
+
+def seccion_hoja_ruta_12m(pA,pB,nA,nB,hogar):
+    """Hoja de ruta trimestral a 12 meses del hogar."""
+    q=[("T1 · Meses 1-3","Cimientos","Colchón del hogar completo y un único plan de deuda sobre la mesa."),
+       ("T2 · Meses 4-6","Sistema","Presupuesto de tres cajas funcionando y caja de autonomía para cada uno."),
+       ("T3 · Meses 7-9","Crecer","Primera palanca de crecimiento en marcha: una segunda fuente o el ahorro ya invertido."),
+       ("T4 · Meses 10-12","Blindar","Blindaje legal resuelto y revisión conjunta: repetir el diagnóstico y medir el avance.")]
+    out=[PageBreak(), Paragraph("Vuestra hoja de ruta a 12 meses",h_sec),
+         Paragraph("El plan de 90 días, estirado a un año. No para hacerlo todo ya, sino para saber siempre cuál es el "
+                   "siguiente paso del hogar.",body),Spacer(1,3*mm)]
+    rows=[]
+    for tit,lema,desc in q:
+        rows.append([Paragraph(f"<font color='#1A1A17'><b>{tit}</b></font><br/><font color='{A_COL}' size=8><b>{lema.upper()}</b></font>",small),
+                     Paragraph(desc,small)])
+    out+=[Table(rows,colWidths=[46*mm,114*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
+        ("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),9),("BOTTOMPADDING",(0,0),(-1,-1),9),
+        ("LEFTPADDING",(0,0),(-1,-1),8),("BACKGROUND",(0,0),(0,-1),LIGHT)])),PageBreak()]
     return out
 
 def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=None):
@@ -654,8 +865,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     S+=seccion_individual(cliB["nombre"] or nB,pB,trB,saludB,dB,"_radarB.png",fi_h,rB,extras=_exB)
     # capitulos comparativos por capa
     S+=[Paragraph("Capa por capa, los dos",h_sec),
-        Paragraph("El corazon de vuestro libro: las diez dimensiones, leidas en pareja. La barra azul es "
-                  f"{nA}; la morada, {nB}. Mas corta = mas sano.",body),PageBreak()]
+        Paragraph("El corazon de vuestro libro: las doce dimensiones, leidas en pareja. La barra dorada es "
+                  f"{nA}; la gris, {nB}. Mas corta = mas sano.",body),PageBreak()]
     for n,code in enumerate(CAPAS,1):
         a,b=pA[code]["score"],pB[code]["score"]
         bloque=[Paragraph(f"CAPÍTULO {n}",kick),
@@ -682,13 +893,21 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         bloque+=[Spacer(1,2*mm),
                 Paragraph("Qué significa para vosotros",h_sub),
                 Paragraph(comparar_capa(code,a,b,nA,nB),body),
+                Paragraph("Cómo se nota en vuestro día a día",h_sub),
+                Paragraph(DIADIA.get(code,""),body),
                 Paragraph("El riesgo para vuestra econom\u00eda",h_sub),
                 Paragraph(rb.RIESGO[code],body),
                 Paragraph("La oportunidad si lo trabaj\u00e1is juntos",h_sub),
                 Paragraph(rb.OPORTUNIDAD[code],body),
+                Paragraph("La trampa que evitar",h_sub),
+                Paragraph("<font color='#9A3B2E'><b>&#9888;</b></font>  "+TRAMPA.get(code,""),
+                          St("tr",fontSize=10,leading=14,leftIndent=4)),
                 Paragraph("Vuestro siguiente paso",h_sub),
                 Paragraph(f"<font color='{A_COL}'><b>&bull;</b></font>  "+paso_pareja(code),
                           St("pp",fontSize=10,leading=14,leftIndent=4,backColor=LIGHT,borderPadding=6)),
+                Paragraph("Vuestro micro-acuerdo de este mes",h_sub),
+                rb._box([Paragraph(MICROACUERDO.get(code,""),St("ma",fontSize=10,leading=14))],
+                        "#EEF2F6","#234E70",ancho=156*mm),
                 Spacer(1,2*mm),
                 Paragraph(f"\u201c{rb.PRINCIPIO[code]}\u201d",St("pr2",fontSize=10.5,leading=14,textColor=ACCDK,
                           fontName="Helvetica-Oblique")),
@@ -721,6 +940,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                     colWidths=[26*mm,130*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),3),("VALIGN",(0,0),(-1,-1),"TOP")])]
         S.append(KeepTogether(card)); S.append(Spacer(1,4*mm))
     S+=[PageBreak()]
+    S+=seccion_coste_no_hablarlo(pA,pB,nA,nB,hogar,fi_h,divs)
     # cruce semantico de pareja (sintesis IA de las abiertas)
     if sintesis and str(sintesis).strip():
         S+=[Paragraph("Análisis de asimetría y brecha de comunicación",h_sec),
@@ -751,6 +971,25 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                "¿Qué necesitáis del otro para sentir que vais en el mismo barco?"]
     for i,qq in enumerate(base_qs,1):
         S+=[Paragraph(f"<font color='{A_COL}'><b>{i}.</b></font>  {qq}",St("g",fontSize=10,leading=14,spaceAfter=8,leftIndent=2))]
+    # calendario de cuatro conversaciones (sobre los temas más divergentes / más débiles)
+    _temas=[]
+    for c in sorted(CAPAS,key=lambda c:abs(pA[c]["score"]-pB[c]["score"]),reverse=True):
+        if abs(pA[c]["score"]-pB[c]["score"])>=18 or (pA[c]["score"]+pB[c]["score"])/2>=55:
+            _temas.append(c)
+        if len(_temas)>=4: break
+    for c in sorted(CAPAS,key=lambda c:(pA[c]["score"]+pB[c]["score"]),reverse=True):
+        if len(_temas)>=4: break
+        if c not in _temas: _temas.append(c)
+    S+=[Spacer(1,3*mm),Paragraph("Vuestro calendario de cuatro conversaciones",h_sub),
+        Paragraph("Una conversación por semana, no todas de golpe. Cada una sobre un tema concreto, con su pequeño "
+                  "acuerdo al final. En cuatro semanas habréis hablado de lo que muchas parejas no hablan en años.",body)]
+    _crows=[[Paragraph("<b>Semana</b>",small),Paragraph("<b>De qué habláis</b>",small),Paragraph("<b>Acuerdo a cerrar</b>",small)]]
+    for _i,_c in enumerate(_temas,1):
+        _crows.append([Paragraph(f"<b>{_i}</b>",small),Paragraph(rb.CAPAS[_c]["nombre"],small),
+                       Paragraph(MICROACUERDO.get(_c,paso_pareja(_c)),small)])
+    S+=[tbl(_crows,[20*mm,52*mm,88*mm]),PageBreak()]
+    S+=seccion_constitucion_hogar(pA,pB,nA,nB,hogar,fi_h,divs)
+    S+=seccion_hoja_ruta_12m(pA,pB,nA,nB,hogar)
     S+=laboratorio_pareja(rA,rB,pA,pB,nA,nB,dA,dB,hogar,divs)
     S+=[Spacer(1,4*mm),
         Paragraph("Cómo seguir",h_sub),
