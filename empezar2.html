@@ -385,6 +385,7 @@ function construirCola(){
     st.cola.push({...q,tipo:'numerica',_b:'Tus números',_cap:'NUM'});
   });
   INST.capas.forEach(c=>c.items.filter(it=>it.nivel==='nucleo').forEach(it=>st.cola.push({...it,_b:c.nombre,_cap:c.code})));
+  if(INST.prioridades) st.cola.push({...INST.prioridades,_b:'Lo que más te importa',_cap:'PRIO'});
   (INST._abiertas||[]).forEach(q=>st.cola.push({...q,tipo:'abierta',_b:'En tus palabras',_cap:'OPEN',ayuda:'Sin filtro y sin prisa. Esto es lo que se analiza para escribir tu retrato.'}));
 }
 function emostrar(ms){

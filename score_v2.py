@@ -1394,9 +1394,15 @@ def plan_maestro(datos, p=None, perfil_in=None):
             "Tu coste de vida (%s) supera tu pension publica estimada (%s): faltan %s/mes el dia que dejes de trabajar." % (e(gas), e(pen), e(round(gpen))),
             "Abre un plan de pensiones o una inversion periodica y automatiza una aportacion mensual desde ya — el tiempo es tu mayor aliado aqui.",
             "Empezar 10 anos antes puede multiplicar por 2-3 el capital final, por el interes compuesto. Cada ano cuenta.")
-    # ordenar: rojo antes que ambar, luego por palanca; quedarnos con 3
+    # ordenar: rojo antes que ambar (un rojo nunca se entierra), luego LO QUE EL CLIENTE
+    # DIJO QUE LE IMPORTA (saliencia), luego por palanca; quedarnos con 3
+    prio = set((perfil_in or {}).get("prioridades") or [])
+    FRENTE2CAPA = {"Colchon": "Prueba de Resistencia Familiar", "Deuda": "Tu Salud de Deuda",
+                   "Ahorro": "Eficiencia de tu Estilo de Vida", "Inversion": "Tu Disciplina de Inversión",
+                   "Diversificacion": "Concentración de tus Ingresos", "Jubilacion": "Tu Número de Libertad Financiera"}
+    def _sal(fr): return 0 if (prio and FRENTE2CAPA.get(fr) in prio) else 1
     orden_niv = {"rojo": 0, "ambar": 1}
-    cand.sort(key=lambda x: (orden_niv.get(x[1], 2), x[0]))
+    cand.sort(key=lambda x: (orden_niv.get(x[1], 2), _sal(x[2]), x[0]))
     out = []
     for i, (pal, niv, fr, ti, pq, ac, ga) in enumerate(cand[:3], 1):
         out.append({"orden": i, "frente": fr, "titulo": ti, "porque": pq, "accion": ac, "gana": ga, "nivel": niv})

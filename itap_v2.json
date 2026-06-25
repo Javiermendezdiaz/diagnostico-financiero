@@ -5114,5 +5114,52 @@
     }
    ]
   }
- ]
+ ],
+ "prioridades": {
+  "id": "PRIO-1",
+  "tipo": "multi",
+  "multi": true,
+  "campo": "prioridades",
+  "nivel": "prioridad",
+  "texto": "Última y la más importante: de todo lo que acabas de responder sobre ti, ¿qué áreas, si las resolvieras este año, te cambiarían más la vida? Elige las que de verdad te muevan (idealmente 2).",
+  "ayuda": "Esto le dice a tu plan por dónde quieres empezar TÚ — no solo por dónde más aprieta el número. Tu informe ordenará los primeros pasos teniéndolo en cuenta.",
+  "opciones": [
+   {
+    "texto": "Termómetro del Agotamiento Financiero"
+   },
+   {
+    "texto": "Tu Número de Libertad Financiera"
+   },
+   {
+    "texto": "Prueba de Resistencia Familiar"
+   },
+   {
+    "texto": "Eficiencia de tu Estilo de Vida"
+   },
+   {
+    "texto": "Herencia y Protección Patrimonial"
+   },
+   {
+    "texto": "El Precio de tu Estatus"
+   },
+   {
+    "texto": "Concentración de tus Ingresos"
+   },
+   {
+    "texto": "Tu Antifragilidad"
+   },
+   {
+    "texto": "Gobierno de tu Flujo de Caja"
+   },
+   {
+    "texto": "Tu Salud de Deuda"
+   },
+   {
+    "texto": "Tu Palanca de Crecimiento"
+   },
+   {
+    "texto": "Tu Disciplina de Inversión"
+   }
+  ]
+ }
 }
