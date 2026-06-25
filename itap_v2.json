@@ -5200,5 +5200,135 @@
     "texto": "Tu Disciplina de Inversión"
    }
   ]
- }
+ },
+ "arquetipo": [
+  {
+   "id": "AX1-1",
+   "tipo": "opcion",
+   "eje": 1,
+   "texto": "El dinero que no necesitas a corto plazo, ¿qué prefieres?",
+   "opciones": [
+    {
+     "texto": "Que esté seguro y a mano, aunque rente poco.",
+     "polo": "S"
+    },
+    {
+     "texto": "Que trabaje y crezca, aunque vibre.",
+     "polo": "A"
+    }
+   ]
+  },
+  {
+   "id": "AX1-2",
+   "tipo": "opcion",
+   "eje": 1,
+   "texto": "Tu inversión cae con fuerza de golpe. Por dentro, ¿qué sientes?",
+   "opciones": [
+    {
+     "texto": "Urgencia de proteger lo que queda.",
+     "polo": "S"
+    },
+    {
+     "texto": "Una oportunidad de comprar más barato.",
+     "polo": "A"
+    }
+   ]
+  },
+  {
+   "id": "AX2-1",
+   "tipo": "opcion",
+   "eje": 2,
+   "texto": "Te cae un dinero extra inesperado. ¿Qué te apetece más?",
+   "opciones": [
+    {
+     "texto": "Disfrutarlo: un viaje, un capricho, vivir.",
+     "polo": "P"
+    },
+    {
+     "texto": "Invertirlo para construir mañana.",
+     "polo": "L"
+    }
+   ]
+  },
+  {
+   "id": "AX2-2",
+   "tipo": "opcion",
+   "eje": 2,
+   "texto": "¿Qué te define mejor?",
+   "opciones": [
+    {
+     "texto": "Vivir bien hoy; el futuro ya se verá.",
+     "polo": "P"
+    },
+    {
+     "texto": "Construir algo que dure y dejar huella.",
+     "polo": "L"
+    }
+   ]
+  },
+  {
+   "id": "AX3-1",
+   "tipo": "opcion",
+   "eje": 3,
+   "texto": "Cuando decides sobre tu dinero, ¿de qué te fías más?",
+   "opciones": [
+    {
+     "texto": "De los números y un sistema.",
+     "polo": "M"
+    },
+    {
+     "texto": "De mi intuición y cómo lo siento.",
+     "polo": "I"
+    }
+   ]
+  },
+  {
+   "id": "AX3-2",
+   "tipo": "opcion",
+   "eje": 3,
+   "texto": "Tus cuentas y tus gastos, ¿cómo los llevas?",
+   "opciones": [
+    {
+     "texto": "Con orden: los reviso y los controlo.",
+     "polo": "M"
+    },
+    {
+     "texto": "A ojo; ya sé más o menos por dónde voy.",
+     "polo": "I"
+    }
+   ]
+  },
+  {
+   "id": "AX4-1",
+   "tipo": "opcion",
+   "eje": 4,
+   "texto": "Las decisiones de dinero importantes…",
+   "opciones": [
+    {
+     "texto": "Las tomo yo; es asunto mío.",
+     "polo": "O"
+    },
+    {
+     "texto": "Las decido con los míos.",
+     "polo": "T"
+    }
+   ]
+  },
+  {
+   "id": "AX4-2",
+   "tipo": "opcion",
+   "eje": 4,
+   "texto": "Cuando piensas en tu dinero, piensas sobre todo en…",
+   "opciones": [
+    {
+     "texto": "Mi libertad y mi independencia.",
+     "polo": "O"
+    },
+    {
+     "texto": "Mi familia y los que dependen de mí.",
+     "polo": "T"
+    }
+   ]
+  }
+ ]
 }

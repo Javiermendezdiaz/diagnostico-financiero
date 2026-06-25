@@ -814,7 +814,7 @@ def enviar_copia(session_id):
     if not RESEND_API_KEY:
         return {"ok": False, "reason": "resend_no_configurado"}
     with db() as c:
-        row = c.execute("SELECT email,nombre,tier,respuestas,notificado,pareja_de FROM sesiones WHERE id=?", (session_id,)).fetchone()
+        row = c.execute("SELECT email,nombre,tier,respuestas,notificado,pareja_de,sexo FROM sesiones WHERE id=?", (session_id,)).fetchone()
     if not row or row["respuestas"] in (None, "{}"):
         return {"ok": False, "reason": "sesion_sin_respuestas"}
     if row["notificado"] == 1:
@@ -853,15 +853,17 @@ def enviar_copia(session_id):
     if (not fallback) or nuevo:
         estado = "[REGENERAR-GENERACION-FALLO] " if fallback else ("[EMAIL-CLIENTE-FALLO] " if (cli_valido and not cli_ok) else ("[SIN-EMAIL-CLIENTE] " if not cli_valido else ""))
         html_adm="<h2>%sCompra ITAP</h2><p><b>Cliente:</b> %s<br><b>Email:</b> %s<br><b>Producto:</b> %s</p><p>%s</p>"%(estado or "", cliente, email_cli or "(sin email)", tier_nombre, ("ATENCION: requiere accion manual." if estado else "Copia del libro adjunta."))
-        # Tarjeta de arquetipo (PNG social, solo identidad) para que Adapta la publique en redes.
+        # Tarjeta del arquetipo (16 tipos) - PNG social premium, lista para redes (todos los tiers).
         _card_extra = None
         try:
-            if row["tier"] in (2, 3) and row["respuestas"] not in (None, "{}", ""):
+            if row["respuestas"] not in (None, "{}", ""):
                 _resp = json.loads(row["respuestas"]) if isinstance(row["respuestas"], str) else row["respuestas"]
-                _arq = rb.arquetipo(_resp)[0]
-                if _arq:
+                import arq16
+                _code, _meta = arq16.arquetipo16(_resp)
+                if _code and _meta:
+                    _traits = " \u00b7 ".join(arq16.desglose(_code))
                     _cardp = os.path.join(REPORTS_DIR, "arq_%s.png" % session_id)
-                    if rb.tarjeta_arquetipo(_arq, _cardp):
+                    if rb.tarjeta_arquetipo16(_cardp, row["sexo"], _meta["n"], _meta["lema"], _meta["color"], _traits):
                         with open(_cardp, "rb") as _cf:
                             _card_extra = [("Arquetipo_%s.png" % cliente.replace(" ", "_"), _cf.read())]
         except Exception:

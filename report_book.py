@@ -760,6 +760,81 @@ def tarjeta_arquetipo(arq_code, out_path, sexo=None):
         return None
 
 
+def tarjeta_arquetipo16(out_path, sexo, nombre, lema, color, traits):
+    """Tarjeta social 1080x1080 PREMIUM del arquetipo de 16: degradado navy + bisel dorado +
+    moneda metalica + Poppins + boton. Muestra NOMBRE + los 4 rasgos en palabras (sin acronimo).
+    Carga Poppins de fonts/. Degradado seguro: out_path o None."""
+    try:
+        import os, numpy as _np
+        from PIL import Image as _I, ImageDraw as _D, ImageFont as _Fn, ImageFilter as _Fl
+        FD=os.path.join(os.path.dirname(os.path.abspath(__file__)),"fonts")
+        def _F(w,s): return _Fn.truetype(os.path.join(FD,"Poppins-%s.ttf"%w),s)
+        W=1080
+        def _hx(c): c=c.lstrip("#"); return tuple(int(c[i:i+2],16) for i in (0,2,4))
+        GOLD=_hx("#C9A86A"); GOLD_HI=_hx("#E7D9AF"); GOLD_LO=_hx("#8C7038"); SILVER=_hx("#C7CCD6")
+        acc=_hx(color or "#7C3AED"); acc_lt=tuple(min(255,int(c*1.45+40)) for c in acc)
+        yy,xx=_np.mgrid[0:W,0:W].astype(_np.float32); t=(xx+yy)/(2*W)
+        c1,c2,c3=_hx("#0C1322"),_hx("#0A0F1C"),_hx("#06080F"); base=_np.zeros((W,W,3),_np.float32)
+        for i in range(3):
+            a=_np.clip(t*2,0,1); b=_np.clip(t*2-1,0,1); base[...,i]=(c1[i]+(c2[i]-c1[i])*a)+(c3[i]-c2[i])*b
+        gd=_np.sqrt((xx-W*0.5)**2+(yy-90)**2)/620.0
+        arr=_np.clip(base+_np.clip(1-gd,0,1)[...,None]*_np.array(acc,_np.float32)*0.28,0,255)
+        arr=_np.clip(arr+_np.random.normal(0,3.2,(W,W,1)),0,255).astype(_np.uint8)
+        img=_I.fromarray(arr,"RGB").convert("RGBA")
+        def rr(d,b,rad,**k): d.rounded_rectangle(b,radius=rad,**k)
+        def sp(d,xy,tx,f,fill,s):
+            ws=[d.textlength(c,font=f)+s for c in tx]; x=xy[0]-(sum(ws)-s)/2
+            for c,wd in zip(tx,ws): d.text((x,xy[1]),c,font=f,fill=fill,anchor="lm"); x+=wd
+        cx=W//2; M=56; panel=[M,M,W-M,W-M]
+        ov=_I.new("RGBA",(W,W),(0,0,0,0)); d=_D.Draw(ov)
+        rr(d,panel,42,fill=(255,255,255,9)); rr(d,[M+2,M+2,W-M-2,W-M-2],40,outline=(255,255,255,26),width=1)
+        rr(d,panel,42,outline=GOLD+(150,),width=2); rr(d,[M-1,M-1,W-M+1,W-M+1],43,outline=GOLD_HI+(60,),width=1)
+        img=_I.alpha_composite(img,ov); d=_D.Draw(img)
+        sp(d,(cx,M+60),"ADAPTA   \u00b7   FAMILY OFFICE",_F("Light",26),GOLD_HI+(255,),9)
+        d.line([M+95,M+108,W-M-95,M+108],fill=GOLD+(120,),width=2)
+        mcy=326; R=112
+        yy,xx=_np.mgrid[0:W,0:W].astype(_np.float32); dist=_np.sqrt((xx-cx)**2+(yy-mcy)**2)
+        ang=((xx-cx)*-0.5+(yy-mcy)*-0.6)/R; shade=_np.clip(0.5+ang*0.5,0,1)
+        flt=_np.array(tuple(min(255,int(c*0.55+70)) for c in acc),_np.float32); fdk=_np.array(tuple(int(c*0.22+14) for c in acc),_np.float32)
+        face=(fdk+(flt-fdk)*shade[...,None]); coin=_np.zeros((W,W,4),_np.uint8); ins=dist<=R
+        for i in range(3): coin[...,i]=_np.where(ins,face[...,i],0).astype(_np.uint8)
+        coin[...,3]=_np.where(ins,255,0).astype(_np.uint8); coinI=_I.fromarray(coin,"RGBA"); cd=_D.Draw(coinI)
+        for rr_,col,wd in [(R,GOLD,4),(R-11,GOLD_LO,1),(R-18,acc,2)]: cd.ellipse([cx-rr_,mcy-rr_,cx+rr_,mcy+rr_],outline=col+(255,),width=wd)
+        woman="mujer" in (sexo or "").lower()
+        def sil(dd,off,colr):
+            scx,scy,sr=cx+off,mcy+R*0.06+off,R*0.78
+            if woman: dd.ellipse([scx-sr*0.44,scy-sr*0.34,scx+sr*0.44,scy+sr*0.40],fill=colr); sh,hr=sr*0.62,sr*0.27
+            else: sh,hr=sr*0.74,sr*0.29
+            dd.ellipse([scx-sh,scy+sr*0.18,scx+sh,scy+sr*1.5],fill=colr); dd.ellipse([scx-hr,scy-sr*0.38,scx+hr,scy-sr*0.38+2*hr],fill=colr)
+        sL=_I.new("RGBA",(W,W),(0,0,0,0)); sil(_D.Draw(sL),3,(0,0,0,150))
+        sH=_I.new("RGBA",(W,W),(0,0,0,0)); sil(_D.Draw(sH),0,GOLD_HI+(235,))
+        coinI=_I.alpha_composite(_I.alpha_composite(coinI,sL),sH)
+        mk=_I.new("L",(W,W),0); _D.Draw(mk).ellipse([cx-R,mcy-R,cx+R,mcy+R],fill=255)
+        img.paste(coinI,(0,0),_I.composite(coinI.split()[3],_I.new("L",(W,W),0),mk)); d=_D.Draw(img)
+        sp(d,(cx,494),"TU ARQUETIPO DEL DINERO",_F("Medium",23),GOLD_HI+(255,),5)
+        d.text((cx,556),nombre,font=_F("Bold",78),fill=(247,248,251,255),anchor="mm")
+        sp(d,(cx,624),(traits or "").upper(),_F("Medium",22),GOLD+(255,),3)
+        d.text((cx,682),lema,font=_F("Light",32),fill=SILVER+(255,),anchor="mm")
+        d.text((cx,742),"Comp\u00e1rtelo con quienes m\u00e1s te importan",font=_F("Light",25),fill=GOLD_HI+(225,),anchor="mm")
+        bw,bh=560,90; bx=cx-bw//2; by=802
+        shd=_I.new("RGBA",(W,W),(0,0,0,0)); _D.Draw(shd).rounded_rectangle([bx,by+10,bx+bw,by+bh+10],radius=45,fill=(0,0,0,120))
+        img=_I.alpha_composite(img,shd.filter(_Fl.GaussianBlur(14)))
+        bg=_np.zeros((bh,bw,3),_np.float32)
+        for x in range(bw): tt=x/bw; bg[:,x]=_np.array(acc_lt)*(1-tt)+_np.array(acc)*tt
+        bm=_I.new("L",(bw,bh),0); _D.Draw(bm).rounded_rectangle([0,0,bw-1,bh-1],radius=45,fill=255)
+        img.paste(_I.fromarray(bg.astype(_np.uint8),"RGB").convert("RGBA"),(bx,by),bm); d=_D.Draw(img)
+        d.rounded_rectangle([bx,by,bx+bw,by+bh],radius=45,outline=(255,255,255,150),width=1)
+        d.line([bx+30,by+2,bx+bw-30,by+2],fill=(255,255,255,90),width=2)
+        txt="Haz el test gratis"; tw=d.textlength(txt,font=_F("Medium",33))
+        d.text((cx-20,by+bh//2),txt,font=_F("Medium",33),fill=(255,255,255,255),anchor="mm")
+        ax=cx-20+tw/2+22; ay=by+bh//2; d.polygon([(ax,ay-10),(ax,ay+10),(ax+17,ay)],fill=(255,255,255,255))
+        d.text((cx,938),"diagnostico.adaptafamilyoffice.com",font=_F("Medium",26),fill=GOLD_HI+(235,),anchor="mm")
+        img.convert("RGB").save(out_path,quality=95)
+        return out_path
+    except Exception:
+        return None
+
+
 def arquetipo(resp):
     """Devuelve (code, votos, secundario|None) a partir de las preguntas ARQ-*. Degradado seguro."""
     votos={"SEG":0,"LIB":0,"EST":0,"MUL":0}

@@ -389,6 +389,7 @@ function construirCola(){
     st.cola.push({...q,tipo:'numerica',_b:'Tus números',_cap:'NUM'});
   });
   INST.capas.forEach(c=>c.items.filter(it=>it.nivel==='nucleo').forEach(it=>st.cola.push({...it,_b:c.nombre,_cap:c.code})));
+  (INST.arquetipo||[]).forEach(q=>st.cola.push({...q,tipo:'opcion',_b:'Tu arquetipo del dinero',_cap:'ARQ'}));
   if(INST.prioridades) st.cola.push({...INST.prioridades,_b:'Lo que más te importa',_cap:'PRIO'});
   (INST._abiertas||[]).forEach(q=>st.cola.push({...q,tipo:'abierta',_b:'En tus palabras',_cap:'OPEN',ayuda:'Sin filtro y sin prisa. Esto es lo que se analiza para escribir tu retrato.'}));
 }
@@ -613,6 +614,7 @@ function escaner(cap,cb){
 function elegir(q,idx){
   if(q.campo) st.perfil[q.campo]=(q.opciones[idx].texto||q.opciones[idx]);
   if(q.id) st.resp[q.id]=idx;
+  if(q.opciones[idx]&&q.opciones[idx].polo) st.resp[q.id]=q.opciones[idx].polo;
   if(q.arq!==undefined && q.opciones[idx].arq) st.perfil['vida_ideal_arq']=q.opciones[idx].arq;
   const op=q.opciones[idx];
   if(op.score!=null){ st.tens.push(op.score); actualizarTension(); toast(op.score, op.tag_narrativo); }
