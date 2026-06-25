@@ -270,6 +270,7 @@ a{color:var(--am)}
 
   <button class="btn" id="dl" style="display:none;max-width:380px;margin-top:8px" onclick="descargar()">Descargar mi informe</button>
   <p id="doneTxt" style="color:var(--gr);font-size:13.5px;line-height:1.5;margin-top:12px"></p>
+  <p id="spamTip" style="display:none;color:var(--am);font-size:12.5px;line-height:1.55;margin-top:10px;max-width:440px;margin-left:auto;margin-right:auto;background:var(--pa);border:1px solid var(--bd);border-radius:10px;padding:11px 14px">📩 También te lo hemos enviado por email. Si no lo ves en unos minutos, mira en <b>Spam</b> o <b>Promociones</b> y marca el correo como «<b>No es spam</b>» para no perderte nada.</p>
   <p style="color:var(--gr);font-size:12px;line-height:1.55;margin-top:16px;max-width:430px;margin-left:auto;margin-right:auto;border-top:1px solid var(--bd);padding-top:14px">¿Algo no fue como esperabas —no se descarga, ves un dato que no cuadra o el libro no llega? Escríbenos a <a href="mailto:info@adaptafamilyoffice.com?subject=Incidencia%20con%20mi%20diagn%C3%B3stico%20ITAP">info@adaptafamilyoffice.com</a> contándonos qué pasó y lo resolvemos enseguida.</p>
 
   <div id="parejaCodeBox" style="display:none;max-width:380px;margin:14px auto 0;text-align:center">
@@ -889,11 +890,13 @@ async function descargarConAnalisis(sid){
     const pb=document.getElementById('payBox'); if(pb) pb.style.display='none';
     const dl=document.getElementById('dl'); dl.style.display='inline-block'; dl.textContent='Volver a descargar';
     document.getElementById('doneTxt').textContent='Lo hemos guardado en tu dispositivo. Búscalo en tu carpeta de descargas.';
+    var _sp1=document.getElementById('spamTip'); if(_sp1)_sp1.style.display='block';
   }catch(e){
     show('s-done');
     document.getElementById('doneHead').textContent='Tu libro está casi listo';
     const dl=document.getElementById('dl'); dl.style.display='inline-block'; dl.textContent='Descargar mi libro';
     document.getElementById('doneTxt').textContent='El análisis tardó un poco más de lo normal. Pulsa para descargarlo.';
+    var _sp2=document.getElementById('spamTip'); if(_sp2)_sp2.style.display='block';
   }
 }
 async function trasPago(sid){
