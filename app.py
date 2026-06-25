@@ -808,7 +808,22 @@ def _enviar_resend(asunto, html, pdf_bytes, filename, to, reintentos=3, extra=No
         time.sleep(2)
     return False
 
+_ENVIANDO = set()
+_ENVIO_LOCK = threading.Lock()
 def enviar_copia(session_id):
+    """Single-flight por sesion: una sola entrega a la vez. Evita el email duplicado
+    a Adapta y la corrupcion de la tarjeta PNG por escritura concurrente del mismo fichero."""
+    with _ENVIO_LOCK:
+        if session_id in _ENVIANDO:
+            return {"ok": True, "en_curso": True}
+        _ENVIANDO.add(session_id)
+    try:
+        return _enviar_copia_impl(session_id)
+    finally:
+        with _ENVIO_LOCK:
+            _ENVIANDO.discard(session_id)
+
+def _enviar_copia_impl(session_id):
     """Entrega DURABLE y multicanal. notificado: 0=nada, 2=respaldo enviado (real pendiente), 1=real entregado.
     Idempotente: si ya se entrego el real, no hace nada. La pareja solo se entrega cuando esta lista."""
     if not RESEND_API_KEY:
@@ -862,10 +877,15 @@ def enviar_copia(session_id):
                 _code, _meta = arq16.arquetipo16(_resp)
                 if _code and _meta:
                     _traits = " \u00b7 ".join(arq16.desglose(_code))
-                    _cardp = os.path.join(REPORTS_DIR, "arq_%s.png" % session_id)
+                    import tempfile as _tf
+                    _cfd, _cardp = _tf.mkstemp(suffix=".png", prefix="arq_", dir=REPORTS_DIR); os.close(_cfd)
                     if rb.tarjeta_arquetipo16(_cardp, row["sexo"], _meta["n"], _meta["lema"], _meta["color"], _traits, _code):
                         with open(_cardp, "rb") as _cf:
-                            _card_extra = [("Arquetipo_%s.png" % cliente.replace(" ", "_"), _cf.read())]
+                            _cbytes = _cf.read()
+                        if _cbytes and _cbytes[:8] == b"\x89PNG\r\n\x1a\n" and _cbytes[-8:] and (b"IEND" in _cbytes[-12:]):
+                            _card_extra = [("Arquetipo_%s.png" % cliente.replace(" ", "_"), _cbytes)]
+                    try: os.remove(_cardp)
+                    except Exception: pass
         except Exception:
             _card_extra = None
         _enviar_resend(("%sITAP - %s - %s"%(estado, cliente, tier_nombre)).strip(), html_adm, pdf_bytes, "ITAP_%s.pdf"%cliente.replace(" ","_"), to=[NOTIFY_EMAIL], extra=_card_extra)
