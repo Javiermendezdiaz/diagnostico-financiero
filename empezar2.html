@@ -260,6 +260,10 @@ a{color:var(--am)}
         <p style="margin:0"><b style="color:var(--am)">Documento confidencial</b> · de uso privado, bajo secreto profesional y a tu entera disposición.</p>
       </div>
     </div>
+    <label for="consentPago" style="display:flex;gap:9px;align-items:flex-start;text-align:left;max-width:380px;margin:0 auto 12px;font-size:11px;color:var(--gr);line-height:1.5;cursor:pointer">
+      <input type="checkbox" id="consentPago" style="margin-top:2px;accent-color:var(--am);width:15px;height:15px;flex:0 0 auto">
+      <span>Solicito la <b style="color:var(--tx)">entrega inmediata</b> de mi diagnóstico y acepto que, al recibirlo al instante, <b style="color:var(--tx)">renuncio al derecho de desistimiento</b> de 14 días sobre contenido digital. Una vez entregado, no procede devolución.</span>
+    </label>
     <button class="btn" id="payBtn" style="max-width:380px" onclick="pagar()">Desbloquear mi diagnóstico</button>
     <p style="color:var(--gr);font-size:11.5px;margin-top:10px">Pago seguro vía Stripe · Descarga inmediata en PDF · Pago único, sin suscripción</p>
   </div>
@@ -820,6 +824,8 @@ async function compartirPareja(){
   try{ if(navigator.share) await navigator.share({title:'Diagnóstico de pareja · Adapta',text:'Completa tu parte para desbloquear nuestro libro financiero:',url:link}); }catch(e){}
 }
 async function pagar(){
+  const _cb=document.getElementById('consentPago');
+  if(_cb && !_cb.checked){ document.getElementById('doneTxt').textContent='Para continuar, marca la casilla de entrega inmediata.'; try{_cb.focus();}catch(e){} return; }
   const sid=CURSID||(st&&st.sid); if(!sid){document.getElementById('doneTxt').textContent='Sesión no encontrada. Vuelve a empezar.';return;}
   const b=document.getElementById('payBtn'); const o=b.textContent; b.disabled=true; b.textContent='Conectando con el pago…';
   try{
