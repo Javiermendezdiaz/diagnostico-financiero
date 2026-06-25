@@ -755,13 +755,17 @@ def _asegurar_pdf(session_id):
         finally:
             _liberar_memoria()
 
-def _resend_email(asunto, html, pdf_bytes, filename, to=None):
+def _resend_email(asunto, html, pdf_bytes, filename, to=None, extra=None):
+    _att = [{"filename": filename, "content": base64.b64encode(pdf_bytes).decode("ascii")}]
+    for _fn, _by in (extra or []):
+        try: _att.append({"filename": _fn, "content": base64.b64encode(_by).decode("ascii")})
+        except Exception: pass
     payload = {
         "from": RESEND_FROM,
         "to": to or [NOTIFY_EMAIL],
         "subject": asunto,
         "html": html,
-        "attachments": [{"filename": filename, "content": base64.b64encode(pdf_bytes).decode("ascii")}],
+        "attachments": _att,
     }
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request("https://api.resend.com/emails", data=data, method="POST",
@@ -792,12 +796,12 @@ def _pdf_fallback(path, cliente, tier):
     except Exception:
         return None
 
-def _enviar_resend(asunto, html, pdf_bytes, filename, to, reintentos=3):
+def _enviar_resend(asunto, html, pdf_bytes, filename, to, reintentos=3, extra=None):
     """Envia por Resend con reintentos. Devuelve True si entrego."""
     import time
     for _i in range(reintentos):
         try:
-            st,_=_resend_email(asunto, html, pdf_bytes, filename, to=to)
+            st,_=_resend_email(asunto, html, pdf_bytes, filename, to=to, extra=extra)
             if 200<=st<300: return True
         except Exception:
             pass
@@ -849,7 +853,20 @@ def enviar_copia(session_id):
     if (not fallback) or nuevo:
         estado = "[REGENERAR-GENERACION-FALLO] " if fallback else ("[EMAIL-CLIENTE-FALLO] " if (cli_valido and not cli_ok) else ("[SIN-EMAIL-CLIENTE] " if not cli_valido else ""))
         html_adm="<h2>%sCompra ITAP</h2><p><b>Cliente:</b> %s<br><b>Email:</b> %s<br><b>Producto:</b> %s</p><p>%s</p>"%(estado or "", cliente, email_cli or "(sin email)", tier_nombre, ("ATENCION: requiere accion manual." if estado else "Copia del libro adjunta."))
-        _enviar_resend(("%sITAP - %s - %s"%(estado, cliente, tier_nombre)).strip(), html_adm, pdf_bytes, "ITAP_%s.pdf"%cliente.replace(" ","_"), to=[NOTIFY_EMAIL])
+        # Tarjeta de arquetipo (PNG social, solo identidad) para que Adapta la publique en redes.
+        _card_extra = None
+        try:
+            if row["tier"] in (2, 3) and row["respuestas"] not in (None, "{}", ""):
+                _resp = json.loads(row["respuestas"]) if isinstance(row["respuestas"], str) else row["respuestas"]
+                _arq = rb.arquetipo(_resp)[0]
+                if _arq:
+                    _cardp = os.path.join(REPORTS_DIR, "arq_%s.png" % session_id)
+                    if rb.tarjeta_arquetipo(_arq, _cardp):
+                        with open(_cardp, "rb") as _cf:
+                            _card_extra = [("Arquetipo_%s.png" % cliente.replace(" ", "_"), _cf.read())]
+        except Exception:
+            _card_extra = None
+        _enviar_resend(("%sITAP - %s - %s"%(estado, cliente, tier_nombre)).strip(), html_adm, pdf_bytes, "ITAP_%s.pdf"%cliente.replace(" ","_"), to=[NOTIFY_EMAIL], extra=_card_extra)
     # 4) Estado de entrega
     if not fallback and (cli_ok or not cli_valido):
         with db() as c: c.execute("UPDATE sesiones SET notificado=1 WHERE id=?", (session_id,))

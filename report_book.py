@@ -689,6 +689,46 @@ ARQ_META = {
          "sombra": "Puedes asumir m\u00e1s riesgo del que tu entorno tolera y generar tensi\u00f3n."},
 }
 _ARQ_FALLBACK = ["SEG","LIB","EST","MUL"]
+def tarjeta_arquetipo(arq_code, out_path):
+    """Tarjeta social cuadrada 1080x1080 del arquetipo del dinero. SOLO identidad:
+    nombre + lema + un rasgo positivo + marca + CTA de vuelta. Sin cifras, sin nombre de
+    cliente: pensada para publicar en redes. Degradado seguro: devuelve out_path o None."""
+    try:
+        meta = ARQ_META.get(arq_code)
+        if not meta:
+            return None
+        import matplotlib.pyplot as plt, textwrap
+        BG = "#0B0C12"; INKW = "#F4F4F5"; GR = "#94A3B8"; LINE = "#23252E"
+        acc = meta.get("color") or "#FDD731"
+        fig = plt.figure(figsize=(10.8, 10.8), dpi=100); fig.patch.set_facecolor(BG)
+        ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, 100); ax.set_ylim(0, 100); ax.axis("off")
+        ax.add_patch(plt.Rectangle((4, 4), 92, 92, fill=False, ec=LINE, lw=1.6))
+        ax.add_patch(plt.Rectangle((4, 94), 92, 2, color=acc, lw=0))
+        ax.text(50, 86, "ADAPTA  \u00b7  FAMILY OFFICE", ha="center", va="center",
+                color=GR, fontsize=14, fontweight="bold")
+        ax.text(50, 79.5, "TU ARQUETIPO DEL DINERO", ha="center", va="center",
+                color=acc, fontsize=12.5, fontweight="bold")
+        ax.text(50, 61, meta.get("nombre", ""), ha="center", va="center",
+                color=INKW, fontsize=60, fontweight="bold", family="serif")
+        ax.text(50, 49.5, meta.get("lema", ""), ha="center", va="center",
+                color=acc, fontsize=23, style="italic")
+        luz = meta.get("luz", "")
+        if luz:
+            ax.text(50, 36, "\n".join(textwrap.wrap(luz, 40)), ha="center", va="center",
+                    color=GR, fontsize=16.5, linespacing=1.55)
+        ax.text(50, 13.5, "\u00bfY t\u00fa? Descubre tu arquetipo gratis", ha="center", va="center",
+                color=INKW, fontsize=16, fontweight="bold")
+        ax.text(50, 8.5, "adaptafamilyoffice.com", ha="center", va="center",
+                color=acc, fontsize=14.5, fontweight="bold")
+        fig.savefig(out_path, facecolor=BG, dpi=100); plt.close(fig)
+        return out_path
+    except Exception:
+        try:
+            import matplotlib.pyplot as plt; plt.close("all")
+        except Exception:
+            pass
+        return None
+
 def arquetipo(resp):
     """Devuelve (code, votos, secundario|None) a partir de las preguntas ARQ-*. Degradado seguro."""
     votos={"SEG":0,"LIB":0,"EST":0,"MUL":0}
