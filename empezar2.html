@@ -829,7 +829,7 @@ async function pagar(){
   const sid=CURSID||(st&&st.sid); if(!sid){document.getElementById('doneTxt').textContent='Sesión no encontrada. Vuelve a empezar.';return;}
   const b=document.getElementById('payBtn'); const o=b.textContent; b.disabled=true; b.textContent='Conectando con el pago…';
   try{
-    const r=await fetch(API+'/api/checkout/'+sid,{method:'POST'});
+    const r=await fetch(API+'/api/checkout/'+sid+'?consent=1',{method:'POST'});
     const d=await r.json();
     if(d.url){ location.href=d.url; return; }
     if(d.ya_pagado){ descargarSid(sid); return; }

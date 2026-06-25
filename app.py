@@ -55,7 +55,7 @@ def init_db():
                          ("salud","REAL"),("sexo","TEXT"),("pagado","INTEGER"),
                          ("abiertas","TEXT"),("sintesis","TEXT"),("perfil","TEXT"),("es_v2","INTEGER"),
                          ("progreso_idx","INTEGER"),("progreso_total","INTEGER"),("last_qid","TEXT"),("progreso_fecha","TEXT"),
-                         ("es_inic","INTEGER")]:
+                         ("es_inic","INTEGER"),("consent_pago_fecha","TEXT")]:
             if col not in cols:
                 c.execute("ALTER TABLE sesiones ADD COLUMN %s %s" % (col, ddl))
 init_db()
@@ -559,7 +559,7 @@ def pareja_estado(session_id: str):
             "pareja_lista": lista, "pagado": bool(row["pagado"]), "gated": bool(STRIPE_WEBHOOK_SECRET)}
 
 @app.post("/api/checkout/{session_id}")
-def checkout(session_id: str):
+def checkout(session_id: str, consent: int = 0):
     """Crea una sesion de Stripe Checkout para esta sesion concreta y devuelve la URL de pago.
     Inyecta client_reference_id=session_id (lo que el webhook usa para marcar pagado) y habilita
     el campo de codigo promocional (cupon ADAPTA100). Degrada con elegancia si falta la clave."""
@@ -573,6 +573,14 @@ def checkout(session_id: str):
         raise HTTPException(409, "Completa el cuestionario antes de pagar.")
     if row["pagado"]:
         return {"url": None, "ya_pagado": True, "report_url": "/api/report/%s" % session_id}
+    # Registro del consentimiento de entrega inmediata (renuncia al desistimiento), sello servidor.
+    if consent:
+        try:
+            with db() as c:
+                c.execute("UPDATE sesiones SET consent_pago_fecha=? WHERE id=?",
+                          (datetime.datetime.utcnow().isoformat(), session_id))
+        except Exception:
+            pass
     tier = row["tier"] or 2
     precio = PRECIOS.get(tier, PRECIOS[2])
     nombre_prod = "ITAP - %s" % TIER_NOMBRE.get(tier, "Diagnostico")
