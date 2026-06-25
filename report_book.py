@@ -829,6 +829,25 @@ def tarjeta_arquetipo16(out_path, sexo, nombre, lema, color, traits):
         d.text((cx-20,by+bh//2),txt,font=_F("Medium",33),fill=(255,255,255,255),anchor="mm")
         ax=cx-20+tw/2+22; ay=by+bh//2; d.polygon([(ax,ay-10),(ax,ay+10),(ax+17,ay)],fill=(255,255,255,255))
         d.text((cx,938),"diagnostico.adaptafamilyoffice.com",font=_F("Medium",26),fill=GOLD_HI+(235,),anchor="mm")
+        # --- sello de marca (cuño dorado, esquina inferior derecha) ---
+        import math as _m
+        def _arc(im, ax, ay, ar, txt, fnt, fl, cdeg, cw):
+            nn=len(txt); spr=min(14, 150/max(nn,1))
+            for i,ch in enumerate(txt):
+                a=_m.radians(cdeg+(i-(nn-1)/2)*spr*(1 if cw else -1))
+                ci=_I.new("RGBA",(42,42),(0,0,0,0)); _D.Draw(ci).text((21,21),ch,font=fnt,fill=fl,anchor="mm")
+                ci=ci.rotate(-(a*180/_m.pi+(90 if cw else -90)),resample=_I.BICUBIC,expand=True)
+                im.alpha_composite(ci,(int(ax+ar*_m.cos(a)-ci.width/2),int(ay+ar*_m.sin(a)-ci.height/2)))
+        _sx,_sy,_SR=915,852,62; _gA=GOLD+(235,); _gH=GOLD_HI+(235,)
+        d.ellipse([_sx-_SR,_sy-_SR,_sx+_SR,_sy+_SR],outline=_gA,width=3)
+        d.ellipse([_sx-_SR+9,_sy-_SR+9,_sx+_SR-9,_sy+_SR-9],outline=_gA,width=1)
+        _arc(img,_sx,_sy,_SR-15,"ADAPTA \u00b7 FAMILY OFFICE",_F("Medium",15),_gH,-90,True)
+        _arc(img,_sx,_sy,_SR-15,"\u00b7 RIGOR PATRIMONIAL \u00b7",_F("Light",13),_gA,90,False)
+        _stc=[]
+        for i in range(10):
+            aa=-_m.pi/2+i*_m.pi/5; rd=_SR*0.30 if i%2==0 else _SR*0.30*0.42
+            _stc.append((_sx+rd*_m.cos(aa),_sy+rd*_m.sin(aa)))
+        d.polygon(_stc,fill=_gH)
         img.convert("RGB").save(out_path,quality=95)
         return out_path
     except Exception:
