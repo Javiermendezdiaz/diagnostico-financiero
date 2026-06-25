@@ -950,7 +950,9 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     except Exception:
         pass
     S+=rb._secsafe(seccion_individual,cliA["nombre"] or nA,pA,trA,saludA,dA,"_radarA.png",fi_h,rA,extras=_exA)
+    S+=rb._secsafe(rb.seccion_fiabilidad,_exA)
     S+=rb._secsafe(seccion_individual,cliB["nombre"] or nB,pB,trB,saludB,dB,"_radarB.png",fi_h,rB,extras=_exB)
+    S+=rb._secsafe(rb.seccion_fiabilidad,_exB)
     # capitulos comparativos por capa
     try:
         rb.portadilla("_pa_cruce.png", "Acto 3", 'DÓNDE CHOCÁIS\nY DÓNDE ENCAJÁIS', 'Las doce capas, enfrentadas. Dónde os sostenéis y dónde salta la fricción.')

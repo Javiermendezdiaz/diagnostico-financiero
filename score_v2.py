@@ -347,6 +347,109 @@ def calcular_contradicciones(datos, resp, perfil_in, p):
     return out
 
 
+def validez(resp, datos, perfil_in, p, contradicciones=None):
+    """Indice de fiabilidad del diagnostico (escala de validez, estilo psicometrico).
+
+    No es un juicio moral: mide CUANTO fiarse del retrato, combinando cuatro senales
+    que la literatura usa para detectar respuesta poco informativa, sin una sola
+    pregunta extra. Las opciones ya se barajan en pantalla por sesion, asi que estas
+    senales se leen sobre la estructura real de respuesta:
+
+      1) Cobertura      -> cuantos dominios se respondieron (mas datos, mas nitidez).
+      2) Diferenciacion -> dispersion de los 12 dominios (un perfil real varia; una
+                           linea plana sugiere responder en piloto automatico).
+      3) Respuesta extrema -> exceso de respuestas en los polos (todo blanco o negro).
+      4) Coherencia     -> contradicciones sensacion-vs-dato ya detectadas por el motor.
+
+    Devuelve dict {banda, etiqueta, titulo, texto, indice, factores} o None.
+    Blindada: cualquier error devuelve None y el informe sigue sin la caja."""
+    try:
+        import statistics as _stx
+        pp = p or {}
+        # --- scores por dominio y por item (desde las facetas ya puntuadas) ---
+        dominios = []
+        item_scores = []
+        for v in pp.values():
+            if not isinstance(v, dict):
+                continue
+            fac = v.get("facetas") or {}
+            if fac:
+                dominios.append(v.get("score", 0))
+                item_scores += [s for s in fac.values() if isinstance(s, (int, float))]
+        n_dom = len(dominios)
+        n_items = len(item_scores)
+        if n_items == 0:
+            return None
+
+        # 1) cobertura
+        cobertura_baja = n_items < 12
+
+        # 2) diferenciacion entre dominios
+        disp = _stx.pstdev(dominios) if n_dom >= 3 else None
+        sin_relieve = (disp is not None and disp < 7.5 and n_items >= 24)
+
+        # 3) respuesta extrema (polos 0/100 vs intermedios)
+        extremos = sum(1 for s in item_scores if s <= 10 or s >= 90)
+        frac_ext = extremos / n_items if n_items else 0.0
+        todo_polos = (frac_ext >= 0.92 and n_items >= 20)
+
+        # 4) coherencia sensacion-vs-dato
+        n_contra = len(contradicciones or [])
+
+        # --- puntuacion de riesgo (conservadora: por defecto, fiabilidad alta) ---
+        r = 0
+        factores = []
+        if sin_relieve:
+            r += 2; factores.append("respuestas muy parejas entre areas")
+        if todo_polos:
+            r += 2; factores.append("casi todo respondido en los extremos")
+        if n_contra >= 4:
+            r += 2; factores.append("varias tensiones entre lo que sientes y lo que dicen tus numeros")
+        elif n_contra >= 2:
+            r += 1; factores.append("alguna tension entre sensacion y dato")
+
+        indice = max(40, 100 - r * 14 - (8 if cobertura_baja else 0))
+
+        if cobertura_baja:
+            return {
+                "banda": "parcial", "etiqueta": "Base parcial", "indice": indice,
+                "factores": factores,
+                "titulo": "Un retrato sobre una base parcial",
+                "texto": "Respondiste una parte del cuestionario. Lo que ves es valido, pero gana nitidez "
+                         "cuando completas el resto: cada dominio que dejas en blanco es un trazo que le falta "
+                         "al retrato.",
+            }
+        if r >= 3:
+            return {
+                "banda": "revisar", "etiqueta": "Para releer con calma", "indice": indice,
+                "factores": factores,
+                "titulo": "Una lectura para releer con calma",
+                "texto": "Algunas de tus respuestas tiran en direcciones opuestas. No es un error: casi siempre "
+                         "marca el punto exacto donde tu sensacion y tus numeros aun no se han puesto de acuerdo "
+                         "— y ese desajuste suele ser lo mas valioso de mirar. Relee tu diagnostico despacio: "
+                         "donde notes que algo no te cuadra del todo, probablemente este la palanca.",
+            }
+        if r >= 1:
+            return {
+                "banda": "media", "etiqueta": "Fiable, con un matiz", "indice": indice,
+                "factores": factores,
+                "titulo": "Tu diagnostico es fiable, con un matiz",
+                "texto": "El retrato es solido. Solo un apunte para afinarlo: hay algun punto donde lo que sientes "
+                         "y lo que dicen tus datos no van del todo a la par. Leelo no como una contradiccion, "
+                         "sino como una pista de por donde empezar.",
+            }
+        return {
+            "banda": "alta", "etiqueta": "Muy fiable", "indice": indice,
+            "factores": factores,
+            "titulo": "Tu diagnostico es muy fiable",
+            "texto": "Respondiste con matices —distinguiendo entre areas y sin refugiarte en los extremos faciles—. "
+                     "Eso le da a este retrato una solidez alta: puedes tomarlo como un espejo honesto, no como una "
+                     "foto movida. Lo que leas aqui, te lo puedes creer.",
+        }
+    except Exception:
+        return None
+
+
 def calcular_asesor(perfil_in):
     """Lectura segmentada segun la cobertura asesora declarada. Devuelve (titulo, texto) o None."""
     a = (perfil_in or {}).get("asesor", "") or ""
@@ -1306,6 +1409,7 @@ def computar_extras(resp, datos, perfil_in, inst=None):
     ratios = calcular_ratios(datos, perfil_in)
     brecha = calcular_brecha(datos, resp, perfil_in)
     compromiso = calcular_compromiso(datos, perfil_in, brecha, p)
+    contras = calcular_contradicciones(datos, resp, perfil_in, p)
     return {
         "crisis": bool(compromiso.get("crisis")),
         "rentista": bool(compromiso.get("rentista")) or _es_rentista(perfil_in),
@@ -1313,7 +1417,8 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "ratios": ratios,
         "accion_unica": calcular_accion_unica(ratios, p),
         "palancas": calcular_palancas(datos, p, perfil_in, resp),
-        "contradicciones": calcular_contradicciones(datos, resp, perfil_in, p),
+        "contradicciones": contras,
+        "validez": validez(resp, datos, perfil_in, p, contras),
         "coherencia": validar_finanzas(datos),
         "frases": {c["code"]: frase_capa(c["code"], datos, p) for c in inst["capas"]},
         "plan_maestro": plan_maestro(datos, p, perfil_in),

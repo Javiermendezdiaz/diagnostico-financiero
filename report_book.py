@@ -1819,6 +1819,23 @@ def seccion_resumen_ejecutivo(extras, datos):
     out+=[PageBreak()]
     return out
 
+def seccion_fiabilidad(extras):
+    """Escala de validez: cuanto fiarse del retrato. Banda + indice 0-100.
+    Devuelve [] si no hay dato (nunca rompe)."""
+    v=(extras or {}).get("validez")
+    if not v: return []
+    pal={"alta":("#EAF3EC","#1D6F42"),"media":("#FBF4E4","#C2710C"),
+         "revisar":("#FBECE8","#9A3B2E"),"parcial":("#F3F4F6","#6B7280")}
+    bg,col=pal.get(v.get("banda"),pal["media"])
+    et=v.get("etiqueta",""); idx=v.get("indice")
+    cab="<font color='%s'><b>LA FIABILIDAD DE TU DIAGNÓSTICO</b></font>"%col
+    if et: cab+="  ·  <font color='%s'><b>%s</b></font>"%(col,et.upper())
+    if idx is not None: cab+="  ·  <font color='#6B7280'>%d/100</font>"%idx
+    parr=[Paragraph(cab,St("fi0",fontSize=9.5,leading=13)),
+          Paragraph("<b>%s.</b>  %s"%(v.get("titulo","").rstrip("."), v.get("texto","")),
+                    St("fi1",fontSize=10.5,leading=15,textColor=INK,spaceBefore=3))]
+    return [_box(parr,bg,col,ancho=160*mm), PageBreak()]
+
 def _realidad(p, datos):
     """Guardarrail de coherencia: si la realidad numerica dura contradice la nota de la escala, la capa.
     Solo se activa en casos inequivocos (no afecta a perfiles normales)."""
@@ -1944,6 +1961,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                         ("TOPPADDING",(0,0),(-1,-1),9),("BOTTOMPADDING",(0,0),(-1,-1),9)]))
     S+=[PageBreak()]
     if extras: S+=_secsafe(seccion_resumen_ejecutivo,extras,datos)
+    if extras: S+=_secsafe(seccion_fiabilidad,extras)
     # resumen + radar
     if depth!="esencial":
         try:
