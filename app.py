@@ -863,7 +863,7 @@ def enviar_copia(session_id):
                 if _code and _meta:
                     _traits = " \u00b7 ".join(arq16.desglose(_code))
                     _cardp = os.path.join(REPORTS_DIR, "arq_%s.png" % session_id)
-                    if rb.tarjeta_arquetipo16(_cardp, row["sexo"], _meta["n"], _meta["lema"], _meta["color"], _traits):
+                    if rb.tarjeta_arquetipo16(_cardp, row["sexo"], _meta["n"], _meta["lema"], _meta["color"], _traits, _code):
                         with open(_cardp, "rb") as _cf:
                             _card_extra = [("Arquetipo_%s.png" % cliente.replace(" ", "_"), _cf.read())]
         except Exception:

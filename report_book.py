@@ -760,7 +760,7 @@ def tarjeta_arquetipo(arq_code, out_path, sexo=None):
         return None
 
 
-def tarjeta_arquetipo16(out_path, sexo, nombre, lema, color, traits):
+def tarjeta_arquetipo16(out_path, sexo, nombre, lema, color, traits, code=""):
     """Tarjeta social 1080x1080 PREMIUM del arquetipo de 16: degradado navy + bisel dorado +
     moneda metalica + Poppins + boton. Muestra NOMBRE + los 4 rasgos en palabras (sin acronimo).
     Carga Poppins de fonts/. Degradado seguro: out_path o None."""
@@ -800,15 +800,46 @@ def tarjeta_arquetipo16(out_path, sexo, nombre, lema, color, traits):
         for i in range(3): coin[...,i]=_np.where(ins,face[...,i],0).astype(_np.uint8)
         coin[...,3]=_np.where(ins,255,0).astype(_np.uint8); coinI=_I.fromarray(coin,"RGBA"); cd=_D.Draw(coinI)
         for rr_,col,wd in [(R,GOLD,4),(R-11,GOLD_LO,1),(R-18,acc,2)]: cd.ellipse([cx-rr_,mcy-rr_,cx+rr_,mcy+rr_],outline=col+(255,),width=wd)
-        woman="mujer" in (sexo or "").lower()
-        def sil(dd,off,colr):
-            scx,scy,sr=cx+off,mcy+R*0.06+off,R*0.78
-            if woman: dd.ellipse([scx-sr*0.44,scy-sr*0.34,scx+sr*0.44,scy+sr*0.40],fill=colr); sh,hr=sr*0.62,sr*0.27
-            else: sh,hr=sr*0.74,sr*0.29
-            dd.ellipse([scx-sh,scy+sr*0.18,scx+sh,scy+sr*1.5],fill=colr); dd.ellipse([scx-hr,scy-sr*0.38,scx+hr,scy-sr*0.38+2*hr],fill=colr)
-        sL=_I.new("RGBA",(W,W),(0,0,0,0)); sil(_D.Draw(sL),3,(0,0,0,150))
-        sH=_I.new("RGBA",(W,W),(0,0,0,0)); sil(_D.Draw(sH),0,GOLD_HI+(235,))
-        coinI=_I.alpha_composite(_I.alpha_composite(coinI,sL),sH)
+        # icono de oficio/concepto por arquetipo (16), grabado en oro con relieve
+        _ct=(11,13,20,255)
+        def candado(dd,x,y,s,c): dd.arc([x-s*0.55,y-s*1.1,x+s*0.55,y-s*0.1],180,360,fill=c,width=int(s*0.22)); dd.rounded_rectangle([x-s*0.8,y-s*0.35,x+s*0.8,y+s*0.95],radius=s*0.18,fill=c)
+        def casa(dd,x,y,s,c): dd.polygon([(x-s,y-s*0.05),(x,y-s),(x+s,y-s*0.05)],fill=c); dd.rectangle([x-s*0.72,y-s*0.05,x+s*0.72,y+s*0.95],fill=c)
+        def ancla(dd,x,y,s,c):
+            w=int(s*0.2); dd.ellipse([x-s*0.28,y-s*1.05,x+s*0.28,y-s*0.5],outline=c,width=w); dd.line([(x,y-s*0.7),(x,y+s*0.9)],fill=c,width=w)
+            dd.line([(x-s*0.6,y-s*0.15),(x+s*0.6,y-s*0.15)],fill=c,width=w); dd.arc([x-s*0.85,y-s*0.1,x+s*0.85,y+s*1.15],20,160,fill=c,width=w)
+        def copa(dd,x,y,s,c): dd.polygon([(x-s*0.7,y-s*0.9),(x+s*0.7,y-s*0.9),(x,y+s*0.05)],fill=c); dd.line([(x,y),(x,y+s*0.85)],fill=c,width=int(s*0.18)); dd.line([(x-s*0.55,y+s*0.9),(x+s*0.55,y+s*0.9)],fill=c,width=int(s*0.2))
+        def torre(dd,x,y,s,c):
+            dd.rectangle([x-s*0.65,y-s*0.45,x+s*0.65,y+s*0.95],fill=c)
+            for dx in (-s*0.5,0,s*0.5): dd.rectangle([x+dx-s*0.16,y-s*0.95,x+dx+s*0.16,y-s*0.45],fill=c)
+        def arbol(dd,x,y,s,c): dd.ellipse([x-s*0.85,y-s*1.05,x+s*0.85,y+s*0.35],fill=c); dd.rectangle([x-s*0.18,y+s*0.2,x+s*0.18,y+s*1.0],fill=c)
+        def monedas(dd,x,y,s,c):
+            for yy in (y+s*0.7,y+s*0.15,y-s*0.4): dd.ellipse([x-s*0.8,yy-s*0.22,x+s*0.8,yy+s*0.22],outline=c,width=int(s*0.16))
+        def escudocor(dd,x,y,s,c):
+            dd.polygon([(x-s,y-s*0.9),(x+s,y-s*0.9),(x+s,y+s*0.1),(x,y+s),(x-s,y+s*0.1)],outline=c,width=int(s*0.16)); r=s*0.3
+            dd.pieslice([x-r*1.6,y-s*0.55,x,y-s*0.55+r*1.6],0,180,fill=c); dd.pieslice([x,y-s*0.55,x+r*1.6,y-s*0.55+r*1.6],0,180,fill=c); dd.polygon([(x-r*1.55,y-s*0.2),(x+r*1.55,y-s*0.2),(x,y+s*0.35)],fill=c)
+        def diana(dd,x,y,s,c):
+            for r,w in [(s,int(s*0.16)),(s*0.6,int(s*0.14))]: dd.ellipse([x-r,y-r,x+r,y+r],outline=c,width=w)
+            dd.ellipse([x-s*0.2,y-s*0.2,x+s*0.2,y+s*0.2],fill=c)
+        def cohete(dd,x,y,s,c):
+            dd.polygon([(x-s*0.4,y+s*0.5),(x-s*0.4,y-s*0.4),(x,y-s),(x+s*0.4,y-s*0.4),(x+s*0.4,y+s*0.5)],fill=c)
+            dd.polygon([(x-s*0.4,y+s*0.1),(x-s*0.8,y+s*0.7),(x-s*0.4,y+s*0.5)],fill=c); dd.polygon([(x+s*0.4,y+s*0.1),(x+s*0.8,y+s*0.7),(x+s*0.4,y+s*0.5)],fill=c); dd.polygon([(x-s*0.22,y+s*0.5),(x+s*0.22,y+s*0.5),(x,y+s*1.0)],fill=c)
+        def brujula(dd,x,y,s,c): dd.ellipse([x-s,y-s,x+s,y+s],outline=c,width=int(s*0.14)); dd.polygon([(x,y-s*0.6),(x+s*0.25,y),(x,y+s*0.6),(x-s*0.25,y)],fill=c)
+        def iman(dd,x,y,s,c):
+            w=int(s*0.34); dd.arc([x-s*0.8,y-s*0.95,x+s*0.8,y+s*0.85],180,360,fill=c,width=w)
+            dd.line([(x-s*0.8+w/2,y-s*0.05),(x-s*0.8+w/2,y+s*0.9)],fill=c,width=w); dd.line([(x+s*0.8-w/2,y-s*0.05),(x+s*0.8-w/2,y+s*0.9)],fill=c,width=w)
+            dd.rectangle([x-s*0.97,y+s*0.7,x-s*0.63,y+s*1.0],fill=c); dd.rectangle([x+s*0.63,y+s*0.7,x+s*0.97,y+s*1.0],fill=c)
+        def compas(dd,x,y,s,c):
+            w=int(s*0.18); dd.line([(x,y-s*0.8),(x-s*0.6,y+s*0.9)],fill=c,width=w); dd.line([(x,y-s*0.8),(x+s*0.6,y+s*0.9)],fill=c,width=w); dd.ellipse([x-s*0.18,y-s*1.0,x+s*0.18,y-s*0.64],fill=c)
+        def diamante(dd,x,y,s,c):
+            dd.polygon([(x-s*0.9,y-s*0.45),(x+s*0.9,y-s*0.45),(x,y+s)],fill=c); dd.polygon([(x-s*0.9,y-s*0.45),(x-s*0.45,y-s*0.85),(x+s*0.45,y-s*0.85),(x+s*0.9,y-s*0.45)],fill=c); dd.line([(x-s*0.45,y-s*0.85),(x-s*0.2,y-s*0.45)],fill=_ct,width=2)
+        def bandera(dd,x,y,s,c): w=int(s*0.16); dd.line([(x-s*0.5,y-s*0.95),(x-s*0.5,y+s*1.0)],fill=c,width=w); dd.polygon([(x-s*0.5,y-s*0.95),(x+s*0.85,y-s*0.55),(x-s*0.5,y-s*0.15)],fill=c)
+        def ojo(dd,x,y,s,c):
+            dd.pieslice([x-s,y-s*0.85,x+s,y+s*0.85],180,360,fill=c); dd.pieslice([x-s,y-s*0.85,x+s,y+s*0.85],0,180,fill=c); dd.ellipse([x-s*0.95,y-s*0.62,x+s*0.95,y+s*0.62],fill=_ct); dd.ellipse([x-s*0.34,y-s*0.34,x+s*0.34,y+s*0.34],fill=c)
+        _IC={"SPMO":candado,"SPMT":casa,"SPIO":ancla,"SPIT":copa,"SLMO":torre,"SLMT":arbol,"SLIO":monedas,"SLIT":escudocor,
+             "APMO":diana,"APMT":cohete,"APIO":brujula,"APIT":iman,"ALMO":compas,"ALMT":diamante,"ALIO":bandera,"ALIT":ojo}
+        _ic=_IC.get(code or "", torre); _s=R*0.46
+        _ic(cd, cx+3, mcy+4, _s, (0,0,0,150))
+        _ic(cd, cx, mcy, _s, GOLD_HI+(255,))
         mk=_I.new("L",(W,W),0); _D.Draw(mk).ellipse([cx-R,mcy-R,cx+R,mcy+R],fill=255)
         img.paste(coinI,(0,0),_I.composite(coinI.split()[3],_I.new("L",(W,W),0),mk)); d=_D.Draw(img)
         sp(d,(cx,494),"TU ARQUETIPO DEL DINERO",_F("Medium",23),GOLD_HI+(255,),5)

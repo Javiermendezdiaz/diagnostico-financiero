@@ -47,7 +47,7 @@ _OPP = {"S": "A", "A": "S", "P": "L", "L": "P", "M": "I", "I": "M", "O": "T", "T
 ARQ16 = {
  "SPMO": {"n": "El Centinela", "lema": "Vigilo lo mío, sin sobresaltos.", "color": "#0E8A6E",
           "luz": "Orden y serenidad; nada se te escapa.", "sombra": "Dinero parado por miedo a moverlo."},
- "SPMT": {"n": "El Guardián del Hogar", "lema": "Protejo a los míos, con un plan.", "color": "#12A085",
+ "SPMT": {"n": "El Guardián", "lema": "Protejo a los míos, con un plan.", "color": "#12A085",
           "luz": "Red de seguridad para tu familia.", "sombra": "Cargas tú solo con toda la tensión."},
  "SPIO": {"n": "El Prudente", "lema": "Voy a lo seguro, a mi manera.", "color": "#2E8B57",
           "luz": "Instinto de conservación afinado.", "sombra": "Decides sin mirar los números."},
@@ -61,7 +61,7 @@ ARQ16 = {
           "luz": "Disciplina de ahorro envidiable.", "sombra": "Te privas más de lo necesario."},
  "SLIT": {"n": "El Protector", "lema": "Mi futuro es el de los míos.", "color": "#3B5BA5",
           "luz": "Generosidad previsora con los tuyos.", "sombra": "Descuidas lo tuyo por los demás."},
- "APMO": {"n": "El Cazador de Oportunidades", "lema": "Arriesgo, pero con cabeza y hoy.", "color": "#C2410C",
+ "APMO": {"n": "El Cazador", "lema": "Arriesgo, pero con cabeza y hoy.", "color": "#C2410C",
           "luz": "Oportunismo calculado, sangre fría.", "sombra": "El riesgo puede volverse adicción."},
  "APMT": {"n": "El Emprendedor", "lema": "Construyo ahora, con mi gente.", "color": "#E0701A",
           "luz": "Energía y red que mueven proyectos.", "sombra": "Quemas la caja por crecer rápido."},
