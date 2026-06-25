@@ -322,7 +322,7 @@ def plan(p):
     d=[]
     for code,capa in CAPAS.items():
         for f,val in p[code]["facetas"].items():
-            if val>=60: d.append((val,code,capa["facetas"][f]))
+            if val>=60: d.append((val,code,(capa.get("facetas") or {}).get(f,f)))
     d.sort(reverse=True); return d[:6]
 
 # ---------- radar ----------
@@ -689,37 +689,49 @@ ARQ_META = {
          "sombra": "Puedes asumir m\u00e1s riesgo del que tu entorno tolera y generar tensi\u00f3n."},
 }
 _ARQ_FALLBACK = ["SEG","LIB","EST","MUL"]
-def tarjeta_arquetipo(arq_code, out_path):
-    """Tarjeta social cuadrada 1080x1080 del arquetipo del dinero. SOLO identidad:
-    nombre + lema + un rasgo positivo + marca + CTA de vuelta. Sin cifras, sin nombre de
-    cliente: pensada para publicar en redes. Degradado seguro: devuelve out_path o None."""
+def tarjeta_arquetipo(arq_code, out_path, sexo=None):
+    """Tarjeta social 1080x1080 del arquetipo: medallon-silueta (hombre/mujer segun sexo) +
+    nombre + lema + rasgo + link del diagnostico. Sin cifras ni nombre de cliente. Degradado seguro."""
     try:
         meta = ARQ_META.get(arq_code)
         if not meta:
             return None
         import matplotlib.pyplot as plt, textwrap
-        BG = "#0B0C12"; INKW = "#F4F4F5"; GR = "#94A3B8"; LINE = "#23252E"
+        from matplotlib.patches import Circle, Wedge, Ellipse
+        BG = "#0B0C12"; INKW = "#F4F4F5"; GR = "#94A3B8"; LINE = "#23252E"; MED = "#13151F"
         acc = meta.get("color") or "#FDD731"
+        s = (sexo or "").lower(); woman = "mujer" in s; man = "hombre" in s
         fig = plt.figure(figsize=(10.8, 10.8), dpi=100); fig.patch.set_facecolor(BG)
         ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, 100); ax.set_ylim(0, 100); ax.axis("off")
         ax.add_patch(plt.Rectangle((4, 4), 92, 92, fill=False, ec=LINE, lw=1.6))
         ax.add_patch(plt.Rectangle((4, 94), 92, 2, color=acc, lw=0))
-        ax.text(50, 86, "ADAPTA  \u00b7  FAMILY OFFICE", ha="center", va="center",
-                color=GR, fontsize=14, fontweight="bold")
-        ax.text(50, 79.5, "TU ARQUETIPO DEL DINERO", ha="center", va="center",
-                color=acc, fontsize=12.5, fontweight="bold")
-        ax.text(50, 61, meta.get("nombre", ""), ha="center", va="center",
-                color=INKW, fontsize=60, fontweight="bold", family="serif")
-        ax.text(50, 49.5, meta.get("lema", ""), ha="center", va="center",
-                color=acc, fontsize=23, style="italic")
+        ax.text(50, 88.5, "ADAPTA  \u00b7  FAMILY OFFICE", ha="center", va="center", color=GR, fontsize=13.5, fontweight="bold")
+        ax.text(50, 83, "TU ARQUETIPO DEL DINERO", ha="center", va="center", color=acc, fontsize=12, fontweight="bold")
+        # --- medallon con silueta (recortada al circulo) ---
+        cx, cy, R = 50.0, 67.0, 12.0
+        med = Circle((cx, cy), R, facecolor=MED, edgecolor="none", zorder=3); ax.add_patch(med)
+        hr = R * 0.30; hx, hy = cx, cy + R * 0.30
+        parts = []
+        if woman:
+            parts.append(Ellipse((cx, cy + R*0.10), R*1.05, R*1.18, facecolor=acc))  # pelo largo
+            sh_r = R * 0.80
+        elif man:
+            sh_r = R * 1.00
+        else:
+            sh_r = R * 0.90
+        parts.append(Wedge((cx, cy - R*0.58), sh_r, 16, 164, facecolor=acc))          # hombros
+        parts.append(Circle((hx, hy), hr, facecolor=acc))                              # cabeza
+        for p in parts:
+            p.set_edgecolor("none"); p.set_zorder(4); ax.add_patch(p); p.set_clip_path(med)
+        ax.add_patch(Circle((cx, cy), R, facecolor="none", edgecolor=acc, lw=2.4, zorder=6))
+        # --- texto ---
+        ax.text(50, 45.5, meta.get("nombre", ""), ha="center", va="center", color=INKW, fontsize=54, fontweight="bold", family="serif")
+        ax.text(50, 37, meta.get("lema", ""), ha="center", va="center", color=acc, fontsize=21, style="italic")
         luz = meta.get("luz", "")
         if luz:
-            ax.text(50, 36, "\n".join(textwrap.wrap(luz, 40)), ha="center", va="center",
-                    color=GR, fontsize=16.5, linespacing=1.55)
-        ax.text(50, 13.5, "\u00bfY t\u00fa? Descubre tu arquetipo gratis", ha="center", va="center",
-                color=INKW, fontsize=16, fontweight="bold")
-        ax.text(50, 8.5, "adaptafamilyoffice.com", ha="center", va="center",
-                color=acc, fontsize=14.5, fontweight="bold")
+            ax.text(50, 26.5, "\n".join(textwrap.wrap(luz, 42)), ha="center", va="center", color=GR, fontsize=15.5, linespacing=1.5)
+        ax.text(50, 12.5, "\u00bfY t\u00fa? Descubre tu arquetipo gratis", ha="center", va="center", color=INKW, fontsize=15.5, fontweight="bold")
+        ax.text(50, 7.6, "diagnostico.adaptafamilyoffice.com", ha="center", va="center", color=acc, fontsize=14.5, fontweight="bold")
         fig.savefig(out_path, facecolor=BG, dpi=100); plt.close(fig)
         return out_path
     except Exception:
@@ -728,6 +740,7 @@ def tarjeta_arquetipo(arq_code, out_path):
         except Exception:
             pass
         return None
+
 
 def arquetipo(resp):
     """Devuelve (code, votos, secundario|None) a partir de las preguntas ARQ-*. Degradado seguro."""
