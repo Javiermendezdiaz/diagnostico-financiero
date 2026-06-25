@@ -61,7 +61,9 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
 .arch-eyebrow{color:var(--suave);font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:500;margin-bottom:6px;}
 .arch-name{font-size:40px;font-weight:800;line-height:1.05;color:var(--amarillo);letter-spacing:-0.5px;margin-bottom:8px;}
 .arch-lema{font-size:16px;font-weight:500;font-style:italic;color:var(--blanco);margin-bottom:18px;}
-.arch-desc{font-size:14.5px;font-weight:300;color:var(--suave);line-height:1.6;margin-bottom:20px;}
+.arch-desc{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.trait{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--amarillo);border:1px solid var(--linea);border-radius:30px;padding:5px 12px;}
+.card-bar{width:54px;height:5px;border-radius:4px;background:var(--amarillo);margin:0 0 14px;transition:background .3s;}
 .arch-row{border-top:1px solid var(--linea);padding-top:14px;margin-top:4px;}
 .arch-row .lab{font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:600;margin-bottom:3px;}
 .arch-row .lab.luz{color:var(--amarillo);}
@@ -122,6 +124,7 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
       </div>
       <div class="arch-eyebrow">Eres</div>
       <div class="arch-name" id="rName"></div>
+      <div class="card-bar" id="cardBar"></div>
       <div class="arch-lema" id="rLema"></div>
       <div class="arch-desc" id="rDesc"></div>
       <div class="arch-row">
@@ -165,7 +168,7 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
     <div class="cta">
       <h3 id="ctaH">Esto es el <b>5%</b> de lo que ITAP ve de ti</h3>
       <p id="ctaP">Tu arquetipo es solo la superficie. El diagnóstico completo cruza 131 señales y te entrega tu libro financiero: tus números, tus puntos ciegos y un plan de acción. Desde 19&nbsp;€.</p>
-      <a class="btn block" href="./" id="ctaBtn">Quiero mi diagnóstico completo →</a>
+      <a class="btn block" href="./inicio.html" id="ctaBtn">Quiero mi diagnóstico completo →</a>
     </div>
 
     <button class="btn ghost block" style="margin-top:14px" onclick="restart()">Repetir el test</button>
@@ -178,53 +181,56 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
 </div>
 
 <script>
+/* ===== Motor de los 16 Arquetipos del Dinero (espejo de arq16.py) =====
+   4 ejes binarios: Riesgo S/A · Tiempo P/L · Decisión M/I · Esfera O/T  */
 const ARQ=[
- {q:"Te ofrecen una inversión que puede doblar tu dinero… o perder la mitad.",o:[
-   {t:"Paso: prefiero no arriesgar lo que tengo",a:"C"},
-   {t:"Entro: sin riesgo no hay recompensa",a:"A"}]},
- {q:"Tienes un dinero parado. Duermes mejor si…",o:[
-   {t:"está a salvo, aunque rente poco",a:"C"},
-   {t:"está invertido, aunque pueda bajar",a:"A"}]},
- {q:"El dinero, para ti, es sobre todo para…",o:[
-   {t:"construir y asegurar el mañana",a:"F"},
-   {t:"disfrutar y vivir bien hoy",a:"D"}]},
- {q:"Te llega un extra inesperado. Lo primero que te pide el cuerpo…",o:[
-   {t:"guardarlo o invertirlo",a:"F"},
-   {t:"darte un capricho o una experiencia",a:"D"}]},
- {q:"Cuando tomas una decisión de dinero…",o:[
-   {t:"hago números, comparo, planifico",a:"E"},
-   {t:"voy con mi instinto y lo que siento",a:"I"}]},
- {q:"Los presupuestos y las hojas de cálculo…",o:[
-   {t:"me dan control: los uso",a:"E"},
-   {t:"me agobian: prefiero fluir",a:"I"}]},
- {q:"Si tuvieras dinero de sobra, lo que más valorarías sería…",o:[
-   {t:"tu libertad e independencia",a:"Y"},
-   {t:"la seguridad de los tuyos y dejar algo",a:"O"}]},
- {q:"Cuando imaginas tu éxito con el dinero, piensas en…",o:[
-   {t:"tus metas y tu propia vida",a:"Y"},
-   {t:"cuidar a tu familia o dejar huella",a:"O"}]}
+ {q:"El dinero que no necesitas a corto plazo, ¿qué prefieres?",o:[
+   {t:"Que esté seguro y a mano, aunque rente poco.",a:"S"},
+   {t:"Que trabaje y crezca, aunque vibre.",a:"A"}]},
+ {q:"Tu inversión cae con fuerza de golpe. Por dentro, ¿qué sientes?",o:[
+   {t:"Urgencia de proteger lo que queda.",a:"S"},
+   {t:"Una oportunidad de comprar más barato.",a:"A"}]},
+ {q:"Te cae un dinero extra inesperado. ¿Qué te apetece más?",o:[
+   {t:"Disfrutarlo: un viaje, un capricho, vivir.",a:"P"},
+   {t:"Invertirlo para construir mañana.",a:"L"}]},
+ {q:"¿Qué te define mejor?",o:[
+   {t:"Vivir bien hoy; el futuro ya se verá.",a:"P"},
+   {t:"Construir algo que dure y dejar huella.",a:"L"}]},
+ {q:"Cuando decides sobre tu dinero, ¿de qué te fías más?",o:[
+   {t:"De los números y un sistema.",a:"M"},
+   {t:"De mi intuición y cómo lo siento.",a:"I"}]},
+ {q:"Tus cuentas y tus gastos, ¿cómo los llevas?",o:[
+   {t:"Con orden: los reviso y los controlo.",a:"M"},
+   {t:"A ojo; ya sé más o menos por dónde voy.",a:"I"}]},
+ {q:"Las decisiones de dinero importantes…",o:[
+   {t:"Las tomo yo; es asunto mío.",a:"O"},
+   {t:"Las decido con los míos.",a:"T"}]},
+ {q:"Cuando piensas en tu dinero, piensas sobre todo en…",o:[
+   {t:"Mi libertad y mi independencia.",a:"O"},
+   {t:"Mi familia y los que dependen de mí.",a:"T"}]}
 ];
 const META={
- CFEY:{n:"El Arquitecto",l:"Construyes tu libertad con plano y paciencia.",d:"Prudente y metódico, levantas tu independencia ladrillo a ladrillo. No improvisas: planificas.",luz:"Disciplina y visión a largo plazo: pocos construyen tan sólido.",s:"Tanto plan puede volverse rigidez; a veces la vida pide improvisar.",pagoTit:"El Arquitecto tiene una grieta invisible",pago:"Tu plan es sólido, pero ¿está estresado contra lo imprevisto? Tu diagnóstico te enseña dónde aguanta tu estructura y dónde cruje."},
- CFEO:{n:"El Custodio",l:"Proteges y haces crecer lo de los tuyos.",d:"Cauto, estratega y orientado a la familia: gestionas el patrimonio como quien cuida un legado.",luz:"Responsabilidad y mirada de generaciones.",s:"Puedes cargar tú solo un peso que deberías compartir o delegar.",pagoTit:"El Custodio protege… ¿pero está blindado de verdad?",pago:"Cuidas a los tuyos, pero la protección sin estructura legal y fiscal tiene agujeros. Tu diagnóstico te enseña dónde estás expuesto."},
- CFIY:{n:"El Previsor",l:"Ahorras por instinto para no depender de nadie.",d:"Guardas sin pensarlo: mueve un resorte interno. Tu seguridad es tu libertad.",luz:"Tu colchón es tu superpoder: rara vez te pillan a contrapié.",s:"Ahorrar mucho sin invertir es perder dinero en silencio.",pagoTit:"El Previsor ahorra mucho… y pierde sin saberlo",pago:"Tu instinto te protege, pero el dinero quieto se lo come la inflación. Tu diagnóstico te enseña cuánto pierdes y cómo ponerlo a trabajar sin perder el sueño."},
- CFIO:{n:"El Proveedor",l:"Tu instinto es asegurar el futuro de tu gente.",d:"Cauto y entregado: ganas y guardas pensando en los tuyos, casi sin planteártelo.",luz:"Generosidad y sentido de la responsabilidad.",s:"Olvidarte de ti mismo en la ecuación también es un riesgo.",pagoTit:"El Proveedor cuida de todos… ¿y de sí mismo?",pago:"Aseguras a los tuyos, pero ¿y tu propia libertad? Tu diagnóstico te enseña cómo proteger a tu gente sin quedarte tú sin red."},
- CDEY:{n:"El Equilibrista",l:"Disfrutas hoy sin hipotecar el mañana.",d:"Sabes gozar la vida con cabeza: cada placer pasa por un cálculo silencioso.",luz:"Raro equilibrio entre presente y futuro.",s:"Tanto control puede quitarle espontaneidad a la vida.",pagoTit:"El Equilibrista afina fino… ¿pero acierta?",pago:"Tu balance presente-futuro es admirable, pero ¿está bien calibrado o lo intuyes? Tu diagnóstico te pone los números exactos."},
- CDEO:{n:"El Anfitrión",l:"Planificas para que los tuyos vivan bien.",d:"Disfrutas compartiendo, y lo haces con método: la buena vida, pero sin descontrol.",luz:"Generas experiencias y unión sin romper la hucha.",s:"Financiar el bienestar de todos puede erosionar el tuyo.",pagoTit:"El Anfitrión invita… ¿hasta cuándo aguanta la cuenta?",pago:"Cuidas que los tuyos disfruten, pero ¿tu estructura lo sostiene a largo plazo? Tu diagnóstico te enseña tu margen real."},
- CDIY:{n:"El Sibarita",l:"Buena vida, pero con red debajo.",d:"Te das gustos por instinto, aunque siempre dejas un colchón. Vives bien sin vivir al límite.",luz:"Sabes disfrutar sin caer en el descontrol total.",s:"Los pequeños gustos por impulso suman más de lo que crees.",pagoTit:"El Sibarita disfruta… y las fugas se acumulan",pago:"Tu colchón te salva, pero los caprichos por instinto tienen un coste oculto. Tu diagnóstico te enseña cuánto y dónde."},
- CDIO:{n:"El Generoso",l:"Gastas con el corazón en quien quieres.",d:"Tu dinero fluye hacia los tuyos por puro instinto, aunque cuidas de no pasarte de la raya.",luz:"Calidez y vínculo: el dinero, para ti, es amor en acción.",s:"Dar sin medida, aun con cautela, puede dejarte descubierto.",pagoTit:"El Generoso da de corazón… ¿y a su costa?",pago:"Tu generosidad es tu sello, pero ¿tienes claro tu límite? Tu diagnóstico te enseña cuánto puedes dar sin comprometerte."},
- AFEY:{n:"El Estratega",l:"Arriesgas con cabeza para multiplicar tu libertad.",d:"Audaz pero calculador: ves el riesgo como una palanca y lo manejas con plan.",luz:"Combinas ambición y método: construyes rápido y firme.",s:"La confianza en tu plan puede cegarte ante lo que no controlas.",pagoTit:"El Estratega calcula bien… ¿y lo que no ve?",pago:"Tu plan es ambicioso y sólido, pero ¿dónde está tu punto ciego? Tu diagnóstico estresa tu estrategia y te enseña tu talón de Aquiles."},
- AFEO:{n:"El Visionario",l:"Construyes en grande para dejar huella.",d:"Audaz, metódico y con mirada de legado: piensas en imperios, no en sueldos.",luz:"Ambición con propósito: creas algo más grande que tú.",s:"Apostar el legado a una sola visión es jugártelo todo a una carta.",pagoTit:"El Visionario sueña grande… ¿y protege la base?",pago:"Construyes para los que vienen, pero ¿tu base aguanta un golpe? Tu diagnóstico te enseña dónde tu visión está expuesta."},
- AFIY:{n:"El Emprendedor",l:"Te lanzas por instinto a construir tu independencia.",d:"Audaz e intuitivo: ves una oportunidad y vas; confías en tu olfato más que en la hoja de cálculo.",luz:"Coraje y velocidad: empiezas donde otros dudan.",s:"El instinto sin números detrás puede salir caro.",pagoTit:"El Emprendedor tiene olfato… ¿y los números?",pago:"Tu instinto te lleva lejos, pero las cifras frías evitan sustos. Tu diagnóstico le pone método a tu olfato."},
- AFIO:{n:"El Pionero",l:"Apuestas fuerte para abrir camino a los tuyos.",d:"Audaz e intuitivo: te arriesgas para construir algo que dure y beneficie a los que quieres.",luz:"Valentía con propósito: abres puertas para otros.",s:"Arriesgar el futuro común sin red afecta a más gente que a ti.",pagoTit:"El Pionero abre camino… ¿con red o sin ella?",pago:"Tu valentía construye para los tuyos, pero el riesgo compartido necesita colchón. Tu diagnóstico te enseña si lo tienes."},
- ADEY:{n:"El Apostador",l:"Calculas tus apuestas para vivir a lo grande.",d:"Audaz y disfrutón, pero con método: te das la gran vida moviendo fichas que has calculado.",luz:"Conviertes riesgo en disfrute sin perder el control… casi siempre.",s:"El placer sube las apuestas sin avisar.",pagoTit:"El Apostador controla la mesa… ¿hasta cuándo?",pago:"Calculas tus apuestas, pero el tren de vida infla el riesgo en silencio. Tu diagnóstico te enseña tu exposición real."},
- ADEO:{n:"El Mecenas",l:"Inviertes en experiencias y en los demás, con visión.",d:"Audaz y generoso, pero estratega: pones tu dinero al servicio del disfrute y de los tuyos con criterio.",luz:"Conviertes el dinero en vida compartida y memorable.",s:"Financiar a lo grande para otros puede vaciar tu propio depósito.",pagoTit:"El Mecenas reparte… ¿y su propia base?",pago:"Inviertes en los demás con visión, pero ¿y tu seguridad? Tu diagnóstico te enseña cuánto puedes dar sin descubrirte."},
- ADIY:{n:"El Espíritu Libre",l:"Vives el momento y apuestas por instinto, sin ataduras.",d:"Audaz, disfrutón e intuitivo: el dinero es para vivir intensamente y ahora, sin mapas.",luz:"Libertad pura: exprimes la vida como pocos.",s:"Sin base ni plan, la libertad de hoy puede ser la jaula de mañana.",pagoTit:"El Espíritu Libre vuela… ¿y si falla el motor?",pago:"Vives intenso, pero la libertad sin base es frágil. Tu diagnóstico te enseña cuánto necesitas para que tu libertad dure."},
- ADIO:{n:"El Espléndido",l:"Conviertes el dinero en momentos con tu gente.",d:"Audaz, disfrutón y entregado: el dinero es para celebrar la vida con los tuyos, sin contar demasiado.",luz:"Generosidad y alegría: contigo el dinero se vuelve recuerdos.",s:"La fiesta sin freno ni plan se paga, y a veces la pagan los tuyos.",pagoTit:"El Espléndido celebra… ¿y la resaca financiera?",pago:"Conviertes el dinero en momentos, pero sin freno hay resaca. Tu diagnóstico te enseña cómo seguir celebrando sin hipotecar el mañana."}
+ SPMO:{n:"El Centinela",l:"Vigilo lo mío, sin sobresaltos.",c:"#0E8A6E",luz:"Orden y serenidad; nada se te escapa.",s:"Dinero parado por miedo a moverlo."},
+ SPMT:{n:"El Guardián",l:"Protejo a los míos, con un plan.",c:"#12A085",luz:"Red de seguridad para tu familia.",s:"Cargas tú solo con toda la tensión."},
+ SPIO:{n:"El Prudente",l:"Voy a lo seguro, a mi manera.",c:"#2E8B57",luz:"Instinto de conservación afinado.",s:"Decides sin mirar los números."},
+ SPIT:{n:"El Anfitrión",l:"Disfruto la vida, y la comparto.",c:"#15B79E",luz:"Sabes celebrar y cuidar a los tuyos hoy.",s:"Poco colchón para el mañana."},
+ SLMO:{n:"El Estratega",l:"Construyo despacio y seguro.",c:"#1E5BA8",luz:"Paciencia y estructura impecables.",s:"Exceso de control; rigidez."},
+ SLMT:{n:"El Patriarca",l:"Dejo un legado blindado.",c:"#2563EB",luz:"Proteges a varias generaciones.",s:"Controlas demasiado a los tuyos."},
+ SLIO:{n:"El Previsor",l:"Guardo para mañana, por si acaso.",c:"#0284C7",luz:"Disciplina de ahorro envidiable.",s:"Te privas más de lo necesario."},
+ SLIT:{n:"El Protector",l:"Mi futuro es el de los míos.",c:"#3B5BA5",luz:"Generosidad previsora con los tuyos.",s:"Descuidas lo tuyo por los demás."},
+ APMO:{n:"El Cazador",l:"Arriesgo, pero con cabeza y hoy.",c:"#C2410C",luz:"Oportunismo calculado, sangre fría.",s:"El riesgo puede volverse adicción."},
+ APMT:{n:"El Emprendedor",l:"Construyo ahora, con mi gente.",c:"#E0701A",luz:"Energía y red que mueven proyectos.",s:"Quemas la caja por crecer rápido."},
+ APIO:{n:"El Aventurero",l:"Me lanzo, ya veré.",c:"#DC2626",luz:"Valentía pura; no te paraliza el miedo.",s:"Impulsividad sin red de seguridad."},
+ APIT:{n:"El Magnético",l:"La vida es ahora, y en grande.",c:"#EA580C",luz:"Carisma; arrastras a la gente.",s:"Apariencia y deuda para sostenerla."},
+ ALMO:{n:"El Arquitecto",l:"Convierto recursos en más recursos.",c:"#7C3AED",luz:"Visión de largo plazo + ejecución.",s:"Workaholic; el plan te come la vida."},
+ ALMT:{n:"El Magnate",l:"Construyo algo que dure, con los míos.",c:"#6D28D9",luz:"Liderazgo patrimonial de raza.",s:"El dinero por encima de todo."},
+ ALIO:{n:"El Pionero",l:"Veo lo que otros no, y voy.",c:"#8B5CF6",luz:"Intuición visionaria; abres caminos.",s:"Apuestas grandes sin cobertura."},
+ ALIT:{n:"El Visionario",l:"Inspiro y construyo el mañana.",c:"#5B21B6",luz:"Inspiras a otros a soñar en grande.",s:"Sueños sin números que los sostengan."}
 };
-let i=0, counts={C:0,A:0,F:0,D:0,E:0,I:0,Y:0,O:0}, current="";
+const POLO={S:"Seguridad",A:"Audacia",P:"Presente",L:"Legado",M:"Método",I:"Instinto",O:"Solo",T:"Tribu"};
+let i=0, counts={S:0,A:0,P:0,L:0,M:0,I:0,O:0,T:0}, current="";
 const $=id=>document.getElementById(id);
-function start(){$("hero").style.display="none";$("quiz").style.display="block";i=0;counts={C:0,A:0,F:0,D:0,E:0,I:0,Y:0,O:0};render();window.scrollTo(0,0);}
+function start(){$("hero").style.display="none";$("quiz").style.display="block";i=0;counts={S:0,A:0,P:0,L:0,M:0,I:0,O:0,T:0};render();window.scrollTo(0,0);}
 function render(){
   const Q=ARQ[i];
   $("bar").style.width=((i)/ARQ.length*100)+"%";
@@ -235,14 +241,20 @@ function render(){
 }
 function choose(a){counts[a]++;i++;if(i<ARQ.length){render();window.scrollTo(0,0);}else finish();}
 function finish(){
-  const _ax=[["C","A"],["F","D"],["E","I"],["Y","O"]];
-  current=_ax.map(p=>counts[p[0]]>=counts[p[1]]?p[0]:p[1]).join("");
-  const m=META[current]||Object.values(META)[0];
-  $("rName").textContent=m.n;$("rLema").textContent="«"+m.l+"»";$("rDesc").textContent=m.d;
-  $("rLuz").textContent=m.luz;$("rSombra").textContent=m.s;
-  if($("ctaH")) $("ctaH").textContent=m.pagoTit;
-  if($("ctaP")) $("ctaP").innerHTML=m.pago+" <b>Tu libro financiero, desde 19&nbsp;€.</b>";
-  if($("stName")){ $("stName").textContent=m.n; $("stLema").textContent="«"+m.l+"»"; $("stDesc").textContent=m.d; }
+  /* Cada eje: mayoría de sus 2 polos; empate -> polo por defecto (S,L,M,T) */
+  const _ax=[["S","A","S"],["P","L","L"],["M","I","M"],["O","T","T"]];
+  current=_ax.map(p=>counts[p[0]]>counts[p[1]]?p[0]:(counts[p[1]]>counts[p[0]]?p[1]:p[2])).join("");
+  const m=META[current]||META.SLMO;
+  const traits=current.split("").map(x=>POLO[x]||x);
+  $("rName").textContent=m.n; $("rName").style.color=m.c;
+  $("rLema").textContent="«"+m.l+"»";
+  $("rDesc").innerHTML=traits.map(t=>'<span class="trait">'+t+'</span>').join("");
+  $("rLuz").textContent=m.luz; $("rSombra").textContent=m.s;
+  const card=$("card"); if(card){ card.style.borderColor=m.c; }
+  const cb=$("cardBar"); if(cb){ cb.style.background=m.c; }
+  if($("ctaH")) $("ctaH").textContent=m.n+" tiene un punto ciego que no ve solo";
+  if($("ctaP")) $("ctaP").innerHTML=m.s+" El diagnóstico completo cruza más de 100 señales y te dice exactamente dónde estás expuesto, cuánto te cuesta y qué hacer. <b>Tu libro financiero, desde 19&nbsp;€.</b>";
+  if($("stName")){ $("stName").textContent=m.n; $("stLema").textContent="«"+m.l+"»"; $("stDesc").textContent=traits.join(" · "); }
   const url=location.origin+location.pathname;
   const txt="Soy "+m.n+" 💰 ¿Y tú? Descubre tu arquetipo del dinero en 60 segundos:";
   $("shWa").href="https://wa.me/?text="+encodeURIComponent(txt+" "+url);
