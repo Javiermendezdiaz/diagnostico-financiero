@@ -690,55 +690,73 @@ ARQ_META = {
 }
 _ARQ_FALLBACK = ["SEG","LIB","EST","MUL"]
 def tarjeta_arquetipo(arq_code, out_path, sexo=None):
-    """Tarjeta social 1080x1080 del arquetipo: medallon-silueta (hombre/mujer segun sexo) +
-    nombre + lema + rasgo + link del diagnostico. Sin cifras ni nombre de cliente. Degradado seguro."""
+    """Tarjeta social 1080x1080 PREMIUM (Pillow): degradado + cristal + medallon gendered +
+    Poppins + boton CTA. Solo identidad: arquetipo + lema + link. Sin cifras ni nombre.
+    Carga las fuentes Poppins bundleadas en fonts/. Degradado seguro: out_path o None."""
     try:
+        import os, numpy as _np
+        from PIL import Image as _I, ImageDraw as _D, ImageFont as _Fnt, ImageFilter as _Flt
         meta = ARQ_META.get(arq_code)
         if not meta:
             return None
-        import matplotlib.pyplot as plt, textwrap
-        from matplotlib.patches import Circle, Wedge, Ellipse
-        BG = "#0B0C12"; INKW = "#F4F4F5"; GR = "#94A3B8"; LINE = "#23252E"; MED = "#13151F"
-        acc = meta.get("color") or "#FDD731"
-        s = (sexo or "").lower(); woman = "mujer" in s; man = "hombre" in s
-        fig = plt.figure(figsize=(10.8, 10.8), dpi=100); fig.patch.set_facecolor(BG)
-        ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, 100); ax.set_ylim(0, 100); ax.axis("off")
-        ax.add_patch(plt.Rectangle((4, 4), 92, 92, fill=False, ec=LINE, lw=1.6))
-        ax.add_patch(plt.Rectangle((4, 94), 92, 2, color=acc, lw=0))
-        ax.text(50, 88.5, "ADAPTA  \u00b7  FAMILY OFFICE", ha="center", va="center", color=GR, fontsize=13.5, fontweight="bold")
-        ax.text(50, 83, "TU ARQUETIPO DEL DINERO", ha="center", va="center", color=acc, fontsize=12, fontweight="bold")
-        # --- medallon con silueta (recortada al circulo) ---
-        cx, cy, R = 50.0, 67.0, 12.0
-        med = Circle((cx, cy), R, facecolor=MED, edgecolor="none", zorder=3); ax.add_patch(med)
-        hr = R * 0.30; hx, hy = cx, cy + R * 0.30
-        parts = []
+        _FD = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts")
+        def _F(w, s): return _Fnt.truetype(os.path.join(_FD, "Poppins-%s.ttf" % w), s)
+        W = 1080
+        def _hx(c): c = c.lstrip("#"); return tuple(int(c[i:i+2], 16) for i in (0, 2, 4))
+        def _lp(a, b, t): return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
+        acc = _hx(meta.get("color") or "#FDD731")
+        nombre = meta.get("nombre", ""); lema = meta.get("lema", "")
+        # fondo: degradado grafito + glow de acento desde arriba
+        arr = _np.zeros((W, W, 3), _np.uint8)
+        top, bot = _hx("#0E1016"), _hx("#0A0B12")
+        for y in range(W): arr[y, :] = _lp(top, bot, y / W)
+        img = _I.fromarray(arr, "RGB").convert("RGBA")
+        gl = _I.new("RGBA", (W, W), (0, 0, 0, 0)); dg = _D.Draw(gl)
+        r = 560; gx, gy = W * 0.5, 110
+        dg.ellipse([gx - r, gy - r, gx + r, gy + r], fill=acc + (70,))
+        img = _I.alpha_composite(img, gl.filter(_Flt.GaussianBlur(190)))
+        def _rr(d, b, rad, fill=None, outline=None, width=1): d.rounded_rectangle(b, radius=rad, fill=fill, outline=outline, width=width)
+        def _sp(d, xy, text, font, fill, sp):
+            ws = [d.textlength(ch, font=font) + sp for ch in text]; tot = sum(ws) - sp; x = xy[0] - tot / 2
+            for ch, wd in zip(text, ws): d.text((x, xy[1]), ch, font=font, fill=fill, anchor="lm"); x += wd
+        cx = W // 2; M = 58; panel = [M, M, W - M, W - M]
+        ov = _I.new("RGBA", (W, W), (0, 0, 0, 0)); d = _D.Draw(ov)
+        _rr(d, panel, 40, fill=(255, 255, 255, 10)); _rr(d, panel, 40, outline=(255, 255, 255, 40), width=2)
+        d.line([M + 90, M + 118, W - M - 90, M + 118], fill=acc + (120,), width=2)
+        img = _I.alpha_composite(img, ov); d = _D.Draw(img)
+        _sp(d, (cx, M + 70), "ADAPTA   \u00b7   FAMILY OFFICE", _F("Light", 27), (214, 219, 228, 255), 7)
+        # medallon gendered
+        mcy = 346; R = 118; woman = "mujer" in (sexo or "").lower()
+        md = _I.new("RGBA", (W, W), (0, 0, 0, 0)); dm = _D.Draw(md)
+        dm.ellipse([cx - R, mcy - R, cx + R, mcy + R], fill=(255, 255, 255, 12))
+        sl = _I.new("RGBA", (W, W), (0, 0, 0, 0)); ds = _D.Draw(sl)
+        scx, scy, sr = cx, mcy + R * 0.06, R * 0.92
         if woman:
-            parts.append(Ellipse((cx, cy + R*0.10), R*1.05, R*1.18, facecolor=acc))  # pelo largo
-            sh_r = R * 0.80
-        elif man:
-            sh_r = R * 1.00
+            ds.ellipse([scx - sr * 0.44, scy - sr * 0.34, scx + sr * 0.44, scy + sr * 0.40], fill=acc + (255,))
+            sh, hr = sr * 0.66, sr * 0.27
         else:
-            sh_r = R * 0.90
-        parts.append(Wedge((cx, cy - R*0.58), sh_r, 16, 164, facecolor=acc))          # hombros
-        parts.append(Circle((hx, hy), hr, facecolor=acc))                              # cabeza
-        for p in parts:
-            p.set_edgecolor("none"); p.set_zorder(4); ax.add_patch(p); p.set_clip_path(med)
-        ax.add_patch(Circle((cx, cy), R, facecolor="none", edgecolor=acc, lw=2.4, zorder=6))
-        # --- texto ---
-        ax.text(50, 45.5, meta.get("nombre", ""), ha="center", va="center", color=INKW, fontsize=54, fontweight="bold", family="serif")
-        ax.text(50, 37, meta.get("lema", ""), ha="center", va="center", color=acc, fontsize=21, style="italic")
-        luz = meta.get("luz", "")
-        if luz:
-            ax.text(50, 26.5, "\n".join(textwrap.wrap(luz, 42)), ha="center", va="center", color=GR, fontsize=15.5, linespacing=1.5)
-        ax.text(50, 12.5, "\u00bfY t\u00fa? Descubre tu arquetipo gratis", ha="center", va="center", color=INKW, fontsize=15.5, fontweight="bold")
-        ax.text(50, 7.6, "diagnostico.adaptafamilyoffice.com", ha="center", va="center", color=acc, fontsize=14.5, fontweight="bold")
-        fig.savefig(out_path, facecolor=BG, dpi=100); plt.close(fig)
+            sh, hr = sr * 0.78, sr * 0.29
+        ds.ellipse([scx - sh, scy + sr * 0.18, scx + sh, scy + sr * 1.5], fill=acc + (255,))
+        ds.ellipse([scx - hr, scy - sr * 0.38, scx + hr, scy - sr * 0.38 + 2 * hr], fill=acc + (255,))
+        mk = _I.new("L", (W, W), 0); _D.Draw(mk).ellipse([cx - R, mcy - R, cx + R, mcy + R], fill=255)
+        md.paste(sl, (0, 0), _I.composite(sl.split()[3], _I.new("L", (W, W), 0), mk))
+        dm.ellipse([cx - R, mcy - R, cx + R, mcy + R], outline=acc + (255,), width=5)
+        img = _I.alpha_composite(img, md); d = _D.Draw(img)
+        _sp(d, (cx, 538), "TU ARQUETIPO DEL DINERO", _F("Medium", 25), acc + (255,), 5)
+        d.text((cx, 610), nombre, font=_F("Bold", 92), fill=(245, 246, 250, 255), anchor="mm")
+        d.text((cx, 688), lema, font=_F("Light", 34), fill=(180, 188, 201, 255), anchor="mm")
+        bw, bh = 560, 92; bx = cx - bw // 2; by = 812
+        bd = _I.new("RGBA", (W, W), (0, 0, 0, 0)); db = _D.Draw(bd)
+        _rr(db, [bx, by, bx + bw, by + bh], 46, fill=acc + (255,))
+        img = _I.alpha_composite(img, bd); d = _D.Draw(img)
+        txt = "Haz el test gratis"; tw = d.textlength(txt, font=_F("Medium", 34))
+        d.text((cx - 22, by + bh // 2), txt, font=_F("Medium", 34), fill=(255, 255, 255, 255), anchor="mm")
+        axp = cx - 22 + tw / 2 + 22; ayp = by + bh // 2
+        d.polygon([(axp, ayp - 11), (axp, ayp + 11), (axp + 18, ayp)], fill=(255, 255, 255, 255))
+        d.text((cx, 946), "diagnostico.adaptafamilyoffice.com", font=_F("Medium", 27), fill=(214, 219, 228, 255), anchor="mm")
+        img.convert("RGB").save(out_path, quality=95)
         return out_path
     except Exception:
-        try:
-            import matplotlib.pyplot as plt; plt.close("all")
-        except Exception:
-            pass
         return None
 
 
