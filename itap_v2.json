@@ -1241,8 +1241,16 @@
        "score": 0
       },
       {
+       "texto": "Cuatro o cinco meses sin grandes cambios.",
+       "score": 25
+      },
+      {
        "texto": "Dos o tres meses ajustando gastos.",
        "score": 50
+      },
+      {
+       "texto": "Apenas un mes o dos antes de apretar de verdad.",
+       "score": 75
       },
       {
        "texto": "Poco; tendría que endeudarme o vender ya.",
@@ -1264,8 +1272,16 @@
        "score": 0
       },
       {
+       "texto": "Del ahorro del mes, sin tocar planes.",
+       "score": 25
+      },
+      {
        "texto": "De recortar ahorro o aplazar planes ese mes.",
        "score": 50
+      },
+      {
+       "texto": "Tendría que pedir ayuda o estirar pagos.",
+       "score": 75
       },
       {
        "texto": "De la tarjeta o financiación.",
@@ -1287,8 +1303,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, aunque algo por debajo de 3 meses.",
+       "score": 25
+      },
+      {
        "texto": "Algo, por debajo de lo que debería.",
        "score": 50
+      },
+      {
+       "texto": "Muy poco, casi simbólico.",
+       "score": 75
       },
       {
        "texto": "No, o tiraría de lo que haya.",
@@ -1311,8 +1335,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, con algún ajuste menor.",
+       "score": 25
+      },
+      {
        "texto": "Con esfuerzo y algo de dolor.",
        "score": 50
+      },
+      {
+       "texto": "Solo a duras penas y con renuncias serias.",
+       "score": 75
       },
       {
        "texto": "No; casi todo es fijo e inamovible.",
@@ -1337,8 +1369,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, con algún recorte asumible.",
+       "score": 25
+      },
+      {
        "texto": "Lo justo; habría recortes sensibles.",
        "score": 50
+      },
+      {
+       "texto": "Quedaría en riesgo más de lo que querría.",
+       "score": 75
       },
       {
        "texto": "No; se vería afectado lo básico de los míos.",
@@ -1363,8 +1403,16 @@
        "score": 0
       },
       {
+       "texto": "Bien en general, con algún roce.",
+       "score": 25
+      },
+      {
        "texto": "Lo notaría, pero me adaptaría.",
        "score": 50
+      },
+      {
+       "texto": "Me apretaría bastante, con poca defensa.",
+       "score": 75
       },
       {
        "texto": "Me apretaría mucho; mi dinero pierde valor sin defensa.",
@@ -1389,8 +1437,16 @@
        "score": 0
       },
       {
+       "texto": "Red sólida, algo menos amplia.",
+       "score": 25
+      },
+      {
        "texto": "Algún apoyo, limitado.",
        "score": 50
+      },
+      {
+       "texto": "Apenas un apoyo puntual.",
+       "score": 75
       },
       {
        "texto": "Prácticamente ninguno.",
@@ -1415,8 +1471,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, con algún hueco menor.",
+       "score": 25
+      },
+      {
        "texto": "Parcialmente; hay huecos.",
        "score": 50
+      },
+      {
+       "texto": "Muy escasas; quedo bastante expuesto.",
+       "score": 75
       },
       {
        "texto": "Apenas; estoy expuesto.",
@@ -1441,8 +1505,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, con las líneas maestras claras.",
+       "score": 25
+      },
+      {
        "texto": "Una idea general.",
        "score": 50
+      },
+      {
+       "texto": "Solo una vaga intuición.",
+       "score": 75
       },
       {
        "texto": "Improvisaría sobre la marcha.",
@@ -1511,8 +1583,16 @@
        "score": 0
       },
       {
+       "texto": "Casi todo a invertir, con algún capricho.",
+       "score": 25
+      },
+      {
        "texto": "Subo el confort, pero mantengo mi tasa de ahorro.",
        "score": 50
+      },
+      {
+       "texto": "El gasto sube más rápido que el ahorro.",
+       "score": 75
       },
       {
        "texto": "Mis costes fijos suben solos y se comen el margen.",
@@ -1541,8 +1621,16 @@
        "score": 0
       },
       {
+       "texto": "Lo tengo bien controlado, con goteo menor.",
+       "score": 25
+      },
+      {
        "texto": "Los grandes números sí, pero hay goteo que no miro.",
        "score": 50
+      },
+      {
+       "texto": "Solo intuyo los grandes; el resto se me escapa.",
+       "score": 75
       },
       {
        "texto": "Ni idea; como el saldo no baja, asumo que va bien.",
@@ -1564,8 +1652,16 @@
        "score": 0
       },
       {
+       "texto": "Poco, lo reviso de vez en cuando.",
+       "score": 25
+      },
+      {
        "texto": "Algo se acumula sin que lo controle.",
        "score": 50
+      },
+      {
+       "texto": "Bastante que sé que no uso.",
+       "score": 75
       },
       {
        "texto": "Bastante; pago cosas que ni recuerdo contratar.",
@@ -1587,8 +1683,16 @@
        "score": 0
       },
       {
+       "texto": "Casi igual, con leve bajada.",
+       "score": 25
+      },
+      {
        "texto": "Ahorro algo menos.",
        "score": 50
+      },
+      {
+       "texto": "Claramente menos que antes.",
+       "score": 75
       },
       {
        "texto": "Ahorro bastante menos o casi nada.",
@@ -1613,8 +1717,16 @@
        "score": 0
       },
       {
+       "texto": "Quizá alguno suelto.",
+       "score": 25
+      },
+      {
        "texto": "Alguno hay, y lo sé.",
        "score": 50
+      },
+      {
+       "texto": "Varios que mantengo por inercia.",
+       "score": 75
       },
       {
        "texto": "Bastantes; gasto por costumbre o imagen.",
@@ -1639,8 +1751,16 @@
        "score": 0
       },
       {
+       "texto": "Casi siempre lo pienso antes.",
+       "score": 25
+      },
+      {
        "texto": "A veces espero, a veces caigo en el momento.",
        "score": 50
+      },
+      {
+       "texto": "Suelo caer en el momento.",
+       "score": 75
       },
       {
        "texto": "Si me apetece, lo compro y ya veré.",
@@ -1665,8 +1785,16 @@
        "score": 0
       },
       {
+       "texto": "Algo, pero rebajable sin sufrir.",
+       "score": 25
+      },
+      {
        "texto": "Un nivel intermedio que me costaría rebajar.",
        "score": 50
+      },
+      {
+       "texto": "Un nivel alto que me costaría mucho soltar.",
+       "score": 75
       },
       {
        "texto": "Un nivel alto; renunciar me parece impensable.",
@@ -1692,8 +1820,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, sencillo pero lo sigo.",
+       "score": 25
+      },
+      {
        "texto": "Lo llevo en la cabeza, sin nada formal.",
        "score": 50
+      },
+      {
+       "texto": "Apenas; alguna nota suelta.",
+       "score": 75
       },
       {
        "texto": "No; gasto y a ver qué queda.",
@@ -1718,8 +1854,16 @@
        "score": 0
       },
       {
+       "texto": "Rara vez, y lo noto cuando pasa.",
+       "score": 25
+      },
+      {
        "texto": "A veces, en momentos puntuales.",
        "score": 50
+      },
+      {
+       "texto": "Con cierta frecuencia.",
+       "score": 75
       },
       {
        "texto": "Con frecuencia; comprar me calma o me anima.",
@@ -1787,8 +1931,16 @@
        "score": 0
       },
       {
+       "texto": "Casi todo en orden, con algún detalle.",
+       "score": 25
+      },
+      {
        "texto": "Lo esencial está, con flecos sin actualizar.",
        "score": 50
+      },
+      {
+       "texto": "Solo lo mínimo; mucho sin formalizar.",
+       "score": 75
       },
       {
        "texto": "No lo tengo resuelto; lo pospongo.",
@@ -1810,8 +1962,16 @@
        "score": 0
       },
       {
+       "texto": "En su mayoría separado, con algún cabo suelto.",
+       "score": 25
+      },
+      {
        "texto": "Parcialmente; hay exposición sin cerrar.",
        "score": 50
+      },
+      {
+       "texto": "Bastante mezclado; exposición real.",
+       "score": 75
       },
       {
        "texto": "No; todo está mezclado.",
@@ -1834,8 +1994,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, aunque tendrían que atar algún cabo.",
+       "score": 25
+      },
+      {
        "texto": "Más o menos; tendrían que reconstruirlo.",
        "score": 50
+      },
+      {
+       "texto": "Les costaría mucho; está disperso.",
+       "score": 75
       },
       {
        "texto": "No; sería un rompecabezas para ellos.",
@@ -1857,8 +2025,16 @@
        "score": 0
       },
       {
+       "texto": "Casi todo formalizado, con algún fleco.",
+       "score": 25
+      },
+      {
        "texto": "En parte; faltan pasos.",
        "score": 50
+      },
+      {
+       "texto": "Solo en parte; faltan piezas clave.",
+       "score": 75
       },
       {
        "texto": "No, o no lo he mirado.",
@@ -1891,8 +2067,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, aunque convendría revisar la cifra.",
+       "score": 25
+      },
+      {
        "texto": "Algo, pero no sé si llega.",
        "score": 50
+      },
+      {
+       "texto": "Muy escaso para lo que dependería de mí.",
+       "score": 75
       },
       {
        "texto": "No, y debería.",
@@ -1917,8 +2101,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, aunque no de forma regular.",
+       "score": 25
+      },
+      {
        "texto": "Hace tiempo que no.",
        "score": 50
+      },
+      {
+       "texto": "Hace ya bastantes años.",
+       "score": 75
       },
       {
        "texto": "Nunca.",
@@ -1943,8 +2135,16 @@
        "score": 0
       },
       {
+       "texto": "Aprovecho lo principal, sin estrategia fina.",
+       "score": 25
+      },
+      {
        "texto": "Lo básico, sin estrategia.",
        "score": 50
+      },
+      {
+       "texto": "Apenas lo básico, sin pensarlo.",
+       "score": 75
       },
       {
        "texto": "No; pago lo que sale y punto.",
@@ -1973,8 +2173,16 @@
        "score": 0
       },
       {
+       "texto": "Previsto en lo esencial, sin todo formalizado.",
+       "score": 25
+      },
+      {
        "texto": "No formalmente, pero alguien podría improvisar.",
        "score": 50
+      },
+      {
+       "texto": "Nadie tendría facultades claras; sería lento.",
+       "score": 75
       },
       {
        "texto": "No; quedaría todo bloqueado.",
@@ -2045,8 +2253,16 @@
        "score": 0
       },
       {
+       "texto": "Sobre todo disfrute, con un punto de qué dirán.",
+       "score": 25
+      },
+      {
        "texto": "El disfrute, aunque influyó lo que pensarían.",
        "score": 50
+      },
+      {
+       "texto": "Pesó bastante la imagen, más que el disfrute.",
+       "score": 75
       },
       {
        "texto": "Que estuviera a la altura de lo que se espera de mí.",
@@ -2068,8 +2284,16 @@
        "score": 0
       },
       {
+       "texto": "Solo una leve presión, que ignoro.",
+       "score": 25
+      },
+      {
        "texto": "En ciertos entornos sí, aunque intento no decidir por ello.",
        "score": 50
+      },
+      {
+       "texto": "Bastante; condiciona algunas decisiones.",
+       "score": 75
       },
       {
        "texto": "Sí, y tomo decisiones de gasto para sostener esa imagen.",
@@ -2091,8 +2315,16 @@
        "score": 0
       },
       {
+       "texto": "Casi igual; algún detalle cambiaría.",
+       "score": 25
+      },
+      {
        "texto": "En algunas cosas, menos.",
        "score": 50
+      },
+      {
+       "texto": "Cambiaría bastante; hay gasto de cara a fuera.",
+       "score": 75
       },
       {
        "texto": "Bastante; mucho de lo que gasto es para que se vea.",
@@ -2114,8 +2346,16 @@
        "score": 0
       },
       {
+       "texto": "Empezaría por imagen, con leve pena.",
+       "score": 25
+      },
+      {
        "texto": "De varios sitios, con algo de pena.",
        "score": 50
+      },
+      {
+       "texto": "Me costaría tocar el nivel; lo dejaría para el final.",
+       "score": 75
       },
       {
        "texto": "Me costaría bajar de nivel; recortaría otras cosas antes.",
@@ -2140,8 +2380,16 @@
        "score": 0
       },
       {
+       "texto": "Sobre todo a lo interno, con algo de imagen.",
+       "score": 25
+      },
+      {
        "texto": "A una mezcla.",
        "score": 50
+      },
+      {
+       "texto": "Bastante a lo que muestro.",
+       "score": 75
       },
       {
        "texto": "Bastante a lo que se ve; sin ello me sentiría menos.",
@@ -2166,8 +2414,16 @@
        "score": 0
       },
       {
+       "texto": "Leve cosquilleo, que se pasa.",
+       "score": 25
+      },
+      {
        "texto": "Cierta presión por no quedarme atrás.",
        "score": 50
+      },
+      {
+       "texto": "Noto fuerte el tirón de igualar.",
+       "score": 75
       },
       {
        "texto": "Necesidad de igualarlo, aunque no me convenga.",
@@ -2192,8 +2448,16 @@
        "score": 0
       },
       {
+       "texto": "Rara vez, y con reparo.",
+       "score": 25
+      },
+      {
        "texto": "Alguna vez, con cierto reparo.",
        "score": 50
+      },
+      {
+       "texto": "Más de una vez para sostener el nivel.",
+       "score": 75
       },
       {
        "texto": "Sí; mantengo con deuda un nivel que no me puedo permitir.",
@@ -2260,8 +2524,16 @@
        "score": 0
       },
       {
+       "texto": "Algo más de la mitad, con fuentes que no caen juntas.",
+       "score": 25
+      },
+      {
        "texto": "La mayoría, con algún respaldo secundario.",
        "score": 50
+      },
+      {
+       "texto": "Casi todo, con un respaldo mínimo.",
+       "score": 75
       },
       {
        "texto": "Prácticamente todo.",
@@ -2283,8 +2555,16 @@
        "score": 0
       },
       {
+       "texto": "Lo activaría en uno o dos meses.",
+       "score": 25
+      },
+      {
        "texto": "Tardaría, pero saldría adelante reinventándome.",
        "score": 50
+      },
+      {
+       "texto": "Tardaría mucho y a ciegas.",
+       "score": 75
       },
       {
        "texto": "No tengo plan B.",
@@ -2306,8 +2586,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, una parte modesta pero estable.",
+       "score": 25
+      },
+      {
        "texto": "Algo, todavía pequeño.",
        "score": 50
+      },
+      {
+       "texto": "Casi nada; algún ingreso testimonial.",
+       "score": 75
       },
       {
        "texto": "Nada; todo depende de mi tiempo.",
@@ -2330,8 +2618,16 @@
        "score": 0
       },
       {
+       "texto": "Baja, con algún punto a vigilar.",
+       "score": 25
+      },
+      {
        "texto": "Media; hay señales que vigilar.",
        "score": 50
+      },
+      {
+       "texto": "Alta, aunque empiezo a moverme.",
+       "score": 75
       },
       {
        "texto": "Alta; lo sé y no he hecho nada.",
@@ -2356,8 +2652,16 @@
        "score": 0
       },
       {
+       "texto": "Dando los primeros pasos.",
+       "score": 25
+      },
+      {
        "texto": "En mente, sin empezar.",
        "score": 50
+      },
+      {
+       "texto": "Solo una idea sin concretar.",
+       "score": 75
       },
       {
        "texto": "No me lo planteo.",
@@ -2382,8 +2686,16 @@
        "score": 0
       },
       {
+       "texto": "Bastante preparado, con algún esfuerzo.",
+       "score": 25
+      },
+      {
        "texto": "Me costaría, pero podría.",
        "score": 50
+      },
+      {
+       "texto": "Me costaría mucho; perfil rígido.",
+       "score": 75
       },
       {
        "texto": "Poco; mi perfil es muy específico y difícil de recolocar.",
@@ -2408,8 +2720,16 @@
        "score": 0
       },
       {
+       "texto": "Sobre todo en uno, con parte fuera.",
+       "score": 25
+      },
+      {
        "texto": "Mayormente en uno, con algo fuera.",
        "score": 50
+      },
+      {
+       "texto": "Casi todo en el mismo sitio.",
+       "score": 75
       },
       {
        "texto": "Todo en el mismo sitio.",
@@ -2477,8 +2797,16 @@
        "score": 0
       },
       {
+       "texto": "Salí entero y algo más fuerte.",
+       "score": 25
+      },
+      {
        "texto": "Aguanté sin grandes daños, a la defensiva.",
        "score": 50
+      },
+      {
+       "texto": "Me dañó, aunque ya casi recuperado.",
+       "score": 75
       },
       {
        "texto": "Me hizo daño y aún arrastro consecuencias.",
@@ -2501,8 +2829,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, aunque tocaría algo de agilidad.",
+       "score": 25
+      },
+      {
        "texto": "Podría, reorganizando y perdiendo agilidad.",
        "score": 50
+      },
+      {
+       "texto": "Rara vez; me pillaría sin liquidez.",
+       "score": 75
       },
       {
        "texto": "Casi nunca; la oportunidad pasa.",
@@ -2524,8 +2860,16 @@
        "score": 0
       },
       {
+       "texto": "Busco oportunidad, con prudencia.",
+       "score": 25
+      },
+      {
        "texto": "Protegerme y esperar a que escampe.",
        "score": 50
+      },
+      {
+       "texto": "Me tensa bastante; tardo en moverme.",
+       "score": 75
       },
       {
        "texto": "Temerla; me paraliza.",
@@ -2547,8 +2891,16 @@
        "score": 0
       },
       {
+       "texto": "Aguantan bien, con leve mella.",
+       "score": 25
+      },
+      {
        "texto": "Se resienten algo, sin hundirse.",
        "score": 50
+      },
+      {
+       "texto": "Caen de forma notable.",
+       "score": 75
       },
       {
        "texto": "Caen con fuerza en cuanto el entorno empeora.",
@@ -2573,8 +2925,16 @@
        "score": 0
       },
       {
+       "texto": "Incómodo, pero sin cambiar mi vida.",
+       "score": 25
+      },
+      {
        "texto": "Me obligaría a cambios serios, aunque saldría.",
        "score": 50
+      },
+      {
+       "texto": "Me obligaría a cambios muy duros.",
+       "score": 75
       },
       {
        "texto": "Sería catastrófico para mí.",
@@ -2599,8 +2959,16 @@
        "score": 0
       },
       {
+       "texto": "Aprendo casi siempre y ajusto.",
+       "score": 25
+      },
+      {
        "texto": "Me fastidia, pero no siempre cambio nada.",
        "score": 50
+      },
+      {
+       "texto": "Me cuesta cambiar; tiendo a tropezar otra vez.",
+       "score": 75
       },
       {
        "texto": "Tiendo a repetirlo o a no querer mirarlo.",
@@ -2625,8 +2993,16 @@
        "score": 0
       },
       {
+       "texto": "Capaz, con algún ajuste de cabeza.",
+       "score": 25
+      },
+      {
        "texto": "Con esfuerzo y duelo, lo haría.",
        "score": 50
+      },
+      {
+       "texto": "Muy difícil; me costaría enormemente.",
+       "score": 75
       },
       {
        "texto": "Me parece impensable; he olvidado cómo se hace.",
@@ -2651,8 +3027,16 @@
        "score": 0
       },
       {
+       "texto": "Pocas semanas; buena parte es accesible.",
+       "score": 25
+      },
+      {
        "texto": "Semanas o meses; tendría que mover cosas.",
        "score": 50
+      },
+      {
+       "texto": "Bastantes meses; poco es líquido.",
+       "score": 75
       },
       {
        "texto": "Mucho; está casi todo atrapado en activos difíciles de vender.",
@@ -2720,8 +3104,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, con un margen pequeño de error.",
+       "score": 25
+      },
+      {
        "texto": "Los grandes bloques sí; el detalle se me escapa.",
        "score": 50
+      },
+      {
+       "texto": "Solo a grandes rasgos, muy difuso.",
+       "score": 75
       },
       {
        "texto": "Ni idea.",
@@ -2743,8 +3135,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, aunque no del todo automatizado.",
+       "score": 25
+      },
+      {
        "texto": "Improvisado; lo llevo en la cabeza.",
        "score": 50
+      },
+      {
+       "texto": "Apenas; algún apartado suelto.",
+       "score": 75
       },
       {
        "texto": "Ninguno; todo en la misma cuenta.",
@@ -2766,8 +3166,16 @@
        "score": 0
       },
       {
+       "texto": "Casi nada; algún detalle sin cuadrar.",
+       "score": 25
+      },
+      {
        "texto": "Un poco; hay un margen que no cuadro.",
        "score": 50
+      },
+      {
+       "texto": "Bastante; se va más de lo que controlo.",
+       "score": 75
       },
       {
        "texto": "Sí; desaparece una parte y no sé cómo.",
@@ -2789,8 +3197,16 @@
        "score": 0
       },
       {
+       "texto": "Estables, con alguna variación menor.",
+       "score": 25
+      },
+      {
        "texto": "Variables, dentro de un rango que manejo.",
        "score": 50
+      },
+      {
+       "texto": "Bastante irregulares, con poco colchón.",
+       "score": 75
       },
       {
        "texto": "Muy irregulares, sin colchón que lo amortigüe.",
@@ -2815,8 +3231,16 @@
        "score": 0
       },
       {
+       "texto": "Con algo de margen casi siempre.",
+       "score": 25
+      },
+      {
        "texto": "Justo; ni sobra ni falta.",
        "score": 50
+      },
+      {
+       "texto": "Casi siempre justo o apretado.",
+       "score": 75
       },
       {
        "texto": "Apurado o tirando de descubierto.",
@@ -2841,8 +3265,16 @@
        "score": 0
       },
       {
+       "texto": "Casi siempre provisionados.",
+       "score": 25
+      },
+      {
        "texto": "A veces sí, a veces me pillan.",
        "score": 50
+      },
+      {
+       "texto": "Me pillan más veces de las que debería.",
+       "score": 75
       },
       {
        "texto": "Casi siempre me pillan por sorpresa.",
@@ -2867,8 +3299,16 @@
        "score": 0
       },
       {
+       "texto": "Con cierta regularidad, sin rutina fija.",
+       "score": 25
+      },
+      {
        "texto": "De vez en cuando.",
        "score": 50
+      },
+      {
+       "texto": "Muy de tarde en tarde.",
+       "score": 75
       },
       {
        "texto": "Solo cuando hay un problema.",
@@ -2935,8 +3375,16 @@
        "score": 0
       },
       {
+       "texto": "Poca deuda, toda manejable.",
+       "score": 25
+      },
+      {
        "texto": "Algo de deuda que quiero reducir, pero convive sin ahogarme.",
        "score": 50
+      },
+      {
+       "texto": "Deuda que pesa y tardo en reducir.",
+       "score": 75
       },
       {
        "texto": "Arrastro deuda cara que debería atacar y voy posponiendo.",
@@ -2963,8 +3411,16 @@
        "score": 0
       },
       {
+       "texto": "Una parte pequeña, sin condicionar.",
+       "score": 25
+      },
+      {
        "texto": "Una parte notable, pero la sostengo.",
        "score": 50
+      },
+      {
+       "texto": "Una parte grande que me tensiona.",
+       "score": 75
       },
       {
        "texto": "Una parte muy grande; me asfixia.",
@@ -2991,8 +3447,16 @@
        "score": 0
       },
       {
+       "texto": "Poco; casi toda fija.",
+       "score": 25
+      },
+      {
        "texto": "Lo notaría, pero lo absorbería.",
        "score": 50
+      },
+      {
+       "texto": "Me apretaría bastante; buena parte variable.",
+       "score": 75
       },
       {
        "texto": "Me apretaría seriamente; gran parte es variable.",
@@ -3018,8 +3482,16 @@
        "score": 0
       },
       {
+       "texto": "Bajando despacio.",
+       "score": 25
+      },
+      {
        "texto": "Estable; ni sube ni baja.",
        "score": 50
+      },
+      {
+       "texto": "Estable tirando a subir.",
+       "score": 75
       },
       {
        "texto": "Creciendo, o no lo sé con certeza.",
@@ -3048,8 +3520,16 @@
        "score": 0
       },
       {
+       "texto": "Muy poca, casi liquidada.",
+       "score": 25
+      },
+      {
        "texto": "Algo, y la estoy atacando.",
        "score": 50
+      },
+      {
+       "texto": "Tengo, y cuesta reducirla.",
+       "score": 75
       },
       {
        "texto": "Sí, y se mantiene o crece.",
@@ -3078,8 +3558,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, con algún esfuerzo.",
+       "score": 25
+      },
+      {
        "texto": "En parte.",
        "score": 50
+      },
+      {
+       "texto": "Solo una parte pequeña.",
+       "score": 75
       },
       {
        "texto": "No; debo más de lo que podría cubrir.",
@@ -3302,8 +3790,16 @@
        "score": 0
       },
       {
+       "texto": "Buena, con recorrido por explotar.",
+       "score": 25
+      },
+      {
        "texto": "Limitada; mi sector o mi puesto tienen un tope que ya rozo.",
        "score": 50
+      },
+      {
+       "texto": "Muy escasa; techo casi tocado.",
+       "score": 75
       },
       {
        "texto": "Nula; llevo años estancado y no veo cómo subir.",
@@ -3335,8 +3831,16 @@
        "score": 0
       },
       {
+       "texto": "Negocio, aunque me cuesta arrancar.",
+       "score": 25
+      },
+      {
        "texto": "Lo hago a regañadientes y cedo pronto.",
        "score": 50
+      },
+      {
+       "texto": "Lo intento poco y cedo enseguida.",
+       "score": 75
       },
       {
        "texto": "Lo evito; me da reparo pedir y acepto lo que me dan.",
@@ -3361,8 +3865,16 @@
        "score": 0
       },
       {
+       "texto": "Vender algo puntual fuera de horario.",
+       "score": 25
+      },
+      {
        "texto": "Empaquetar y vender lo que sé (consultoría, formación) fuera de mi horario.",
        "score": 50
+      },
+      {
+       "texto": "Solo alguna hora extra suelta.",
+       "score": 75
       },
       {
        "texto": "Ninguna; en lo mío solo gano más echando más horas.",
@@ -3387,8 +3899,16 @@
        "score": 0
       },
       {
+       "texto": "Rinde bien, con algún producto a revisar.",
+       "score": 25
+      },
+      {
        "texto": "Productos antiguos (planes del banco, fondos caros) que sé que me cosen a comisiones.",
        "score": 50
+      },
+      {
+       "texto": "Bastante parado, perdiendo contra la inflación.",
+       "score": 75
       },
       {
        "texto": "Demasiado dinero muerto en la cuenta al 0% porque me da pereza moverlo.",
@@ -3414,8 +3934,16 @@
        "score": 0
       },
       {
+       "texto": "La uso bastante, sin exprimirla del todo.",
+       "score": 25
+      },
+      {
        "texto": "La uso puntualmente (correos, búsquedas), sin cambiar mi forma de trabajar.",
        "score": 50
+      },
+      {
+       "texto": "Apenas; sé que pierdo tiempo evitable.",
+       "score": 75
       },
       {
        "texto": "Sé que me ahorraría un 30% del tiempo, pero no me he parado a integrarla.",
@@ -3440,8 +3968,16 @@
        "score": 0
       },
       {
+       "texto": "Buen entorno, con relaciones que cuidar más.",
+       "score": 25
+      },
+      {
        "texto": "Conozco a gente clave que podría abrirme puertas, pero no cultivo esas relaciones.",
        "score": 50
+      },
+      {
+       "texto": "Entorno más bien plano para crecer.",
+       "score": 75
       },
       {
        "texto": "Mi entorno es conservador o de queja; de ahí no surge nada.",
@@ -3497,8 +4033,16 @@
        "score": 0
       },
       {
+       "texto": "Con cierto criterio, mejorable.",
+       "score": 25
+      },
+      {
        "texto": "Más o menos por costumbre; sé que podría hacerse mejor.",
        "score": 50
+      },
+      {
+       "texto": "Casi por inercia, sin mirar la fiscalidad.",
+       "score": 75
       },
       {
        "texto": "Saco lo que necesito sin pensar en la factura fiscal; ya lo verá la gestoría.",
@@ -3527,8 +4071,16 @@
        "score": 0
       },
       {
+       "texto": "Aprovechamos lo principal, con margen.",
+       "score": 25
+      },
+      {
        "texto": "Aprovechamos algo, pero sé que dejamos optimización sin hacer.",
        "score": 50
+      },
+      {
+       "texto": "Muy poco; casi todo reactivo.",
+       "score": 75
       },
       {
        "texto": "Pagamos lo que sale; nadie planifica el impuesto antes de que llegue.",
@@ -3557,8 +4109,16 @@
        "score": 0
       },
       {
+       "texto": "Bastante avanzado, con flecos.",
+       "score": 25
+      },
+      {
        "texto": "A medias; he pensado en ello pero no está montado.",
        "score": 50
+      },
+      {
+       "texto": "Apenas; muy dependiente de mí.",
+       "score": 75
       },
       {
        "texto": "Nada: si yo falto, el valor de la empresa se evapora.",
@@ -3628,8 +4188,16 @@
        "score": 0
       },
       {
+       "texto": "La mayor parte; queda algo parado.",
+       "score": 25
+      },
+      {
        "texto": "Una parte; el resto sigue parado en cuentas.",
        "score": 50
+      },
+      {
+       "texto": "Poco; la mayoría sigue quieto.",
+       "score": 75
       },
       {
        "texto": "Casi nada o nada: mi dinero está quieto.",
@@ -3652,8 +4220,16 @@
        "score": 0
       },
       {
+       "texto": "Con bastante regularidad, sin automatizar.",
+       "score": 25
+      },
+      {
        "texto": "Cuando me acuerdo o cuando me sobra algo.",
        "score": 50
+      },
+      {
+       "texto": "Muy de vez en cuando.",
+       "score": 75
       },
       {
        "texto": "No invierto de forma regular.",
@@ -3676,8 +4252,16 @@
        "score": 0
       },
       {
+       "texto": "Sí, con plan algo aproximado.",
+       "score": 25
+      },
+      {
        "texto": "Tengo una idea vaga, pero sin un plan definido.",
        "score": 50
+      },
+      {
+       "texto": "Solo una idea difusa de hacia dónde.",
+       "score": 75
       },
       {
        "texto": "Voy reaccionando a lo que oigo o a corazonadas.",
@@ -3700,8 +4284,16 @@
        "score": 0
       },
       {
+       "texto": "Mantengo, con cierta inquietud.",
+       "score": 25
+      },
+      {
        "texto": "Aguanto, pero con mucha angustia y dudas.",
        "score": 50
+      },
+      {
+       "texto": "Aguantaría a duras penas, tentado de vender.",
+       "score": 75
       },
       {
        "texto": "Vendo para frenar la pérdida.",
@@ -3727,8 +4319,16 @@
        "score": 0
       },
       {
+       "texto": "Diversificado, con algún peso destacado.",
+       "score": 25
+      },
+      {
        "texto": "Algo repartido, pero con bastante peso en una o dos cosas.",
        "score": 50
+      },
+      {
+       "texto": "Bastante concentrado en pocas apuestas.",
+       "score": 75
       },
       {
        "texto": "Concentrado en pocas apuestas (una empresa, una cripto, un único activo).",
@@ -3754,8 +4354,16 @@
        "score": 0
       },
       {
+       "texto": "Las conozco, aunque sin optimizar del todo.",
+       "score": 25
+      },
+      {
        "texto": "Más o menos, pero no estoy seguro de no pagar de más.",
        "score": 50
+      },
+      {
+       "texto": "Solo una idea vaga; probablemente pago de más.",
+       "score": 75
       },
       {
        "texto": "Ni idea de lo que pago.",
