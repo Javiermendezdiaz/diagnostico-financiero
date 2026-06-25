@@ -226,10 +226,18 @@ def datos_completos(d):
             except Exception: d[_k] = None
     for _k in ("gasto_mensual", "ingreso_mensual", "ahorro_mensual", "patrimonio", "coste_vivienda",
                "cuota_deuda", "deuda_total", "pension_estimada", "gasto_estatus", "renta_pasiva",
-               "inversiones_liquidas", "gastos_comunes"):
+               "inversiones_liquidas", "gastos_comunes", "gastos_anuales"):
         if d.get(_k) is not None:
             try: d[_k] = max(0.0, float(d[_k]))
             except Exception: pass
+    # Coste de vida REAL: prorratea los gastos anuales no mensuales (seguros, IBI, vacaciones...)
+    # y sumalos al gasto mensual. Aqui es donde la gente mas subestima su gasto.
+    try:
+        _ga = float(d.get("gastos_anuales") or 0)
+        if _ga > 0:
+            d["gasto_mensual"] = float(d.get("gasto_mensual") or 0) + _ga / 12.0
+    except Exception:
+        pass
     return d
 
 def baremo(salud_score):

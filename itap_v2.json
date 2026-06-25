@@ -789,27 +789,58 @@
      "faceta": "plan",
      "tipo": "escala",
      "dimensiones": "LIQUIDEZ",
-     "texto": "¿En cuántos años aspiras a ser libre, y tienes plan que lo sostenga?",
+     "texto": "¿Tienes un plan concreto que te lleve a esa libertad, o solo el deseo?",
      "nivel": "nucleo",
      "opciones": [
       {
-       "texto": "Horizonte concreto y plan que lo respalda.",
+       "texto": "Un plan definido, con pasos y cifras, que sigo.",
        "score": 0
       },
       {
-       "texto": "Horizonte claro, plan a medio montar.",
+       "texto": "Un plan a medio montar, pero con rumbo.",
        "score": 25
       },
       {
-       "texto": "El deseo está, el plan es vago.",
+       "texto": "Más intención que plan; lo llevo en la cabeza.",
        "score": 50
       },
       {
-       "texto": "Solo un deseo difuso, sin fecha.",
+       "texto": "Solo el deseo, sin nada estructurado.",
        "score": 75
       },
       {
-       "texto": "No me lo he planteado en serio.",
+       "texto": "Ningún plan; no me lo he puesto en serio.",
+       "score": 100
+      }
+     ],
+     "tier1": true
+    },
+    {
+     "id": "C2-03B",
+     "faceta": "horizonte",
+     "tipo": "escala",
+     "dimensiones": "LIQUIDEZ",
+     "texto": "¿Tienes una fecha objetivo para ser financieramente libre?",
+     "nivel": "nucleo",
+     "opciones": [
+      {
+       "texto": "Sí, un año concreto y realista que persigo.",
+       "score": 0
+      },
+      {
+       "texto": "Una fecha aproximada en mente.",
+       "score": 25
+      },
+      {
+       "texto": "Una idea vaga de 'algún día no muy lejano'.",
+       "score": 50
+      },
+      {
+       "texto": "Sin fecha; ya llegará.",
+       "score": 75
+      },
+      {
+       "texto": "Nunca me lo he planteado en el tiempo.",
        "score": 100
       }
      ],
@@ -4851,6 +4882,13 @@
    "unidad": "€/mes",
    "texto": "Ahora tus gastos. ¿Cuánto gastas al mes, como mínimo, para vivir con dignidad (sin lujos)?",
    "ayuda": "Tu coste de vida real (vivienda, comida, suministros, día a día): la base de casi todos los cálculos. No incluyas aquí los impuestos: ya van descontados de tu ingreso neto de arriba; meterlos otra vez sería contarlos dos veces."
+  },
+  {
+   "id": "NUM-1B",
+   "campo": "gastos_anuales",
+   "unidad": "€/año",
+   "texto": "¿Y cuánto suman AL AÑO los gastos que NO pagas cada mes? Seguros anuales, IBI, ITV y coche, vacaciones, regalos, reparaciones, salud... eso que se olvida porque no cae todos los meses.",
+   "ayuda": "Lo dividimos entre 12 y lo sumamos a tu coste de vida real. Es justo donde más se subestima el gasto. Pon 0 solo si de verdad no tienes ninguno."
   },
   {
    "id": "NUM-7",
