@@ -84,6 +84,12 @@ def banda(capa,s):
             if _e=="Sobrecarga" and capa.get("code") in _BANDA_FIX: _e=_BANDA_FIX[capa["code"]]
             return i,_e
     return 3,capa["bandas"][-1]["etiqueta"]
+def _sal100(s):
+    """Salud mostrada 0-100 con SUELO en 5: un '0/100' se lee como error, no como diagnostico.
+    Solo afecta al numero que ve el cliente; el scoring y las bandas usan el valor real."""
+    try: return max(5, min(95, round(100 - float(s))))
+    except Exception: return 50
+
 def score_capa(capa,resp):
     fac={}
     for it in capa["items"]:
@@ -294,15 +300,15 @@ CIERRE3={
 
 def interpretar(nombre,s,bl,bi,peor,code=None):
     nl=nombre.lower()
-    if bi==0: return (f"En {nl} estás en terreno sólido (salud {100-s:.0f}/100). Es una de tus fortalezas. "
+    if bi==0: return (f"En {nl} estás en terreno sólido (salud {_sal100(s)}/100). Es una de tus fortalezas. "
                       f"No la des por garantizada: lo que hoy va bien también se cuida.")
-    if bi==1: return (f"En {nl} vas con margen (salud {100-s:.0f}/100). El punto que más pesa ahora es "
+    if bi==1: return (f"En {nl} vas con margen (salud {_sal100(s)}/100). El punto que más pesa ahora es "
                       f"«{peor}»; ahí tienes la mejora más fácil y rentable.")
     if bi==2:
         c=CIERRE2.get(code,"todavía no duele, pero ya te está restando margen sin que lo notes.")
-        return (f"{nombre} entra en zona «{bl}» (salud {100-s:.0f}/100), sobre todo en «{peor}»: {c}")
+        return (f"{nombre} entra en zona «{bl}» (salud {_sal100(s)}/100), sobre todo en «{peor}»: {c}")
     c=CIERRE3.get(code,"no admite más demora: cada mes que pasa, el agujero se ensancha solo.")
-    return (f"{nombre} está en zona crítica (salud {100-s:.0f}/100), en especial en «{peor}»: {c}")
+    return (f"{nombre} está en zona crítica (salud {_sal100(s)}/100), en especial en «{peor}»: {c}")
 
 def insights(p,tr,fi):
     o=[]
@@ -1052,7 +1058,7 @@ def panel_persona(path, nombre, salud, arq_code, prof):
     import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle, FancyBboxPatch, Circle
     BG="#0E1018"; CARD="#161A24"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"
-    nota=max(0,min(100,round(100-salud)))
+    nota=_sal100(salud)
     arq=ARQ_META.get(arq_code) if arq_code else None
     arqcol=arq.get("color",GOLD) if arq else GOLD
     scol="#5FB98E" if nota>=70 else ("#E8C861" if nota>=45 else "#D9755B")
@@ -1101,7 +1107,7 @@ def panel_capas(path, p, titulo="TUS 12 DIMENSIONES",
     cols=[14,38,62,86]; rows=[107,72,37]; R=10.0
     for idx,code in enumerate(codes[:12]):
         cxp=cols[idx%4]; cyp=rows[idx//4]
-        sc=float(p[code]["score"]); nota=max(0,min(100,100-sc)); col=_sevcol(sc)
+        sc=float(p[code]["score"]); nota=_sal100(sc); col=_sevcol(sc)
         th=np.linspace(np.pi,0,90)
         ax.plot(cxp+R*np.cos(th), cyp+R*np.sin(th), color=TRACK, lw=5.2, solid_capstyle="round", zorder=3)
         frac=nota/100.0
@@ -2172,7 +2178,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         S+=[_box([Paragraph("<font color='#7A5A00'><b>&#9656;  Primero, lo primero</b></font>",St("cri1",fontSize=11,leading=15,fontName=FB)),
                   Paragraph("Tus respuestas dicen que ahora mismo el dinero te pesa de verdad —en el sueño, en la cabeza, en el día a día. Este informe no va a sumarte presión: antes de cualquier plan a años vista, su único objetivo es ayudarte a recuperar el aire y el control del mes. Un paso cada vez.",St("cri2",fontSize=10,leading=15,spaceBefore=2,textColor=INK))],
                  "#FBF4E4","#B45309",ancho=160*mm), Spacer(1,3*mm)]
-    S+=[Table([[Paragraph(f"<font size=42 color='#1A1A17'><b>{100-salud:.0f}</b></font>"
+    S+=[Table([[Paragraph(f"<font size=42 color='#1A1A17'><b>{_sal100(salud)}</b></font>"
                           f"<font size=13 color='#6B7280'>/100</font>",St("bignum",fontSize=42,leading=46)),
                 Paragraph(f"<b>{bl}</b><br/><font size=8 color='#6B7280'>Salud psicofinanciera global · "
                           f"{_pct_frase}</font>",body)]],
@@ -2197,7 +2203,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             "C5":"Protección patrimonial","C6":"Gasto con sentido","C7":"Diversificación de ingresos","C8":"Antifragilidad",
             "C9":"Eficiencia del flujo","C10":"Salud de la deuda","C11":"Palanca de crecimiento","C12":"Disciplina de inversión"}
     _semfh=St("semfh",fontSize=8,leading=11,textColor=colors.HexColor("#FDD731"),fontName=FB)
-    _fil=sorted(((int(round(100-p[c]["score"])),c) for c in p), key=lambda x:x[0])
+    _fil=sorted(((_sal100(p[c]["score"]),c) for c in p), key=lambda x:x[0])
     _sr=[[Paragraph("#",_semfh),Paragraph("ÁREA",_semfh),Paragraph("NOTA /100",_semfh),Paragraph("ESTADO",_semfh)]]
     for _i,(_sal,_c) in enumerate(_fil,1):
         if _sal<40: _col,_est="#C0392B","Prioritario"
@@ -2230,18 +2236,18 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                       "poner el foco. El resto del libro desarrolla cada punto.",body),
             Paragraph("Tus tres fortalezas",h_sub)]
         for c in fort:
-            S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({100-p[c]['score']:.0f}/100). {OPORTUNIDAD[c]}",
+            S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({_sal100(p[c]['score'])}/100). {OPORTUNIDAD[c]}",
                      St("ef",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
             _frf=(extras or {}).get("frases",{}).get(c) if extras else None
             if _frf: S.append(Paragraph("<font color='#B45309'>&#9656;</font> <i>"+_frf+"</i>",St("eff",fontSize=9.3,leading=12.5,leftIndent=14,spaceAfter=6,textColor=GREY)))
         S.append(Paragraph("Tus tres focos",h_sub))
         for c in foco:
-            S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({100-p[c]['score']:.0f}/100). {RIESGO[c]}",
+            S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({_sal100(p[c]['score'])}/100). {RIESGO[c]}",
                      St("ec",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
             _frc=(extras or {}).get("frases",{}).get(c) if extras else None
             if _frc: S.append(Paragraph("<font color='#B45309'>&#9656;</font> <i>"+_frc+"</i>",St("ecf",fontSize=9.3,leading=12.5,leftIndent=14,spaceAfter=6,textColor=GREY)))
         S+=[Spacer(1,3*mm),
-            Paragraph(f"En una frase: tu salud psicofinanciera global es de <b>{100-salud:.0f}/100</b>"
+            Paragraph(f"En una frase: tu salud psicofinanciera global es de <b>{_sal100(salud)}/100</b>"
                       f"({_pct_frase}{_pct_nota}). No es una condena ni un trofeo: es tu punto "
                       "de partida, y se mueve.",body),
             PageBreak()]
@@ -2271,7 +2277,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
              Paragraph("Qu\u00e9 mide",h_sub),
              Paragraph(f"Este cap\u00edtulo mide {QMIDE[code]}",body),
              Paragraph("Tu resultado",h_sub),
-             Table([[Paragraph(f"<b>{100-pc['score']:.0f}</b>/100",body),
+             Table([[Paragraph(f"<b>{_sal100(pc['score'])}</b>/100",body),
                      Chip(pc["banda"],BANDC[pc["bi"]],w=96,h=14)]],
                    colWidths=[60*mm,40*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),
              Bar(pc["score"],w=160*mm/1),
@@ -2304,7 +2310,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             facs=CAPAS[code]["facetas"]
             for f,sc in pc["facetas"].items():
                 cab.append(Table([[Paragraph(f"<b>{facs.get(f,f)}</b>",small),Bar(sc,w=46*mm),
-                                    Paragraph(f"<font color='{_sevcol(sc)}'><b>{100-sc:.0f}</b> \u00b7 {faceta_lectura(sc)}</font>",small)]],
+                                    Paragraph(f"<font color='{_sevcol(sc)}'><b>{_sal100(sc)}</b> \u00b7 {faceta_lectura(sc)}</font>",small)]],
                                  colWidths=[66*mm,48*mm,42*mm],
                                  style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),
                                         ("LEFTPADDING",(1,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
@@ -2343,7 +2349,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         return "es un foco importante que cruza varias \u00e1reas a la vez."
     for t in ("PSIQUE","LIQUIDEZ","VINCULO"):
         val=tr[t]; tt,dd=desc[t]
-        vtxt=("%s"%round(100-val)) if val is not None else "\u2014"
+        vtxt=("%s"%_sal100(val)) if val is not None else "\u2014"
         S+=[Paragraph(tt,h_sub),
             Table([[Paragraph(f"<b>{vtxt}</b>/100",body),Bar(val or 0,w=120*mm)]],
                   colWidths=[28*mm,124*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),

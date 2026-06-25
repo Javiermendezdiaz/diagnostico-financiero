@@ -123,13 +123,13 @@ def comparar_capa(code,a,b,nA,nB):
     nm=CAPAS[code]["nombre"]; g=abs(a-b)
     fuerte,debil=(nA,nB) if a<b else (nB,nA)
     if a<30 and b<30:
-        return (f"{nm} es terreno firme para los dos ({100-a:.0f} y {100-b:.0f}). Es de vuestras fortalezas compartidas: "
+        return (f"{nm} es terreno firme para los dos ({rb._sal100(a)} y {rb._sal100(b)}). Es de vuestras fortalezas compartidas: "
                 f"apoyaos aqu\u00ed cuando otras \u00e1reas aprieten.")
     if a>=51 and b>=51:
         return SOMBRA.get(code, f"{nm} os pesa a los dos a la vez: es un frente compartido, no un desencuentro. Atajadlo juntos, no esperéis a que el otro mejore.")
     if g>=30:
         return CHOQUE.get(code, "{debil} lo vive con más tensión que {fuerte}. Esa diferencia, hablada, se convierte en complemento; callada, en reproche silencioso.").format(fuerte=fuerte,debil=debil)
-    return (f"{nm} est\u00e1 bastante equilibrado entre vosotros ({100-a:.0f} y {100-b:.0f}): diferencias peque\u00f1as que se "
+    return (f"{nm} est\u00e1 bastante equilibrado entre vosotros ({rb._sal100(a)} y {rb._sal100(b)}): diferencias peque\u00f1as que se "
             f"resuelven hablando, sin necesidad de un gran acuerdo.")
 
 def paso_pareja(code):
@@ -309,7 +309,7 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
     out += [Paragraph("PERFIL INDIVIDUAL",kick), Paragraph(nombre,h_sec),
          Paragraph(f"Antes de cruzaros, esta es la foto psicol\u00f3gica de {pn}: c\u00f3mo vive el dinero por dentro. Las cifras del hogar son comunes (las ver\u00e9is juntas); lo que cambia de uno a otro es la percepci\u00f3n, el miedo y la prioridad.",body),
          Image(radar_path,width=112*mm,height=112*mm,hAlign="CENTER"),
-         Paragraph(f"<b>{100-salud:.0f}</b>/100 \u2014 salud psicofinanciera global de {pn} (100 = \u00f3ptimo).",body)]
+         Paragraph(f"<b>{rb._sal100(salud)}</b>/100 \u2014 salud psicofinanciera global de {pn} (100 = \u00f3ptimo).",body)]
     coh=rb.coherencia(salud, rb.fi_metrics(_fill(datos)), _fill(datos))
     if coh:
         out+=[Spacer(1,3*mm), _callout(coh[0], coh[1], "#1A1A17", "#FBF6E0")]
@@ -327,13 +327,13 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
     orden=sorted(rb.CAPAS,key=lambda c:prof[c]["score"])
     out.append(Paragraph("<b>Tus tres fortalezas</b>",small))
     for c in orden[:3]:
-        out.append(Paragraph(f"&#8226;  <b>{rb.CAPAS[c]['nombre']}</b> ({100-prof[c]['score']:.0f}/100). {rb.OPORTUNIDAD[c]}",St("if1",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
+        out.append(Paragraph(f"&#8226;  <b>{rb.CAPAS[c]['nombre']}</b> ({rb._sal100(prof[c]['score'])}/100). {rb.OPORTUNIDAD[c]}",St("if1",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
     out.append(Paragraph("<b>Tus tres focos</b>",small))
     for c in orden[-3:][::-1]:
-        out.append(Paragraph(f"&#8226;  <b>{rb.CAPAS[c]['nombre']}</b> ({100-prof[c]['score']:.0f}/100). {rb.RIESGO[c]}",St("if2",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
+        out.append(Paragraph(f"&#8226;  <b>{rb.CAPAS[c]['nombre']}</b> ({rb._sal100(prof[c]['score'])}/100). {rb.RIESGO[c]}",St("if2",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
     out.append(Paragraph(f"{pn}: patrones transversales",h_sub))
     for t in ("PSIQUE","LIQUIDEZ","VINCULO"):
-        v=trans[t]; vt=("%s"%v) if v is not None else "\u2014"
+        v=trans[t]; vt=("%s"%rb._sal100(v)) if v is not None else "\u2014"
         out.append(Table([[Paragraph(f"<b>{t.capitalize()}</b>  {vt}/100",small),rb.Bar(v or 0,w=110*mm)]],
                          colWidths=[42*mm,114*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
     out.append(Paragraph(f"{pn}: lo que revelan tus respuestas",h_sub))
@@ -350,7 +350,7 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
     for _c in sorted(rb.CAPAS,key=lambda c:prof[c]["score"],reverse=True):
         _sc=prof[_c]["score"]
         _ps=rb.PASO[_c]; _ps=_ps[0] if isinstance(_ps,(list,tuple)) else _ps
-        _blk=[Table([[Paragraph("<b>%s</b>  <font color='#6B7280'>%.0f/100</font>"%(rb.CAPAS[_c]["nombre"],100-_sc),small),
+        _blk=[Table([[Paragraph("<b>%s</b>  <font color='#6B7280'>%.0f/100</font>"%(rb.CAPAS[_c]["nombre"],rb._sal100(_sc)),small),
                       rb.Chip(prof[_c]["banda"],BANDC[prof[_c]["bi"]],w=84,h=13)]],
                      colWidths=[118*mm,40*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),3)]),
               Paragraph("<b>Qué mide en ti:</b> "+rb.QMIDE[_c],St("dxq",fontSize=9.4,leading=13,leftIndent=4))]
@@ -362,7 +362,7 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
         for _fk,_fv in prof[_c]["facetas"].items():
             _fr.append([Paragraph(_facd.get(_fk,_fk),St("dxfl",fontSize=8.4,leading=11)),
                         rb.Bar(_fv,w=66*mm),
-                        Paragraph("<font color='#6B7280'>%.0f</font>"%(100-_fv),St("dxfn",fontSize=8.4,leading=11))])
+                        Paragraph("<font color='#6B7280'>%.0f</font>"%(rb._sal100(_fv)),St("dxfn",fontSize=8.4,leading=11))])
         if _fr:
             _blk.append(Table(_fr,colWidths=[58*mm,72*mm,12*mm],
                               style=[("LEFTPADDING",(0,0),(0,-1),8),("LEFTPADDING",(1,0),(-1,-1),5),
@@ -379,7 +379,7 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
     out.append(Paragraph(f"{pn}: resumen capa por capa",h_sub))
     rows=[[Paragraph("<b>Capa</b>",small),Paragraph("<b>Score</b>",small),Paragraph("<b>Banda</b>",small)]]
     for c in rb.CAPAS:
-        rows.append([Paragraph(rb.CAPAS[c]["nombre"],small),Paragraph("%.0f"%(100-prof[c]["score"]),small),
+        rows.append([Paragraph(rb.CAPAS[c]["nombre"],small),Paragraph("%.0f"%(rb._sal100(prof[c]["score"])),small),
                      rb.Chip(prof[c]["banda"],BANDC[prof[c]["bi"]],w=84,h=13)])
     out.append(Table(rows,colWidths=[96*mm,20*mm,40*mm],style=TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),
                ("LINEBELOW",(0,0),(-1,-1),0.3,LINE),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
@@ -853,8 +853,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                           f"bien habladas suman.</font>",body)]],
               colWidths=[42*mm,118*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),
         Spacer(1,1*mm),
-        Table([[Paragraph(f"<font color='{A_COL}'>●</font> {cliA['nombre']}: <b>{100-saludA:.0f}</b>/100",small),
-                Paragraph(f"<font color='{B_COL}'>●</font> {cliB['nombre']}: <b>{100-saludB:.0f}</b>/100",small)]],
+        Table([[Paragraph(f"<font color='{A_COL}'>●</font> {cliA['nombre']}: <b>{rb._sal100(saludA)}</b>/100",small),
+                Paragraph(f"<font color='{B_COL}'>●</font> {cliB['nombre']}: <b>{rb._sal100(saludB)}</b>/100",small)]],
               colWidths=[80*mm,80*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0)]),
         Image("_dualradar.png",width=125*mm,height=125*mm,hAlign="CENTER"),
         Spacer(1,2*mm),
@@ -932,8 +932,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         a,b=pA[c]["score"],pB[c]["score"]; g=abs(a-b)
         zona = "Conflicto" if g>=30 else ("A revisar" if g>=18 else "Alineados")
         zc = "#B91C1C" if g>=30 else ("#EA580C" if g>=18 else "#15803D")
-        rows.append([Paragraph(f"{c} · {CAPAS[c]['nombre']}",small),Paragraph(f"{100-a:.0f}",small),
-                     Paragraph(f"{100-b:.0f}",small),Paragraph(f"{g:.0f}",small),
+        rows.append([Paragraph(f"{c} · {CAPAS[c]['nombre']}",small),Paragraph(f"{rb._sal100(a)}",small),
+                     Paragraph(f"{rb._sal100(b)}",small),Paragraph(f"{g:.0f}",small),
                      rb.Chip(zona,zc,w=64,h=13)])
     S+=[tbl(rows,[78*mm,15*mm,15*mm,20*mm,32*mm]),PageBreak()]
     S+=rb._secsafe(seccion_dafo_pareja,pA,pB,nA,nB)
@@ -972,8 +972,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                 Paragraph("Qué mide",h_sub),
                 Paragraph("Esta capa mide "+QMIDE_PAREJA.get(code, CAP_QMIDE[code]),body),
                 Paragraph("Vuestros resultados",h_sub),
-                Table([[Paragraph(f"<font color='{A_COL}'>●</font> {nA}: <b>{100-a:.0f}</b>/100",small),
-                        Paragraph(f"<font color='{B_COL}'>●</font> {nB}: <b>{100-b:.0f}</b>/100",small)],
+                Table([[Paragraph(f"<font color='{A_COL}'>●</font> {nA}: <b>{rb._sal100(a)}</b>/100",small),
+                        Paragraph(f"<font color='{B_COL}'>●</font> {nB}: <b>{rb._sal100(b)}</b>/100",small)],
                        [Bar2(a,b,w=150*mm),""]],
                       colWidths=[80*mm,80*mm],style=[("SPAN",(0,1),(1,1)),("LEFTPADDING",(0,0),(-1,-1),0),("TOPPADDING",(0,1),(0,1),4)]),
                 Spacer(1,2*mm),
