@@ -31,6 +31,8 @@ def perfil_scores(resp, capas):
         for it in capa["items"]:
             if it.get("tipo") != "escala":
                 continue
+            if it.get("atencion"):   # control de atencion: no puntua ninguna faceta
+                continue
             idx = resp.get(it["id"])
             if idx is None:
                 continue
@@ -347,7 +349,7 @@ def calcular_contradicciones(datos, resp, perfil_in, p):
     return out
 
 
-def validez(resp, datos, perfil_in, p, contradicciones=None):
+def validez(resp, datos, perfil_in, p, contradicciones=None, inst=None):
     """Indice de fiabilidad del diagnostico (escala de validez, estilo psicometrico).
 
     No es un juicio moral: mide CUANTO fiarse del retrato, combinando cuatro senales
@@ -396,9 +398,54 @@ def validez(resp, datos, perfil_in, p, contradicciones=None):
         # 4) coherencia sensacion-vs-dato
         n_contra = len(contradicciones or [])
 
+        # 5) control de atencion (instructed-response) + 6) coherencia de gemelos
+        #    Senales psicometricas dedicadas que NO dependen del barajado de opciones,
+        #    porque comparan la RESPUESTA real (indice -> score), no la posicion en pantalla.
+        fallo_atencion = False
+        pares_incoh = 0
+        try:
+            if inst:
+                _by_id = {}
+                for _c in inst.get("capas", []):
+                    for _it in _c.get("items", []):
+                        _by_id[_it.get("id")] = _it
+
+                def _score_de(_id):
+                    _it = _by_id.get(_id)
+                    if not _it:
+                        return None
+                    _ix = (resp or {}).get(_id)
+                    if not isinstance(_ix, int):
+                        return None
+                    try:
+                        return _it["opciones"][_ix]["score"]
+                    except Exception:
+                        return None
+
+                for _id, _it in _by_id.items():
+                    if _it.get("atencion"):
+                        _ix = (resp or {}).get(_id)
+                        if isinstance(_ix, int) and _ix != _it.get("opcion_correcta"):
+                            fallo_atencion = True
+                    _par = _it.get("par_consistencia")
+                    if _par:
+                        _a = _score_de(_id)
+                        _b = _score_de(_par)
+                        if _a is not None and _b is not None and abs(_a - _b) >= 60:
+                            pares_incoh += 1
+        except Exception:
+            fallo_atencion = False
+            pares_incoh = 0
+
         # --- puntuacion de riesgo (conservadora: por defecto, fiabilidad alta) ---
         r = 0
         factores = []
+        if fallo_atencion:
+            r += 2; factores.append("una pregunta de control de lectura no encaja con el resto")
+        if pares_incoh >= 2:
+            r += 2; factores.append("respuestas que se contradicen entre preguntas equivalentes")
+        elif pares_incoh == 1:
+            r += 1; factores.append("alguna respuesta que no cuadra con su pregunta equivalente")
         if sin_relieve:
             r += 2; factores.append("respuestas muy parejas entre areas")
         if todo_polos:
@@ -1424,7 +1471,7 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "accion_unica": calcular_accion_unica(ratios, p),
         "palancas": calcular_palancas(datos, p, perfil_in, resp),
         "contradicciones": contras,
-        "validez": validez(resp, datos, perfil_in, p, contras),
+        "validez": validez(resp, datos, perfil_in, p, contras, inst),
         "coherencia": validar_finanzas(datos),
         "frases": {c["code"]: frase_capa(c["code"], datos, p) for c in inst["capas"]},
         "plan_maestro": plan_maestro(datos, p, perfil_in),

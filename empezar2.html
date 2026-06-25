@@ -417,7 +417,7 @@ function umbralCapa(cap){
 }
 function statsCapa(cap){
   const c=INST.capas.find(x=>x.code===cap); if(!c) return null;
-  const crib=c.items.filter(it=>it.nivel==='nucleo'&&st.resp[it.id]!=null);
+  const crib=c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null);
   if(!crib.length) return null;
   const sc=crib.map(it=>{                                   // #blindaje anti-NaN
     const op=it.opciones[st.resp[it.id]]; let s=op?op.score:undefined;
@@ -491,7 +491,7 @@ function abrirCruces(){
 }
 function capaBand(cap){
   const c=INST.capas.find(x=>x.code===cap); if(!c) return null;
-  const crib=c.items.filter(it=>it.nivel==='nucleo'&&st.resp[it.id]!=null);
+  const crib=c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null);
   if(!crib.length) return null;
   const m=crib.reduce((a,it)=>a+it.opciones[st.resp[it.id]].score,0)/crib.length;
   if(m<26) return {n:c.nombre,t:'Sólido en esta área. Pasando a la siguiente.',c:'#7ee3ad'};
@@ -563,11 +563,11 @@ const AXES=[
   {k:'Psique',caps:['C1']}
 ];
 let _radarVals=[0,0,0,0],_radarRAF=null;
-function _axisHealth(caps){let s=0,nn=0;caps.forEach(code=>{const c=INST.capas.find(x=>x.code===code);if(!c)return;const ans=c.items.filter(it=>it.nivel==='nucleo'&&st.resp[it.id]!=null).length;if(!ans)return;s+=(100-capaMean(code));nn++;});return nn?s/nn:0;}
+function _axisHealth(caps){let s=0,nn=0;caps.forEach(code=>{const c=INST.capas.find(x=>x.code===code);if(!c)return;const ans=c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null).length;if(!ans)return;s+=(100-capaMean(code));nn++;});return nn?s/nn:0;}
 function _rpt(cx,cy,R,i,n,val){const a=-Math.PI/2+i*2*Math.PI/n;const r=R*(0.10+0.90*Math.max(0,Math.min(100,val))/100);return [cx+r*Math.cos(a),cy+r*Math.sin(a)];}
 function buildRadar(){const w=document.getElementById('radarWrap');if(!w||!INST||!INST.capas)return;const cx=100,cy=100,R=64,n=AXES.length;function g(i,r){const a=-Math.PI/2+i*2*Math.PI/n;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];}let rings='';[0.34,0.67,1].forEach(t=>{const p=AXES.map((a,i)=>g(i,R*t).map(v=>v.toFixed(1)).join(',')).join(' ');rings+='<polygon points="'+p+'" fill="none" stroke="#23252e" stroke-width="1"/>';});let spokes='',labels='';AXES.forEach((a,i)=>{const[x,y]=g(i,R);spokes+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#23252e" stroke-width="1"/>';const[lx,ly]=g(i,R+17);const anc=Math.abs(lx-cx)<8?'middle':(lx>cx?'start':'end');labels+='<text x="'+lx.toFixed(1)+'" y="'+(ly+3).toFixed(1)+'" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="'+anc+'">'+a.k+'</text>';});w.innerHTML='<svg viewBox="-42 0 284 212" xmlns="http://www.w3.org/2000/svg">'+rings+spokes+'<polygon id="radarPoly" points="" fill="rgba(253,215,49,.15)" stroke="#FDD731" stroke-width="2" stroke-linejoin="round"/><g id="radarVerts"></g>'+labels+'</svg>';_radarVals=AXES.map(()=>0);drawRadar(_radarVals);}
 function drawRadar(vals){const cx=100,cy=100,R=64,n=AXES.length;const poly=vals.map((v,i)=>_rpt(cx,cy,R,i,n,v).map(x=>x.toFixed(1)).join(',')).join(' ');const p=document.getElementById('radarPoly');if(p)p.setAttribute('points',poly);const g=document.getElementById('radarVerts');if(g)g.innerHTML=vals.map((v,i)=>{const[x,y]=_rpt(cx,cy,R,i,n,v);return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.7" fill="#FDD731"/>';}).join('');}
-function updateRadar(){if(!INST||!INST.capas)return;const w=document.getElementById('radarWrap');if(w&&!w.children.length)buildRadar();const tgt=AXES.map(a=>_axisHealth(a.caps));const from=_radarVals.slice(),t0=performance.now(),D=480,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;cancelAnimationFrame(_radarRAF);(function step(now){const t=Math.min(1,(now-t0)/D),e=ease(t);_radarVals=tgt.map((v,i)=>from[i]+(v-from[i])*e);drawRadar(_radarVals);if(t<1)_radarRAF=requestAnimationFrame(step);})(t0);let rev=0;INST.capas.forEach(c=>{if(c.items.filter(it=>it.nivel==='nucleo'&&st.resp[it.id]!=null).length)rev++;});const cc=document.getElementById('capasCount');if(cc)cc.textContent=rev+' / '+INST.capas.length+' capas'; try{_actualizarFuga();}catch(e){}}
+function updateRadar(){if(!INST||!INST.capas)return;const w=document.getElementById('radarWrap');if(w&&!w.children.length)buildRadar();const tgt=AXES.map(a=>_axisHealth(a.caps));const from=_radarVals.slice(),t0=performance.now(),D=480,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;cancelAnimationFrame(_radarRAF);(function step(now){const t=Math.min(1,(now-t0)/D),e=ease(t);_radarVals=tgt.map((v,i)=>from[i]+(v-from[i])*e);drawRadar(_radarVals);if(t<1)_radarRAF=requestAnimationFrame(step);})(t0);let rev=0;INST.capas.forEach(c=>{if(c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null).length)rev++;});const cc=document.getElementById('capasCount');if(cc)cc.textContent=rev+' / '+INST.capas.length+' capas'; try{_actualizarFuga();}catch(e){}}
 function calcFuga(){const d=st.datos||{};const g=+d.gasto_mensual||0,col=+d.colchon_liquido||0;if(!g||!col)return 0;return Math.round(Math.max(0,col-6*g)*0.03);}
 let _fugaCur=0,_fugaRAF=null;
 function _actualizarFuga(){const f=calcFuga();const fb=document.getElementById('fugaBox');if(!fb)return;if(f<=0){fb.style.display='none';return;}fb.style.display='flex';const from=_fugaCur,t0=performance.now(),D=750;cancelAnimationFrame(_fugaRAF);(function s(now){const t=Math.min(1,(now-t0)/D),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;const v=Math.round(from+(f-from)*e);const el=document.getElementById('fugaV');if(el)el.textContent=v.toLocaleString('es-ES')+' €/año';if(t<1)_fugaRAF=requestAnimationFrame(s);else _fugaCur=f;})(t0);}
@@ -716,7 +716,7 @@ function contNum(){
 }
 function capaMean(cap){
   const c=INST.capas.find(x=>x.code===cap); if(!c) return 0;
-  const crib=c.items.filter(it=>it.nivel==='nucleo'&&st.resp[it.id]!=null);
+  const crib=c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null);
   if(!crib.length) return 0;
   return crib.reduce((a,it)=>a+it.opciones[st.resp[it.id]].score,0)/crib.length;
 }

@@ -59,6 +59,7 @@ def divergencias_item(rA,rB):
     for capa in INST["capas"]:
         for it in capa["items"]:
             if it["tipo"]!="escala": continue
+            if it.get("atencion"): continue
             a,b=rA.get(it["id"]),rB.get(it["id"])
             if a is None or b is None: continue
             sa,sb=it["opciones"][a]["score"],it["opciones"][b]["score"]
@@ -1108,6 +1109,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         rows=[[Paragraph("<b>Pregunta</b>",small),Paragraph("<b>%s</b>"%nA,small),Paragraph("<b>%s</b>"%nB,small)]]
         bgs=[]; ri=1
         for it in capa["items"]:
+            if it.get("atencion"): continue
             sa=sb=None; na_a=na_b=False
             if it["tipo"]=="escala":
                 ia=rA.get(it["id"]); ib=rB.get(it["id"])

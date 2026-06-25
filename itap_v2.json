@@ -672,6 +672,39 @@
       "capa": "C1",
       "min_score": 35
      }
+    },
+    {
+     "id": "C1-16",
+     "faceta": "somatizacion",
+     "tipo": "escala",
+     "dimensiones": "PSIQUE",
+     "nivel": "nucleo",
+     "tier1": true,
+     "par_consistencia": "C1-02",
+     "invertido": true,
+     "texto": "Pase lo que pase con tu dinero, tu cuerpo lo encaja sin enterarse: ni insomnio, ni tensión, ni malestar físico.",
+     "opciones": [
+      {
+       "score": 100,
+       "texto": "Para nada: lo noto en el cuerpo casi siempre."
+      },
+      {
+       "score": 75,
+       "texto": "Poco: me pasa factura física con cierta frecuencia."
+      },
+      {
+       "score": 50,
+       "texto": "A medias: lo noto en alguna mala racha."
+      },
+      {
+       "score": 25,
+       "texto": "Bastante: solo en algún momento muy puntual."
+      },
+      {
+       "score": 0,
+       "texto": "Totalmente: mi cuerpo ni se entera de mis finanzas."
+      }
+     ]
     }
    ],
    "cribadores": [
@@ -1906,6 +1939,35 @@
       "capa": "C4",
       "min_score": 35
      }
+    },
+    {
+     "id": "C4-10",
+     "faceta": "_atencion",
+     "tipo": "escala",
+     "dimensiones": "ATENCION",
+     "nivel": "nucleo",
+     "tier1": true,
+     "atencion": true,
+     "opcion_correcta": 2,
+     "texto": "Comprobación de lectura (las incluye todo cuestionario serio): por favor, elige exactamente la opción «Algo en desacuerdo».",
+     "opciones": [
+      {
+       "score": 0,
+       "texto": "Muy de acuerdo"
+      },
+      {
+       "score": 0,
+       "texto": "Algo de acuerdo"
+      },
+      {
+       "score": 0,
+       "texto": "Algo en desacuerdo"
+      },
+      {
+       "score": 0,
+       "texto": "Muy en desacuerdo"
+      }
+     ]
     }
    ],
    "cribadores": [
@@ -3351,6 +3413,39 @@
       "capa": "C9",
       "min_score": 35
      }
+    },
+    {
+     "id": "C9-08",
+     "faceta": "fuga",
+     "tipo": "escala",
+     "dimensiones": "LIQUIDEZ",
+     "nivel": "nucleo",
+     "tier1": true,
+     "par_consistencia": "C9-03",
+     "invertido": true,
+     "texto": "A final de mes sabes con claridad en qué se ha ido tu dinero, hasta los gastos pequeños.",
+     "opciones": [
+      {
+       "score": 100,
+       "texto": "Para nada: cada mes desaparece dinero y no sé en qué."
+      },
+      {
+       "score": 75,
+       "texto": "Poco: se me escapa bastante sin control."
+      },
+      {
+       "score": 50,
+       "texto": "A medias: lo grande lo sé, lo pequeño se me escapa."
+      },
+      {
+       "score": 25,
+       "texto": "Casi del todo: solo algún detalle sin cuadrar."
+      },
+      {
+       "score": 0,
+       "texto": "Totalmente: tengo localizado hasta el goteo."
+      }
+     ]
     }
    ],
    "cribadores": [

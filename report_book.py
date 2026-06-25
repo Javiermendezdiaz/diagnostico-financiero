@@ -88,6 +88,7 @@ def score_capa(capa,resp):
     fac={}
     for it in capa["items"]:
         if it["tipo"]!="escala": continue
+        if it.get("atencion"): continue
         idx=resp.get(it["id"])
         if idx is None: continue
         fac.setdefault(it["faceta"],[]).append((it["opciones"][idx]["score"],peso(it)))
@@ -102,6 +103,7 @@ def perfil(resp):
                    "pct":pctil(cs),"peor":capa["facetas"].get(peor,"") if peor else ""}
         for it in capa["items"]:
             if it["tipo"]!="escala": continue
+            if it.get("atencion"): continue
             idx=resp.get(it["id"])
             if idx is None: continue
             for t in [x for x in it.get("dimensiones","").split("·") if x in TRANS]:
@@ -2853,6 +2855,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         rows=[[Paragraph("<b>Pregunta</b>",small),Paragraph("<b>Tu respuesta</b>",small)]]
         bgs=[]; ri=1
         for it in capa["items"]:
+            if it.get("atencion"): continue   # control de atencion: fuera del anexo
             sc=None; na=False
             if it["tipo"]=="escala":
                 idx=resp.get(it["id"])
