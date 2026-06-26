@@ -1365,29 +1365,41 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
     band(fig,axbg,0.20,"GASTOS / mes",_detparts("gasto_mensual",[("Fijo (te ata)",fijo,RED),("Variable (flexible)",var,GOLD)]))
     fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
     p2=(path[:-4]+"_b.png") if path.lower().endswith(".png") else (path+"_b.png")
-    fig,axbg=_newpage("LO QUE HAS CONSTRUIDO","Tu cartera, tus deudas y tu patrimonio neto")
+    fig,axbg=_newpage("LO QUE HAS CONSTRUIDO","Tu cartera y tu balance patrimonial")
     _cart_fb=([("Líquido parado",asig.get("parado",0),AM),("Invertido",asig.get("realizable_invertido",0),GREEN)] if asig
               else [("Invertido en mercados",inv,GREEN),("Liquidez / colchón",colch,AM)])
-    band(fig,axbg,0.55,"TU CARTERA",_detparts("inversiones_liquidas",_cart_fb))
-    if deu>0:
-        band(fig,axbg,0.30,"TUS DEUDAS",_detparts("deuda_total",[("Deuda total",deu,RED)]))
-    else:
-        axbg.text(8,(0.30+0.205)*141.6+1.0,"TUS DEUDAS",fontsize=11,color=GOLD,fontweight="bold",family="DejaVu Sans",zorder=5)
-        axbg.text(46,(0.30+0.102)*141.6,"Sin deudas · tu ingreso es 100% tuyo",fontsize=12,color=GREEN,fontweight="bold",ha="left",va="center",family="DejaVu Sans",zorder=5)
-    axbg.text(8,38,"TU PATRIMONIO NETO",fontsize=11,color=GOLD,fontweight="bold",family="DejaVu Sans",zorder=5)
-    base=max(pat,neto+deu,1.0); x0=8; Wb=84; x=x0
-    for lab,v,c in [("Líquido",liquido,GREEN),("Ilíquido",iliquido,SLATE)]:
-        wseg=Wb*v/base
-        if wseg>0.5:
-            axbg.add_patch(FancyBboxPatch((x,30),max(wseg-0.4,0.6),6.0,boxstyle="round,pad=0,rounding_size=0.9",fc=c,ec=c,zorder=2))
-            if wseg>11: axbg.text(x+wseg/2,32.1,_de(v),fontsize=8,color="#0E1018" if c==GREEN else TX,fontweight="bold",ha="center",family="DejaVu Sans",zorder=5)
-        x+=wseg
-    if deu>0:
-        wd=Wb*deu/base
-        axbg.add_patch(FancyBboxPatch((x0,22.5),max(wd-0.4,0.6),4.2,boxstyle="round,pad=0,rounding_size=0.7",fc=RED,ec=RED,zorder=2))
-        axbg.text(x0+(wd/2 if wd>11 else wd+1),24.0,"− Deuda %s"%_de(deu),fontsize=7.5,color="#0E1018" if wd>11 else RED,fontweight="bold",ha=("center" if wd>11 else "left"),family="DejaVu Sans",zorder=5)
-    axbg.text(8,16,"= Patrimonio neto:  %s"%_de(neto),fontsize=13,color=(GOLD if neto>=0 else RED),fontweight="bold",family="DejaVu Sans",zorder=5)
-    axbg.text(8,11.5,"Activos lo que tienes; deuda lo que debes; neto lo que de verdad es tuyo.",fontsize=7.5,color=GR,family="DejaVu Sans",zorder=5)
+    band(fig,axbg,0.58,"TU CARTERA",_detparts("inversiones_liquidas",_cart_fb))
+    # ===== BALANCE PATRIMONIAL: activos | pasivos | diferencia =====
+    activos=_detparts("patrimonio",[("Inversiones / liquidez",liquido,GREEN),("Vivienda / ilíquido",iliquido,SLATE)])
+    pasivos=(_detparts("deuda_total",[("Deuda total",deu,RED)]) if deu>0 else [])
+    if len(activos)>8:
+        activos=sorted(activos,key=lambda z:-z[1]); _ra=sum(z[1] for z in activos[7:]); activos=activos[:7]+[("Otros",_ra,"#7C8696")]
+    if len(pasivos)>8:
+        pasivos=sorted(pasivos,key=lambda z:-z[1]); _rp=sum(z[1] for z in pasivos[7:]); pasivos=pasivos[:7]+[("Otros",_rp,"#7C8696")]
+    tot_a=sum(v for _,v,_ in activos); tot_p=sum(v for _,v,_ in pasivos); _neto=tot_a-tot_p
+    axbg.text(8,53,"TU BALANCE PATRIMONIAL",fontsize=11,color=GOLD,fontweight="bold",family="DejaVu Sans",zorder=5)
+    axbg.text(8,48,"ACTIVOS — lo que tienes",fontsize=9,color=GREEN,fontweight="bold",family="DejaVu Sans",zorder=5)
+    axbg.text(52,48,"PASIVOS — lo que debes",fontsize=9,color=RED,fontweight="bold",family="DejaVu Sans",zorder=5)
+    axbg.plot([50,50],[16.5,46],color="#262C3A",lw=1,zorder=3)
+    def _coldraw(parts,x0,xv):
+        y=44.0
+        for (l,v,c) in parts:
+            axbg.add_patch(FancyBboxPatch((x0,y-0.9),1.8,1.8,boxstyle="round,pad=0,rounding_size=0.4",fc=c,ec=c,zorder=5))
+            axbg.text(x0+3,y,str(l),fontsize=8.2,color=TX,va="center",family="DejaVu Sans",zorder=5)
+            axbg.text(xv,y,_de(v),fontsize=8.2,color=GR,ha="right",va="center",family="DejaVu Sans",zorder=5)
+            y-=3.05
+    _coldraw(activos,8,47)
+    if pasivos: _coldraw(pasivos,52,91)
+    else: axbg.text(54,40,"Sin deudas · 100% tuyo",fontsize=9,color=GREEN,fontweight="bold",va="center",family="DejaVu Sans",zorder=5)
+    axbg.plot([8,47],[18,18],color="#2A3140",lw=0.8,zorder=4)
+    axbg.text(8,16,"Total activos",fontsize=8.5,color=TX,fontweight="bold",family="DejaVu Sans",zorder=5)
+    axbg.text(47,16,_de(tot_a),fontsize=9.5,color=GREEN,fontweight="bold",ha="right",family="DejaVu Sans",zorder=5)
+    axbg.plot([52,91],[18,18],color="#2A3140",lw=0.8,zorder=4)
+    axbg.text(52,16,"Total pasivos",fontsize=8.5,color=TX,fontweight="bold",family="DejaVu Sans",zorder=5)
+    axbg.text(91,16,_de(tot_p),fontsize=9.5,color=RED,fontweight="bold",ha="right",family="DejaVu Sans",zorder=5)
+    axbg.add_patch(FancyBboxPatch((8,8.5),84,5.2,boxstyle="round,pad=0,rounding_size=1.0",fc="#161A24",ec="#262C3A",lw=1,zorder=4))
+    axbg.text(11,11.1,"DIFERENCIA  =  PATRIMONIO NETO",fontsize=9,color=GR,fontweight="bold",va="center",family="DejaVu Sans",zorder=6)
+    axbg.text(89,10.9,_de(_neto),fontsize=13.5,color=(GOLD if _neto>=0 else RED),fontweight="bold",ha="right",va="center",family="DejaVu Sans",zorder=6)
     fig.savefig(p2,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
     return [path,p2]
 

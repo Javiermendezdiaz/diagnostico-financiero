@@ -240,6 +240,21 @@ def datos_completos(d):
             d["gasto_mensual"] = float(d.get("gasto_mensual") or 0) + _ga / 12.0
     except Exception:
         pass
+    # Derivar de los desgloses por partidas (cuando el cliente los rellena, mandan sobre la pregunta suelta)
+    try:
+        _ind=d.get("ingreso_mensual_detalle")
+        if isinstance(_ind,list):
+            _PAS={"alquileres","dividendos","intereses / cupones","intereses","plusvalías","plusvalias","royalties / propiedad intelectual","royalties","pensión","pension"}
+            _rp=sum(float((r or {}).get("v") or 0) for r in _ind if str((r or {}).get("c","")).strip().lower() in _PAS)
+            if _rp>0: d["renta_pasiva"]=_rp
+    except Exception: pass
+    try:
+        _pd=d.get("patrimonio_detalle")
+        if isinstance(_pd,list):
+            _tot=sum(float((r or {}).get("v") or 0) for r in _pd)
+            _viv=sum(float((r or {}).get("v") or 0) for r in _pd if "vivienda" in str((r or {}).get("c","")).lower())
+            if _tot>0 and _viv>0: d["pct_vivienda"]=max(0.0,min(100.0,100.0*_viv/_tot))
+    except Exception: pass
     return d
 
 def baremo(salud_score):
