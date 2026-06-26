@@ -601,11 +601,11 @@ function calcFuga(){const d=st.datos||{};const g=+d.gasto_mensual||0,col=+d.colc
 let _fugaCur=0,_fugaRAF=null;
 function _actualizarFuga(){const f=calcFuga();const fb=document.getElementById('fugaBox');if(!fb)return;if(f<=0){fb.style.display='none';return;}fb.style.display='flex';const from=_fugaCur,t0=performance.now(),D=750;cancelAnimationFrame(_fugaRAF);(function s(now){const t=Math.min(1,(now-t0)/D),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;const v=Math.round(from+(f-from)*e);const el=document.getElementById('fugaV');if(el)el.textContent=v.toLocaleString('es-ES')+' €/año';if(t<1)_fugaRAF=requestAnimationFrame(s);else _fugaCur=f;})(t0);}
 var _DESG={
- ingreso_mensual:['Nómina / salario','Autónomo / negocio','Alquileres','Dividendos / intereses','Pensión','Otros'],
- gasto_mensual:['Vivienda (hipoteca/alquiler)','Suministros y hogar','Comida','Transporte','Colegios / hijos','Ocio y caprichos','Seguros','Otros'],
- deuda_total:['Hipoteca','Préstamo personal','Coche','Tarjeta / revolving','Otros'],
- inversiones_liquidas:['Fondos / ETF','Acciones','Depósitos / cuentas','Planes de pensiones','Cripto','Otros'],
- patrimonio:['Vivienda habitual','Otros inmuebles','Negocio','Inversiones líquidas','Vehículos / otros bienes','Otros']
+ ingreso_mensual:['Nómina / salario','Bonus / variable','Autónomo / actividad','Negocio propio (SL)','Alquileres','Dividendos','Intereses / cupones','Plusvalías','Royalties / propiedad intelectual','Pensión','Otros'],
+ gasto_mensual:['Vivienda (hipoteca/alquiler)','Suministros y hogar','Alimentación','Transporte / vehículo','Colegios / educación','Salud / seguros','Ocio y viajes','Restauración','Suscripciones / servicios','Impuestos','Cuidado personal','Otros'],
+ deuda_total:['Hipoteca habitual','Hipoteca de inversión','Préstamo personal','Coche / leasing','Tarjeta / revolving','Crédito al consumo','Deuda de empresa','Préstamo familiar','Otros'],
+ inversiones_liquidas:['Fondos / ETF','Acciones directas','Renta fija / bonos','Planes de pensiones','Inmobiliario (REIT/SOCIMI)','Capital riesgo / private equity','Cripto','Materias primas / oro','Liquidez / depósitos','Otros'],
+ patrimonio:['Vivienda habitual','Otros inmuebles','Negocio / participaciones','Cartera financiera','Planes de pensiones','Liquidez / depósitos','Vehículos / bienes','Arte / coleccionables','Otros']
 };
 function _desgSum(campo){var d=(st.datos||{})[campo+'_detalle']||[];return d.reduce(function(a,r){return a+(parseFloat(r.v)||0);},0);}
 function _buildDesglose(campo,total,wrap){
