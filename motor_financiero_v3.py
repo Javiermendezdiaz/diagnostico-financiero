@@ -292,14 +292,14 @@ def agregar(ing, gas, deu, car, pat, fam, exp, gateway):
             dims["ingresos"] = _clamp(55 + pas * 0.45 - (20 if conc > 85 else 0))
         if gas.get("gasto_mensual") and ing.get("ingreso_mensual"):
             tasa = (ing["ingreso_mensual"] - gas["gasto_mensual"]) / ing["ingreso_mensual"]
-            dims["gastos"] = _clamp(50 + tasa * 120 - (12 if gas.get("fuga_no_consciente", 0) > 150 else 0))
+            dims["gastos"] = _clamp(50 + tasa * 120 - (12 if (gas.get("fuga_no_consciente") or 0) > 150 else 0))
         if gw.get("deudas") is False:
             dims["deuda"] = 92
         elif gw.get("deudas"):
             esf = deu.get("esfuerzo_financiero") or 0
-            dims["deuda"] = 90 if deu.get("deuda_total", 0) == 0 else _clamp(90 - esf * 1.5 - (15 if deu.get("coste_medio_deuda", 0) > 10 else 0))
+            dims["deuda"] = 90 if (deu.get("deuda_total") or 0) == 0 else _clamp(90 - esf * 1.5 - (15 if (deu.get("coste_medio_deuda") or 0) > 10 else 0))
         if gw.get("ahorros"):
-            cd = 12 if car.get("cash_drag_anual", 0) > 100 else 0
+            cd = 12 if (car.get("cash_drag_anual") or 0) > 100 else 0
             dims["cartera"] = _clamp(48 + (car.get("pct_rv") or 0) * 0.35 - cd)
         if pat.get("pct_productivo") is not None:
             dims["patrimonio"] = _clamp(pat["pct_productivo"])
@@ -307,12 +307,15 @@ def agregar(ing, gas, deu, car, pat, fam, exp, gateway):
         for k, w in _PESOS.items():
             if dims.get(k) is not None:
                 num += dims[k] * w; den += w
-        g = round(num / den) if den > 0 else 0
-        banda = "Solido" if g >= 70 else ("Con margen" if g >= 50 else ("Sobrecarga" if g >= 38 else "Critico"))
+        if den > 0:
+            g = round(num / den)
+            banda = "Solido" if g >= 70 else ("Con margen" if g >= 50 else ("Sobrecarga" if g >= 38 else "Critico"))
+        else:
+            g = 0; banda = "Datos insuficientes"  # envio sin datos: no etiquetar como Critico
 
         # ---- alertas (severidad 3>2>1) ----
         A = []
-        if pat.get("patrimonio", 0) < 0 and pat.get("activos_total", 0) > 0:
+        if (pat.get("patrimonio") or 0) < 0 and (pat.get("activos_total") or 0) > 0:
             A.append((3, "Patrimonio neto negativo", "Debes mas de lo que tienes: prioridad nº1, reducir deuda."))
         if deu.get("tiene_revolving"):
             A.append((3, "Tarjeta revolving", "El credito mas caro que existe. Amortizarla es la mejor inversion posible."))
@@ -320,15 +323,15 @@ def agregar(ing, gas, deu, car, pat, fam, exp, gateway):
             A.append((3, "Esfuerzo de deuda alto", "Mas del 35%% de tu ingreso se va en cuotas: vives sin aire."))
         if gw.get("hijos") and fam.get("proteccion_recomendada", 0) > 0:
             A.append((3, "Familia sin proteccion clara", "Hay un sosten pendiente para los tuyos. Conviene cubrirlo a tiempo."))
-        if pat.get("pct_vivienda", 0) >= 70:
+        if (pat.get("pct_vivienda") or 0) >= 70:
             A.append((2, "Patrimonio dormido en la vivienda", "La mayor parte de tu patrimonio no renta ni es liquido."))
-        if gas.get("fuga_no_consciente", 0) >= 150:
+        if (gas.get("fuga_no_consciente") or 0) >= 150:
             A.append((2, "Fuga no consciente", "Se te va dinero cada mes sin saber en que: gasto hormiga."))
-        if ing.get("concentracion_pct", 0) >= 80:
+        if (ing.get("concentracion_pct") or 0) >= 80:
             A.append((2, "Ingresos concentrados", "Casi todo depende de una sola fuente: tu riesgo mas subestimado."))
         if exp.get("expectativa_magica"):
             A.append((2, "Expectativa de rentabilidad magica", "Esperas mas de lo que tu perfil aguanta."))
-        if car.get("cash_drag_anual", 0) >= 300:
+        if (car.get("cash_drag_anual") or 0) >= 300:
             A.append((1, "Liquidez ociosa", "Dinero parado perdiendo contra la inflacion."))
         if car.get("infraexposicion_rv"):
             A.append((1, "Infraexposicion a bolsa", "Plazo largo y poca renta variable: coste de oportunidad."))
