@@ -1557,7 +1557,11 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
     except Exception:
         return []
     d=datos or {}
-    gasto=float(d.get("gasto_mensual") or 0); pension=float(d.get("pension_estimada") or 0)
+    _ideal=d.get("coste_vida_ideal")
+    try: _ideal=float(_ideal) if _ideal not in (None,"") else 0.0
+    except Exception: _ideal=0.0
+    _gm=float(d.get("gasto_mensual") or 0)
+    gasto=_ideal if _ideal>0 else _gm; pension=float(d.get("pension_estimada") or 0)
     capital=float(d.get("inversiones_liquidas") or 0)+float(d.get("colchon_liquido") or 0)
     ahorro=float(d.get("ahorro_mensual") or 0)
     try: edad=int(float(d.get("edad") or 0))
@@ -1573,8 +1577,9 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
     N=exp["numero_libertad"]; pct=exp.get("pct_cubierto",0); falta=exp.get("brecha_renta",0)
     out=[PageBreak(), Paragraph("Tu n\u00famero, y las 4 v\u00edas para llegar a \u00e9l",h_sec)]
     if pension>0:
-        out.append(Paragraph("La mayor\u00eda de los test ignoran tu pensi\u00f3n p\u00fablica. Nosotros la descontamos: este es el "
-                             "capital <b>propio</b> que necesitas, ya neto de lo que cobrar\u00e1s del Estado.",body))
+        _vida=("la vida que <b>quieres</b>" if _ideal>0 else "tu vida")
+        out.append(Paragraph("Este es el capital que necesitas para vivir de %s sin depender de un sueldo, ya <b>neto de "
+                             "tu pensi\u00f3n p\u00fablica</b> (la mayor\u00eda de los test la ignoran; nosotros la descontamos)."%_vida,body))
     else:
         out.append(Paragraph("Este es el capital que, invertido, cubre tu vida para siempre (regla 25\u00d7).",body))
     out.append(Paragraph('<font size=30 color="#17181C"><b>%s</b></font>'%_eur(N),St("c4n",fontSize=30,leading=34,spaceBefore=2,spaceAfter=2)))
@@ -1630,23 +1635,23 @@ def seccion_rentabilidad_alquiler(datos, extras=None):
     if rent<=0 or valor<=0:
         return []
     renta_anual=rent*12.0
-    neta_gastos=renta_anual/valor*100.0          # ing_alquiler ya es neto de gastos -> antes de IRPF
-    post_irpf=neta_gastos*0.80                    # estimacion prudente tras IRPF (reduccion 60% si vivienda habitual; tramo medio)
-    col="#1D6F42" if post_irpf>=4 else ("#B45309" if post_irpf>=2.5 else "#9A3B2E")
+    neta=renta_anual/valor*100.0          # ing_alquiler ya es LIMPIO (gastos + IRPF) -> esta es la rentabilidad real
+    col="#1D6F42" if neta>=4 else ("#B45309" if neta>=2.5 else "#9A3B2E")
     out=[PageBreak(), Paragraph("Tu ladrillo: la rentabilidad que crees vs la real",h_sec),
          Paragraph("La mayor\u00eda de propietarios calculan la renta sobre lo que pagaron por el piso, y olvidan los "
-                   "gastos y los impuestos. Esta es tu rentabilidad <b>de verdad</b>, sobre el valor de mercado de hoy.",body),
-         Paragraph('<font size=30 color="%s"><b>%.1f%%</b></font><font size=12 color="#6B7280"> neta de gastos, antes de impuestos</font>'%(col,neta_gastos),
-                   St("ralq1",fontSize=30,leading=34,spaceBefore=2,spaceAfter=2)),
-         Paragraph("Sobre un valor de mercado de <b>%s</b> y una renta neta de gastos de <b>%s/mes</b>."%(_eur(valor),_eur(rent)),body),
-         _box([Paragraph("<b>Y cuando le restas Hacienda:</b> en tu tramo de IRPF (estimado, con la reducci\u00f3n del 60%% "
-                  "si es vivienda habitual), tu rentabilidad real ronda el <b>%.1f%%</b> anual. Eso es lo que de verdad te "
-                  "deja tu ladrillo \u2014 no el %.1f%% que sale de dividir la renta entre lo que pagaste."%(post_irpf,neta_gastos),
+                   "gastos y los impuestos. Esta es tu rentabilidad <b>real</b> \u2014 lo que de verdad te queda, ya neto "
+                   "de gastos e IRPF \u2014 sobre el valor de mercado de hoy.",body),
+         Paragraph('<font size=32 color="%s"><b>%.1f%%</b></font><font size=12 color="#6B7280"> neta real, despu\u00e9s de gastos e impuestos</font>'%(col,neta),
+                   St("ralq1",fontSize=32,leading=36,spaceBefore=2,spaceAfter=2)),
+         Paragraph("Sobre un valor de mercado de <b>%s</b> y una renta limpia de <b>%s/mes</b> (%s/a\u00f1o)."%(_eur(valor),_eur(rent),_eur(renta_anual)),body),
+         _box([Paragraph("<b>Lo que esto significa:</b> tu ladrillo te renta de verdad un <b>%.1f%%</b> anual, no el 5-6%% "
+                  "que sale de dividir la renta entre lo que pagaste. Es el n\u00famero con el que de verdad se decide si "
+                  "concentrar o diversificar \u2014 no la rentabilidad \u00abde folleto\u00bb."%neta,
                   St("ralq2",fontSize=10.5,leading=15))],"#FBF4E4","#B45309",ancho=160*mm),
-         Paragraph("<font size=9.3 color='#6B7280'>Para comparar: una cartera global diversificada ha rentado de media en torno "
-                   "al 7% nominal a largo plazo, es l\u00edquida y no depende de un solo inquilino. Tu inmueble concentra "
-                   "patrimonio en un \u00fanico activo poco l\u00edquido. No es bueno ni malo en s\u00ed: es una decisi\u00f3n que "
-                   "conviene tomar con el n\u00famero real delante, no con el que se intuye.</font>",
+         Paragraph("<font size=9.3 color='#6B7280'>Para comparar: una cartera global diversificada ha rentado de media en "
+                   "torno al 7% nominal a largo plazo, es l\u00edquida y no depende de un solo inquilino. Tu inmueble "
+                   "concentra patrimonio en un \u00fanico activo poco l\u00edquido. No es bueno ni malo en s\u00ed: es una "
+                   "decisi\u00f3n que conviene tomar con el n\u00famero real delante, no con el que se intuye.</font>",
                    St("ralq3",fontSize=9.3,leading=13,spaceBefore=4)),
          PageBreak()]
     return out

@@ -1248,6 +1248,39 @@
               "No, nada invertido"
             ]
           }
+        },
+        {
+          "id": "C2-15",
+          "tipo": "escala",
+          "faceta": "plan",
+          "dimensiones": "LIQUIDEZ",
+          "nivel": "nucleo",
+          "tier1": true,
+          "par_consistencia": "C2-03",
+          "invertido": true,
+          "texto": "Hoy por hoy, tu camino a la libertad financiera es más un deseo que un plan: no tienes pasos ni fechas concretas que seguir.",
+          "opciones": [
+            {
+              "score": 0,
+              "texto": "Falso: tengo un plan definido, con pasos y cifras, y lo sigo."
+            },
+            {
+              "score": 25,
+              "texto": "Más bien falso: un plan a medio montar, pero con rumbo."
+            },
+            {
+              "score": 50,
+              "texto": "A medias: más intención que plan, lo llevo en la cabeza."
+            },
+            {
+              "score": 75,
+              "texto": "Más bien cierto: es sobre todo un deseo, sin estructura."
+            },
+            {
+              "score": 100,
+              "texto": "Cierto del todo: ningún plan; no me lo he puesto en serio."
+            }
+          ]
         }
       ],
       "cribadores": [
@@ -2834,6 +2867,39 @@
             "capa": "C7",
             "min_score": 35
           }
+        },
+        {
+          "id": "C7-08",
+          "tipo": "escala",
+          "faceta": "pasivos",
+          "dimensiones": "LIQUIDEZ",
+          "nivel": "nucleo",
+          "tier1": true,
+          "par_consistencia": "C7-03",
+          "invertido": true,
+          "texto": "A día de hoy, todo tu dinero entra a cambio de tu tiempo: no tienes ninguna fuente que ingrese sin que tú trabajes.",
+          "opciones": [
+            {
+              "score": 0,
+              "texto": "Falso: una parte ya entra sin mi tiempo, y crece."
+            },
+            {
+              "score": 25,
+              "texto": "Más bien falso: una parte modesta pero estable."
+            },
+            {
+              "score": 50,
+              "texto": "A medias: algo, todavía pequeño."
+            },
+            {
+              "score": 75,
+              "texto": "Más bien cierto: casi nada, algún ingreso testimonial."
+            },
+            {
+              "score": 100,
+              "texto": "Cierto del todo: todo depende de mi tiempo."
+            }
+          ]
         }
       ],
       "cribadores": [
@@ -5124,8 +5190,8 @@
       "id": "NUM-F5",
       "campo": "ing_alquiler",
       "unidad": "€/mes",
-      "texto": "De tus alquileres, ¿cuánto te entra neto al mes (después de gastos)?",
-      "ayuda": "El ingreso real que te queda del alquiler.",
+      "texto": "De tus alquileres, ¿cuánto te queda LIMPIO al mes — ya descontados todos los gastos (IBI, comunidad, seguro, mantenimiento, periodos sin alquilar) Y los impuestos (IRPF)?",
+      "ayuda": "El dinero que de verdad acaba en tu bolsillo, después de gastos e impuestos. Con esto calculamos tu rentabilidad real.",
       "mostrar_si": {
         "campo": "fuentes_ingreso",
         "valor_in": [
@@ -5151,7 +5217,7 @@
       "campo": "valor_inmuebles",
       "unidad": "€",
       "texto": "¿Cuánto valdrían hoy en el mercado los inmuebles que tienes en alquiler (todos juntos)?",
-      "ayuda": "Lo que te darían si los vendieras hoy. Con esto calculamos la rentabilidad REAL de tu ladrillo, no la que crees.",
+      "ayuda": "Lo que te darían si los vendieras hoy. Con esto y tu renta limpia calculamos la rentabilidad REAL (neta de gastos e impuestos) de tu ladrillo.",
       "mostrar_si": {
         "campo": "fuentes_ingreso",
         "valor_in": [
