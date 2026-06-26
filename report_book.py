@@ -1614,6 +1614,78 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
     return out
 
 
+
+def seccion_rentabilidad_alquiler(datos, extras=None):
+    """Rentabilidad REAL del ladrillo: lo que de verdad renta un alquiler tras gastos e IRPF,
+    frente a lo que el cliente cree. Solo si declara alquiler + valor de los inmuebles."""
+    d=datos or {}
+    try:
+        rent=float(d.get("ing_alquiler") or 0); valor=float(d.get("valor_inmuebles") or 0)
+    except Exception:
+        return []
+    if rent<=0:
+        pl=(d.get("perfil_laboral") or "")
+        pl=" ".join(pl) if isinstance(pl,list) else str(pl)
+        if "entista" in pl: rent=float(d.get("renta_pasiva") or 0)
+    if rent<=0 or valor<=0:
+        return []
+    renta_anual=rent*12.0
+    neta_gastos=renta_anual/valor*100.0          # ing_alquiler ya es neto de gastos -> antes de IRPF
+    post_irpf=neta_gastos*0.80                    # estimacion prudente tras IRPF (reduccion 60% si vivienda habitual; tramo medio)
+    col="#1D6F42" if post_irpf>=4 else ("#B45309" if post_irpf>=2.5 else "#9A3B2E")
+    out=[PageBreak(), Paragraph("Tu ladrillo: la rentabilidad que crees vs la real",h_sec),
+         Paragraph("La mayor\u00eda de propietarios calculan la renta sobre lo que pagaron por el piso, y olvidan los "
+                   "gastos y los impuestos. Esta es tu rentabilidad <b>de verdad</b>, sobre el valor de mercado de hoy.",body),
+         Paragraph('<font size=30 color="%s"><b>%.1f%%</b></font><font size=12 color="#6B7280"> neta de gastos, antes de impuestos</font>'%(col,neta_gastos),
+                   St("ralq1",fontSize=30,leading=34,spaceBefore=2,spaceAfter=2)),
+         Paragraph("Sobre un valor de mercado de <b>%s</b> y una renta neta de gastos de <b>%s/mes</b>."%(_eur(valor),_eur(rent)),body),
+         _box([Paragraph("<b>Y cuando le restas Hacienda:</b> en tu tramo de IRPF (estimado, con la reducci\u00f3n del 60%% "
+                  "si es vivienda habitual), tu rentabilidad real ronda el <b>%.1f%%</b> anual. Eso es lo que de verdad te "
+                  "deja tu ladrillo \u2014 no el %.1f%% que sale de dividir la renta entre lo que pagaste."%(post_irpf,neta_gastos),
+                  St("ralq2",fontSize=10.5,leading=15))],"#FBF4E4","#B45309",ancho=160*mm),
+         Paragraph("<font size=9.3 color='#6B7280'>Para comparar: una cartera global diversificada ha rentado de media en torno "
+                   "al 7% nominal a largo plazo, es l\u00edquida y no depende de un solo inquilino. Tu inmueble concentra "
+                   "patrimonio en un \u00fanico activo poco l\u00edquido. No es bueno ni malo en s\u00ed: es una decisi\u00f3n que "
+                   "conviene tomar con el n\u00famero real delante, no con el que se intuye.</font>",
+                   St("ralq3",fontSize=9.3,leading=13,spaceBefore=4)),
+         PageBreak()]
+    return out
+
+
+def seccion_familia(datos, extras=None):
+    """La linea temporal de la familia y la proteccion recomendada. Solo si hay dependientes."""
+    d=datos or {}
+    dep=(d.get("dependientes") or "")
+    dep=" ".join(dep) if isinstance(dep,list) else str(dep)
+    dl=dep.lower()
+    if not ("hijo" in dl or "varios" in dl):
+        return []
+    try: edad=int(float(d.get("edad_hijo_menor"))) if d.get("edad_hijo_menor") not in (None,"") else None
+    except Exception: edad=None
+    COSTE_ANUAL=7200.0
+    out=[PageBreak(), Paragraph("La l\u00ednea de tu familia, y tu protecci\u00f3n",h_sec)]
+    if edad is not None and 0<=edad<24:
+        anios_indep=max(0,24-edad); anios_uni=max(0,18-edad)
+        proteccion=anios_indep*COSTE_ANUAL
+        out.append(Paragraph("Si te faltaras hoy, sostener a los tuyos hasta su independencia \u2014 cubrir su vida unos "
+                  "<b>%d a\u00f1os</b> m\u00e1s \u2014 costar\u00eda del orden de <b>%s</b>. Es la cifra que un seguro de vida "
+                  "o un patrimonio l\u00edquido deber\u00edan poder cubrir. La pregunta no es agradable, pero tenerla "
+                  "resuelta a tiempo es el mayor acto de cuidado que existe."%(anios_indep,_eur(proteccion)),body))
+        if anios_uni>0:
+            out.append(Paragraph("Pr\u00f3ximo gran hito: la <b>universidad, en %d a\u00f1os</b>. Empezar a apartar una "
+                      "cantidad peque\u00f1a hoy convierte ese golpe futuro en un plan tranquilo."%anios_uni,body))
+        out.append(Paragraph("Y cuando el menor se independice, dentro de <b>%d a\u00f1os</b>, recuperar\u00e1s una "
+                  "capacidad de ahorro importante: conviene tenerlo ya en el plan, para que ese aire no se diluya en "
+                  "gasto."%anios_indep,body))
+    else:
+        out.append(Paragraph("Tienes personas que dependen econ\u00f3micamente de ti. La conversaci\u00f3n de protecci\u00f3n "
+                  "\u2014 un seguro de vida suficiente y un patrimonio l\u00edquido que cubra su sost\u00e9n si t\u00fa faltaras \u2014 "
+                  "es la que m\u00e1s tranquilidad da tenerla resuelta a tiempo. Es banca privada en su sentido m\u00e1s "
+                  "humano: proteger a los tuyos del peor de los escenarios.",body))
+    out.append(PageBreak())
+    return out
+
+
 def seccion_fuentes(extras):
     """Mapa de fuentes de ingreso: cuántas, cuánto rinde cada una y a qué precio de tiempo (€/hora)."""
     f=extras.get("fuentes") if extras else None
@@ -2527,6 +2599,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     # === ACTO 1 (cierre): sintesis financiera (FODA + flujo + proyeccion) ANTES de planificar ===
     S+=_secsafe(cuadro_financiero,p,datos,fi)
     S+=_secsafe(seccion_cuatro_caminos,datos,fi,extras)
+    S+=_secsafe(seccion_rentabilidad_alquiler,datos)
+    S+=_secsafe(seccion_familia,datos)
     # === ACTO 1: Meses de Libertad Financiera — la cifra objetiva que de verdad te mide ===
     _res=(extras or {}).get("resiliencia")
     if _res:

@@ -40,7 +40,7 @@ def lint(path="itap_v2.json"):
       "cuota_deuda","patrimonio","colchon_liquido","deuda_total","pct_vivienda","pension_estimada",
       "horas_semana","ing_trabajo","h_trabajo","ing_inversion","h_inversion","ing_alquiler","h_alquiler",
       "ing_otros","h_otros","inversiones_liquidas","rentabilidad_actual","pct_gasto_fijo","gasto_estatus",
-      "edad_hijo_menor","gastos_comunes","coste_vida_ideal","gastos_anuales"}
+      "edad_hijo_menor","gastos_comunes","coste_vida_ideal","gastos_anuales","valor_inmuebles"}
     for n in nfin:
         reg(n.get("id"),"numerica")
         ca=n.get("campo")

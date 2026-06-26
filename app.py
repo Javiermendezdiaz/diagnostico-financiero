@@ -228,7 +228,7 @@ def datos_completos(d):
             except Exception: d[_k] = None
     for _k in ("gasto_mensual", "ingreso_mensual", "ahorro_mensual", "patrimonio", "coste_vivienda",
                "cuota_deuda", "deuda_total", "pension_estimada", "gasto_estatus", "renta_pasiva",
-               "inversiones_liquidas", "gastos_comunes", "gastos_anuales"):
+               "inversiones_liquidas", "gastos_comunes", "gastos_anuales", "valor_inmuebles", "ing_alquiler"):
         if d.get(_k) is not None:
             try: d[_k] = max(0.0, float(d[_k]))
             except Exception: pass
