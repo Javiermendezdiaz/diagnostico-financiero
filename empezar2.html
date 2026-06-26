@@ -106,6 +106,28 @@ a{color:var(--am)}
 .cmp .rng td.t3{background:rgba(253,215,49,.1)}
 .cmp-foot{font-size:10.5px;color:var(--gr);padding:9px 13px;background:#141417;line-height:1.55;border-top:1px solid var(--bd)}
 .cmp-foot b{color:var(--tx)}
+
+.pdin{margin-top:14px;border-top:1px solid var(--bd);padding-top:12px;text-align:left}
+.pdin-h{font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--gr);font-weight:700;margin-bottom:9px}
+.pdin-h span{color:var(--am)}
+.pdr{margin-bottom:9px}
+.pdr-t{display:flex;justify-content:space-between;font-size:11px;color:var(--tx);margin-bottom:3px;gap:8px}
+.pdr-t b{font-weight:700;white-space:nowrap}
+.pdr-bar{height:6px;border-radius:4px;background:#1c1c20;overflow:hidden;display:flex}
+.pdr-bar i{height:100%;display:block}
+.pdin-num{margin-top:8px;font-size:10.5px;color:var(--gr);line-height:1.5}
+.pdin-num b{color:var(--am);font-size:13px}
+
+.desg{margin-top:12px;text-align:left}
+.desg-h{font-size:12px;color:var(--gr);margin-bottom:8px}
+.desg-h span{color:var(--am);font-weight:600}
+.desg-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
+.desg-c{flex:1;min-width:0;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:8px;font-size:13px;font-family:inherit}
+.desg-v{width:92px;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:8px;font-size:13px;font-family:inherit}
+.desg-x{background:none;border:none;color:var(--gr);font-size:18px;line-height:1;cursor:pointer;padding:0 6px}
+.desg-add{background:none;border:1px dashed var(--bd);color:var(--am);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:inherit;margin-top:2px}
+.desg-sum{margin-top:9px;font-size:12px;color:var(--gr)}
+.desg-sum b{color:var(--tx)}
 </style></head>
 <body>
 <div class="toast" id="toast"></div>
@@ -212,6 +234,7 @@ a{color:var(--am)}
       <div class="radar-cap"><span>Tu huella patrimonial</span> · <span id="capasCount">0 / 12 capas</span></div>
       <div id="radarWrap"></div>
       <div class="fuga" id="fugaBox" style="display:none"><span class="fuga-l">Coste de oportunidad<br>detectado · orientativo</span><span class="fuga-v" id="fugaV">0 €/año</span></div>
+      <div class="pdin" id="panelDinero" style="display:none"></div>
       <div class="q-side-foot">Analizando tu perfil en tiempo real…</div>
     </aside>
   </div>
@@ -526,6 +549,11 @@ function pintar(){
     cont.style.display='block'; cont.textContent='Siguiente →'; cont.onclick=()=>contNum();
     const inp=document.createElement('input');inp.type='number';inp.id='num';inp.placeholder=q.unidad||'';
     inp.value = st.datos[q.campo] ?? ''; opts.appendChild(inp);
+    if(_DESG[q.campo]){
+      var _dw=document.createElement('div');_dw.className='desg';opts.appendChild(_dw);
+      var _rf=function(){try{_buildDesglose(q.campo,parseFloat(inp.value)||0,_dw);}catch(e){}};
+      inp.addEventListener('input',_rf);_rf();
+    }
   } else if(q.tipo==='abierta'){
     cont.style.display='block'; cont.textContent='Continuar →'; cont.onclick=()=>contAbierta(q);
     const ta=document.createElement('textarea');ta.id='abierta';ta.rows=4;ta.placeholder='Escribe lo que te salga, sin filtro…';
@@ -568,10 +596,73 @@ function _axisHealth(caps){let s=0,nn=0;caps.forEach(code=>{const c=INST.capas.f
 function _rpt(cx,cy,R,i,n,val){const a=-Math.PI/2+i*2*Math.PI/n;const r=R*(0.10+0.90*Math.max(0,Math.min(100,val))/100);return [cx+r*Math.cos(a),cy+r*Math.sin(a)];}
 function buildRadar(){const w=document.getElementById('radarWrap');if(!w||!INST||!INST.capas)return;const cx=100,cy=100,R=64,n=AXES.length;function g(i,r){const a=-Math.PI/2+i*2*Math.PI/n;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];}let rings='';[0.34,0.67,1].forEach(t=>{const p=AXES.map((a,i)=>g(i,R*t).map(v=>v.toFixed(1)).join(',')).join(' ');rings+='<polygon points="'+p+'" fill="none" stroke="#23252e" stroke-width="1"/>';});let spokes='',labels='';AXES.forEach((a,i)=>{const[x,y]=g(i,R);spokes+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#23252e" stroke-width="1"/>';const[lx,ly]=g(i,R+17);const anc=Math.abs(lx-cx)<8?'middle':(lx>cx?'start':'end');labels+='<text x="'+lx.toFixed(1)+'" y="'+(ly+3).toFixed(1)+'" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="'+anc+'">'+a.k+'</text>';});w.innerHTML='<svg viewBox="-42 0 284 212" xmlns="http://www.w3.org/2000/svg">'+rings+spokes+'<polygon id="radarPoly" points="" fill="rgba(253,215,49,.15)" stroke="#FDD731" stroke-width="2" stroke-linejoin="round"/><g id="radarVerts"></g>'+labels+'</svg>';_radarVals=AXES.map(()=>0);drawRadar(_radarVals);}
 function drawRadar(vals){const cx=100,cy=100,R=64,n=AXES.length;const poly=vals.map((v,i)=>_rpt(cx,cy,R,i,n,v).map(x=>x.toFixed(1)).join(',')).join(' ');const p=document.getElementById('radarPoly');if(p)p.setAttribute('points',poly);const g=document.getElementById('radarVerts');if(g)g.innerHTML=vals.map((v,i)=>{const[x,y]=_rpt(cx,cy,R,i,n,v);return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.7" fill="#FDD731"/>';}).join('');}
-function updateRadar(){if(!INST||!INST.capas)return;const w=document.getElementById('radarWrap');if(w&&!w.children.length)buildRadar();const tgt=AXES.map(a=>_axisHealth(a.caps));const from=_radarVals.slice(),t0=performance.now(),D=480,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;cancelAnimationFrame(_radarRAF);(function step(now){const t=Math.min(1,(now-t0)/D),e=ease(t);_radarVals=tgt.map((v,i)=>from[i]+(v-from[i])*e);drawRadar(_radarVals);if(t<1)_radarRAF=requestAnimationFrame(step);})(t0);let rev=0;INST.capas.forEach(c=>{if(c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null).length)rev++;});const cc=document.getElementById('capasCount');if(cc)cc.textContent=rev+' / '+INST.capas.length+' capas'; try{_actualizarFuga();}catch(e){}}
+function updateRadar(){if(!INST||!INST.capas)return;const w=document.getElementById('radarWrap');if(w&&!w.children.length)buildRadar();const tgt=AXES.map(a=>_axisHealth(a.caps));const from=_radarVals.slice(),t0=performance.now(),D=480,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;cancelAnimationFrame(_radarRAF);(function step(now){const t=Math.min(1,(now-t0)/D),e=ease(t);_radarVals=tgt.map((v,i)=>from[i]+(v-from[i])*e);drawRadar(_radarVals);if(t<1)_radarRAF=requestAnimationFrame(step);})(t0);let rev=0;INST.capas.forEach(c=>{if(c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null).length)rev++;});const cc=document.getElementById('capasCount');if(cc)cc.textContent=rev+' / '+INST.capas.length+' capas'; try{_actualizarFuga();}catch(e){} try{_panelDinero();}catch(e){}}
 function calcFuga(){const d=st.datos||{};const g=+d.gasto_mensual||0,col=+d.colchon_liquido||0;if(!g||!col)return 0;return Math.round(Math.max(0,col-6*g)*0.03);}
 let _fugaCur=0,_fugaRAF=null;
 function _actualizarFuga(){const f=calcFuga();const fb=document.getElementById('fugaBox');if(!fb)return;if(f<=0){fb.style.display='none';return;}fb.style.display='flex';const from=_fugaCur,t0=performance.now(),D=750;cancelAnimationFrame(_fugaRAF);(function s(now){const t=Math.min(1,(now-t0)/D),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;const v=Math.round(from+(f-from)*e);const el=document.getElementById('fugaV');if(el)el.textContent=v.toLocaleString('es-ES')+' €/año';if(t<1)_fugaRAF=requestAnimationFrame(s);else _fugaCur=f;})(t0);}
+var _DESG={
+ ingreso_mensual:['Nómina / salario','Autónomo / negocio','Alquileres','Dividendos / intereses','Pensión','Otros'],
+ gasto_mensual:['Vivienda (hipoteca/alquiler)','Suministros y hogar','Comida','Transporte','Colegios / hijos','Ocio y caprichos','Seguros','Otros'],
+ deuda_total:['Hipoteca','Préstamo personal','Coche','Tarjeta / revolving','Otros'],
+ inversiones_liquidas:['Fondos / ETF','Acciones','Depósitos / cuentas','Planes de pensiones','Cripto','Otros'],
+ patrimonio:['Vivienda habitual','Otros inmuebles','Negocio','Inversiones líquidas','Vehículos / otros bienes','Otros']
+};
+function _desgSum(campo){var d=(st.datos||{})[campo+'_detalle']||[];return d.reduce(function(a,r){return a+(parseFloat(r.v)||0);},0);}
+function _buildDesglose(campo,total,wrap){
+  try{
+    if(!wrap)return;
+    if(!(total>0)){wrap.style.display='none';wrap.innerHTML='';return;}
+    wrap.style.display='block';
+    var cs=_DESG[campo]||[];
+    var det=st.datos[campo+'_detalle'];
+    if(!Array.isArray(det)||!det.length){det=[{c:cs[0]||'',v:''}];st.datos[campo+'_detalle']=det;}
+    var euros=function(x){return Math.round(x).toLocaleString('es-ES');};
+    var h='<div class="desg-h">¿De dónde salen esos '+euros(total)+' €? <span>Desglósalo (opcional)</span></div><div class="desg-rows">';
+    det.forEach(function(r,i){
+      h+='<div class="desg-row"><select data-i="'+i+'" class="desg-c">'+cs.map(function(o){return '<option'+(o===r.c?' selected':'')+'>'+o+'</option>';}).join('')+'</select>'
+        +'<input type="number" inputmode="numeric" data-i="'+i+'" class="desg-v" value="'+(r.v||'')+'" placeholder="€"><button type="button" data-i="'+i+'" class="desg-x" title="quitar">×</button></div>';
+    });
+    h+='</div><button type="button" class="desg-add">+ añadir partida</button><div class="desg-sum" id="desgSum"></div>';
+    wrap.innerHTML=h;
+    var sumline=function(){
+      var sm=_desgSum(campo),el=wrap.querySelector('#desgSum');if(!el)return;
+      var ok=Math.abs(sm-total)<=Math.max(50,total*0.05);
+      el.innerHTML='Sumado: <b>'+euros(sm)+' €</b> de '+euros(total)+' €  '+(ok?'<span style="color:#2FB36B">✓ cuadra</span>':(sm<total?'<span style="color:#FDD731">faltan '+euros(total-sm)+' €</span>':'<span style="color:#D8674F">te pasas '+euros(sm-total)+' €</span>'));
+    };
+    wrap.querySelectorAll('.desg-c').forEach(function(sel){sel.onchange=function(){det[+this.dataset.i].c=this.value;try{_panelDinero();}catch(e){}};});
+    wrap.querySelectorAll('.desg-v').forEach(function(np){np.oninput=function(){det[+this.dataset.i].v=this.value;sumline();try{_panelDinero();}catch(e){}};});
+    wrap.querySelectorAll('.desg-x').forEach(function(b){b.onclick=function(){det.splice(+this.dataset.i,1);if(!det.length)det.push({c:cs[0]||'',v:''});_buildDesglose(campo,total,wrap);try{_panelDinero();}catch(e){}};});
+    var ab=wrap.querySelector('.desg-add'); if(ab)ab.onclick=function(){det.push({c:cs[0]||'',v:''});_buildDesglose(campo,total,wrap);};
+    sumline();
+  }catch(e){}
+}
+function _panelDinero(){
+  try{
+    var d=st.datos||{}; var box=document.getElementById('panelDinero'); if(!box)return;
+    var n=function(k){var v=parseFloat(d[k]);return isFinite(v)&&v>0?v:0;};
+    var eur=function(x){return Math.round(x).toLocaleString('es-ES')+' \u20ac';};
+    var ing=n('ingreso_mensual'),pas=Math.min(n('renta_pasiva'),ing),act=Math.max(0,ing-pas);
+    var gas=n('gasto_mensual'),pgf=parseFloat(d.pct_gasto_fijo);
+    var fijo=(isFinite(pgf)&&pgf>0)?gas*Math.min(100,pgf)/100:Math.min(gas,n('coste_vivienda')+n('cuota_deuda'));
+    fijo=Math.min(fijo,gas); var vr=Math.max(0,gas-fijo);
+    var deu=n('deuda_total'),cuo=n('cuota_deuda');
+    var inv=n('inversiones_liquidas'),col=n('colchon_liquido'),liq=inv+col;
+    var pat=n('patrimonio'),neto=pat-deu,ili=Math.max(0,pat-liq);
+    var rows=[];
+    function bar(parts){var tot=parts.reduce(function(a,b){return a+b[0];},0)||1;return '<div class="pdr-bar">'+parts.map(function(pp){return pp[0]>0?'<i style="width:'+(100*pp[0]/tot)+'%;background:'+pp[1]+'"></i>':'';}).join('')+'</div>';}
+    function row(lab,val,parts){rows.push('<div class="pdr"><div class="pdr-t"><span>'+lab+'</span><b>'+val+'</b></div>'+bar(parts)+'</div>');}
+    if(ing>0) row('Ingresos',eur(ing),[[act,'#5B6472'],[pas,'#2FB36B']]);
+    if(gas>0) row('Gastos',eur(gas),[[fijo,'#D8674F'],[vr,'#FDD731']]);
+    if(deu>0) row('Deuda',eur(deu),[[cuo,'#D8674F'],[Math.max(0,ing-cuo),'#33343b']]);
+    if(liq>0||ili>0) row('Cartera',eur(liq),[[liq,'#2FB36B'],[ili,'#3A4150']]);
+    if(pat>0) row('Patrimonio neto',eur(neto),[[Math.max(0,liq),'#2FB36B'],[Math.max(0,ili),'#3A4150']]);
+    var obj=n('coste_vida_ideal')||gas, pen=n('pension_estimada');
+    var num=obj>0?Math.max(0,(obj-pen))*12*25:0;
+    var prev=num>0?'<div class="pdin-num">Tu n\u00famero de libertad: <b>'+eur(num)+'</b></div>':'';
+    if(rows.length){box.style.display='block';box.innerHTML='<div class="pdin-h"><span>Tu dinero</span> \u00b7 en vivo</div>'+rows.join('')+prev;}
+    else{box.style.display='none';}
+  }catch(e){}
+}
 function progresoPct(q){
   const tot=Math.max(st.cola.length,1);
   const frac=Math.min(1,(st.i+1)/tot);
