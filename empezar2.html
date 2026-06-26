@@ -759,10 +759,23 @@ function auditCoherencia(only){
     'La pensión que estimas ('+Math.round(pen)+' €) supera tu ingreso actual ('+Math.round(ing)+' €), algo inusual');
   return out;
 }
+function _podarCola(campo){ for(var k=st.cola.length-1;k>st.i;k--){ if(st.cola[k] && st.cola[k].campo===campo) st.cola.splice(k,1); } }
 function contNum(){
   const q=st.cola[st.i]; const v=document.getElementById('num').value;
   if(v===''){alert('Introduce un número');return}
   if(q.campo) st.datos[q.campo]=parseFloat(v);
+  // Poda de redundancia: si el desglose ya cubre una pregunta posterior, no se la repetimos
+  try{
+    if(q.campo==='ingreso_mensual'){
+      var _pasc=['Alquileres','Dividendos','Intereses / cupones','Plusvalías','Royalties / propiedad intelectual','Pensión'];
+      var _det=st.datos.ingreso_mensual_detalle||[];
+      if(_det.some(function(r){return _pasc.indexOf(r.c)>=0 && (parseFloat(r.v)||0)>0;})) _podarCola('renta_pasiva');
+    }
+    if(q.campo==='patrimonio'){
+      var _detp=st.datos.patrimonio_detalle||[];
+      if(_detp.some(function(r){return /vivienda/i.test(r.c||'') && (parseFloat(r.v)||0)>0;})) _podarCola('pct_vivienda');
+    }
+  }catch(e){}
   // === Validación de coherencia: si una cifra no cuadra, avisa al cliente para que revise ===
   if(q.campo){
     if(['pct_gasto_fijo','pct_vivienda','rentabilidad_actual'].indexOf(q.campo)>=0 && st.datos[q.campo]>100){
