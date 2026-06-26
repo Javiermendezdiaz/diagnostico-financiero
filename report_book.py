@@ -1304,6 +1304,18 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
     GREEN="#2FB36B"; RED="#D8674F"; SLATE="#3A4150"; AM="#FDD731"
     d=datos or {}; ex=extras or {}
     g=lambda k: float(d.get(k) or 0)
+    _PALD=["#2FB36B","#E8C861","#6FA8DC","#D8674F","#9B8CCB","#C2710C","#7C8696"]
+    def _detparts(campo, fb):
+        det=d.get(campo+"_detalle")
+        if isinstance(det,list):
+            out=[]
+            for _i,_r in enumerate(det):
+                try: _v=float((_r or {}).get("v") or 0)
+                except Exception: _v=0
+                _c=str((_r or {}).get("c") or "").strip() or "Otros"
+                if _v>0: out.append((_c,_v,_PALD[_i%len(_PALD)]))
+            if out: return out
+        return fb
     ing=g("ingreso_mensual"); gas=g("gasto_mensual"); pas=g("renta_pasiva"); act=max(0.0, ing-pas)
     pgf=d.get("pct_gasto_fijo")
     try: pgf=max(0.0,min(100.0,float(pgf))) if pgf is not None else None
@@ -1325,6 +1337,10 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
     T(8,116.5,"De d\u00f3nde viene, a d\u00f3nde va y qu\u00e9 has construido",17,TX,"bold")
     def donut(cx,cy,w,h,titulo,partes,centro):
         partes=[(l,max(0.0,v),c) for l,v,c in partes if v and v>0]
+        if len(partes)>4:
+            partes=sorted(partes,key=lambda z:-z[1])
+            _resto=sum(z[1] for z in partes[3:])
+            partes=partes[:3]+[("Otros",_resto,"#7C8696")]
         ax=fig.add_axes([cx,cy,w,h]); ax.set_facecolor("none")
         axbg.text((cx+w/2)*100,(cy+h)*141.6+1.4,titulo,fontsize=8,color=GOLD,fontweight="bold",ha="center")
         if not partes:
@@ -1337,15 +1353,14 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
         for i,(l,v,c) in enumerate(partes):
             axbg.text(cx*100+3, ly-(i*3.0), "\u25cf",fontsize=7,color=c,ha="left")
             axbg.text(cx*100+6, ly-(i*3.0), "%s  %s (%.0f%%)"%(l,_de(v),100*v/tot),fontsize=6.6,color=GR,ha="left")
-    donut(0.07,0.60,0.34,0.155,"INGRESOS / mes",[("Activo (por horas)",act,SLATE),("Pasivo (te libera)",pas,GREEN)], _de(ing))
-    donut(0.58,0.60,0.34,0.155,"GASTOS / mes",[("Fijo (te ata)",fijo,RED),("Variable (flexible)",var,GOLD)], _de(gas))
-    if asig:
-        donut(0.07,0.36,0.34,0.155,"TU CARTERA",[("L\u00edquido parado",asig.get("parado",0),AM),("Invertido",asig.get("realizable_invertido",0),GREEN),("Resto il\u00edquido",asig.get("resto",0),SLATE)],
-              _de(sum([asig.get("parado",0),asig.get("realizable_invertido",0),asig.get("resto",0)])))
-    else:
-        donut(0.07,0.36,0.34,0.155,"TU CARTERA",[("L\u00edquido / colch\u00f3n",liquido,GREEN),("Il\u00edquido (vivienda, negocio)",iliquido,SLATE)], _de(liquido+iliquido))
+    donut(0.07,0.60,0.34,0.155,"INGRESOS / mes",_detparts("ingreso_mensual",[("Activo (por horas)",act,SLATE),("Pasivo (te libera)",pas,GREEN)]), _de(ing))
+    donut(0.58,0.60,0.34,0.155,"GASTOS / mes",_detparts("gasto_mensual",[("Fijo (te ata)",fijo,RED),("Variable (flexible)",var,GOLD)]), _de(gas))
+    _cart_fb=([("L\u00edquido parado",asig.get("parado",0),AM),("Invertido",asig.get("realizable_invertido",0),GREEN),("Resto il\u00edquido",asig.get("resto",0),SLATE)] if asig
+              else [("L\u00edquido / colch\u00f3n",liquido,GREEN),("Il\u00edquido (vivienda, negocio)",iliquido,SLATE)])
+    donut(0.07,0.36,0.34,0.155,"TU CARTERA",_detparts("inversiones_liquidas",_cart_fb), _de(liq if (liq:=(inv+colch))>0 else liquido+iliquido))
     if deu>0:
-        donut(0.58,0.36,0.34,0.155,"TUS DEUDAS",[("Cuota / mes",cuota,RED),("Resto de tu ingreso",max(0.0,ing-cuota),SLATE)], "%.0f%%"%(100*cuota/ing) if ing>0 else _de(cuota))
+        _dd=d.get("deuda_total_detalle"); _dcenter=(_de(deu) if (isinstance(_dd,list) and any((x or {}).get("v") for x in _dd)) else ("%.0f%%"%(100*cuota/ing) if ing>0 else _de(cuota)))
+        donut(0.58,0.36,0.34,0.155,"TUS DEUDAS",_detparts("deuda_total",[("Cuota / mes",cuota,RED),("Resto de tu ingreso",max(0.0,ing-cuota),SLATE)]), _dcenter)
     else:
         ax=fig.add_axes([0.58,0.36,0.34,0.155]); ax.axis("off")
         ax.text(0.5,0.55,"Sin deudas",ha="center",va="center",fontsize=13,color=GREEN,weight="bold",transform=ax.transAxes)
