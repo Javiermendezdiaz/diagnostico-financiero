@@ -1293,6 +1293,83 @@ def donut_asignacion(asig, path):
     fig.savefig(path,dpi=200,transparent=True,bbox_inches="tight"); plt.close(fig); gc.collect()
     return True
 
+def panel_distribucion(path, datos, extras=None, fecha=""):
+    """Pagina-heroe oscura: la distribucion del dinero en 5 dimensiones (ingresos, gastos,
+    deudas, cartera, patrimonio neto). Solo con lo declarado; cada panel se salta sin dato."""
+    from matplotlib.patches import FancyBboxPatch, Rectangle
+    def _de(n):
+        try: return ("%s \u20ac" % format(float(n), ",.0f")).replace(",", ".")
+        except Exception: return "\u2014"
+    BG="#0E1018"; GOLD="#E8C861"; TX="#F4F1E8"; GR="#8A93A6"
+    GREEN="#2FB36B"; RED="#D8674F"; SLATE="#3A4150"; AM="#FDD731"
+    d=datos or {}; ex=extras or {}
+    g=lambda k: float(d.get(k) or 0)
+    ing=g("ingreso_mensual"); gas=g("gasto_mensual"); pas=g("renta_pasiva"); act=max(0.0, ing-pas)
+    pgf=d.get("pct_gasto_fijo")
+    try: pgf=max(0.0,min(100.0,float(pgf))) if pgf is not None else None
+    except Exception: pgf=None
+    fijo=(min(gas, g("coste_vivienda")+g("cuota_deuda")) if pgf is None else gas*pgf/100.0)
+    var=max(0.0, gas-fijo)
+    deu=g("deuda_total"); cuota=g("cuota_deuda")
+    pat=g("patrimonio"); inv=g("inversiones_liquidas"); colch=g("colchon_liquido")
+    liquido=inv+colch; iliquido=max(0.0, pat-liquido); neto=pat-deu
+    asig=(ex.get("fuentes") or {}).get("asignacion") if ex else None
+    fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
+    axbg=fig.add_axes([0,0,1,1]); axbg.axis("off"); axbg.set_xlim(0,100); axbg.set_ylim(0,141.6)
+    def T(x,y,sx,sz,c=TX,w="normal",ha="left"):
+        axbg.text(x,y,sx,fontsize=sz,color=c,ha=ha,fontweight=w,family="DejaVu Sans",zorder=5)
+    axbg.add_patch(Rectangle((0,128),100,13.6,fc="#141A28",zorder=1))
+    T(8,134,"ADAPTA",13,GOLD,"bold"); T(24.2,134.2,"FAMILY OFFICE",7,GR)
+    axbg.plot([8,92],[131.4,131.4],color="#262C3A",lw=1,zorder=3)
+    T(8,123,"LA DISTRIBUCI\u00d3N DE TU DINERO",10,GOLD,"bold")
+    T(8,116.5,"De d\u00f3nde viene, a d\u00f3nde va y qu\u00e9 has construido",17,TX,"bold")
+    def donut(cx,cy,w,h,titulo,partes,centro):
+        partes=[(l,max(0.0,v),c) for l,v,c in partes if v and v>0]
+        ax=fig.add_axes([cx,cy,w,h]); ax.set_facecolor("none")
+        axbg.text((cx+w/2)*100,(cy+h)*141.6+1.4,titulo,fontsize=8,color=GOLD,fontweight="bold",ha="center")
+        if not partes:
+            ax.axis("off"); ax.text(0.5,0.5,"\u2014",ha="center",va="center",fontsize=12,color=GR,transform=ax.transAxes); return
+        tot=sum(v for _,v,_ in partes)
+        ax.pie([v for _,v,_ in partes],colors=[c for _,_,c in partes],startangle=90,counterclock=False,
+               wedgeprops=dict(width=0.42,edgecolor=BG,linewidth=1.5))
+        ax.text(0,0,centro,ha="center",va="center",fontsize=9,weight="bold",color=TX); ax.set(aspect="equal")
+        ly=cy*141.6-0.8
+        for i,(l,v,c) in enumerate(partes):
+            axbg.text(cx*100+3, ly-(i*3.0), "\u25cf",fontsize=7,color=c,ha="left")
+            axbg.text(cx*100+6, ly-(i*3.0), "%s  %s (%.0f%%)"%(l,_de(v),100*v/tot),fontsize=6.6,color=GR,ha="left")
+    donut(0.07,0.60,0.34,0.155,"INGRESOS / mes",[("Activo (por horas)",act,SLATE),("Pasivo (te libera)",pas,GREEN)], _de(ing))
+    donut(0.58,0.60,0.34,0.155,"GASTOS / mes",[("Fijo (te ata)",fijo,RED),("Variable (flexible)",var,GOLD)], _de(gas))
+    if asig:
+        donut(0.07,0.36,0.34,0.155,"TU CARTERA",[("L\u00edquido parado",asig.get("parado",0),AM),("Invertido",asig.get("realizable_invertido",0),GREEN),("Resto il\u00edquido",asig.get("resto",0),SLATE)],
+              _de(sum([asig.get("parado",0),asig.get("realizable_invertido",0),asig.get("resto",0)])))
+    else:
+        donut(0.07,0.36,0.34,0.155,"TU CARTERA",[("L\u00edquido / colch\u00f3n",liquido,GREEN),("Il\u00edquido (vivienda, negocio)",iliquido,SLATE)], _de(liquido+iliquido))
+    if deu>0:
+        donut(0.58,0.36,0.34,0.155,"TUS DEUDAS",[("Cuota / mes",cuota,RED),("Resto de tu ingreso",max(0.0,ing-cuota),SLATE)], "%.0f%%"%(100*cuota/ing) if ing>0 else _de(cuota))
+    else:
+        ax=fig.add_axes([0.58,0.36,0.34,0.155]); ax.axis("off")
+        ax.text(0.5,0.55,"Sin deudas",ha="center",va="center",fontsize=13,color=GREEN,weight="bold",transform=ax.transAxes)
+        ax.text(0.5,0.28,"Tu ingreso es 100%% tuyo",ha="center",va="center",fontsize=8,color=GR,transform=ax.transAxes)
+        axbg.text(0.75*100,(0.36+0.155)*141.6+1.4,"TUS DEUDAS",fontsize=8,color=GOLD,fontweight="bold",ha="center")
+    T(8,40.5,"TU PATRIMONIO NETO",8,GOLD,"bold")
+    base=max(pat, neto+deu, 1.0); x0=8; W=84; x=x0
+    for lab,v,c in [("L\u00edquido",liquido,GREEN),("Il\u00edquido",iliquido,SLATE)]:
+        w=W*v/base
+        if w>0.5:
+            axbg.add_patch(FancyBboxPatch((x,33),max(w-0.4,0.6),5.2,boxstyle="round,pad=0,rounding_size=0.8",fc=c,ec=c,zorder=2))
+            if w>11: T(x+w/2,35.0,_de(v),7,"#0E1018" if c==GREEN else TX,"bold",ha="center")
+        x+=w
+    if deu>0:
+        wd=W*deu/base
+        axbg.add_patch(FancyBboxPatch((x0,26),max(wd-0.4,0.6),3.6,boxstyle="round,pad=0,rounding_size=0.6",fc=RED,ec=RED,zorder=2))
+        T(x0+(wd/2 if wd>11 else wd+1),27.2,"\u2212 Deuda %s"%_de(deu),6.8,"#0E1018" if wd>11 else RED,"bold","center" if wd>11 else "left")
+    T(8,21.5,"= Patrimonio neto:  ",8.5,GR,"bold"); T(40,21.3,_de(neto),14,GOLD if neto>=0 else RED,"bold")
+    T(8,17.5,"Activos lo que tienes; deuda lo que debes; neto lo que de verdad es tuyo.",7,GR)
+    axbg.plot([8,92],[6.5,6.5],color="#262C3A",lw=1)
+    T(8,4,"DOCUMENTO CONFIDENCIAL \u00b7 ADAPTA FAMILY OFFICE \u00b7 %s"%fecha,6.2,GR)
+    fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect(); return True
+
+
 def tapon_coste(datos, real=0.025):
     """Coste de oportunidad de la liquidez parada por encima de un colchon de 6 meses.
     Usa el COLCHON LIQUIDO declarado, nunca el patrimonio neto (que puede estar invertido
@@ -2142,6 +2219,11 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         _gfij=min(_gas,(_gas*_pf/100.0) if _pf>0 else (float(datos.get("coste_vivienda") or 0)+float(datos.get("cuota_deuda") or 0))); _gvar=max(0.0,_gas-_gfij)
         panel_dashboard("_panel.png", 100-salud, bl, fi[0], fi[1] or 0, fi[2] or 0, _inv,_par,_ili, _iact,_ipas, _gfij,_gvar, _ili, cli.get("fecha",""))
         S+=[FullBleedImage("_panel.png"), PageBreak()]
+        try:
+            panel_distribucion("_distrib.png", datos, extras, cli.get("fecha",""))
+            S+=[FullBleedImage("_distrib.png"), PageBreak()]
+        except Exception as _ed:
+            import sys; sys.stderr.write("[distrib] omitida: %s\n"%_ed)
         if depth!="esencial":
             panel_capas("_capas.png", p)
             S+=[FullBleedImage("_capas.png"), PageBreak()]
