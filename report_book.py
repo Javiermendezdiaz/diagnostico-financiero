@@ -1547,6 +1547,73 @@ def seccion_conclusion(extras):
             PageBreak()]
     return out
 
+
+def seccion_cuatro_caminos(datos, fi, extras=None):
+    """Las 4 vias para llegar al numero de libertad (neto de pension): ahorrar mas,
+    rentar mejor, ajustar el objetivo, o el plan recomendado. Brutalmente accionable.
+    Usa el mismo numero neto de pension que el resto del libro. Se salta sin datos."""
+    try:
+        import motor_financiero_v3 as mfv3
+    except Exception:
+        return []
+    d=datos or {}
+    gasto=float(d.get("gasto_mensual") or 0); pension=float(d.get("pension_estimada") or 0)
+    capital=float(d.get("inversiones_liquidas") or 0)+float(d.get("colchon_liquido") or 0)
+    ahorro=float(d.get("ahorro_mensual") or 0)
+    try: edad=int(float(d.get("edad") or 0))
+    except Exception: edad=0
+    horizonte=max(1, 67-edad) if 0<edad<67 else 15
+    rent_real=5.0
+    try:
+        exp=mfv3.analizar_expectativas(gasto, pension, capital, ahorro, horizonte, rent_real)
+    except Exception:
+        return []
+    if not exp or not exp.get("numero_libertad"):
+        return []
+    N=exp["numero_libertad"]; pct=exp.get("pct_cubierto",0); falta=exp.get("brecha_renta",0)
+    out=[PageBreak(), Paragraph("Tu n\u00famero, y las 4 v\u00edas para llegar a \u00e9l",h_sec)]
+    if pension>0:
+        out.append(Paragraph("La mayor\u00eda de los test ignoran tu pensi\u00f3n p\u00fablica. Nosotros la descontamos: este es el "
+                             "capital <b>propio</b> que necesitas, ya neto de lo que cobrar\u00e1s del Estado.",body))
+    else:
+        out.append(Paragraph("Este es el capital que, invertido, cubre tu vida para siempre (regla 25\u00d7).",body))
+    out.append(Paragraph('<font size=30 color="#17181C"><b>%s</b></font>'%_eur(N),St("c4n",fontSize=30,leading=34,spaceBefore=2,spaceAfter=2)))
+    out.append(Paragraph("Hoy lo tienes cubierto al <b>%s%%</b>%s."%(pct, (" \u00b7 te falta <b>%s</b>"%_eur(falta)) if falta and falta>0 else ""),body))
+    if exp.get("pension_cubre"):
+        out.append(_box([Paragraph("<b>Tu pensi\u00f3n estimada ya cubre la vida que describes.</b> Tu reto no es llegar: es "
+                  "proteger ese colch\u00f3n y optimizar lo que ya tienes. Una posici\u00f3n poco com\u00fan \u2014 cu\u00eddala.",St("c4p",fontSize=10.5,leading=15))],
+                  "#EEF7F0","#1D6F42",ancho=160*mm))
+        out.append(PageBreak()); return out
+    cm=exp.get("caminos") or {}
+    def via(tag,cifra,desc,barra,bg):
+        return _box([Paragraph("<font color='%s'><b>%s</b></font>"%(barra,tag),St("c4t",fontSize=9.5,leading=12,fontName=FB,spaceAfter=1)),
+                     Paragraph("<b>%s</b>"%cifra,St("c4c",fontSize=15,leading=18,textColor=INK,spaceAfter=1)),
+                     Paragraph(desc,St("c4d",fontSize=9,leading=12,textColor=colors.HexColor("#6B7280")))],
+                    bg,barra,ancho=160*mm)
+    ax=cm.get("ahorro_extra",0)
+    out+=[Spacer(1,2*mm),
+          via("CAMINO 1 \u00b7 Ahorra m\u00e1s",
+              ("Ya ahorras suficiente para tu plazo" if ax<=0 else "+%s/mes"%_eur(ax)),
+              "Sobre lo que ya ahorras, para llegar a tu n\u00famero en %d a\u00f1os."%horizonte,"#0F766E","#EAF4F1")]
+    rn=cm.get("rentabilidad_necesaria")
+    out+=[Spacer(1,2*mm),
+          via("CAMINO 2 \u00b7 Haz rentar mejor",
+              ("Con tu ahorro actual no basta solo con rentabilidad" if rn is None else "%s%% anual"%rn),
+              "Manteniendo tu ahorro de hoy, esta es la rentabilidad que tu capital necesita.","#B45309","#FBF1E3")]
+    out+=[Spacer(1,2*mm),
+          via("CAMINO 3 \u00b7 Ajusta el objetivo",
+              "%s/mes"%_eur(cm.get("objetivo_alcanzable",0)),
+              "La vida que <b>s\u00ed</b> es sostenible con lo que haces hoy, sin cambiar nada m\u00e1s.","#6B7280","#F3F4F6")]
+    pr=cm.get("plan_recomendado") or {}
+    rec=("Mant\u00e9n el rumbo: a tu ritmo ya llegas" if pr.get("ya_llega")
+         else "Ahorra +%s/mes y apunta a una vida de %s/mes"%(_eur(pr.get("extra",0)),_eur(pr.get("objetivo",0))))
+    out+=[Spacer(1,2*mm),
+          via("\u2605 CAMINO 4 \u00b7 El plan que recomendamos", rec,
+              "La mezcla realista \u2014 ni n\u00fameros m\u00e1gicos ni renuncias dram\u00e1ticas. Es lo que dise\u00f1ar\u00edamos contigo.","#9A3412","#FBF4E4")]
+    out+=[PageBreak()]
+    return out
+
+
 def seccion_fuentes(extras):
     """Mapa de fuentes de ingreso: cuántas, cuánto rinde cada una y a qué precio de tiempo (€/hora)."""
     f=extras.get("fuentes") if extras else None
@@ -2459,6 +2526,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         S+=[PageBreak()]
     # === ACTO 1 (cierre): sintesis financiera (FODA + flujo + proyeccion) ANTES de planificar ===
     S+=_secsafe(cuadro_financiero,p,datos,fi)
+    S+=_secsafe(seccion_cuatro_caminos,datos,fi,extras)
     # === ACTO 1: Meses de Libertad Financiera — la cifra objetiva que de verdad te mide ===
     _res=(extras or {}).get("resiliencia")
     if _res:
@@ -2741,7 +2809,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 _mj="<b>Aviso — a este ritmo, trabajarás más allá de tu jubilación.</b> Con tu ahorro y rentabilidad de hoy, tu patrimonio no alcanza tu libertad financiera. Al llegar a los 67 dependerías solo de tu pensión pública y, muy probablemente, tendrías que seguir generando ingresos despues de la edad de jubilacion. No es destino: acelerar el ahorro o poner a trabajar tu capital cambia esta foto."
             else:
                 _desp=int(round(_edad_j+_y0_j-_JUB)); _lleg=int(round(_edad_j+_y0_j))
-                _mj=("<b>Aviso — a este ritmo, trabajarás más allá de tu jubilación.</b> A tu ritmo actual alcanzarías tu libertad hacia los <b>%d años</b>: unos <b>%d años después</b> de la edad de jubilacion (67). Es decir, al jubilarte no podrias dejar de depender de tus ingresos. Cada punto que subas tu ahorro o tu rentabilidad adelanta esa fecha.") % (_lleg,_desp)
+                _mj=("<b>Aviso — a este ritmo, trabajarás más allá de tu jubilación.</b> A tu ritmo actual alcanzarías tu libertad hacia los <b>%d años</b>: unos <b>%d años después</b> de la edad de jubilacion (67). Es decir, al jubilarte no podrias dejar de depender de tus ingresos. Cada punto que subas tu ahorro o tu rentabilidad adelanta esa fecha. En la p\u00e1gina siguiente tienes las 4 v\u00edas exactas \u2014 cu\u00e1nto subir el ahorro o la rentabilidad \u2014 para adelantarla.") % (_lleg,_desp)
             _mj += " Y no es solo dinero: cada ano de mas atado al trabajo es salud que no vuelve, tiempo con los tuyos, relaciones y aficiones que no se recuperan. Tu libertad financiera es, en el fondo, libertad de vida."
             S+=[Spacer(1,3*mm),_box([Paragraph(_mj,St("jub1",fontSize=10,leading=14,textColor=INK))],"#FBF4E4","#B45309",ancho=160*mm)]
     except Exception:
