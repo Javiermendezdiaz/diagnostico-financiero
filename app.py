@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from typing import Optional, Dict, Any
 import report_book as rb
 import report_couple as rc
+import motor_financiero_v3 as mfv3
 
 app = FastAPI(title="ITAP")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False,
@@ -1021,3 +1022,47 @@ try:
     threading.Thread(target=_sweeper_loop, daemon=True).start()
 except Exception:
     pass
+
+
+# ---------- Diagnostico v3 (cuestionario adaptativo nuevo; aditivo, no toca /api/complete) ----------
+class DiagV3(BaseModel):
+    session_id: str = ""
+    email: str = ""
+    nombre: str = ""
+    ruta: dict = {}
+    ingresos: list = []
+    gastos: dict = {}
+    deudas: list = []
+    cartera: dict = {}
+    patrimonio: dict = {}
+    familia: dict = {}
+    riesgo: dict = {}
+    expectativas: dict = {}
+
+@app.post("/api/diag-v3")
+def diag_v3(p: DiagV3):
+    try:
+        ing = mfv3.analizar_ingresos(p.ingresos)
+        gas = mfv3.analizar_gastos(p.gastos.get("ancla"), p.gastos.get("detalle"))
+        deu = mfv3.analizar_deuda(p.deudas, ing.get("ingreso_mensual"))
+        car = mfv3.analizar_cartera(p.cartera, gas.get("gasto_mensual"),
+                                    p.cartera.get("horizonte"), p.cartera.get("perfil_declarado"))
+        pat = mfv3.analizar_patrimonio(p.patrimonio.get("vivienda"), p.patrimonio.get("otros"),
+                                       p.patrimonio.get("hipoteca_vivienda"),
+                                       car.get("inversiones_liquidas", 0), deu.get("deuda_total", 0))
+        fam = mfv3.analizar_familia(p.familia.get("edades")) if p.ruta.get("hijos") else {"n_dependientes": 0}
+        perfil = p.riesgo.get("perfil_riesgo")
+        rent_real = p.expectativas.get("rent_real") or mfv3.RENT_REAL_POR_PERFIL.get(perfil or 3, 5.5)
+        exp = mfv3.analizar_expectativas(
+            p.expectativas.get("gasto"), p.expectativas.get("pension"),
+            car.get("inversiones_liquidas", 0),
+            max(0, (ing.get("ingreso_mensual", 0) or 0) - (gas.get("gasto_mensual", 0) or 0)),
+            p.expectativas.get("horizonte") or p.cartera.get("horizonte"), rent_real,
+            p.expectativas.get("rent_esperada"), p.expectativas.get("herencia_importe", 0))
+        ag = mfv3.agregar(ing, gas, deu, car, pat, fam, exp, p.ruta)
+        payload_ia = mfv3.construir_payload_narrativo(ag, perfil)
+        return {"ok": True, "ingresos": ing, "gastos": gas, "deuda": deu, "cartera": car,
+                "patrimonio": pat, "familia": fam, "expectativas": exp, "agregado": ag,
+                "payload_ia": payload_ia}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
