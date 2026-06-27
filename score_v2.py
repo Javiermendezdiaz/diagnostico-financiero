@@ -115,9 +115,14 @@ def calcular_brecha(datos, resp, perfil_in):
     # reconocimiento del propio cliente (VIS-03): 0 en rumbo, 1 espejismo, 2 via muerta
     recon = resp.get("VIS-03")
     recon_txt = {0: "en rumbo", 1: "espejismo", 2: "vía muerta"}.get(recon)
+    # NUMERO CANONICO UNICO: para que TODO el informe cite UN solo "tu numero de libertad"
+    # con su marco etiquetado. Por defecto planificamos para la VIDA QUE QUIERES (ideal),
+    # que es la promesa del producto; la vida de hoy queda como referencia explicita.
     base_out = {"coste_ideal_mes": coste_ideal, "numero_ideal": numero_ideal,
                 "numero_actual": numero_actual, "ahorro_mes": ahorro, "arq": arq,
-                "reconocimiento": recon_txt, "patrimonio": patrimonio}
+                "reconocimiento": recon_txt, "patrimonio": patrimonio,
+                "numero_canonico": numero_ideal, "marco_canonico": "vida ideal",
+                "numero_hoy": numero_actual, "marco_hoy": "vida de hoy"}
     if not ingreso:
         # Sin ingreso recurrente: la vida la sostiene (o no) el capital. Renta prudente al 4%.
         renta_cap = round(patrimonio * 0.04 / 12)
