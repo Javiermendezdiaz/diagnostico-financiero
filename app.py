@@ -339,6 +339,15 @@ def generar_pdf(sid, email, nombre, respuestas, datos, tier, bar=None, sexo=None
             extras = score_v2.computar_extras(respuestas, d, perfil, rb._cargar_v2())
         except Exception:
             extras = None
+        # Guardián de coherencia (fuente única de verdad): SOLO avisa por log, nunca bloquea la entrega.
+        try:
+            import qa_coherencia
+            _hall = qa_coherencia.revisar_coherencia(d, extras)
+            if _hall:
+                print("[QA-COHERENCIA] sesion=%s tier=%s\n%s" % (
+                    (email or "?"), tier, qa_coherencia.resumen_log(_hall)), flush=True)
+        except Exception as _e:
+            print("[QA-COHERENCIA] guardián no ejecutado: %s" % _e, flush=True)
         rb.build_book_v2(respuestas, d, _cli(email, nombre, sexo), out, perfil_in=perfil,
                         depth=TIER_DEPTH.get(tier, "completo"), baremo=bar, sintesis=sintesis, extras=extras)
     else:
