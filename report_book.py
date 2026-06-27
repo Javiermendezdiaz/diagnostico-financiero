@@ -2268,6 +2268,30 @@ def seccion_coste_inaccion(extras):
                St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=4)))
     return out
 
+def seccion_como_medimos(extras):
+    """Art. 3 de la Constitución: declara EN VOZ ALTA el marco único de medición, una vez y visible.
+    Autoridad = elegir el patrón y decirlo, no oscilar. Failsafe."""
+    ex=extras or {}
+    br=ex.get("brecha") or {}
+    ci=br.get("coste_ideal_mes")
+    try: _ci=("%s/mes"%_eur(ci)) if ci else "tu vida ideal declarada"
+    except Exception: _ci="tu vida ideal declarada"
+    reglas=[
+        ("Escenario", "planificamos sobre <b>la vida que quieres</b> (%s), no sobre tu gasto de hoy." % _ci),
+        ("Unidad", "todas las cifras en <b>euros de hoy</b>; si alguna es a futuro, se etiqueta."),
+        ("Colchón objetivo", "<b>6 meses</b> de gasto. Una sola definición en todo el documento."),
+        ("Regla de libertad", "<b>4% = regla 25×</b> (son lo mismo), ajustada por la fiscalidad española."),
+        ("Valor de tu hora", "una sola base de cálculo, coherente en todas las páginas."),
+    ]
+    filas=[Paragraph("<b>%s:</b> %s"%(k,v),St("cm%d"%i,fontSize=10,leading=14,spaceBefore=2)) for i,(k,v) in enumerate(reglas)]
+    return [Spacer(1,3*mm),
+            _box([Paragraph("CÓMO MEDIMOS",St("cmh",fontSize=9,leading=12,textColor=colors.HexColor("#0284C7"),fontName=FB)),
+                  Paragraph("Para que confíes en cada número, estas son nuestras reglas — las mismas en todo el informe:",
+                            St("cmi",fontSize=10,leading=14,spaceBefore=2,spaceAfter=2))]+filas,
+                 "#F4F8FB","#0284C7",ancho=160*mm),
+            Spacer(1,3*mm)]
+
+
 def seccion_paradoja(extras):
     """EL HALLAZGO ESTRELLA (multi-área): cada punto donde el dato dice una cosa y la emoción
     la contraria. El motor devuelve una LISTA; las renderizamos todas. Failsafe."""
@@ -2468,6 +2492,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                         ("TOPPADDING",(0,0),(-1,-1),9),("BOTTOMPADDING",(0,0),(-1,-1),9)]))
     S+=[PageBreak()]
     if extras: S+=_secsafe(seccion_resumen_ejecutivo,extras,datos)
+    if extras: S+=_secsafe(seccion_como_medimos,extras)
     if extras: S+=_secsafe(seccion_paradoja,extras)
     if extras: S+=_secsafe(seccion_fiabilidad,extras)
     # resumen + radar
