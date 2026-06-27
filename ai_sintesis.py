@@ -19,14 +19,18 @@ _GUARDRAIL = (
     "incisiva y sofisticada: nombras con precisión el mecanismo de defensa, el sesgo cognitivo o la disonancia "
     "que delata el cliente, y lo conectas con su coste real —de oportunidad, de tranquilidad, de tiempo—. "
     "Reglas innegociables: "
-    "(1) usa SIEMPRE las palabras del cliente, citándolo, y desmonta la racionalización que esconden; "
+    "(1) PARAFRASEA lo que revela el cliente; NO entrecomilles. Solo puedes poner una frase entre comillas si "
+    "aparece LITERAL, palabra por palabra, en el bloque <respuestas_abiertas_del_cliente>. Si no está ahí "
+    "textualmente, está PROHIBIDO entrecomillarla: invéntate cero citas; "
     "(2) cruza lo que SIENTE (sus textos) con lo que MIDEN sus números, exponiendo coherencias y disonancias; "
     "(3) PROHIBIDO inventar cifras, porcentajes o datos que no se te hayan dado; "
-    "(4) PROHIBIDOS los clichés de autoayuda o de finanzas modernas ('sana tu relación con el dinero', "
+    "(4) PROHIBIDO afirmar hechos sobre su vida que no estén EXPLÍCITOS en los datos (que tiene gestoría, asesor, "
+    "pareja, propiedades, empleados, deudas concretas, etc.). No infieras circunstancias: interpreta solo lo que consta; "
+    "(5) PROHIBIDOS los clichés de autoayuda o de finanzas modernas ('sana tu relación con el dinero', "
     "'es importante que...', 'recuerda que...', 'el primer paso es...'): hablas como un diagnóstico, no como un coach; "
-    "(5) eres implacable con el PATRÓN, nunca cruel con la PERSONA: si el cliente revela un dolor real, trátalo con "
+    "(6) eres implacable con el PATRÓN, nunca cruel con la PERSONA: si el cliente revela un dolor real, trátalo con "
     "seriedad clínica, sin frialdad ni dramatismo gratuito; "
-    "(6) cierras con una sola observación o pregunta quirúrgica, no con una lista ni con consuelo de manual. "
+    "(7) cierras con una sola observación o pregunta quirúrgica, no con una lista ni con consuelo de manual. "
     "Español de España, segunda persona (tú). Registro de referencia (NO lo copies, solo calibra el nivel): "
     "«Racionalizas el estancamiento de tu capital como prudencia; es, en realidad, una parálisis por aversión "
     "a la pérdida que cada año te cuesta en coste de oportunidad lo que no te atreves a mirar.»"
@@ -60,6 +64,34 @@ def _extraer(texto, tag):
     return m.group(1).strip() if m else None
 
 
+def _norm(s):
+    """Normaliza para comparar: minúsculas, espacios colapsados, sin puntuación de borde."""
+    s = (s or "").lower().strip()
+    s = re.sub(r"\s+", " ", s)
+    return s.strip(" .,;:¿?¡!()\"'«»")
+
+
+def _desactivar_citas_inventadas(texto, fuente):
+    """Defensa anti-alucinación determinista. Quita las comillas de cualquier fragmento
+    entrecomillado que NO aparezca literal en `fuente` (las respuestas del cliente).
+    No borra contenido: solo retira las comillas para que deje de presentarse como cita textual.
+    Si no hay fuente con texto, desactiva TODA cita (no hay nada legítimo que citar)."""
+    if not texto:
+        return texto
+    base = _norm(fuente)
+    patrones = [r"«([^»]{1,200})»", r"“([^”]{1,200})”", r"\"([^\"]{1,200})\""]
+
+    def _sustituir(m):
+        interior = m.group(1)
+        if base and _norm(interior) and _norm(interior) in base:
+            return m.group(0)  # cita legítima: existe literal en las respuestas
+        return interior        # cita no soportada: se retiran las comillas
+
+    for pat in patrones:
+        texto = re.sub(pat, _sustituir, texto, flags=re.DOTALL)
+    return texto
+
+
 def sintetizar_individual(abiertas, contexto=None):
     """Devuelve {'retrato': str} o None. contexto: dict opcional con salud, focos, arquetipo, cohorte."""
     bloque = _texto_abiertas(abiertas)
@@ -90,6 +122,7 @@ def sintetizar_individual(abiertas, contexto=None):
                                   system=_GUARDRAIL, messages=[{"role": "user", "content": user}])
         out = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")
         retrato = _extraer(out, "retrato") or out.strip()
+        retrato = _desactivar_citas_inventadas(retrato, bloque)
         return {"retrato": retrato} if retrato else None
     except Exception:
         return None
@@ -122,6 +155,7 @@ def sintetizar_pareja(abiertas_a, abiertas_b, nombres=None, contexto=None):
                                   system=_GUARDRAIL, messages=[{"role": "user", "content": user}])
         out = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")
         fric = _extraer(out, "friccion") or out.strip()
+        fric = _desactivar_citas_inventadas(fric, (ba or "") + "\n" + (bb or ""))
         return {"friccion": fric} if fric else None
     except Exception:
         return None
@@ -131,3 +165,6 @@ if __name__ == "__main__":
     # Smoke test de la lógica sin clave (debe devolver None limpiamente)
     print("sin clave/sin texto ->", sintetizar_individual({}))
     print("parser <retrato> ->", _extraer("ruido <retrato>Texto de prueba.</retrato> ruido", "retrato"))
+    src = "P: que sientes\nR: problemas a veces"
+    demo = "Hablas de «problemas», pero «pedir dinero me da miedo» revela otra cosa."
+    print("citas ->", _desactivar_citas_inventadas(demo, src))
