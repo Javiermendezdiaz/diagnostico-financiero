@@ -87,16 +87,17 @@ def revisar_coherencia(datos, extras):
                     })
 
         # ------------------------------------------------------------------
-        # R2 · VIVIENDA CONTRADICTORIA (carga >0% pero coste 0, o viceversa)
+        # R2 · VIVIENDA CONTRADICTORIA — solo sobre la CARGA (coste/ingreso, un FLUJO).
+        # OJO: pct_vivienda es un STOCK (% del patrimonio que es vivienda) y NO entra
+        # aquí: tener casa en propiedad sin hipoteca (pct alto, coste 0) es legítimo.
+        # Solo verificamos la carga calculada por el motor frente al coste declarado.
         # ------------------------------------------------------------------
-        carga = _f(_g(extras, "vivienda", "carga"))
-        if carga is None:
-            carga = pct_viv
+        carga = _f(_g(extras, "vivienda", "carga"))   # % del INGRESO; None si el motor no la calculó
         if carga is not None and coste_viv is not None:
             if carga > 5 and coste_viv <= 0:
                 h.append({
                     "severidad": "critico", "regla": "R2-VIVIENDA",
-                    "mensaje": ("Contradicción de vivienda: la carga declarada es %.0f%% del ingreso "
+                    "mensaje": ("Contradicción de vivienda: la carga sobre el ingreso es %.0f%% "
                                 "pero el coste de vivienda es 0 €. O paga vivienda o no la paga." % carga),
                     "valores": {"carga_pct": carga, "coste_vivienda": coste_viv},
                 })
@@ -104,27 +105,27 @@ def revisar_coherencia(datos, extras):
                 h.append({
                     "severidad": "alto", "regla": "R2-VIVIENDA",
                     "mensaje": ("Contradicción de vivienda: el coste de vivienda es %s pero la carga "
-                                "calculada es 0%%." % _eur(coste_viv)),
+                                "calculada sobre el ingreso es 0%%." % _eur(coste_viv)),
                     "valores": {"carga_pct": carga, "coste_vivienda": coste_viv},
                 })
 
         # ------------------------------------------------------------------
-        # R3 · PATRIMONIO DESCUADRADO (neto != líquido + ilíquido)
-        # El donut de composición no puede decir "100% líquido" si hay ilíquido.
+        # R3 · COMPOSICIÓN PATRIMONIAL IMPOSIBLE — el líquido no puede superar al neto.
+        # No comprobamos "líquido + ilíquido = neto": el ilíquido es el resto por
+        # definición (siempre reconcilia). Solo cazamos la imposibilidad real: que la
+        # parte líquida declarada sea mayor que el patrimonio neto total.
+        # (NOTA: resiliencia.iliquido es un FLAG de riesgo de caja, no un importe.)
         # ------------------------------------------------------------------
         pat = _f(_g(extras, "resiliencia", "patrimonio"))
         liq = _f(_g(extras, "resiliencia", "liquido_inmediato"))
-        ili = _f(_g(extras, "resiliencia", "iliquido"))
-        if pat is not None and liq is not None and ili is not None and pat > 0:
-            suma = liq + ili
-            desv = abs(suma - pat) / pat
-            if desv > 0.02:  # >2% de descuadre
+        if pat is not None and liq is not None and pat > 0:
+            if liq > pat * 1.02:
                 h.append({
                     "severidad": "alto", "regla": "R3-PATRIMONIO",
-                    "mensaje": ("El patrimonio (%s) no cuadra con su composición: líquido %s + ilíquido %s "
-                                "= %s (descuadre %.0f%%). Hay activos sin explicar en el desglose."
-                                % (_eur(pat), _eur(liq), _eur(ili), _eur(suma), desv * 100)),
-                    "valores": {"patrimonio": pat, "liquido": liq, "iliquido": ili, "suma": suma},
+                    "mensaje": ("Composición imposible: la parte líquida (%s) supera al patrimonio neto "
+                                "total (%s). Revisa colchón/inversiones frente al patrimonio declarado."
+                                % (_eur(liq), _eur(pat))),
+                    "valores": {"patrimonio": pat, "liquido": liq},
                 })
 
         # ------------------------------------------------------------------
