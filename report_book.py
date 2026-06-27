@@ -615,12 +615,22 @@ ADAPTA={
  "C11":("Estrategia de crecimiento patrimonial","Ponemos a trabajar tu excedente y tu patrimonio con un plan a a\u00f1os vista \u2014 para que tu dinero deje de defenderse y empiece a construir la vida que quieres.","https://www.adaptafamilyoffice.com/casos/banca-privada"),
  "C12":("Estrategia de inversión","Diseñamos y gestionamos una cartera a tu medida —diversificada, de bajo coste y alineada con tu horizonte— para que tu ahorro deje de estar parado y empiece a componer a tu favor.","https://www.adaptafamilyoffice.com/casos/gestion-patrimonio")}
 
-def seccion_adapta(p):
+def seccion_adapta(p, datos=None):
     out=[PageBreak(), Paragraph("El siguiente paso con Adapta",h_sec),
          Paragraph("Este libro es un mapa. <b>Adapta Family Office</b> es quien lo recorre contigo: 25 a\u00f1os "
                    "cuidando patrimonios familiares, con visi\u00f3n integral y sin productos propios ni conflictos de inter\u00e9s.",body),
          Paragraph("Por lo que dice tu diagn\u00f3stico, esto es lo que m\u00e1s te conviene ahora mismo:",body)]
-    peores=sorted(CAPAS,key=lambda c:p[c]["score"],reverse=True)[:2]
+    orden=sorted(CAPAS,key=lambda c:p[c]["score"],reverse=True)
+    # Upsell por PATRIMONIO REAL: nunca ofrecer banca privada / inversion sofisticada a
+    # quien primero debe sanear deuda y montar colchon. Con poco patrimonio, la base va antes
+    # que crecer; eso es criterio, y mantiene la credibilidad de todo el informe.
+    _d=datos or {}
+    try: _pat=float(_d.get("patrimonio") or 0)
+    except Exception: _pat=0.0
+    _BANCA_PRIVADA={"C7","C8","C11","C12"}  # diversificacion / antifragil / crecimiento / inversion
+    if _pat < 100000:
+        orden=[c for c in orden if c not in _BANCA_PRIVADA] or orden
+    peores=orden[:2]
     for code in peores:
         ti,de,url=ADAPTA[code]
         out.append(Paragraph(f"<font color='#0284C7'><b>&#9656; {ti}</b></font>",St("ad1",fontSize=11,leading=14,spaceBefore=6,spaceAfter=2)))
@@ -3072,7 +3082,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             S+=[PageBreak(), FullBleedImage("_pa_t2_4.png")]
         except Exception:
             pass
-    S+=_secsafe(seccion_adapta,p)
+    S+=_secsafe(seccion_adapta,p,datos)
     # === ACTO 4 (cierre): Matriz de Decision Bifurcada (Inaccion vs Adapta), cifras reales ===
     if False:  # "Dos caminos desde aqui" eliminado (compresion)
         _ba=(extras.get("brecha") or {}).get("brecha_anual"); _nl=fi[0] if (fi and fi[0]) else None
