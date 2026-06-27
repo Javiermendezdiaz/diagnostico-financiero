@@ -871,6 +871,28 @@ def _enviar_copia_impl(session_id):
         with open(path,"rb") as f: pdf_bytes=f.read()
     except Exception:
         return {"ok": False, "reason": "pdf_lectura"}
+    # Tarjeta del arquetipo: se genera ANTES para adjuntarla tambien al cliente
+    # Tarjeta del arquetipo (16 tipos) - PNG social premium, lista para redes (todos los tiers).
+    _card_extra = None
+    try:
+        if row["respuestas"] not in (None, "{}", ""):
+            _resp = json.loads(row["respuestas"]) if isinstance(row["respuestas"], str) else row["respuestas"]
+            import arq16
+            _code, _meta = arq16.arquetipo16(_resp)
+            if _code and _meta:
+                _traits = " \u00b7 ".join(arq16.desglose(_code))
+                import tempfile as _tf
+                _cfd, _cardp = _tf.mkstemp(suffix=".png", prefix="arq_", dir=REPORTS_DIR); os.close(_cfd)
+                if rb.tarjeta_arquetipo16(_cardp, row["sexo"], _meta["n"], _meta["lema"], _meta["color"], _traits, _code):
+                    with open(_cardp, "rb") as _cf:
+                        _cbytes = _cf.read()
+                    if _cbytes and _cbytes[:8] == b"\x89PNG\r\n\x1a\n" and _cbytes[-8:] and (b"IEND" in _cbytes[-12:]):
+                        _card_extra = [("Arquetipo_%s.png" % cliente.replace(" ", "_"), _cbytes)]
+                try: os.remove(_cardp)
+                except Exception: pass
+    except Exception:
+        _card_extra = None
+
     # 2) Entrega al CLIENTE (el real siempre; el de espera solo una vez)
     cli_ok = False
     if cli_valido:
@@ -880,31 +902,11 @@ def _enviar_copia_impl(session_id):
                 cli_ok=_enviar_resend("Tu Libro Financiero esta en camino - Adapta", html_cli, pdf_bytes, "Adapta_en_preparacion.pdf", to=[email_cli])
         else:
             html_cli="<div style='font-family:Helvetica,Arial;color:#222;max-width:560px'><h2 style='color:#0a0a0b'>Tu Libro Financiero</h2><p>Hola %s,</p><p>Aqui tienes tu <b>diagnostico psicofinanciero completo</b>, en el PDF adjunto. Guardalo: es tu mapa de los proximos 100 dias.</p><p>Gracias por confiar en Adapta Family Office.</p><p style='color:#888;font-size:12px'>Adapta Family Office</p></div>"%cliente
-            cli_ok=_enviar_resend("Tu Libro Financiero - Adapta Family Office", html_cli, pdf_bytes, "Tu_Libro_Financiero_Adapta.pdf", to=[email_cli])
+            cli_ok=_enviar_resend("Tu Libro Financiero - Adapta Family Office", html_cli, pdf_bytes, "Tu_Libro_Financiero_Adapta.pdf", to=[email_cli], extra=_card_extra)
     # 3) Adapta SIEMPRE recibe copia + estado (al entregar real, o la primera vez que algo va mal)
     if (not fallback) or nuevo:
         estado = "[REGENERAR-GENERACION-FALLO] " if fallback else ("[EMAIL-CLIENTE-FALLO] " if (cli_valido and not cli_ok) else ("[SIN-EMAIL-CLIENTE] " if not cli_valido else ""))
         html_adm="<h2>%sCompra ITAP</h2><p><b>Cliente:</b> %s<br><b>Email:</b> %s<br><b>Producto:</b> %s</p><p>%s</p>"%(estado or "", cliente, email_cli or "(sin email)", tier_nombre, ("ATENCION: requiere accion manual." if estado else "Copia del libro adjunta."))
-        # Tarjeta del arquetipo (16 tipos) - PNG social premium, lista para redes (todos los tiers).
-        _card_extra = None
-        try:
-            if row["respuestas"] not in (None, "{}", ""):
-                _resp = json.loads(row["respuestas"]) if isinstance(row["respuestas"], str) else row["respuestas"]
-                import arq16
-                _code, _meta = arq16.arquetipo16(_resp)
-                if _code and _meta:
-                    _traits = " \u00b7 ".join(arq16.desglose(_code))
-                    import tempfile as _tf
-                    _cfd, _cardp = _tf.mkstemp(suffix=".png", prefix="arq_", dir=REPORTS_DIR); os.close(_cfd)
-                    if rb.tarjeta_arquetipo16(_cardp, row["sexo"], _meta["n"], _meta["lema"], _meta["color"], _traits, _code):
-                        with open(_cardp, "rb") as _cf:
-                            _cbytes = _cf.read()
-                        if _cbytes and _cbytes[:8] == b"\x89PNG\r\n\x1a\n" and _cbytes[-8:] and (b"IEND" in _cbytes[-12:]):
-                            _card_extra = [("Arquetipo_%s.png" % cliente.replace(" ", "_"), _cbytes)]
-                    try: os.remove(_cardp)
-                    except Exception: pass
-        except Exception:
-            _card_extra = None
         _enviar_resend(("%sITAP - %s - %s"%(estado, cliente, tier_nombre)).strip(), html_adm, pdf_bytes, "ITAP_%s.pdf"%cliente.replace(" ","_"), to=[NOTIFY_EMAIL], extra=_card_extra)
     # 4) Estado de entrega
     if not fallback and (cli_ok or not cli_valido):
