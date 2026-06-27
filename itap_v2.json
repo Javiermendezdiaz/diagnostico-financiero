@@ -5280,6 +5280,20 @@
       "ayuda": "El gasto que impresiona a otros, no el que te hace feliz. Si no aplica, pon 0. Nadie lo verá salvo tú."
     },
     {
+      "id": "NUM-14B",
+      "campo": "n_hijos",
+      "unidad": "hijos",
+      "texto": "¿Cuántos hijos o hijas tienes?",
+      "ayuda": "Cada hijo cambia tu protección y tu sucesión. Lo ajustamos a tu familia real, no a una media.",
+      "mostrar_si": {
+        "campo": "dependientes",
+        "valor_in": [
+          "Sí, hijos",
+          "Sí, de varios a la vez"
+        ]
+      }
+    },
+    {
       "id": "NUM-15",
       "campo": "edad_hijo_menor",
       "unidad": "años",
