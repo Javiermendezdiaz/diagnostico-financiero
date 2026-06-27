@@ -367,8 +367,11 @@ def radar_png(p,path):
     for _lw,_al in [(9.0,0.05),(6.0,0.08),(3.6,0.14)]:
         ax.plot(ang,v,color=fill,linewidth=_lw,alpha=_al,zorder=4,solid_capstyle="round")
     ax.plot(ang,v,color="#17181C",linewidth=2.4,zorder=5,solid_capstyle="round")
-    ax.scatter(ang[:-1],vsal,s=52,color=fill,zorder=6,edgecolors="#17181C",linewidths=1.5)
-    ax.scatter(ang[:-1],vsal,s=15,color="#FFFFFF",zorder=7)
+    # Vertices coloreados por SALUD de cada eje: verde = fortaleza, rojo = critico.
+    # Asi la pagina estrella comunica de un vistazo donde mirar (criticos gritan, fortalezas respiran).
+    vcol=[BANDC[0] if hh>=75 else BANDC[1] if hh>=50 else BANDC[2] if hh>=25 else BANDC[3] for hh in vsal]
+    ax.scatter(ang[:-1],vsal,s=64,color=vcol,zorder=6,edgecolors="#17181C",linewidths=1.6)
+    ax.scatter(ang[:-1],vsal,s=14,color="#FFFFFF",zorder=7)
     plt.tight_layout(); fig.savefig(path,dpi=200,transparent=True); plt.close(fig); gc.collect()
 
 def panel_dashboard(path, salud_disp, banda_lbl, cifra_lib, cobertura, tasa_ahorro, inv, par, ili, ing_act, ing_pas, g_fij, g_var, dormido, fecha):
