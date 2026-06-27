@@ -118,11 +118,17 @@ def calcular_brecha(datos, resp, perfil_in):
     # NUMERO CANONICO UNICO: para que TODO el informe cite UN solo "tu numero de libertad"
     # con su marco etiquetado. Por defecto planificamos para la VIDA QUE QUIERES (ideal),
     # que es la promesa del producto; la vida de hoy queda como referencia explicita.
+    # AJUSTE FISCAL ESPANA: la regla del 4% (Trinity, USA) es BRUTA. En Espana las rentas
+    # del ahorro tributan ~19-28%; para vivir de rentas NETAS hace falta mas capital.
+    # numero_neto = coste_anual / (0.04 * (1 - t)). Con t~0.21 sale ~x31.6 (no x25).
+    _T_AHORRO_ES = 0.21
+    numero_neto_es = round(coste_ideal * 12 / (0.04 * (1 - _T_AHORRO_ES)))
     base_out = {"coste_ideal_mes": coste_ideal, "numero_ideal": numero_ideal,
                 "numero_actual": numero_actual, "ahorro_mes": ahorro, "arq": arq,
                 "reconocimiento": recon_txt, "patrimonio": patrimonio,
                 "numero_canonico": numero_ideal, "marco_canonico": "vida ideal",
-                "numero_hoy": numero_actual, "marco_hoy": "vida de hoy"}
+                "numero_hoy": numero_actual, "marco_hoy": "vida de hoy",
+                "numero_neto_es": numero_neto_es, "tipo_ahorro_es": int(_T_AHORRO_ES * 100)}
     if not ingreso:
         # Sin ingreso recurrente: la vida la sostiene (o no) el capital. Renta prudente al 4%.
         renta_cap = round(patrimonio * 0.04 / 12)
@@ -1460,6 +1466,53 @@ def plan_maestro(datos, p=None, perfil_in=None):
         out.append({"orden": i, "frente": fr, "titulo": ti, "porque": pq, "accion": ac, "gana": ga, "nivel": niv})
     return out
 
+def detectar_paradoja(datos, p, resiliencia):
+    """EL HALLAZGO ESTRELLA, multi-área. Detecta CADA punto donde un DATO OBJETIVO y la
+    PERCEPCIÓN del cliente divergen (colchón vs miedo, deuda vs asfixia, resistencia vs pánico).
+    No es un error del motor: el número mide el dinero, el cuestionario mide la emoción. Nombrarlo
+    convierte cada contradicción en un hallazgo de asesor — el posicionamiento de un family office
+    frente a un robo-advisor. Devuelve una LISTA de paradojas (puede ir vacía). A prueba de fallos."""
+    out = []
+    try:
+        d = datos or {}
+        res = resiliencia or {}
+        pp = p or {}
+        def _f(x):
+            try: return float(x)
+            except Exception: return None
+        meses = res.get("meses_liquido")
+        c3 = pp.get("C3", {}).get("score", 0)   # percepción de resistencia (alto = más miedo)
+        c10 = pp.get("C10", {}).get("score", 0)  # percepción de la deuda (alto = la vive como carga)
+        ing = _f(d.get("ingreso_mensual")); cuota = _f(d.get("cuota_deuda")); deuda = _f(d.get("deuda_total"))
+
+        # (1) COLCHÓN / RESISTENCIA: objetivamente protegido, subjetivamente aterrado.
+        if meses is not None and meses >= 6 and c3 >= 50:
+            _m = ("%.1f" % meses).rstrip("0").rstrip(".")
+            out.append({"tipo": "colchon", "titulo": "Tu colchón está bien. Tu cabeza aún no lo sabe.",
+                "texto": ("Tienes <b>%s meses</b> de vida cubiertos en líquido —mejor que la mayoría—, pero "
+                          "tus respuestas dicen que sientes que no aguantarías nada. <b>Tu problema aquí no es "
+                          "tu dinero: es que no confías en él.</b> No se arregla ahorrando más; se arregla "
+                          "mirando el dato real cada vez que la cabeza te diga que no llegas." % _m)})
+        # (2) DEUDA: el bolsillo la soporta, la cabeza no.
+        if ing and ing > 0 and cuota is not None and deuda and deuda > 0:
+            dti = 100.0 * cuota / ing
+            if dti < 15 and c10 >= 50:
+                out.append({"tipo": "deuda", "titulo": "Tu deuda no te ahoga el bolsillo. Te ahoga la cabeza.",
+                    "texto": ("Tu cuota es solo el <b>%d%%</b> de lo que ingresas —objetivamente, está bajo "
+                              "control—, y aun así la vives como una asfixia. <b>El peso de esa deuda es más "
+                              "mental que financiero.</b> Saberlo cambia el plan: no es una emergencia de números, "
+                              "es una cuenta pendiente con tu tranquilidad." % round(dti))})
+        # (3) Inverso del colchón: se cree tranquilo pero está expuesto.
+        if meses is not None and meses < 3 and c3 <= 25:
+            _m = ("%.1f" % meses).rstrip("0").rstrip(".")
+            out.append({"tipo": "tranquilo_expuesto", "titulo": "Te sientes tranquilo. Los números piden prudencia.",
+                "texto": ("Tus respuestas transmiten calma, pero en líquido solo tienes <b>%s meses</b> de margen. "
+                          "La tranquilidad es buena; conviene que se apoye en un colchón, no solo en el optimismo." % _m)})
+    except Exception:
+        return []
+    return out
+
+
 def computar_extras(resp, datos, perfil_in, inst=None):
     """Punto de entrada unico. Devuelve dict listo para report_book + arq_code."""
     inst = inst or cargar_inst()
@@ -1487,6 +1540,7 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "herencia": calcular_herencia(perfil_in),
         "fortuna_neta": calcular_fortuna_neta(datos),
         "resiliencia": calcular_resiliencia(datos),
+        "paradoja": detectar_paradoja(datos, p, calcular_resiliencia(datos)),
         "fuentes": calcular_fuentes(datos, perfil_in),
         "ratio_vida": calcular_ratio_vida(perfil_in),
         "nudo": calcular_nudo(perfil_in, datos),

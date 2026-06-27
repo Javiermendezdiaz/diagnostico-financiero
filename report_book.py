@@ -1630,6 +1630,17 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
         out.append(Paragraph("Este es el capital que, invertido, cubre tu vida para siempre (regla 25\u00d7).",body))
     out.append(Paragraph('<font size=30 color="#17181C"><b>%s</b></font>'%_eur(N),St("c4n",fontSize=30,leading=34,spaceBefore=2,spaceAfter=2)))
     out.append(Paragraph("Hoy lo tienes cubierto al <b>%s%%</b>%s."%(pct, (" \u00b7 te falta <b>%s</b>"%_eur(falta)) if falta and falta>0 else ""),body))
+    # MATIZ FISCAL ESPANA: la regla del 4% es BRUTA (origen USA). En Espana las rentas del
+    # ahorro tributan ~21%, asi que vivir de rentas NETAS exige ~30% mas capital. Diferenciador.
+    try:
+        _Nf=round(float(N)/0.79)
+        out.append(_box([Paragraph("<b>Matiz fiscal (Espa\u00f1a).</b> Esta cifra sigue la regla del 4%% \u2014de origen "
+                  "estadounidense y por tanto <b>bruta</b>\u2014. En Espa\u00f1a las rentas del ahorro tributan al ~21%%, "
+                  "as\u00ed que para vivir de rentas <b>netas</b> de esa vida necesitar\u00edas del orden de <b>%s</b>. "
+                  "La mayor\u00eda de las calculadoras copian la regla americana y lo ignoran; nosotros te lo decimos."%_eur(_Nf),
+                  St("c4f",fontSize=10,leading=14))],"#FBF6E6","#C9962B",ancho=160*mm))
+    except Exception:
+        pass
     if exp.get("pension_cubre"):
         out.append(_box([Paragraph("<b>Tu pensi\u00f3n estimada ya cubre la vida que describes.</b> Tu reto no es llegar: es "
                   "proteger ese colch\u00f3n y optimizar lo que ya tienes. Una posici\u00f3n poco com\u00fan \u2014 cu\u00eddala.",St("c4p",fontSize=10.5,leading=15))],
@@ -2257,6 +2268,25 @@ def seccion_coste_inaccion(extras):
                St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=4)))
     return out
 
+def seccion_paradoja(extras):
+    """EL HALLAZGO ESTRELLA (multi-área): cada punto donde el dato dice una cosa y la emoción
+    la contraria. El motor devuelve una LISTA; las renderizamos todas. Failsafe."""
+    pars=(extras or {}).get("paradoja")
+    if isinstance(pars, dict): pars=[pars]          # compatibilidad con versión anterior
+    if not pars: return []
+    out=[Spacer(1,4*mm),
+         Paragraph("Donde tu dinero y tu cabeza no dicen lo mismo", h_sec),
+         Paragraph("El hallazgo más valioso de tu diagnóstico no es una cifra: es la distancia entre lo que "
+                   "tienes y lo que sientes. Un banco solo mira el número; nosotros miramos a la persona entera.", body),
+         Spacer(1,3*mm)]
+    for par in pars:
+        out.append(_box([Paragraph(par.get("titulo",""),St("parx1",fontSize=13,leading=17,textColor=colors.HexColor("#1A1A17"),fontName=FB)),
+                         Paragraph(par.get("texto",""),St("parx2",fontSize=10.5,leading=15,textColor=colors.HexColor("#2C313A"),spaceBefore=4))],
+                        "#FBF6E6","#C9962B",ancho=160*mm))
+        out.append(Spacer(1,3*mm))
+    return out
+
+
 def seccion_resumen_ejecutivo(extras, datos):
     """Resumen ejecutivo de 1 pagina tras la portada: cifras clave + foco + primer paso + puente Adapta."""
     if not extras: return []
@@ -2438,6 +2468,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                         ("TOPPADDING",(0,0),(-1,-1),9),("BOTTOMPADDING",(0,0),(-1,-1),9)]))
     S+=[PageBreak()]
     if extras: S+=_secsafe(seccion_resumen_ejecutivo,extras,datos)
+    if extras: S+=_secsafe(seccion_paradoja,extras)
     if extras: S+=_secsafe(seccion_fiabilidad,extras)
     # resumen + radar
     if depth!="esencial":
@@ -3065,7 +3096,9 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         Paragraph("Metodología y límites",h_sub),
         Paragraph("Instrumento de 12 capas con dimensiones psicométricas de polaridad consistente. Los percentiles "
                   "se calibran empíricamente frente a la cohorte real de respondentes; mientras la muestra de tu grupo crece, se indican como provisionales. Herramienta "
-                  "de autoconocimiento; no sustituye asesoramiento profesional individualizado.",small)]
+                  "de autoconocimiento; no sustituye asesoramiento profesional individualizado.",small),
+        Paragraph("Modelo de diagnóstico <b>v2.1</b> · válido a la fecha de emisión · recalcula cada 6 meses: "
+                  "tu patrimonio y tu vida cambian, y este informe con ellos.",small)]
     if extras and depth!="esencial": S+=_secsafe(seccion_compromiso,extras)
     # === PUENTE ACTO 3 -> ACTO 4: el plan da el QUE; Adapta, el COMO (el siguiente nivel) ===
     if depth!="esencial":
