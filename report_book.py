@@ -636,6 +636,21 @@ def seccion_adapta(p, datos=None):
         out.append(Paragraph(f"<font color='#0284C7'><b>&#9656; {ti}</b></font>",St("ad1",fontSize=11,leading=14,spaceBefore=6,spaceAfter=2)))
         out.append(Paragraph(de,St("ad2",fontSize=10,leading=14,leftIndent=8,spaceAfter=2)))
         out.append(Paragraph(f"<a href='{url}'><font color='#1A1A17'>Ver c\u00f3mo lo trabajamos &#8594;</font></a>",St("ad3",fontSize=9.5,leading=13,leftIndent=8,spaceAfter=8)))
+    # Art. 5.3 de la Constituci\u00f3n: UNA recomendaci\u00f3n honesta que NO nos beneficia. La credibilidad
+    # de todo lo que s\u00ed recomendamos se compra siendo capaces de decir "esto hazlo t\u00fa solo, gratis".
+    try: _deu=float(_d.get("deuda_total") or 0)
+    except Exception: _deu=0.0
+    if _deu>0 and _pat<100000:
+        _solo=("Amortizar tu deuda m\u00e1s cara y mantener tu fondo de emergencia <b>no requiere contratarnos</b>: "
+               "es gratis, lo puedes empezar hoy mismo, y es exactamente lo primero que te recomendar\u00edamos. "
+               "Solo cuando esa base est\u00e9 firme tiene sentido hablar del resto.")
+    else:
+        _solo=("Automatizar una transferencia a tu ahorro el mismo d\u00eda que cobras <b>no requiere contratarnos</b>: "
+               "es gratis y es el h\u00e1bito que m\u00e1s mueve la aguja. Empieza por ah\u00ed hoy \u2014 el resto puede esperar.")
+    out+=[Spacer(1,3*mm),
+          _box([Paragraph("Esto puedes hacerlo t\u00fa solo",St("hsolo_h",fontSize=10.5,leading=14,textColor=colors.HexColor("#1D6F42"),fontName=FB)),
+                Paragraph(_solo,St("hsolo",fontSize=10,leading=14,spaceBefore=2))],
+               "#EEF7F0","#1D6F42",ancho=160*mm)]
     out+=[Spacer(1,4*mm),
           Paragraph("Por d\u00f3nde empezamos",h_sub),
           Spacer(1,2.5*mm),
