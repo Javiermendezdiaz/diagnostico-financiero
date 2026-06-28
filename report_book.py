@@ -2283,6 +2283,47 @@ def seccion_coste_inaccion(extras):
                St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=4)))
     return out
 
+def seccion_alertas_perfil(datos):
+    """Consume las preguntas nuevas (cotizacion, venta de empresa, perfil de riesgo, testamento)
+    y emite SOLO las alertas que apliquen a este cliente. Aditivo y failsafe."""
+    d=datos or {}
+    out=[]
+    def _alerta(titulo, texto, bg="#FBF6E6", borde="#C9962B"):
+        out.append(Spacer(1,3*mm))
+        out.append(_box([Paragraph(titulo,St("ap_h%d"%len(out),fontSize=12.5,leading=16,textColor=colors.HexColor("#1A1A17"),fontName=FB)),
+                         Paragraph(texto,St("ap_t%d"%len(out),fontSize=10.5,leading=15,textColor=colors.HexColor("#2C313A"),spaceBefore=3))],
+                        bg,borde,ancho=160*mm))
+    try:
+        bc=str(d.get("base_cotizacion") or "")
+        if "mínima" in bc.lower() or "minima" in bc.lower():
+            _alerta("Cotizas al mínimo. Tu yo de mañana paga la factura.",
+                    "Cotizar al mínimo abarata tu cuota de hoy y vacía tu pensión de mañana. Al jubilarte, tus "
+                    "ingresos pueden caer <b>más del 50%</b> de golpe. La pensión es un suelo, no un plan: el "
+                    "complemento lo construyes tú, y cuanto antes empieces, menos esfuerzo te costará.","#FBEDEC","#9A3B2E")
+        iv=str(d.get("intencion_venta") or "")
+        if "próximos años" in iv.lower() or "proximos años" in iv.lower() or "largo plazo" in iv.lower():
+            _alerta("Vas a vender tu empresa. Eso se prepara antes, no después.",
+                    "El mayor riesgo tras una venta no es invertir mal: es no tener un plan listo cuando llega el "
+                    "dinero. La fiscalidad de la operación, los objetivos y la inversión por fases <b>se deciden "
+                    "antes de firmar</b> — el día del ingreso ya es tarde para optimizar.")
+        pr=str(d.get("perfil_riesgo") or "")
+        if "vender" in pr.lower():
+            _alerta("Tu reacción ante una caída es vender. Ahí está el riesgo real.",
+                    "Vender cuando todo baja convierte una caída temporal en una <b>pérdida permanente</b>. No es "
+                    "un defecto: es humano. Pero saberlo de antemano permite diseñar una cartera que aguantes sin "
+                    "tocarla — y ese es medio camino hacia el resultado.")
+        tt=str(d.get("testamento") or "")
+        if "no tengo" in tt.lower():
+            _alerta("No tienes testamento. Hoy decide la ley, no tú.",
+                    "Sin testamento, el reparto de lo que has construido lo marca el Código Civil, no tu voluntad. "
+                    "Es la decisión patrimonial <b>más barata y la más aplazada</b> — y con hijos, la que más "
+                    "tranquilidad compra por menos dinero.","#FBEDEC","#9A3B2E")
+    except Exception:
+        return out
+    if out: out.append(Spacer(1,2*mm))
+    return out
+
+
 def seccion_incapacidad(datos):
     """Consume la pregunta nueva seguro_incapacidad: para un profesional liberal sin cobertura,
     nombra su mayor riesgo. Solo aparece si aplica. Failsafe."""
@@ -2533,6 +2574,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     if extras: S+=_secsafe(seccion_como_medimos,extras)
     if extras: S+=_secsafe(seccion_paradoja,extras)
     S+=_secsafe(seccion_incapacidad,datos)
+    S+=_secsafe(seccion_alertas_perfil,datos)
     if extras: S+=_secsafe(seccion_fiabilidad,extras)
     # resumen + radar
     if depth!="esencial":
