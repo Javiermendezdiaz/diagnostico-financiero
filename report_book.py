@@ -2283,6 +2283,29 @@ def seccion_coste_inaccion(extras):
                St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=4)))
     return out
 
+def seccion_incapacidad(datos):
+    """Consume la pregunta nueva seguro_incapacidad: para un profesional liberal sin cobertura,
+    nombra su mayor riesgo. Solo aparece si aplica. Failsafe."""
+    d=datos or {}
+    pl=str(d.get("perfil_laboral") or "")
+    seg=str(d.get("seguro_incapacidad") or "")
+    es_liberal=("Autónomo" in pl) or ("empresa propia" in pl) or ("SL" in pl)
+    sin_cobertura=("No tengo nada" in seg) or ("Solo lo público" in seg) or ("mutualidad" in seg.lower())
+    if not (es_liberal and sin_cobertura):
+        return []
+    _det=("solo cuentas con la cobertura pública (mutualidad o Seguridad Social), que cubre poco"
+          if "público" in seg.lower() or "mutualidad" in seg.lower() else "no tienes ningún seguro específico")
+    return [Spacer(1,3*mm),
+            _box([Paragraph("TU MAYOR RIESGO, HOY SIN CUBRIR",St("inc0",fontSize=8.5,leading=11,textColor=colors.HexColor("#9A3B2E"),fontName=FB)),
+                  Paragraph("Tu patrimonio depende de una sola cosa: que puedas seguir ejerciendo.",St("inc1",fontSize=13,leading=17,textColor=colors.HexColor("#1A1A17"),fontName=FB,spaceBefore=2)),
+                  Paragraph("Si mañana una enfermedad o un accidente te lo impidieran, <b>%s</b>. Para un profesional "
+                            "liberal ese es el riesgo número uno —y de los más baratos de cerrar antes de que llegue—. "
+                            "No es urgente porque duela hoy; es urgente porque el día que importe, ya será tarde para contratarlo."%_det,
+                            St("inc2",fontSize=10.5,leading=15,textColor=colors.HexColor("#2C313A"),spaceBefore=4))],
+                 "#FBEDEC","#9A3B2E",ancho=160*mm),
+            Spacer(1,3*mm)]
+
+
 def seccion_como_medimos(extras):
     """Art. 3 de la Constitución: declara EN VOZ ALTA el marco único de medición, una vez y visible.
     Autoridad = elegir el patrón y decirlo, no oscilar. Failsafe."""
@@ -2509,6 +2532,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     if extras: S+=_secsafe(seccion_resumen_ejecutivo,extras,datos)
     if extras: S+=_secsafe(seccion_como_medimos,extras)
     if extras: S+=_secsafe(seccion_paradoja,extras)
+    S+=_secsafe(seccion_incapacidad,datos)
     if extras: S+=_secsafe(seccion_fiabilidad,extras)
     # resumen + radar
     if depth!="esencial":
