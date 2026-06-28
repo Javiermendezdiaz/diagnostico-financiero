@@ -1740,10 +1740,12 @@ def seccion_familia(datos, extras=None):
     try: edad=int(float(d.get("edad_hijo_menor"))) if d.get("edad_hijo_menor") not in (None,"") else None
     except Exception: edad=None
     COSTE_ANUAL=7200.0
+    try: nh=max(1,min(6,int(float(d.get("n_hijos"))))) if d.get("n_hijos") not in (None,"") else 1
+    except Exception: nh=1
     out=[PageBreak(), Paragraph("La l\u00ednea de tu familia, y tu protecci\u00f3n",h_sec)]
     if edad is not None and 0<=edad<24:
         anios_indep=max(0,24-edad); anios_uni=max(0,18-edad)
-        proteccion=anios_indep*COSTE_ANUAL
+        proteccion=anios_indep*COSTE_ANUAL*nh
         out.append(Paragraph("Si te faltaras hoy, sostener a los tuyos hasta su independencia \u2014 cubrir su vida unos "
                   "<b>%d a\u00f1os</b> m\u00e1s \u2014 costar\u00eda del orden de <b>%s</b>. Es la cifra que un seguro de vida "
                   "o un patrimonio l\u00edquido deber\u00edan poder cubrir. La pregunta no es agradable, pero tenerla "
@@ -1754,6 +1756,10 @@ def seccion_familia(datos, extras=None):
         out.append(Paragraph("Y cuando el menor se independice, dentro de <b>%d a\u00f1os</b>, recuperar\u00e1s una "
                   "capacidad de ahorro importante: conviene tenerlo ya en el plan, para que ese aire no se diluya en "
                   "gasto."%anios_indep,body))
+        out.append(Paragraph("Un matiz honesto: la <b>emancipación rara vez es limpia</b>. Muchos hijos necesitan un "
+                  "empujón final —una entrada para su primera vivienda, los primeros meses fuera de casa—. Lo sensato "
+                  "es reservar para ese último tramo y, a la vez, tener ya asignado en tu plan el ahorro que liberas "
+                  "cuando se independizan, para que ese aire no se evapore en gasto nuevo.",body))
     else:
         out.append(Paragraph("Tienes personas que dependen econ\u00f3micamente de ti. La conversaci\u00f3n de protecci\u00f3n "
                   "\u2014 un seguro de vida suficiente y un patrimonio l\u00edquido que cubra su sost\u00e9n si t\u00fa faltaras \u2014 "
