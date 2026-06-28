@@ -4827,6 +4827,105 @@
       }
     },
     {
+      "id": "SD-22",
+      "tipo": "opcion",
+      "campo": "seguro_incapacidad",
+      "texto": "Si una enfermedad o accidente te impidiera trabajar mañana, ¿tienes un seguro que cubra tu pérdida de ingresos?",
+      "ayuda": "Para un profesional liberal, este es el mayor riesgo: tu patrimonio depende de que puedas ejercer.",
+      "opciones": [
+        "Sí, un seguro de incapacidad o baja que cubre mis ingresos",
+        "Solo lo público (mutualidad o Seguridad Social), que cubre poco",
+        "No tengo nada específico",
+        "No lo sé"
+      ],
+      "mostrar_si": {
+        "campo": "perfil_laboral",
+        "valor_in": [
+          "Autónomo / profesional",
+          "Tengo empresa propia (SL u otra)"
+        ]
+      }
+    },
+    {
+      "id": "SD-23",
+      "tipo": "opcion",
+      "campo": "base_cotizacion",
+      "texto": "Como autónomo, ¿por qué base cotizas?",
+      "ayuda": "La base que eliges hoy decide tu pensión de mañana. Cotizar al mínimo abarata el presente y empobrece el futuro.",
+      "opciones": [
+        "La mínima, para pagar menos cada mes",
+        "Una base media",
+        "Una base alta, pensando en mi pensión",
+        "No lo sé"
+      ],
+      "mostrar_si": {
+        "campo": "perfil_laboral",
+        "valor_in": [
+          "Autónomo / profesional"
+        ]
+      }
+    },
+    {
+      "id": "SD-24",
+      "tipo": "opcion",
+      "campo": "intencion_venta",
+      "texto": "Tu empresa, ¿entra en tus planes venderla o traspasarla algún día?",
+      "ayuda": "El qué hagas con el dinero de una venta se decide antes de venderla, no después.",
+      "opciones": [
+        "Sí, en los próximos años",
+        "Quizá a largo plazo",
+        "No: quiero mantenerla o dejarla en la familia",
+        "No me lo he planteado"
+      ],
+      "mostrar_si": {
+        "campo": "perfil_laboral",
+        "valor_in": [
+          "Tengo empresa propia (SL u otra)"
+        ]
+      }
+    },
+    {
+      "id": "SD-25",
+      "tipo": "opcion",
+      "campo": "perfil_riesgo",
+      "texto": "Si tu inversión cayera un 20% en un mal año, ¿qué harías?",
+      "ayuda": "No hay respuesta correcta: solo la tuya. Conocer tu reacción real evita decisiones de las que luego te arrepientes.",
+      "opciones": [
+        "Aprovecharía para comprar más barato",
+        "Aguantaría sin tocar nada",
+        "Me pondría nervioso, pero esperaría",
+        "Vendería para no perder más"
+      ],
+      "mostrar_si": {
+        "campo": "invierte",
+        "valor_in": [
+          "Sí, una parte",
+          "Sí, una parte importante de mi patrimonio"
+        ]
+      }
+    },
+    {
+      "id": "SD-26",
+      "tipo": "opcion",
+      "campo": "testamento",
+      "texto": "¿Tienes testamento hecho y actualizado?",
+      "ayuda": "Sin testamento, decide la ley, no tú. Es la decisión patrimonial más barata y la más aplazada.",
+      "opciones": [
+        "Sí, hecho y revisado hace poco",
+        "Sí, pero hace años que no lo reviso",
+        "No tengo testamento",
+        "No lo sé"
+      ],
+      "mostrar_si": {
+        "campo": "dependientes",
+        "valor_in": [
+          "Sí, hijos",
+          "Sí, mis padres u otros familiares",
+          "Sí, de varios a la vez"
+        ]
+      }
+    },
+    {
       "id": "SD-11",
       "tipo": "opcion",
       "campo": "conciliacion",
