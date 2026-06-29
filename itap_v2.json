@@ -5158,11 +5158,24 @@
       }
     },
     {
+      "id": "NUM-9",
+      "campo": "deuda_total",
+      "unidad": "€",
+      "texto": "¿Cuál es el total de lo que debes hoy (hipoteca + préstamos + tarjetas)?",
+      "ayuda": "Para medir tu apalancamiento. En la siguiente pregunta repartirás esta deuda entre tus activos; lo que no quede ligado a ninguno lo entenderemos como deuda no garantizada.",
+      "mostrar_si": {
+        "campo": "deuda",
+        "valor_not_in": [
+          "No tengo ninguna deuda"
+        ]
+      }
+    },
+    {
       "id": "NUM-4",
       "campo": "patrimonio",
       "unidad": "€",
-      "texto": "¿Cuál es tu patrimonio neto aproximado?",
-      "ayuda": "Patrimonio neto = todo lo que tienes menos todo lo que debes."
+      "texto": "Ahora tu patrimonio. No calcules el neto: en el desglose pon el valor de mercado de cada activo y la deuda que tenga.",
+      "ayuda": "Pon el VALOR DE MERCADO aproximado de cada activo (vivienda habitual, segunda vivienda, coche, cartera…) y, al lado, la deuda que pesa sobre él. Calculamos tu patrimonio neto solo (activos − deudas) y lo cuadramos con la deuda total que nos diste. Lo que no quede ligado a un activo (préstamos personales, tarjetas) lo entendemos como deuda no garantizada y se resta igual."
     },
     {
       "id": "NUM-6",
@@ -5170,19 +5183,6 @@
       "unidad": "€",
       "texto": "¿Cuánto tienes ahora mismo en dinero parado y disponible — cuenta corriente, cuentas de ahorro, depósitos y efectivo —, sin contar inversiones ni vivienda?",
       "ayuda": "Es tu colchón ante un imprevisto. Dinero seguro, pero que apenas renta: lo que tengas por encima de tu fondo de emergencia pierde valor con la inflación."
-    },
-    {
-      "id": "NUM-9",
-      "campo": "deuda_total",
-      "unidad": "€",
-      "texto": "¿Cuál es el total de lo que debes hoy (hipoteca + préstamos + tarjetas)?",
-      "ayuda": "Para medir tu apalancamiento sobre el patrimonio.",
-      "mostrar_si": {
-        "campo": "deuda",
-        "valor_not_in": [
-          "No tengo ninguna deuda"
-        ]
-      }
     },
     {
       "id": "NUM-10",

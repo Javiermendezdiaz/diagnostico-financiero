@@ -124,6 +124,8 @@ a{color:var(--am)}
 .desg-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
 .desg-c{flex:1;min-width:0;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:8px;font-size:13px;font-family:inherit}
 .desg-v{width:92px;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:8px;font-size:13px;font-family:inherit}
+.desg-d{width:88px;background:#231a1a;border:1px solid #4a2b2b;color:#f0b8b8;border-radius:8px;padding:8px;font-size:13px;font-family:inherit}
+.desg-d::placeholder{color:#a06b6b}
 .desg-x{background:none;border:none;color:var(--gr);font-size:18px;line-height:1;cursor:pointer;padding:0 6px}
 .desg-add{background:none;border:1px dashed var(--bd);color:var(--am);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:inherit;margin-top:2px}
 .desg-sum{margin-top:9px;font-size:12px;color:var(--gr)}
@@ -617,20 +619,43 @@ function _buildDesglose(campo,total,wrap){
     var det=st.datos[campo+'_detalle'];
     if(!Array.isArray(det)||!det.length){det=[{c:cs[0]||'',v:''}];st.datos[campo+'_detalle']=det;}
     var euros=function(x){return Math.round(x).toLocaleString('es-ES');};
-    var h='<div class="desg-h">¿De dónde salen esos '+euros(total)+' €? <span>Desglósalo (opcional)</span></div><div class="desg-rows">';
+    var isPat=(campo==='patrimonio');
+    var _hint=isPat?'valor de mercado y deuda de cada activo':(campo==='gasto_mensual'?'Desglósalo — obligatorio':'Desglósalo (opcional)');
+    var h='<div class="desg-h">'+(isPat?'Tus activos':'¿De dónde salen esos '+euros(total)+' €?')+' <span>'+_hint+'</span></div><div class="desg-rows">';
     det.forEach(function(r,i){
       h+='<div class="desg-row"><select data-i="'+i+'" class="desg-c">'+cs.map(function(o){return '<option'+(o===r.c?' selected':'')+'>'+o+'</option>';}).join('')+'</select>'
-        +'<input type="number" inputmode="numeric" data-i="'+i+'" class="desg-v" value="'+(r.v||'')+'" placeholder="€"><button type="button" data-i="'+i+'" class="desg-x" title="quitar">×</button></div>';
+        +'<input type="number" inputmode="numeric" data-i="'+i+'" class="desg-v" value="'+(r.v||'')+'" placeholder="'+(isPat?'valor €':'€')+'">'
+        +(isPat?'<input type="number" inputmode="numeric" data-i="'+i+'" class="desg-d" value="'+(r.d||'')+'" placeholder="deuda €">':'')
+        +'<button type="button" data-i="'+i+'" class="desg-x" title="quitar">×</button></div>';
     });
     h+='</div><button type="button" class="desg-add">+ añadir partida</button><div class="desg-sum" id="desgSum"></div>';
     wrap.innerHTML=h;
     var sumline=function(){
-      var sm=_desgSum(campo),el=wrap.querySelector('#desgSum');if(!el)return;
-      var ok=Math.abs(sm-total)<=Math.max(50,total*0.05);
-      el.innerHTML='Sumado: <b>'+euros(sm)+' €</b> de '+euros(total)+' €  '+(ok?'<span style="color:#2FB36B">✓ cuadra</span>':(sm<total?'<span style="color:#FDD731">faltan '+euros(total-sm)+' €</span>':'<span style="color:#D8674F">te pasas '+euros(sm-total)+' €</span>'));
+      var el=wrap.querySelector('#desgSum');if(!el)return;
+      if(isPat){
+        var sv=det.reduce(function(a,r){return a+(parseFloat(r.v)||0);},0);
+        var sd=det.reduce(function(a,r){return a+(parseFloat(r.d)||0);},0);
+        var dt=parseFloat((st.datos||{}).deuda_total); if(!isFinite(dt))dt=0;
+        var totalDeuda=Math.max(sd,dt);
+        var net=sv-totalDeuda;
+        st.datos.patrimonio=net;
+        var ni=document.getElementById('num'); if(ni) ni.value=Math.round(net);
+        var msg='Patrimonio neto: <b>'+euros(net)+' €</b> <span style="color:#94a3b8">(activos '+euros(sv)+' − deudas '+euros(totalDeuda)+')</span>';
+        if(dt>sd+Math.max(100,dt*0.05)){
+          msg+='<br><span style="color:#FDD731">Te quedan '+euros(dt-sd)+' € de deuda sin ligar a ningún activo. Los entendemos como préstamos personales o tarjetas (deuda no garantizada) y se restan igual de tu patrimonio.</span>';
+        } else if(dt>0 && sd>dt+Math.max(100,dt*0.10)){
+          msg+='<br><span style="color:#D8674F">Las deudas que repartes entre activos ('+euros(sd)+' €) superan la deuda total que diste ('+euros(dt)+' €). Revísalo — pulsa ← Atrás.</span>';
+        }
+        el.innerHTML=msg;
+      } else {
+        var sm=_desgSum(campo);
+        var ok=Math.abs(sm-total)<=Math.max(50,total*0.05);
+        el.innerHTML='Sumado: <b>'+euros(sm)+' €</b> de '+euros(total)+' €  '+(ok?'<span style="color:#2FB36B">✓ cuadra</span>':(sm<total?'<span style="color:#FDD731">faltan '+euros(total-sm)+' €</span>':'<span style="color:#D8674F">te pasas '+euros(sm-total)+' €</span>'));
+      }
     };
-    wrap.querySelectorAll('.desg-c').forEach(function(sel){sel.onchange=function(){det[+this.dataset.i].c=this.value;try{_panelDinero();}catch(e){}};});
+    wrap.querySelectorAll('.desg-c').forEach(function(sel){sel.onchange=function(){det[+this.dataset.i].c=this.value;sumline();try{_panelDinero();}catch(e){}};});
     wrap.querySelectorAll('.desg-v').forEach(function(np){np.oninput=function(){det[+this.dataset.i].v=this.value;sumline();try{_panelDinero();}catch(e){}};});
+    wrap.querySelectorAll('.desg-d').forEach(function(np){np.oninput=function(){det[+this.dataset.i].d=this.value;sumline();try{_panelDinero();}catch(e){}};});
     wrap.querySelectorAll('.desg-x').forEach(function(b){b.onclick=function(){det.splice(+this.dataset.i,1);if(!det.length)det.push({c:cs[0]||'',v:''});_buildDesglose(campo,total,wrap);try{_panelDinero();}catch(e){}};});
     var ab=wrap.querySelector('.desg-add'); if(ab)ab.onclick=function(){det.push({c:cs[0]||'',v:''});_buildDesglose(campo,total,wrap);};
     sumline();
