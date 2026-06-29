@@ -20,6 +20,9 @@ body{font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;ba
 .tens .tbar>i{display:block;height:100%;width:0;border-radius:99px;transition:width .55s ease,background .55s}
 .kick{color:var(--am);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:14px 0 4px}
 .qnum{color:var(--gr);font-size:12px;margin-bottom:14px}
+.scopebadge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;line-height:1;letter-spacing:.2px;padding:4px 9px;border-radius:99px;margin-bottom:10px;border:1px solid var(--bd)}
+.scopebadge.ind{color:var(--gr);background:rgba(156,163,175,.10)}
+.scopebadge.par{color:var(--am);background:rgba(253,215,49,.12);border-color:rgba(253,215,49,.35)}
 .qtext{font-size:19px;font-weight:700;line-height:1.35;margin-bottom:6px}
 .ayuda{color:var(--gr);font-size:13px;line-height:1.4;margin-bottom:16px}
 @keyframes aiFade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
@@ -224,6 +227,7 @@ a{color:var(--am)}
       <div class="tens"><span class="lbl2" id="tensLbl" style="color:#7ee3ad">Estructura eficiente</span><div class="tbar"><i id="tbar" style="background:#1f7a4d"></i></div></div>
       <div class="q-card" id="qcard">
         <div class="qnum" id="bloque"></div>
+        <div id="scopeBadge" style="display:none"></div>
         <div class="qtext" id="qtext"></div>
         <div class="ayuda" id="ayuda" style="display:none"></div>
         <div id="opts"></div>
@@ -621,6 +625,33 @@ function _antiFatiga(q){
     _revelacion();
   }catch(e){}
 }
+// T3: ¿la pregunta es sobre la pareja/hogar (true) o sobre el individuo (false)?
+function _alcancePareja(q){
+  try{
+    if(!q) return false;
+    var PAR_CAMPOS={gastos_comunes:1,gasto_libre:1,estructura_dinero:1,aportacion_modelo:1};
+    if(q.campo && PAR_CAMPOS[q.campo]) return true;
+    var t=(q.texto||q.pregunta||'').toLowerCase();
+    var KW=['vuestr','tenéis','teneis','vosotros','vuestra relación','en pareja','del hogar','gastos comunes'];
+    for(var i=0;i<KW.length;i++){ if(t.indexOf(KW[i])!==-1) return true; }
+    var ms=q.mostrar_si;
+    if(ms && ms.campo==='estado_civil'){
+      var vals=ms.valor_in||[]; var PAR_EC=['casado','pareja'];
+      for(var j=0;j<vals.length;j++){ var vv=(''+vals[j]).toLowerCase(); for(var k=0;k<PAR_EC.length;k++){ if(vv.indexOf(PAR_EC[k])!==-1) return true; } }
+    }
+  }catch(e){}
+  return false;
+}
+function _pintarScopeBadge(q){
+  var el=document.getElementById('scopeBadge'); if(!el) return;
+  try{
+    if(st.tier!==3){ el.style.display='none'; el.textContent=''; return; }
+    var par=_alcancePareja(q);
+    el.className='scopebadge '+(par?'par':'ind');
+    el.textContent=par?'👫 Sobre vuestro hogar':'👤 Sobre ti';
+    el.style.display='inline-flex';
+  }catch(e){ el.style.display='none'; }
+}
 function pintar(){
   while(st.i<st.cola.length && !aplica(st.cola[st.i])) st.i++;
   if(st.i>=st.cola.length){ return finalizar(); }
@@ -633,6 +664,7 @@ function pintar(){
   document.getElementById('bloque').textContent=q._b+_bloqTxt+'  ·  '+progresoPct(q)+'%'+_mins;
   progreso(q);
   qtext.textContent=q.texto||q.pregunta;
+  _pintarScopeBadge(q);
   const ay=document.getElementById('ayuda'); ay.classList.remove('ai');
   if(q.ayuda){
     ay.textContent=q.ayuda; ay.style.display='block';
