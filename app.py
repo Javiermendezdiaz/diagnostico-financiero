@@ -1130,6 +1130,31 @@ def _enviar_copia_impl(session_id):
     if row["notificado"] == 1:
         return {"ok": True, "ya_enviado": True}
     if row["tier"] == 3 and not row["pareja_de"]:
+        # Confirmacion de pago al iniciador (una sola vez). El libro se entrega cuando la pareja complete.
+        if RESEND_API_KEY and row["notificado"] != 2:
+            _cl = (row["nombre"] or "").strip() or "(sin nombre)"
+            _ec = (row["email"] or "").strip()
+            _from = INVITE_FROM   # misma clave 'from' que usa _build_invite_email (payload de invitacion)
+            if _ec and ("@" in _ec) and not _ec.lower().endswith(".test"):
+                _html_w = ("<div style='font-family:Helvetica,Arial;color:#222;max-width:560px'>"
+                           "<h2 style='color:#0a0a0b'>Pago recibido</h2>"
+                           "<p>Hola %s,</p>"
+                           "<p>Tu pago se ha recibido correctamente. <b>Recibireis vuestro Libro de Pareja</b> por email "
+                           "en cuanto tu pareja complete su parte.</p>"
+                           "<p>Si aun no le has enviado la invitacion, hazlo desde la pantalla del diagnostico.</p>"
+                           "<p>Gracias por confiar en Adapta Family Office.</p>"
+                           "<p style='color:#888;font-size:12px'>Adapta Family Office</p></div>") % _cl
+                try: _resend_post({"from": _from, "to": [_ec], "subject": "Pago recibido - Vuestro Libro de Pareja en camino - Adapta", "html": _html_w})
+                except Exception: pass
+            try:
+                _html_a = ("<h2>Compra ITAP (Pareja) - pago recibido, esperando a la pareja</h2>"
+                           "<p><b>Cliente:</b> %s<br><b>Email:</b> %s<br><b>Producto:</b> Analisis de Pareja (54 EUR)</p>"
+                           "<p>El iniciador pago. Pendiente de que la pareja complete su parte.</p>") % (_cl, _ec or "(sin email)")
+                _resend_post({"from": _from, "to": [NOTIFY_EMAIL], "subject": "ITAP - Pareja pagada (esperando pareja) - %s" % _cl, "html": _html_a})
+            except Exception: pass
+            try:
+                with db() as c: c.execute("UPDATE sesiones SET notificado=2 WHERE id=?", (session_id,))
+            except Exception: pass
         return {"ok": False, "reason": "pareja_pendiente"}   # no entregar hasta que la pareja complete
     cliente = (row["nombre"] or "").strip() or "(sin nombre)"
     email_cli = (row["email"] or "").strip()
@@ -1151,24 +1176,48 @@ def _enviar_copia_impl(session_id):
         return {"ok": False, "reason": "pdf_lectura"}
     # Tarjeta del arquetipo: se genera ANTES para adjuntarla tambien al cliente
     # Tarjeta del arquetipo (16 tipos) - PNG social premium, lista para redes (todos los tiers).
-    _card_extra = None
-    try:
-        if row["respuestas"] not in (None, "{}", ""):
-            _resp = json.loads(row["respuestas"]) if isinstance(row["respuestas"], str) else row["respuestas"]
+    def _mk_card(_respuestas, _sexo, _nombre):
+        """Genera UNA tarjeta de arquetipo (filename, bytes) o None. Misma validacion PNG/tempfile/cleanup."""
+        try:
+            if _respuestas in (None, "{}", ""):
+                return None
+            _resp = json.loads(_respuestas) if isinstance(_respuestas, str) else _respuestas
             import arq16
             _code, _meta = arq16.arquetipo16(_resp)
-            if _code and _meta:
-                _traits = " \u00b7 ".join(arq16.desglose(_code))
-                import tempfile as _tf
-                _cfd, _cardp = _tf.mkstemp(suffix=".png", prefix="arq_", dir=REPORTS_DIR); os.close(_cfd)
-                if rb.tarjeta_arquetipo16(_cardp, row["sexo"], _meta["n"], _meta["lema"], _meta["color"], _traits, _code):
+            if not (_code and _meta):
+                return None
+            _traits = " \u00b7 ".join(arq16.desglose(_code))
+            import tempfile as _tf
+            _cfd, _cardp = _tf.mkstemp(suffix=".png", prefix="arq_", dir=REPORTS_DIR); os.close(_cfd)
+            _out = None
+            try:
+                if rb.tarjeta_arquetipo16(_cardp, _sexo, _meta["n"], _meta["lema"], _meta["color"], _traits, _code):
                     with open(_cardp, "rb") as _cf:
                         _cbytes = _cf.read()
                     if _cbytes and _cbytes[:8] == b"\x89PNG\r\n\x1a\n" and _cbytes[-8:] and (b"IEND" in _cbytes[-12:]):
-                        _card_extra = [("Arquetipo_%s.png" % cliente.replace(" ", "_"), _cbytes)]
+                        _out = ("Arquetipo_%s.png" % (str(_nombre or "Adapta").replace(" ", "_")), _cbytes)
+            finally:
                 try: os.remove(_cardp)
                 except Exception: pass
-    except Exception:
+            return _out
+        except Exception:
+            return None
+    _card_extra = []
+    _ic = _mk_card(row["respuestas"], row["sexo"], cliente)
+    if _ic: _card_extra.append(_ic)
+    if row["tier"] == 3 and row["pareja_de"]:
+        try:
+            with db() as c:
+                _pr2 = c.execute("SELECT respuestas,sexo,nombre FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
+            if _pr2:
+                _pc = _mk_card(_pr2["respuestas"], _pr2["sexo"], (_pr2["nombre"] or "Pareja"))
+                if _pc and (_pc[0] != (_ic[0] if _ic else None)):
+                    _card_extra.append(_pc)
+                elif _pc and _ic and _pc[0] == _ic[0]:
+                    _card_extra.append(("Arquetipo_pareja.png", _pc[1]))
+        except Exception:
+            pass
+    if not _card_extra:
         _card_extra = None
 
     # 2) Entrega al CLIENTE (el real siempre; el de espera solo una vez)
