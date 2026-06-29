@@ -5090,6 +5090,27 @@
           "Pareja de hecho o pareja estable sin casar"
         ]
       }
+    },
+    {
+      "id": "SD-29",
+      "tipo": "opcion",
+      "campo": "edad_retiro_ideal",
+      "texto": "¿A qué edad te gustaría poder dejar de depender de tu sueldo (aunque sigas trabajando si quieres)?",
+      "ayuda": "No hay modelo correcto: solo el que os da paz. Esto nos dice si vuestro sistema encaja con vuestra realidad.",
+      "opciones": [
+        "Cuanto antes: ojalá antes de los 55.",
+        "Sobre los 55-60.",
+        "A los 60-65, la edad habitual.",
+        "Más allá de los 65, sin prisa.",
+        "No me imagino dejándolo del todo."
+      ],
+      "mostrar_si": {
+        "campo": "estado_civil",
+        "valor_in": [
+          "Casado/a",
+          "Pareja de hecho o pareja estable sin casar"
+        ]
+      }
     }
   ],
   "vision_brecha": [

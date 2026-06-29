@@ -1541,6 +1541,94 @@ def seccion_transparencia(rA, rB, nA, nB):
             _callout(titulo, txt + nota, A_COL, "#FBF3E8"),
             Spacer(1, 4*mm)]
 
+def seccion_horizonte_retiro(rA, rB, nA, nB):
+    """Convergencia de horizontes de retiro a partir de 'edad_retiro_ideal' (SD-29).
+    Las opciones son ordinales (antes -> mas tarde); la brecha se mide en tramos.
+    Tres dictamenes segun brecha (>=2 desalineados / ==1 matiz / ==0 refuerzo).
+    Solo dictamen de texto aditivo: NO toca el Numero de Libertad ni nada del motor.
+    Sin cifras inventadas: solo el mapeo de respuestas + texto. Defensiva total:
+    ante datos ausentes, item ausente o indices invalidos -> []. Siempre devuelve list."""
+    # --- localizar el item edad_retiro_ideal en el instrumento (por campo/id) ---
+    def _item_ret():
+        try:
+            for sec in (INST.values() if isinstance(INST, dict) else []):
+                if not isinstance(sec, list):
+                    continue
+                for it in sec:
+                    if isinstance(it, dict) and (it.get("campo") == "edad_retiro_ideal" or it.get("id") == "SD-29"):
+                        return it
+        except Exception:
+            return None
+        return None
+
+    def _idx(resp, it):
+        """Indice (int) elegido por un miembro para edad_retiro_ideal. None si no resoluble."""
+        if not it or not isinstance(resp, dict):
+            return None
+        idx = resp.get(it.get("id"))
+        ops = it.get("opciones") or []
+        try:
+            if isinstance(idx, list):
+                idx = idx[0] if idx else None
+            if not isinstance(idx, int) or isinstance(idx, bool):
+                return None
+            if 0 <= idx < len(ops):
+                return idx
+        except Exception:
+            return None
+        return None
+
+    it = _item_ret()
+    iA = _idx(rA, it)
+    iB = _idx(rB, it)
+    if iA is None or iB is None:
+        return []
+
+    ops = it.get("opciones") or []
+    def _txt(i):
+        try:
+            op = ops[i]
+            return op if isinstance(op, str) else (op.get("texto") if isinstance(op, dict) else None)
+        except Exception:
+            return None
+    tA = _txt(iA); tB = _txt(iB)
+    if tA is None or tB is None:
+        return []
+
+    brecha = abs(iA - iB)
+
+    if brecha >= 2:
+        titulo = u"Horizontes de retiro desalineados"
+        txt = (u"Aqui los dos no mirais al mismo punto del calendario: uno quiere soltar amarras bastante antes y el "
+               u"otro se imagina dejandolo mucho mas tarde. No hay que unificar la meta a la fuerza —forzar un unico "
+               u"horizonte suele generar mas tension que la propia diferencia—. Lo sano es proyectar el plan conjunto "
+               u"por fases: primero liberar al que quiere parar antes, mientras el otro mantiene ingresos por eleccion "
+               u"y no por obligacion; despues, el retiro total de ambos cuando toque. Lo importante no es coincidir en "
+               u"la edad, sino decidir juntos —y dejarlo por escrito— como encajais los dos ritmos en un mismo plan.")
+    elif brecha == 1:
+        titulo = u"Horizontes casi alineados"
+        txt = (u"Estais practicamente en la misma pagina: uno se ve soltando amarras solo un peldano antes que el "
+               u"otro. Es un matiz menor, mas de ritmo que de rumbo. Vale la pena nombrarlo para que el que quiere "
+               u"parar un poco antes no se sienta arrastrado, pero no condiciona la planificacion: el horizonte comun "
+               u"esta, en lo esencial, compartido.")
+    else:
+        titulo = u"Mismo horizonte: una gran ventaja para planificar"
+        txt = (u"Los dos os imaginais dejando de depender del sueldo en el mismo tramo de edad. Eso es mas valioso de "
+               u"lo que parece: cuando la pareja comparte horizonte, cada decision de ahorro, inversion y gasto rema "
+               u"en la misma direccion, sin tira y afloja sobre el «cuando». Vuestro trabajo no es negociar la meta, "
+               u"sino blindarla: ponerla por escrito y revisar juntos, cada cierto tiempo, que el plan sigue "
+               u"apuntando a ese horizonte comun.")
+
+    return [Paragraph(u"Vuestro horizonte para soltar amarras", h_sec),
+            Paragraph(u"Os preguntamos por separado a que edad os gustaria poder dejar de depender del sueldo. "
+                      u"Esto es lo que cada uno respondio:", body),
+            _callout(nA, tA, A_COL, "#FBF6E0"),
+            Spacer(1, 2*mm),
+            _callout(nB, tB, B_COL, "#F4F4F2"),
+            Spacer(1, 3*mm),
+            _callout(titulo, txt, A_COL, "#FBF3E8"),
+            Spacer(1, 4*mm)]
+
 def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=None):
     global INST, CAPAS
     _iv2=rb._cargar_v2(); _c2={c["code"]:c for c in _iv2["capas"]}
@@ -1842,6 +1930,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     S+=rb._secsafe(seccion_asfixia_relativa, dAf, dBf, rA, rB, nA, nB)
     # === TRANSPARENCIA FINANCIERA MUTUA (opacidad_financiera / SD-28) ===
     S+=rb._secsafe(seccion_transparencia, rA, rB, nA, nB)
+    # === CONVERGENCIA DE HORIZONTES DE RETIRO (edad_retiro_ideal / SD-29) ===
+    S+=rb._secsafe(seccion_horizonte_retiro, rA, rB, nA, nB)
     S+=rb._secsafe(seccion_asimetria_inversora,dAf,dBf,pA,pB,nA,nB)
     # === ÍTEM 3 · IMPUESTO DE LA FRICCIÓN (€) ===
     S+=rb._secsafe(seccion_impuesto_friccion,dAf,dBf,pA,pB,nA,nB)
