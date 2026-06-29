@@ -5141,22 +5141,8 @@
       "id": "NUM-1",
       "campo": "gasto_mensual",
       "unidad": "€/mes",
-      "texto": "Ahora tus gastos. ¿Cuánto gastas al mes, como mínimo, para vivir con dignidad (sin lujos)?",
-      "ayuda": "Tu coste de vida real (vivienda, comida, suministros, día a día): la base de casi todos los cálculos. No incluyas aquí los impuestos: ya van descontados de tu ingreso neto de arriba; meterlos otra vez sería contarlos dos veces."
-    },
-    {
-      "id": "NUM-1B",
-      "campo": "gastos_anuales",
-      "unidad": "€/año",
-      "texto": "¿Y cuánto suman AL AÑO los gastos que NO pagas cada mes? Seguros anuales, IBI, ITV y coche, vacaciones, regalos, reparaciones, salud... eso que se olvida porque no cae todos los meses.",
-      "ayuda": "Lo dividimos entre 12 y lo sumamos a tu coste de vida real. Es justo donde más se subestima el gasto. Pon 0 solo si de verdad no tienes ninguno."
-    },
-    {
-      "id": "NUM-7",
-      "campo": "coste_vivienda",
-      "unidad": "€/mes",
-      "texto": "¿Cuánto pagas al mes por tu vivienda (hipoteca o alquiler)? Pon 0 solo si no pagas nada (vivienda en propiedad ya pagada o cedida).",
-      "ayuda": "Para ver cuánto pesa el techo sobre tus ingresos."
+      "texto": "Ahora tus gastos. ¿Cuánto te cuesta de verdad vivir al mes, todo incluido?",
+      "ayuda": "Tu coste de vida real y COMPLETO: vivienda, suministros, comida, transporte y —prorrateado— lo que no pagas cada mes (seguros anuales, IBI, ITV, vacaciones, regalos, reparaciones). No incluyas el IRPF: ya va descontado de tu ingreso neto. Justo después lo desglosarás por partidas (obligatorio): es donde más se subestima el gasto."
     },
     {
       "id": "NUM-8",

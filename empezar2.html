@@ -602,7 +602,7 @@ let _fugaCur=0,_fugaRAF=null;
 function _actualizarFuga(){const f=calcFuga();const fb=document.getElementById('fugaBox');if(!fb)return;if(f<=0){fb.style.display='none';return;}fb.style.display='flex';const from=_fugaCur,t0=performance.now(),D=750;cancelAnimationFrame(_fugaRAF);(function s(now){const t=Math.min(1,(now-t0)/D),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;const v=Math.round(from+(f-from)*e);const el=document.getElementById('fugaV');if(el)el.textContent=v.toLocaleString('es-ES')+' €/año';if(t<1)_fugaRAF=requestAnimationFrame(s);else _fugaCur=f;})(t0);}
 var _DESG={
  ingreso_mensual:['Nómina / salario','Bonus / variable','Autónomo / actividad','Negocio propio (SL)','Alquileres','Dividendos','Intereses / cupones','Plusvalías','Royalties / propiedad intelectual','Pensión','Otros'],
- gasto_mensual:['Vivienda (hipoteca/alquiler)','Suministros y hogar','Alimentación','Transporte / vehículo','Colegios / educación','Salud / seguros','Ocio y viajes','Restauración','Suscripciones / servicios','Impuestos','Cuidado personal','Otros'],
+ gasto_mensual:['Vivienda (hipoteca/alquiler)','Suministros y hogar','Alimentación','Transporte / vehículo','Colegios / educación','Salud / seguros','Ocio y viajes','Restauración','Suscripciones / servicios','Cuotas y deudas (coche, préstamos, tarjetas)','Cuidado personal','Otros'],
  deuda_total:['Hipoteca habitual','Hipoteca de inversión','Préstamo personal','Coche / leasing','Tarjeta / revolving','Crédito al consumo','Deuda de empresa','Préstamo familiar','Otros'],
  inversiones_liquidas:['Fondos / ETF','Acciones directas','Renta fija / bonos','Planes de pensiones','Inmobiliario (REIT/SOCIMI)','Capital riesgo / private equity','Cripto','Materias primas / oro','Liquidez / depósitos','Otros'],
  patrimonio:['Vivienda habitual','Otros inmuebles','Negocio / participaciones','Cartera financiera','Planes de pensiones','Liquidez / depósitos','Vehículos / bienes','Arte / coleccionables','Otros']
@@ -764,6 +764,20 @@ function contNum(){
   const q=st.cola[st.i]; const v=document.getElementById('num').value;
   if(v===''){alert('Introduce un número');return}
   if(q.campo) st.datos[q.campo]=parseFloat(v);
+  // Desglose de gasto OBLIGATORIO (los 3 tiers): debe cuadrar con el total antes de avanzar
+  if(q.campo==='gasto_mensual'){
+    var _gt=parseFloat(v)||0, _gs=_desgSum('gasto_mensual');
+    if(_gt>0 && Math.abs(_gs-_gt)>Math.max(50,_gt*0.05)){
+      alert('Desglosa tu gasto por partidas hasta que cuadre con el total ('+Math.round(_gt).toLocaleString('es-ES')+' €). Es obligatorio para tu diagnóstico.');
+      return;
+    }
+    // Deriva el coste de vivienda de la categoría Vivienda del desglose (alimenta la carga del techo)
+    try{
+      var _gd=st.datos.gasto_mensual_detalle||[];
+      var _cv=_gd.reduce(function(a,r){return a+(/vivienda/i.test(r.c||'')?(parseFloat(r.v)||0):0);},0);
+      if(_cv>0) st.datos.coste_vivienda=_cv;
+    }catch(e){}
+  }
   // Poda de redundancia: si el desglose ya cubre una pregunta posterior, no se la repetimos
   try{
     if(q.campo==='ingreso_mensual'){
