@@ -1446,6 +1446,101 @@ def seccion_asfixia_relativa(dAf, dBf, rA, rB, nA, nB):
             _callout(u"El coste oculto de la «equidad»", txt, A_COL, "#FBF6E0"),
             Spacer(1, 4*mm)]
 
+def seccion_transparencia(rA, rB, nA, nB):
+    """Transparencia financiera mutua a partir de 'opacidad_financiera' (SD-28).
+    Mapea el indice elegido por A y por B al texto de la opcion. Indice >=2 = opaco,
+    <=1 = transparente. Tres dictamenes (ambos opacos / asimetria / ambos transparentes).
+    Sin cifras inventadas: solo el mapeo de respuestas + texto. Defensiva total:
+    ante datos ausentes, item ausente o indices invalidos -> []. Siempre devuelve list."""
+    # --- localizar el item opacidad_financiera en el instrumento (por campo/id) ---
+    def _item_opac():
+        try:
+            for sec in (INST.values() if isinstance(INST, dict) else []):
+                if not isinstance(sec, list):
+                    continue
+                for it in sec:
+                    if isinstance(it, dict) and (it.get("campo") == "opacidad_financiera" or it.get("id") == "SD-28"):
+                        return it
+        except Exception:
+            return None
+        return None
+
+    def _idx(resp, it):
+        """Indice (int) elegido por un miembro para opacidad_financiera. None si no resoluble."""
+        if not it or not isinstance(resp, dict):
+            return None
+        idx = resp.get(it.get("id"))
+        ops = it.get("opciones") or []
+        try:
+            if isinstance(idx, list):
+                idx = idx[0] if idx else None
+            if not isinstance(idx, int) or isinstance(idx, bool):
+                return None
+            if 0 <= idx < len(ops):
+                return idx
+        except Exception:
+            return None
+        return None
+
+    it = _item_opac()
+    iA = _idx(rA, it)
+    iB = _idx(rB, it)
+    if iA is None or iB is None:
+        return []
+
+    ops = it.get("opciones") or []
+    def _txt(i):
+        try:
+            op = ops[i]
+            return op if isinstance(op, str) else (op.get("texto") if isinstance(op, dict) else None)
+        except Exception:
+            return None
+    tA = _txt(iA); tB = _txt(iB)
+    if tA is None or tB is None:
+        return []
+
+    opacA = iA >= 2
+    opacB = iB >= 2
+
+    if opacA and opacB:
+        titulo = u"La opacidad mutua: terreno fértil para la desconfianza"
+        txt = (u"Los dos reconocéis zonas que el otro no ve. Esa opacidad compartida no es un fallo moral, pero sí "
+               u"es el caldo de cultivo de la desconfianza y de lo que llaman «infidelidad financiera»: pequeños "
+               u"gastos o deudas que se callan y que, el día que afloran, pesan más por el silencio que por la cifra. "
+               u"La solución no es vigilaros el uno al otro —eso solo añade tensión—, sino crear un espacio de "
+               u"soberanía privada regulado: una bolsa común proporcional a lo que gana cada uno para todo lo de la "
+               u"casa, y una cuenta personal para cada uno donde gastar lo discrecional sin pedir permiso ni rendir "
+               u"cuentas. Lo privado deja de ser opaco cuando está pactado.")
+    elif opacA != opacB:
+        nClaro = nA if not opacA else nB
+        nOpaco = nA if opacA else nB
+        titulo = u"Una asimetría de transparencia"
+        txt = (u"Aquí hay un desajuste que conviene nombrar: {nClaro} juega con las cartas sobre la mesa, mientras "
+               u"que en {nOpaco} hay zonas que prefiere no compartir. Esa asimetría desgasta por los dos lados: uno "
+               u"puede sentirse fiscalizado, el otro puede sentirse a ciegas. Ninguno tiene por qué tener razón; lo "
+               u"que falta es una regla común. Acordad un «umbral de libertad»: una cifra por debajo de la cual cada "
+               u"uno gasta lo suyo sin consultar, y por encima de la cual se habla. Así la transparencia deja de ser "
+               u"una exigencia personal y pasa a ser un acuerdo de los dos.").format(nClaro=nClaro, nOpaco=nOpaco)
+    else:
+        titulo = u"Vuestra transparencia es un activo poco común"
+        txt = (u"Los dos sabéis, en lo esencial, en qué gasta el otro. Eso es más raro de lo que parece y es un "
+               u"verdadero activo de cohesión: la mayoría de las parejas arrastran zonas opacas que tarde o temprano "
+               u"erosionan la confianza. Vuestro trabajo no es mejorar la transparencia, sino protegerla para que no "
+               u"derive en control. Aseguraos de que cada uno conserva un espacio de gasto personal propio: la "
+               u"claridad solo se sostiene en el tiempo cuando convive con un margen de libertad individual.")
+
+    nota = (u" Esta dinámica de transparencia pesa, además, en vuestros focos de fricción del día a día.")
+
+    return [Paragraph(u"Lo que sabéis (y lo que no) el uno del otro", h_sec),
+            Paragraph(u"Os preguntamos por separado qué parte de los gastos personales del otro conocéis de verdad. "
+                      u"Esto es lo que cada uno respondió:", body),
+            _callout(nA, tA, A_COL, "#FBF6E0"),
+            Spacer(1, 2*mm),
+            _callout(nB, tB, B_COL, "#F4F4F2"),
+            Spacer(1, 3*mm),
+            _callout(titulo, txt + nota, A_COL, "#FBF3E8"),
+            Spacer(1, 4*mm)]
+
 def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=None):
     global INST, CAPAS
     _iv2=rb._cargar_v2(); _c2={c["code"]:c for c in _iv2["capas"]}
@@ -1745,6 +1840,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     S+=rb._secsafe(seccion_coste_no_hablarlo,pA,pB,nA,nB,hogar,fi_h,divs)
     S+=rb._secsafe(seccion_sociedad_conyugal,hogar,nA,nB)
     S+=rb._secsafe(seccion_asfixia_relativa, dAf, dBf, rA, rB, nA, nB)
+    # === TRANSPARENCIA FINANCIERA MUTUA (opacidad_financiera / SD-28) ===
+    S+=rb._secsafe(seccion_transparencia, rA, rB, nA, nB)
     S+=rb._secsafe(seccion_asimetria_inversora,dAf,dBf,pA,pB,nA,nB)
     # === ÍTEM 3 · IMPUESTO DE LA FRICCIÓN (€) ===
     S+=rb._secsafe(seccion_impuesto_friccion,dAf,dBf,pA,pB,nA,nB)

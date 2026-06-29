@@ -5069,6 +5069,27 @@
           "Pareja de hecho o pareja estable sin casar"
         ]
       }
+    },
+    {
+      "id": "SD-28",
+      "tipo": "opcion",
+      "campo": "opacidad_financiera",
+      "texto": "Con sinceridad: ¿qué parte de los gastos personales de tu pareja conocéis de verdad el uno del otro?",
+      "ayuda": "No hay modelo correcto: solo el que os da paz. Esto nos dice si vuestro sistema encaja con vuestra realidad.",
+      "opciones": [
+        "Transparencia total: sabemos en qué gasta cada uno.",
+        "Casi todo; alguna compra puntual se nos escapa.",
+        "Hay zonas opacas que preferimos no mirar.",
+        "Cada uno gestiona lo suyo sin rendir cuentas.",
+        "Sospecho que hay gastos o deudas que no conozco."
+      ],
+      "mostrar_si": {
+        "campo": "estado_civil",
+        "valor_in": [
+          "Casado/a",
+          "Pareja de hecho o pareja estable sin casar"
+        ]
+      }
     }
   ],
   "vision_brecha": [
