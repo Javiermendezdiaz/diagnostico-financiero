@@ -5048,6 +5048,27 @@
           "Pareja de hecho o pareja estable sin casar"
         ]
       }
+    },
+    {
+      "id": "SD-27",
+      "tipo": "opcion",
+      "campo": "reparto_hogar",
+      "texto": "Teniendo en cuenta lo que gana cada uno, ¿cómo sufragáis los gastos comunes del hogar?",
+      "ayuda": "No hay modelo correcto: solo el que os da paz. Esto nos dice si vuestro sistema encaja con vuestra realidad.",
+      "opciones": [
+        "Al 50% exacto, gane lo que gane cada uno.",
+        "De forma proporcional: quien gana más, aporta más.",
+        "Bolsa única: todo es común, sin porcentajes.",
+        "Uno asume casi todo el peso de los gastos comunes.",
+        "Lo vamos resolviendo sin una regla fija."
+      ],
+      "mostrar_si": {
+        "campo": "estado_civil",
+        "valor_in": [
+          "Casado/a",
+          "Pareja de hecho o pareja estable sin casar"
+        ]
+      }
     }
   ],
   "vision_brecha": [

@@ -1338,6 +1338,99 @@ def seccion_indice_friccion(rA, rB, nA, nB):
     out.append(PageBreak())
     return out
 
+def seccion_asfixia_relativa(dAf, dBf, rA, rB, nA, nB):
+    """Coste de equidad de un reparto al 50% cuando hay asimetría salarial real.
+    Solo dispara si AMBOS declaran (o alguno declara) el modelo '50% exacto' Y la
+    diferencia de ingresos es >=1.5x. Cifras 100% reales (ingresos + bolsa común).
+    Defensiva total: ante datos ausentes o sin asimetría -> []. Siempre devuelve list."""
+    try:
+        iA = float((dAf or {}).get("ingreso_mensual") or 0)
+        iB = float((dBf or {}).get("ingreso_mensual") or 0)
+    except Exception:
+        return []
+    if iA <= 0 or iB <= 0:
+        return []
+
+    # --- localizar el item reparto_hogar en el instrumento (por id/campo) ---
+    def _item_reparto():
+        try:
+            for sec in (INST.values() if isinstance(INST, dict) else []):
+                if not isinstance(sec, list):
+                    continue
+                for it in sec:
+                    if isinstance(it, dict) and (it.get("campo") == "reparto_hogar" or it.get("id") == "SD-27"):
+                        return it
+        except Exception:
+            return None
+        return None
+
+    def _modelo(resp, it):
+        """Texto de la opción elegida por un miembro para reparto_hogar. None si no resoluble."""
+        if not it or not isinstance(resp, dict):
+            return None
+        idx = resp.get(it.get("id"))
+        ops = it.get("opciones") or []
+        try:
+            if isinstance(idx, list):
+                idx = idx[0] if idx else None
+            if not isinstance(idx, int) or isinstance(idx, bool):
+                return None
+            if 0 <= idx < len(ops):
+                op = ops[idx]
+                return op if isinstance(op, str) else (op.get("texto") if isinstance(op, dict) else None)
+        except Exception:
+            return None
+        return None
+
+    it = _item_reparto()
+    mA = _modelo(rA, it)
+    mB = _modelo(rB, it)
+
+    def _es_50(m):
+        return bool(m) and ("50%" in m or "50 %" in m.replace(" ", " "))
+
+    decl_50 = _es_50(mA) or _es_50(mB)
+    if not decl_50:
+        return []
+
+    # --- asimetría salarial real ---
+    rds = max(iA, iB) / min(iA, iB)
+    if rds < 1.5:
+        return []
+
+    # --- coste de equidad con cifras reales ---
+    try:
+        bolsa = max(float((dAf or {}).get("gastos_comunes") or 0),
+                    float((dBf or {}).get("gastos_comunes") or 0))
+    except Exception:
+        return []
+    if bolsa <= 0:
+        return []
+    cuota = bolsa / 2.0
+    ing_menor = min(iA, iB); ing_mayor = max(iA, iB)
+    carga_menor = cuota / ing_menor
+    carga_mayor = cuota / ing_mayor
+    quien_menos = nA if iA < iB else nB
+    quien_mas   = nA if iA >= iB else nB
+
+    # ¿declaran modelos distintos? eso ES fricción; se menciona de pasada.
+    nota_div = ""
+    if mA and mB and mA != mB:
+        nota_div = (" Conviene además notar que cada uno describe el reparto de una forma distinta: "
+                    "ya esa diferencia de relato es, en sí misma, una fuente de fricción.")
+
+    txt = (u"Con vuestro reparto al 50% y una diferencia de ingresos real ({rds:.1f}×), la mitad de los "
+           u"gastos comunes supone el {cm:.0%} del sueldo de {qmenos} frente al {cM:.0%} del de {qmas}: "
+           u"una asfixia que limita su capacidad de ahorro. Adapta recomienda mutar a un reparto proporcional "
+           u"a los ingresos para proteger la cohesión de la sociedad conyugal.").format(
+                rds=rds, cm=carga_menor, qmenos=quien_menos, cM=carga_mayor, qmas=quien_mas) + nota_div
+
+    return [Paragraph(u"La asfixia del reparto al 50%", h_sec),
+            Paragraph(u"Un reparto que parece justo sobre el papel puede repartir el esfuerzo de forma muy "
+                      u"desigual cuando los sueldos no son iguales. Esto es lo que dicen vuestros números:", body),
+            _callout(u"El coste oculto de la «equidad»", txt, A_COL, "#FBF6E0"),
+            Spacer(1, 4*mm)]
+
 def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=None):
     global INST, CAPAS
     _iv2=rb._cargar_v2(); _c2={c["code"]:c for c in _iv2["capas"]}
@@ -1636,6 +1729,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     S+=rb._secsafe(seccion_timeline_friccion,divs,nA,nB)
     S+=rb._secsafe(seccion_coste_no_hablarlo,pA,pB,nA,nB,hogar,fi_h,divs)
     S+=rb._secsafe(seccion_sociedad_conyugal,hogar,nA,nB)
+    S+=rb._secsafe(seccion_asfixia_relativa, dAf, dBf, rA, rB, nA, nB)
     S+=rb._secsafe(seccion_asimetria_inversora,dAf,dBf,pA,pB,nA,nB)
     # === ÍTEM 3 · IMPUESTO DE LA FRICCIÓN (€) ===
     S+=rb._secsafe(seccion_impuesto_friccion,dAf,dBf,pA,pB,nA,nB)
