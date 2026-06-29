@@ -372,16 +372,45 @@ def datos_completos(d):
                 d["ratio_dividendo_nomina"]=max(0.0,min(1.0,_div/_base))
                 d["nomina_eur"]=_nom; d["dividendo_eur"]=_div
     except Exception: pass
-    # Art. 2 (una cifra, un dueno): si el cliente desgloso sus fuentes de ingreso, el TOTAL se DERIVA
-    # de las partes y nunca puede contradecirlas. Mata el bug de "valor hora x4" y totales incoherentes.
+    # Art. 2 (una cifra, un dueno): el ingreso NETO total lo da el cliente en NUM-2 (ingreso_mensual) y lo
+    # DESGLOSA por categorias en ingreso_mensual_detalle. Las 4 preguntas sueltas de importe por fuente
+    # (ing_trabajo/inversion/alquiler/otros) se ELIMINARON del cuestionario por redundantes con el desglose.
+    # Aqui los 4 "buckets" ing_* se DERIVAN del desglose (mapeando categorias a fuentes) para alimentar el
+    # €/hora de score_v2.calcular_fuentes. Conservador: clamp >=0, solo si el bucket no viene ya dado.
     try:
-        _ki=("ing_trabajo","ing_inversion","ing_alquiler","ing_otros")
-        if any(d.get(k) is not None and str(d.get(k))!="" for k in _ki):
-            _si=sum(float(d.get(k) or 0) for k in _ki)
-            if _si>0: d["ingreso_mensual"]=_si
-            _kp=("ing_inversion","ing_alquiler","ing_otros")
-            if any(d.get(k) is not None and str(d.get(k))!="" for k in _kp):
-                d["renta_pasiva"]=sum(float(d.get(k) or 0) for k in _kp)
+        _ind=d.get("ingreso_mensual_detalle")
+        if isinstance(_ind,list):
+            _B_TRAB={"nómina / salario","nomina / salario","bonus / variable","autónomo / actividad","autonomo / actividad","negocio propio (sl)"}
+            _B_INV ={"dividendos","intereses / cupones","plusvalías","plusvalias"}
+            _B_ALQ ={"alquileres"}
+            _B_OTR ={"royalties / propiedad intelectual","pensión","pension","otros"}
+            _bt=_bi=_ba=_bo=0.0
+            for r in _ind:
+                _c=str((r or {}).get("c","")).strip().lower()
+                try: _v=max(0.0,float((r or {}).get("v") or 0))
+                except Exception: _v=0.0
+                if   _c in _B_TRAB: _bt+=_v
+                elif _c in _B_INV:  _bi+=_v
+                elif _c in _B_ALQ:  _ba+=_v
+                elif _c in _B_OTR:  _bo+=_v
+            for _k,_val in (("ing_trabajo",_bt),("ing_inversion",_bi),("ing_alquiler",_ba),("ing_otros",_bo)):
+                if d.get(_k) is None or str(d.get(_k))=="":
+                    d[_k]=max(0.0,_val)
+    except Exception:
+        pass
+    # ingreso_mensual: se mantiene el TOTAL que da el cliente (NUM-2). Solo como red de seguridad, si no
+    # llega o es 0 pero el desglose suma algo, usamos la suma del desglose como total.
+    try:
+        _ind=d.get("ingreso_mensual_detalle")
+        if isinstance(_ind,list):
+            _sd=sum(max(0.0,float((r or {}).get("v") or 0)) for r in _ind)
+            if _sd>0 and not (float(d.get("ingreso_mensual") or 0)>0):
+                d["ingreso_mensual"]=_sd
+    except Exception:
+        pass
+    # horas_semana: si el cliente declaro horas por fuente (h_*), el total semanal se DERIVA de la suma.
+    # (Las preguntas de HORAS por fuente SIGUEN en el cuestionario: el desglose no captura el tiempo.)
+    try:
         _kh=("h_trabajo","h_inversion","h_alquiler","h_otros")
         if any(d.get(k) is not None and str(d.get(k))!="" for k in _kh):
             _sh=sum(float(d.get(k) or 0) for k in _kh)

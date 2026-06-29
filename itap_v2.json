@@ -1234,8 +1234,16 @@
               "score": 0
             },
             {
+              "texto": "Bajas-medias: por debajo del 1%, aunque no las controlo al detalle.",
+              "score": 25
+            },
+            {
               "texto": "Más o menos; rondan el 1-1,5% anual.",
               "score": 50
+            },
+            {
+              "texto": "Altas y lo sé: por encima del 1,5% (banco tradicional o producto caro).",
+              "score": 75
             },
             {
               "texto": "No lo sé, o está en el banco de siempre (probablemente altas).",
@@ -5209,19 +5217,6 @@
       }
     },
     {
-      "id": "NUM-F1",
-      "campo": "ing_trabajo",
-      "unidad": "€/mes",
-      "texto": "De tu trabajo activo (empleo, autónomo), ¿cuánto te queda NETO al mes, tras impuestos?",
-      "ayuda": "Solo lo que depende de que tú estés ahí, ya descontados impuestos (no la facturación bruta).",
-      "mostrar_si": {
-        "campo": "fuentes_ingreso",
-        "valor_in": [
-          "Mi trabajo activo (empleo, autónomo)"
-        ]
-      }
-    },
-    {
       "id": "NUM-F2",
       "campo": "h_trabajo",
       "unidad": "horas/semana",
@@ -5231,19 +5226,6 @@
         "campo": "fuentes_ingreso",
         "valor_in": [
           "Mi trabajo activo (empleo, autónomo)"
-        ]
-      }
-    },
-    {
-      "id": "NUM-F3",
-      "campo": "ing_inversion",
-      "unidad": "€/mes",
-      "texto": "De tus inversiones (dividendos, intereses, fondos), ¿cuánto te entra de media al mes?",
-      "ayuda": "Lo que genera tu capital, no lo que aportas tú.",
-      "mostrar_si": {
-        "campo": "fuentes_ingreso",
-        "valor_in": [
-          "Inversiones (dividendos, intereses, fondos)"
         ]
       }
     },
@@ -5261,19 +5243,6 @@
       }
     },
     {
-      "id": "NUM-F5",
-      "campo": "ing_alquiler",
-      "unidad": "€/mes",
-      "texto": "De tus alquileres, ¿cuánto te queda LIMPIO al mes — ya descontados todos los gastos (IBI, comunidad, seguro, mantenimiento, periodos sin alquilar) Y los impuestos (IRPF)?",
-      "ayuda": "El dinero que de verdad acaba en tu bolsillo, después de gastos e impuestos. Con esto calculamos tu rentabilidad real.",
-      "mostrar_si": {
-        "campo": "fuentes_ingreso",
-        "valor_in": [
-          "Alquileres de inmuebles"
-        ]
-      }
-    },
-    {
       "id": "NUM-F6",
       "campo": "h_alquiler",
       "unidad": "horas/semana",
@@ -5283,19 +5252,6 @@
         "campo": "fuentes_ingreso",
         "valor_in": [
           "Alquileres de inmuebles"
-        ]
-      }
-    },
-    {
-      "id": "NUM-F7",
-      "campo": "ing_otros",
-      "unidad": "€/mes",
-      "texto": "De tus otras fuentes (negocio que funciona sin ti, royalties…), ¿cuánto te entra al mes?",
-      "ayuda": "Lo que generan esas fuentes de media al mes.",
-      "mostrar_si": {
-        "campo": "fuentes_ingreso",
-        "valor_in": [
-          "Otras fuentes (un negocio que funciona sin mí, royalties…)"
         ]
       }
     },
@@ -5344,8 +5300,8 @@
       "id": "NUM-16",
       "campo": "gastos_comunes",
       "unidad": "€/mes",
-      "texto": "¿Cuánto suman al mes vuestros gastos comunes del hogar (vivienda, facturas, comida, coche)?",
-      "ayuda": "La bolsa compartida. Nos deja ver cuánto pesa en el sueldo de cada uno — y si el reparto es tan justo como parece.",
+      "texto": "¿Cuánto suman al mes los gastos comunes TOTALES de vuestro hogar (vivienda, facturas, comida, coche) — la bolsa compartida completa, no solo tu parte?",
+      "ayuda": "Pon el TOTAL del hogar, lo que pagáis entre los dos cada mes (no la mitad ni tu aportación). Con ese total vemos cuánto pesa en el sueldo de cada uno — y si el reparto es tan justo como parece.",
       "mostrar_si": {
         "campo": "estado_civil",
         "valor_in": [
