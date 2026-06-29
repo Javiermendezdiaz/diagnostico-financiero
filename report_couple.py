@@ -54,6 +54,26 @@ def dual_radar(pA,pB,path):
     ax.legend(loc="upper right",bbox_to_anchor=(1.18,1.12),fontsize=9,frameon=False)
     plt.tight_layout(); fig.savefig(path,dpi=200,transparent=True); plt.close(fig); gc.collect()
 
+def _resp_op(it, r):
+    """(score, texto) de una respuesta de escala, sea indice unico o LISTA (multi-respuesta ACT_LAT).
+    Devuelve None si no resoluble (sin seleccion, indices invalidos u otro tipo). Multi -> media de scores."""
+    ops = it.get("opciones") or []
+    try:
+        if isinstance(r, bool):
+            return None
+        if isinstance(r, list):
+            idxs = [i for i in r if isinstance(i, int) and not isinstance(i, bool) and 0 <= i < len(ops)]
+            if not idxs:
+                return None
+            sc = sum(ops[i]["score"] for i in idxs) / len(idxs)
+            tx = "; ".join(ops[i]["texto"] for i in idxs)
+            return (sc, tx)
+        if isinstance(r, int) and 0 <= r < len(ops):
+            return (ops[r]["score"], ops[r]["texto"])
+    except Exception:
+        return None
+    return None
+
 def divergencias_item(rA,rB):
     out=[]
     for capa in INST["capas"]:
@@ -62,11 +82,13 @@ def divergencias_item(rA,rB):
             if it.get("atencion"): continue
             a,b=rA.get(it["id"]),rB.get(it["id"])
             if a is None or b is None: continue
-            sa,sb=it["opciones"][a]["score"],it["opciones"][b]["score"]
+            _ra=_resp_op(it,a); _rb=_resp_op(it,b)
+            if _ra is None or _rb is None: continue   # multi-respuesta/indice no resoluble: se omite del cruce
+            sa,ta=_ra; sb,tb=_rb
             vinc="VINCULO" in it.get("dimensiones","")
             if abs(sa-sb)>=66 or (vinc and abs(sa-sb)>=33):
                 out.append({"capa":capa["code"],"texto":it["texto"],
-                    "A":it["opciones"][a]["texto"],"B":it["opciones"][b]["texto"],
+                    "A":ta,"B":tb,
                     "gap":abs(sa-sb),"vinc":vinc})
     out.sort(key=lambda d:(-d["vinc"],-d["gap"])); return out
 
@@ -1145,9 +1167,10 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
             sa=sb=None; na_a=na_b=False
             if it["tipo"]=="escala":
                 ia=rA.get(it["id"]); ib=rB.get(it["id"])
-                if ia is not None: va=it["opciones"][ia]["texto"]; sa=it["opciones"][ia]["score"]
+                _ra=_resp_op(it,ia); _rb=_resp_op(it,ib)
+                if _ra is not None: va=_ra[1]; sa=_ra[0]
                 else: va=""; na_a=True
-                if ib is not None: vb=it["opciones"][ib]["texto"]; sb=it["opciones"][ib]["score"]
+                if _rb is not None: vb=_rb[1]; sb=_rb[0]
                 else: vb=""; na_b=True
             else:
                 ga=dA.get(NUM_MAP.get(it["id"],"")); va=str(ga) if ga is not None else ""; na_a=(ga is None)
