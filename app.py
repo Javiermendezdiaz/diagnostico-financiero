@@ -255,6 +255,22 @@ def datos_completos(d):
             _viv=sum(float((r or {}).get("v") or 0) for r in _pd if "vivienda" in str((r or {}).get("c","")).lower())
             if _tot>0 and _viv>0: d["pct_vivienda"]=max(0.0,min(100.0,100.0*_viv/_tot))
     except Exception: pass
+    # Art. 2 (una cifra, un dueno): si el cliente desgloso sus fuentes de ingreso, el TOTAL se DERIVA
+    # de las partes y nunca puede contradecirlas. Mata el bug de "valor hora x4" y totales incoherentes.
+    try:
+        _ki=("ing_trabajo","ing_inversion","ing_alquiler","ing_otros")
+        if any(d.get(k) is not None and str(d.get(k))!="" for k in _ki):
+            _si=sum(float(d.get(k) or 0) for k in _ki)
+            if _si>0: d["ingreso_mensual"]=_si
+            _kp=("ing_inversion","ing_alquiler","ing_otros")
+            if any(d.get(k) is not None and str(d.get(k))!="" for k in _kp):
+                d["renta_pasiva"]=sum(float(d.get(k) or 0) for k in _kp)
+        _kh=("h_trabajo","h_inversion","h_alquiler","h_otros")
+        if any(d.get(k) is not None and str(d.get(k))!="" for k in _kh):
+            _sh=sum(float(d.get(k) or 0) for k in _kh)
+            if _sh>0: d["horas_semana"]=_sh
+    except Exception:
+        pass
     return d
 
 def baremo(salud_score):
