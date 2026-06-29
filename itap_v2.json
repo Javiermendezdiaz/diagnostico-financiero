@@ -3826,10 +3826,22 @@
             {
               "texto": "Ninguno claro hoy; dependo al 100% de un solo ingreso que exige todo mi tiempo.",
               "score": 100
+            },
+            {
+              "texto": "Lanzar una nueva línea de servicio o producto con mis clientes actuales de la empresa.",
+              "score": 20
+            },
+            {
+              "texto": "Delegar o digitalizar operaciones de mi negocio para recuperar tiempo y escalar.",
+              "score": 40
+            },
+            {
+              "texto": "Optimizar la caja y los excedentes que hoy duermen dentro de mi sociedad.",
+              "score": 60
             }
           ],
           "tier1": true,
-          "ayuda": "Opus lo pondrá en portada como tu prioridad de crecimiento a 90 días."
+          "ayuda": "Opus lo pondrá en portada como tu prioridad de crecimiento a 90 días. Las tres últimas opciones son para perfil empresa/autónomo."
         },
         {
           "id": "C11-03",

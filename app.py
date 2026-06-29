@@ -352,6 +352,26 @@ def datos_completos(d):
             if _conoc:
                 d["edad_hijo_menor"]=min(_conoc)
     except Exception: pass
+    # ratio_dividendo_nomina: del desglose de ingresos, peso del dividendo sobre la suma
+    # nomina+dividendo. Es la senal objetiva de como se autorretribuye el empresario:
+    # 0 = solo nomina (suele dejar fiscalidad sin optimizar); >0.6 = sobreponderar dividendo
+    # (riesgo de cotizacion/jubilacion floja). report_book emite el juicio de salud fiscal.
+    # Sustituye la lectura cualitativa: el desglose manda sobre la percepcion.
+    try:
+        _ind=d.get("ingreso_mensual_detalle")
+        if isinstance(_ind,list):
+            _nom=0.0; _div=0.0
+            for r in _ind:
+                _c=str((r or {}).get("c","")).strip().lower()
+                try: _v=max(0.0,float((r or {}).get("v") or 0))
+                except Exception: _v=0.0
+                if "nómina" in _c or "nomina" in _c or "salario" in _c: _nom+=_v
+                elif "dividendo" in _c: _div+=_v
+            _base=_nom+_div
+            if _base>0:
+                d["ratio_dividendo_nomina"]=max(0.0,min(1.0,_div/_base))
+                d["nomina_eur"]=_nom; d["dividendo_eur"]=_div
+    except Exception: pass
     # Art. 2 (una cifra, un dueno): si el cliente desgloso sus fuentes de ingreso, el TOTAL se DERIVA
     # de las partes y nunca puede contradecirlas. Mata el bug de "valor hora x4" y totales incoherentes.
     try:

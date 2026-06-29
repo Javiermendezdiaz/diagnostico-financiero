@@ -210,18 +210,24 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
     ci=br.get("coste_ideal_mes"); ing=br.get("ingreso_mes"); gap=br.get("brecha_mes")
     if ci:
         if gap and gap>0:
-            # Cifra hero = brecha ANUAL exacta. Para brechas grandes (>=10k) la compactamos a "k/año"
-            # (lee bien: "12k/año"); por debajo mostramos el importe exacto en €/año para que el valor
-            # y la unidad SIEMPRE cuadren con el cuerpo (evita el bug "2k/año" sobre "2.000 €/mes").
+            # El KPI hero ("Tus datos dicen") debe mostrar lo que el cliente GENERA hoy:
+            # el INGRESO real anual (ingreso_mes*12), NO la brecha. La brecha se muestra
+            # aparte, etiquetada explicitamente como "brecha", en el cuerpo de la pagina.
+            # El ingreso es la cifra real del cliente: se muestra EXACTA en €/año
+            # (p.ej. 30.120 €/año), no compactada, para maxima precision y confianza.
+            _ing_anual=(ing or 0)*12
             _gap_anual=gap*12
+            _hero=LD_fmt(_ing_anual).replace(" €","")+" €/año"
+            # Brecha anual etiquetada explicitamente. Importes grandes (>=10k) a "k/año"
+            # (lee bien: "12k/año"); por debajo, importe exacto en €/año.
             if _gap_anual>=10000:
-                dn,du=_compact(_gap_anual); _hero="%s%s/año"%(dn,du)
+                gn,gu=_compact(_gap_anual); _brecha_txt="%s%s/año"%(gn,gu)
             else:
-                _hero=LD_fmt(_gap_anual).replace(" €","")+" €/año"
+                _brecha_txt=LD_fmt(_gap_anual).replace(" €","")+" €/año"
             seq.append(LD.efecto_espejo(tmp+"02.svg","El espejo",
                 "La vida que describí como ideal cuesta %s al mes."%LD_fmt(ci),
                 _hero,
-                "Hoy tu modelo genera %s/mes; tu vida ideal pide %s/mes — una brecha de %s/mes, %s al año. Esa distancia es, exactamente, lo que vamos a cerrar. No es un fracaso: es el mapa."%(LD_fmt(ing or 0),LD_fmt(ci),LD_fmt(gap),LD_fmt(_gap_anual)),
+                "Eso es lo que tu modelo genera hoy: %s/mes. Tu vida ideal pide %s/mes — la brecha es de %s/mes, %s al año (%s). Esa distancia es, exactamente, lo que vamos a cerrar. No es un fracaso: es el mapa."%(LD_fmt(ing or 0),LD_fmt(ci),LD_fmt(gap),LD_fmt(_gap_anual),_brecha_txt),
                 "Cerremos la brecha.", accent="#8FA1BC"))
         else:
             seq.append(LD.efecto_espejo(tmp+"02.svg","El espejo",

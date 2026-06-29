@@ -372,7 +372,60 @@ def calcular_contradicciones(datos, resp, perfil_in, p):
                     "dibujan una tensión real. Reconocer el tamaño exacto del problema es el primer movimiento para "
                     "desactivarlo."))
 
+    # 6) ESPEJISMO EMPRESARIAL: el beneficio se acumula y "no sé sacarlo sin un palo fiscal"
+    #    (C11-11, opcion de mayor disfuncion) PERO a la vez dice optimizar nomina/dividendos/gastos
+    #    "con criterio fiscal cada ano" (C11-12, opcion de plan). Son incompatibles: si optimizas
+    #    de verdad, sabes extraer; si no sabes extraer, no tienes plan fiscal real. Es sesgo de
+    #    autopercepcion. Deteccion robusta por TEXTO de la opcion elegida (los id pueden variar),
+    #    con respaldo por indice de opcion. A prueba de fallos.
+    try:
+        _atrapa = _resp_dice(resp, p_in=perfil_in, datos=datos,
+                             ids=("C11-11",),
+                             needles=("no sé cómo sacarlo", "no se como sacarlo", "palo fiscal",
+                                      "se acumula dentro"),
+                             idx_fallback={"C11-11": 2})
+        _planfiscal = _resp_dice(resp, p_in=perfil_in, datos=datos,
+                                 ids=("C11-12",),
+                                 needles=("optimizo nómina", "optimizo nomina",
+                                          "con criterio fiscal cada año", "con criterio fiscal cada ano"),
+                                 idx_fallback={"C11-12": 0})
+        if _atrapa and _planfiscal:
+            out.append(("El espejismo empresarial: tu plan fiscal no es tan plan",
+                        "Dices tener un plan fiscal —optimizas nómina, dividendos y gastos con criterio cada año— y, "
+                        "a la vez, que el beneficio se acumula en la sociedad y no sabes extraerlo sin un palo fiscal. "
+                        "Las dos cosas no caben juntas: tu mente corporativa y tu mente patrimonial no están "
+                        "alineadas. Un plan fiscal de verdad termina justo donde hoy te bloqueas — en sacar el dinero "
+                        "a tu patrimonio personal con el menor coste posible."))
+    except Exception:
+        pass
+
     return out
+
+
+def _resp_dice(resp, p_in=None, datos=None, ids=(), needles=(), idx_fallback=None):
+    """Failsafe: ¿el cliente eligió, en alguno de estos ítems, una opción cuyo TEXTO contiene
+    alguna de las 'needles'? Detecta por texto del enunciado elegido (robusto a ids cambiantes),
+    con respaldo por índice de opción (idx_fallback={id: indice}). Devuelve bool."""
+    try:
+        idx_fallback = idx_fallback or {}
+        # 1) por texto elegido, si la app dejó el texto en resp (p.ej. resp["C11-11_txt"])
+        for _id in ids:
+            _t = resp.get(str(_id) + "_txt") or resp.get(str(_id) + "_texto")
+            if isinstance(_t, str) and _t:
+                _tl = _t.strip().lower()
+                if any(n in _tl for n in needles):
+                    return True
+        # 2) por índice de opción (resp[id] = índice elegido)
+        for _id, _ix in idx_fallback.items():
+            _v = resp.get(_id)
+            try:
+                if _v is not None and int(_v) == int(_ix):
+                    return True
+            except Exception:
+                pass
+    except Exception:
+        pass
+    return False
 
 
 def validez(resp, datos, perfil_in, p, contradicciones=None, inst=None):

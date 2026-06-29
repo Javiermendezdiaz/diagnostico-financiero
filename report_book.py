@@ -2723,6 +2723,118 @@ def seccion_dictamen_comportamiento(resp):
         out.append(Spacer(1,3*mm))
     return out
 
+def seccion_dictamen_empresa(resp, datos=None, extras=None):
+    """DICTAMEN EMPRESA: prosa firme corporativa para el cliente con sociedad propia. Detecta las
+    respuestas del modulo empresa por PALABRAS CLAVE del texto de pregunta/opcion (los id varian),
+    nunca por id fijo. Emite tres juicios cuando proceden:
+      1) Key-Person Risk (sucesion/dependencia del fundador).
+      2) Trampa fiscal societaria (caja/beneficio atrapado en la sociedad por miedo fiscal).
+      3) Salud fiscal de la autorretribucion (ratio_dividendo_nomina derivado del desglose).
+    Tono Adapta: firme, sin catastrofismo, cliente primero. Aditivo y failsafe."""
+    d = datos or {}
+    # 1) Localizar los items del modulo empresa por keywords del enunciado (id-robusto).
+    try:
+        items = []
+        for capa in INST["capas"]:
+            for it in capa.get("items", []):
+                if it.get("tipo") == "escala" and not it.get("atencion"):
+                    items.append(it)
+    except Exception:
+        return []
+    def _match(kws):
+        for it in items:
+            tx = (it.get("texto") or "").lower()
+            if all(k in tx for k in kws):
+                return it
+        return None
+    def _opt_txt(it):
+        """Texto de la opcion elegida (en minusculas) o None."""
+        try:
+            idx = resp.get(it["id"])
+            if idx is None:
+                return None
+            return (it["opciones"][idx].get("texto") or "").strip().lower()
+        except Exception:
+            return None
+    def _opt_score(it):
+        try:
+            idx = resp.get(it["id"])
+            return it["opciones"][idx]["score"]
+        except Exception:
+            return None
+
+    bloques = []  # (titulo, etiqueta, color, texto)
+
+    # --- Key-Person Risk: pregunta de sucesion/transmision de la empresa ---
+    it_suc = _match(("empresa", "transmitirse")) or _match(("faltaras", "empresa")) or _match(("vender", "empresa"))
+    if it_suc:
+        sc = _opt_score(it_suc); ot = _opt_txt(it_suc) or ""
+        depende = any(k in ot for k in ("depende", "evapora", "apenas", "solo de mí", "solo de mi", "si yo falto"))
+        if (sc is not None and sc >= 60) or depende:
+            bloques.append((
+                "Tu empresa: Key-Person Risk",
+                "DEPENDENCIA CRÍTICA", "#9A3B2E",
+                "Tu principal activo operativo presenta Key-Person Risk: la dependencia del fundador y la falta de "
+                "protocolización reducen el valor de traspaso un estimado del 40-60%. La empresa que vale mucho contigo "
+                "dentro puede valer la mitad el día que tengas que salir o faltes. Es prioritario un plan de contingencia "
+                "—protocolo, delegación real y documentación— que convierta tu talento en un activo transmisible, no en una "
+                "atadura."))
+
+    # --- Trampa fiscal societaria: caja/beneficio atrapado en la sociedad por miedo fiscal ---
+    it_liq = _match(("empresa", "sociedad")) or _match(("atrapado", "sociedad"))
+    if it_liq:
+        sc = _opt_score(it_liq); ot = _opt_txt(it_liq) or ""
+        atrapa = any(k in ot for k in ("se acumula", "no sé cómo sacarlo", "no se como sacarlo", "palo fiscal", "atrapado"))
+        if (sc is not None and sc >= 60) or atrapa:
+            bloques.append((
+                "La trampa fiscal de tu sociedad",
+                "EXCEDENTE CAUTIVO", "#9A3B2E",
+                "Acumular excedentes pasivos en la sociedad tiene doble coste: pérdida de poder adquisitivo por inflación y "
+                "asfixia del patrimonio personal. El dinero que se queda dentro «para no pagar» no trabaja para ti ni te da "
+                "tranquilidad: vive secuestrado. Existen vías de extracción optimizada —retribución en especie, holding, planes "
+                "de capitalización— que no estás explotando. No se trata de pagar más impuestos, sino de sacar tu capital a tu "
+                "vida con el menor coste legal posible."))
+
+    # --- Salud fiscal de la autorretribucion: ratio dividendo/nomina derivado del desglose ---
+    try:
+        rdn = d.get("ratio_dividendo_nomina")
+        if rdn is not None:
+            rdn = float(rdn)
+            if rdn >= 0.60:
+                bloques.append((
+                    "Tu mezcla nómina / dividendos",
+                    "SOBREPONDERAS DIVIDENDO", "#9A7B1F",
+                    "Más del 60%% de lo que sacas de tu sociedad llega vía dividendo (hoy, en torno al %d%%). Optimiza IRPF a "
+                    "corto, pero adelgaza tu base de cotización: pensión pública más floja y menor capacidad de aportar a "
+                    "instrumentos de previsión. La autorretribución óptima equilibra coste fiscal hoy y derechos mañana — y eso "
+                    "se calcula, no se intuye." % round(rdn * 100)))
+            elif rdn <= 0.0001:
+                bloques.append((
+                    "Tu mezcla nómina / dividendos",
+                    "TODO VÍA NÓMINA", "#9A7B1F",
+                    "Te retribuyes íntegramente por nómina y no repartes dividendo. Es lo simple, pero rara vez lo eficiente: por "
+                    "encima de cierto umbral, una parte vía dividendo —bien planificada— reduce la factura conjunta IRPF + "
+                    "Sociedades. Dejar el dividendo a cero «por costumbre» suele ser dinero que regalas a Hacienda cada año."))
+    except Exception:
+        pass
+
+    if not bloques:
+        return []
+    out = [PageBreak(), Paragraph("El dictamen de tu empresa", h_sec),
+           Paragraph("Tu sociedad no es solo tu fuente de ingresos: es tu mayor activo y, a la vez, tu mayor riesgo de "
+                     "concentración. Esto es lo que dicen tus respuestas, leídas como las leería tu asesor patrimonial.", body),
+           Spacer(1, 4*mm)]
+    for titulo, etiq, col, txt in bloques:
+        out.append(Table([[Paragraph("<b>%s</b>" % titulo, St("deb_t%d" % len(out), fontSize=12, leading=15, textColor=ACCDK, fontName=FB)),
+                           Paragraph("[%s]" % etiq, St("deb_e%d" % len(out), fontSize=9, leading=12, textColor=colors.HexColor(col), fontName=FB, alignment=TA_LEFT))]],
+                  colWidths=[110*mm, 50*mm],
+                  style=TableStyle([("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 1)])))
+        out.append(Paragraph(txt, St("deb_x%d" % len(out), fontSize=10, leading=14, textColor=INK, spaceBefore=1, spaceAfter=6)))
+        out.append(Table([[""]], colWidths=[160*mm], style=[("LINEBELOW", (0, 0), (-1, -1), 0.4, LINE)]))
+        out.append(Spacer(1, 3*mm))
+    return out
+
 def seccion_coste_inflacion(datos):
     """Cuantifica en € lo que pierde el capital ocioso cada año contra la inflación, y nombra la
     optimización fiscal como palanca. Solo aparece si hay liquidez parada relevante. Aditivo y failsafe."""
@@ -3557,6 +3669,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     if extras: S+=_secsafe(seccion_conclusion,extras)
     # DICTAMEN de comportamiento (convierte el test en prosa ejecutiva, antes del anexo crudo)
     S+=_secsafe(seccion_dictamen_comportamiento,resp)
+    # DICTAMEN de empresa (Key-Person Risk, trampa fiscal societaria, salud de la autorretribucion)
+    S+=_secsafe(seccion_dictamen_empresa,resp,datos,extras)
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
     S+=[PageBreak(), Paragraph("Anexo \u2014 Tus respuestas",h_sec),

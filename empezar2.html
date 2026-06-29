@@ -527,6 +527,100 @@ function capaBand(cap){
 }
 
 function repProg(q){ if(!st.sid)return; try{ fetch(API+'/api/progress',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify({session_id:st.sid,idx:st.i,total:st.cola.length,last_qid:(q&&q.id)||null})}).catch(()=>{}); }catch(e){} }
+// ===== ANTI-FATIGA =====
+// (1) Cuenta atrás por bloque: cuántas preguntas QUEDAN en el bloque actual (incl. la actual), contando
+//     items consecutivos con el mismo _b a partir de st.i. Robusto: si no se puede calcular, devuelve null.
+function _quedanBloque(){
+  try{
+    if(!st.cola || !st.cola.length || st.i<0 || st.i>=st.cola.length) return null;
+    var b=st.cola[st.i]._b; if(!b) return null;
+    var n=0;
+    for(var k=st.i;k<st.cola.length;k++){ var it=st.cola[k]; if(!it||it._b!==b) break; if(aplica(it)) n++; }
+    return n>0?n:null;
+  }catch(e){ return null; }
+}
+function _txtQuedanBloque(){
+  var n=_quedanBloque(); if(n==null) return '';
+  if(n<=1) return 'Última de este bloque';
+  return 'Te quedan '+n+' en este bloque';
+}
+// Mensajes de transición al cerrar un bloque (recompensa breve, tono Adapta cómplice y firme).
+var _MSG_BLOQUE={
+  'Sobre ti':'Bloque cerrado: ya sabemos quién eres. Ahora, tu vida ideal.',
+  'Tu vida ideal':'Bloque cerrado: ya tenemos tu destino. Pongámosle números.',
+  'Tus números':'Bloque cerrado: ya tenemos tu foto patrimonial. Vamos a por tu psicología del dinero.',
+  'Tu arquetipo del dinero':'Bloque cerrado: ya conocemos tu arquetipo. Casi lo tenemos.',
+  'Lo que más te importa':'Bloque cerrado: ya sabemos qué pesa más para ti.',
+  'En tus palabras':'Bloque cerrado: tus palabras quedan registradas. Estamos terminando.',
+  'Donde se cruza tu vida':'Bloque cerrado: hemos cruzado lo que importa. Seguimos.'
+};
+// (2) Micro-hito al cerrar bloque: devuelve el mensaje si cambió _b (no en la primera), o null.
+function _msgHitoBloque(prevB, curB){
+  try{
+    if(prevB==null || prevB===curB) return null;       // primera pregunta o mismo bloque: nada
+    return _MSG_BLOQUE[prevB] || ('Bloque cerrado: «'+prevB+'». Seguimos con el siguiente.');
+  }catch(e){ return null; }
+}
+// (3) Revelaciones en vivo: cada ~10 preguntas respondidas, un dato REAL ya calculado del propio cliente.
+function _revelacion(){
+  try{
+    var ans=Object.keys(st.resp||{}).length + Object.keys(st.datos||{}).filter(function(k){
+      return k.indexOf('_detalle')<0 && k[0]!=='_' && typeof st.datos[k]==='number' && isFinite(st.datos[k]);
+    }).length;
+    if(ans<=0 || ans%10!==0) return false;             // sólo en múltiplos de 10
+    if(st._lastRevelAns===ans) return false;           // no repetir en el mismo umbral
+    var d=st.datos||{};
+    var ing=+d.ingreso_mensual||0, gas=+d.gasto_mensual||0, col=+d.colchon_liquido||0;
+    var cands=[];
+    if(ing>0 && gas>0){
+      var margen=Math.round(ing-gas);
+      cands.push({k:'margen', m:'Con lo que llevas, tu margen real es '+margen.toLocaleString('es-ES')+' €/mes.'});
+    }
+    if(col>0 && gas>0){
+      var meses=Math.round((col/gas)*10)/10;
+      cands.push({k:'colchon', m:'Tu colchón aguanta '+meses.toString().replace('.',',')+' mes'+(meses===1?'':'es')+' sin ingresos.'});
+    }
+    if(!cands.length) return false;
+    // elige un dato distinto al último mostrado
+    var pick=cands.find(function(c){return c.k!==st._lastRevelK;}) || cands[0];
+    st._lastRevelAns=ans; st._lastRevelK=pick.k;
+    toast(0, pick.m);
+    return true;
+  }catch(e){ return false; }
+}
+// (4) Hito de cierre de capa: si cambió el _cap de una capa C*, devuelve el mensaje con el contador X/12, o null.
+function _msgHitoCapa(prevCap, curCap){
+  try{
+    if(prevCap==null || prevCap===curCap) return null;
+    if(!(prevCap[0]==='C')) return null;               // sólo al cerrar una capa C*
+    if(!INST||!INST.capas) return null;
+    var rev=0; INST.capas.forEach(function(c){
+      if(c.items.filter(function(it){return it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null;}).length) rev++;
+    });
+    if(rev<1) return null;
+    return 'Capa '+rev+' de '+INST.capas.length+' — vas a buen ritmo.';
+  }catch(e){ return null; }
+}
+// Orquesta los hitos: actualiza SIEMPRE los trackers de bloque/capa y emite a lo sumo UN toast por avance
+// (prioridad: bloque > capa > revelación). No bloquea el flujo ni toca scoring/persistencia.
+function _antiFatiga(q){
+  try{
+    var curB=(q&&q._b)||null, curCap=(q&&q._cap)||null;
+    if(st._afInit==null){ st._afInit=1; st._lastB=curB; st._lastCap=curCap; st._afMaxI=st.i; return; } // arme silencioso
+    var prevB=st._lastB, prevCap=st._lastCap;
+    st._lastB=curB; st._lastCap=curCap;                // trackers SIEMPRE al día (no se desincronizan)
+    // sólo celebramos AVANCE real: si el usuario pulsa ← Atrás (st.i no supera el máximo visto), no disparamos hitos.
+    var _avance = (st._afMaxI==null || st.i>st._afMaxI);
+    if(st.i>(st._afMaxI||0)) st._afMaxI=st.i;
+    if(!_avance) return;
+    // si una respuesta acaba de lanzar un toast de scoring (feedback en caliente), no lo pisamos este avance.
+    var _toastReciente = (typeof window!=='undefined' && window._lastToastTs && (Date.now()-window._lastToastTs)<700);
+    if(_toastReciente) return;
+    var msgB=_msgHitoBloque(prevB, curB); if(msgB){ toast(0, msgB); return; }
+    var msgC=_msgHitoCapa(prevCap, curCap); if(msgC){ toast(0, msgC); return; }
+    _revelacion();
+  }catch(e){}
+}
 function pintar(){
   while(st.i<st.cola.length && !aplica(st.cola[st.i])) st.i++;
   if(st.i>=st.cola.length){ return finalizar(); }
@@ -535,7 +629,8 @@ function pintar(){
   saveProgreso();
   const _rem=Math.max(0,st.cola.length-st.i), _mins=_rem>2?'  ·  ~'+Math.max(1,Math.round(_rem*8/60))+' min':'';
   const _tot=Math.max(st.cola.length,st.i+1), _n=Math.min(st.i+1,_tot);
-  document.getElementById('bloque').textContent=q._b+'  ·  Pregunta '+_n+'/~'+_tot+'  ·  '+progresoPct(q)+'%'+_mins;
+  const _qb=_txtQuedanBloque(), _bloqTxt=_qb?('  ·  '+_qb):('  ·  Pregunta '+_n+'/~'+_tot);
+  document.getElementById('bloque').textContent=q._b+_bloqTxt+'  ·  '+progresoPct(q)+'%'+_mins;
   progreso(q);
   qtext.textContent=q.texto||q.pregunta;
   const ay=document.getElementById('ayuda'); ay.classList.remove('ai');
@@ -588,6 +683,7 @@ function pintar(){
   const _qc=document.getElementById('qcard'); if(_qc){_qc.classList.remove('exit');_qc.classList.remove('in');void _qc.offsetWidth;_qc.classList.add('in');}
   [...opts.children].forEach((el,i)=>{el.classList.add('optin');el.style.animationDelay=(i*50)+'ms';});
   try{updateRadar();}catch(_e){}
+  try{_antiFatiga(q);}catch(_e){}   // anti-fatiga: hito de bloque / capa / revelación (no bloquea el flujo)
 }
 let _qlock=false;
 function nextFade(fn){ if(_qlock){return;} _qlock=true; setTimeout(()=>{try{updateRadar();}catch(e){}},90); const c=document.getElementById('qcard'); setTimeout(()=>{if(c)c.classList.add('exit');},200); setTimeout(()=>{_qlock=false;fn();},470); }
@@ -769,6 +865,7 @@ function toast(score,tag){
   const cls = score>=100?'s100':(score>=50?'s50':'s0');
   const kk = score>=100?'⚠ Foco de tensión':(score>=50?'• Señal a vigilar':'✓ Esto juega a tu favor');
   t.className='toast '+cls; t.innerHTML='<span class="kk">'+kk+'</span>'+tag;
+  try{ window._lastToastTs=Date.now(); }catch(e){}
   requestAnimationFrame(()=>t.classList.add('show'));
   clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),3400);
 }
