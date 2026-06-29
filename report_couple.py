@@ -1815,6 +1815,102 @@ def seccion_asimetria_pasivo(rA, rB, nA, nB):
             _callout(titulo, txt, A_COL, "#FBF3E8"),
             Spacer(1, 4*mm)]
 
+def seccion_tangibilidad(rA, rB, nA, nB):
+    """Sesgo de tangibilidad a partir de 'pref_activos' (SD-32).
+    Las opciones son ordinales (tangible -> financiero); la brecha se mide en tramos.
+    Tres dictamenes segun brecha (>=2 sesgo / ==1 matiz / ==0 refuerzo).
+    Solo dictamen de texto aditivo: NO toca el Numero de Libertad ni nada del motor.
+    Sin cifras inventadas: solo el mapeo de respuestas + texto. Defensiva total:
+    ante datos ausentes, item ausente o indices invalidos -> []. Siempre devuelve list."""
+    # --- localizar el item pref_activos en el instrumento (por campo/id) ---
+    def _item_col():
+        try:
+            for sec in (INST.values() if isinstance(INST, dict) else []):
+                if not isinstance(sec, list):
+                    continue
+                for it in sec:
+                    if isinstance(it, dict) and (it.get("campo") == "pref_activos" or it.get("id") == "SD-32"):
+                        return it
+        except Exception:
+            return None
+        return None
+
+    def _idx(resp, it):
+        """Indice (int) elegido por un miembro para pref_activos. None si no resoluble."""
+        if not it or not isinstance(resp, dict):
+            return None
+        idx = resp.get(it.get("id"))
+        ops = it.get("opciones") or []
+        try:
+            if isinstance(idx, list):
+                idx = idx[0] if idx else None
+            if not isinstance(idx, int) or isinstance(idx, bool):
+                return None
+            if 0 <= idx < len(ops):
+                return idx
+        except Exception:
+            return None
+        return None
+
+    it = _item_col()
+    iA = _idx(rA, it)
+    iB = _idx(rB, it)
+    if iA is None or iB is None:
+        return []
+
+    ops = it.get("opciones") or []
+    def _txt(i):
+        try:
+            op = ops[i]
+            return op if isinstance(op, str) else (op.get("texto") if isinstance(op, dict) else None)
+        except Exception:
+            return None
+    tA = _txt(iA); tB = _txt(iB)
+    if tA is None or tB is None:
+        return []
+
+    brecha = abs(iA - iB)
+
+    if brecha >= 2:
+        titulo = u"Sesgo de tangibilidad"
+        txt = (u"Aquí los dos confiáis vuestro ahorro a mundos distintos: uno de vosotros solo se fía de lo que "
+               u"puede tocar —el ladrillo, el oro, el dinero en el banco— y mira los fondos indexados como si "
+               u"fueran «humo»; el otro prefiere lo líquido y lo digital, y vive el ladrillo como una "
+               u"«esclavitud» de reformas, derramas e inquilinos. No es que uno tenga razón y el otro no: cada "
+               u"tipo de activo cumple un papel distinto, y la tranquilidad de tener un inmueble propio y la "
+               u"flexibilidad de poder mover el dinero en un clic no se excluyen, se complementan. La solución no "
+               u"es que uno se rinda al criterio del otro, sino acordar juntos una cartera mixta que respete a "
+               u"las dos mentes: un porcentaje en inmueble que dé paz al que necesita tocar lo suyo, y un "
+               u"porcentaje en fondos indexados de bajo coste que dé alas al que prefiere lo líquido. Lo "
+               u"importante es que se decida entre los dos y quede por escrito, en vez de que cada uno tire por "
+               u"su lado con su parte del ahorro. Vale la pena nombrarlo en voz alta: uno de vosotros respondió "
+               u"«" + tA + u"» y el otro «" + tB + u"»; esa distancia es exactamente lo que una cartera mixta "
+               u"acordada viene a ordenar.")
+    elif brecha == 1:
+        titulo = u"Preferencias de activos cercanas"
+        txt = (u"Estáis prácticamente en la misma página sobre en qué activos confiáis para hacer crecer el "
+               u"ahorro: uno se sitúa solo un peldaño más hacia lo tangible (o lo financiero) que el otro. Es un "
+               u"matiz menor, más de temperamento que de rumbo. Merece la pena nombrarlo para que el que pide algo "
+               u"más de ladrillo —o algo más de mercado— no se sienta arrastrado, pero no condiciona vuestra "
+               u"estrategia: construir juntos una cartera que combine ambos mundos os resultará sencillo.")
+    else:
+        titulo = u"Misma visión de los activos: una cartera fácil de construir"
+        txt = (u"Los dos coincidís en qué tipo de activos os dan confianza. Eso es más valioso de lo que parece: "
+               u"cuando la pareja comparte la misma visión sobre dónde poner el ahorro, dejar la cartera montada "
+               u"deja de ser un tira y afloja y se convierte en una decisión tranquila. Vuestro trabajo no es "
+               u"negociar cuánto ladrillo y cuánto mercado, sino dejar por escrito ese reparto común y revisar "
+               u"juntos, cada cierto tiempo, que sigue encajando con vuestra realidad.")
+
+    return [Paragraph(u"En qué activos confiáis", h_sec),
+            Paragraph(u"Os preguntamos por separado en qué tipo de activos confiáis más para hacer crecer el "
+                      u"ahorro. Esto es lo que cada uno respondió:", body),
+            _callout(nA, tA, A_COL, "#FBF6E0"),
+            Spacer(1, 2*mm),
+            _callout(nB, tB, B_COL, "#F4F4F2"),
+            Spacer(1, 3*mm),
+            _callout(titulo, txt, A_COL, "#FBF3E8"),
+            Spacer(1, 4*mm)]
+
 def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=None):
     global INST, CAPAS
     _iv2=rb._cargar_v2(); _c2={c["code"]:c for c in _iv2["capas"]}
@@ -2122,6 +2218,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     S+=rb._secsafe(seccion_ansiedad_liquidez, rA, rB, nA, nB)
     # === ASIMETRÍA EN LA GESTIÓN DEL PASIVO (tolerancia_deuda / SD-31) ===
     S+=rb._secsafe(seccion_asimetria_pasivo, rA, rB, nA, nB)
+    # === SESGO DE TANGIBILIDAD (pref_activos / SD-32) ===
+    S+=rb._secsafe(seccion_tangibilidad, rA, rB, nA, nB)
     S+=rb._secsafe(seccion_asimetria_inversora,dAf,dBf,pA,pB,nA,nB)
     # === ÍTEM 3 · IMPUESTO DE LA FRICCIÓN (€) ===
     S+=rb._secsafe(seccion_impuesto_friccion,dAf,dBf,pA,pB,nA,nB)

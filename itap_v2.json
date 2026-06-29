@@ -5153,6 +5153,27 @@
           "Pareja de hecho o pareja estable sin casar"
         ]
       }
+    },
+    {
+      "id": "SD-32",
+      "tipo": "opcion",
+      "campo": "pref_activos",
+      "texto": "Cuando pensáis en hacer crecer el ahorro, ¿en qué tipo de activos confiáis más?",
+      "ayuda": "No hay modelo correcto: solo el que os da paz. Esto nos dice si vuestro sistema encaja con vuestra realidad.",
+      "opciones": [
+        "Solo en lo tangible: ladrillo, oro físico, dinero en el banco.",
+        "Sobre todo activos físicos, pero algo en fondos no me importa.",
+        "Mezcla equilibrada de inmuebles y mercados financieros.",
+        "Prefiero fondos/ETFs líquidos; el ladrillo me ata demasiado.",
+        "Solo mercados financieros (indexados, ETFs); los pisos son una esclavitud."
+      ],
+      "mostrar_si": {
+        "campo": "estado_civil",
+        "valor_in": [
+          "Casado/a",
+          "Pareja de hecho o pareja estable sin casar"
+        ]
+      }
     }
   ],
   "vision_brecha": [
