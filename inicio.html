@@ -245,8 +245,10 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
       <div><b>Plan de acción de 100 días</b>, paso a paso.</div>
       <div><b>Tu Constitución Financiera</b> personalizada.</div>
     </div>
-    <div class="cmp-h2">Compara los tres en detalle</div>
-    <div class="cmp-wrap">
+    <style>.cmp-acc{margin:42px auto 0}.cmp-acc>summary{cursor:pointer;list-style:none;text-align:center;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--am);font-weight:700;padding:15px;border:1px solid var(--bd);border-radius:12px;background:var(--pa);transition:.15s}.cmp-acc>summary:hover{border-color:#3a3d48}.cmp-acc>summary::-webkit-details-marker{display:none}.cmp-acc>summary::after{content:'  +';color:var(--am)}.cmp-acc[open]>summary::after{content:'  −'}</style>
+    <details class="cmp-acc">
+    <summary>Compara los tres en detalle</summary>
+    <div class="cmp-wrap" style="margin:12px auto 0">
       <div class="cmp-pos"><b>Rápido</b> — un vistazo honesto a ti.&nbsp; <b>Avanzado</b> — tu informe personal completo.&nbsp; <b>Pareja</b> — vuestra relación con el dinero, sin medias tintas.</div>
       <div class="cmp-scroll">
       <table class="cmp">
@@ -273,7 +275,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
       </table>
       </div>
       <div class="cmp-foot"><b>Solo tú → Avanzado.</b> &nbsp;<b>En pareja → Pareja:</b> es el único que cruza vuestros dos perfiles y os da el guion para hablarlo. No es «más de lo mismo» — es vuestra relación con el dinero.</div>
-    </div>
+    </div></details>
     <div class="inaccion">
       <h4 class="serif">La opción más cara es no hacer nada.</h4>
       <p>Seguir como hasta ahora también tiene precio — solo que no lo ves. Cada mes que no entiendes tu relación con el dinero, es tu dinero el que decide por ti. <b>19 € es lo que cuesta dejar de adivinar.</b></p>
@@ -329,11 +331,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 </section>
 
 <!-- CÓMO FUNCIONA + CONFIANZA -->
-<section class="wrap" style="max-width:940px;margin:64px auto 0;padding:0 22px">
-  <div style="text-align:center">
-    <span class="kick">Cómo funciona</span>
-    <h2 class="serif" style="font-size:clamp(21px,3vw,29px);line-height:1.2;margin:6px 0 0">De tus respuestas a tu libro, en tres pasos</h2>
-  </div>
+<section class="wrap" style="max-width:940px;margin:46px auto 0;padding:0 22px">
+  <details class="cmp-acc">
+  <summary>Cómo funciona · en 3 pasos</summary>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:28px 0 0" class="hf-grid">
     <div style="background:var(--pa);border:1px solid var(--bd);border-radius:14px;padding:20px 18px">
       <div style="color:var(--am);font-weight:700;font-size:13px;letter-spacing:1px">PASO 1</div>
@@ -352,6 +352,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
     </div>
   </div>
   <p style="text-align:center;color:var(--gr);font-size:12.5px;margin:22px 0 0;line-height:1.6">Pago cifrado con Stripe&nbsp;·&nbsp;Tus datos no se comparten ni se venden&nbsp;·&nbsp;Tratamiento conforme al RGPD</p>
+  </details>
 </section>
 
 <!-- FAQ + GARANTÍA -->
