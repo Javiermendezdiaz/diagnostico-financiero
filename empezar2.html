@@ -556,6 +556,10 @@ function pintar(){
       var _rf=function(){try{_buildDesglose(q.campo,parseFloat(inp.value)||0,_dw);}catch(e){}};
       inp.addEventListener('input',_rf);_rf();
     }
+  } else if(q.tipo==='edades_hijos'){
+    cont.style.display='block'; cont.textContent='Continuar →'; cont.onclick=()=>contEdadesHijos(q);
+    var _ehw=document.createElement('div');_ehw.id='edadesHijosWrap';opts.appendChild(_ehw);
+    _buildEdadesHijos(_ehw);
   } else if(q.tipo==='abierta'){
     cont.style.display='block'; cont.textContent='Continuar →'; cont.onclick=()=>contAbierta(q);
     const ta=document.createElement('textarea');ta.id='abierta';ta.rows=4;ta.placeholder='Escribe lo que te salga, sin filtro…';
@@ -660,6 +664,54 @@ function _buildDesglose(campo,total,wrap){
     var ab=wrap.querySelector('.desg-add'); if(ab)ab.onclick=function(){det.push({c:cs[0]||'',v:''});_buildDesglose(campo,total,wrap);};
     sumline();
   }catch(e){}
+}
+// Widget de edades de los hijos: un desplegable por hijo (0-30 + "indicar más tarde").
+// El nº de hijos viene de st.datos.n_hijos (pregunta anterior); si no, se infiere de 1.
+function _nHijos(){
+  var n=parseInt((st.datos||{}).n_hijos,10);
+  if(!isFinite(n)||n<1)n=1; if(n>10)n=10; return n;
+}
+function _buildEdadesHijos(wrap){
+  try{
+    if(!wrap)return;
+    var n=_nHijos();
+    var prev=(st.datos&&Array.isArray(st.datos.edades_hijos))?st.datos.edades_hijos:[];
+    var arr=[]; for(var i=0;i<n;i++){arr.push(prev[i]!==undefined?prev[i]:'');}
+    st.datos.edades_hijos=arr;
+    var opciones='<option value="">— Edad —</option>';
+    for(var e=0;e<=30;e++){opciones+='<option value="'+e+'">'+e+' año'+(e===1?'':'s')+'</option>';}
+    opciones+='<option value="__later__">Prefiero indicarlo más tarde</option>';
+    var h='<div class="desg-rows">';
+    for(var k=0;k<n;k++){
+      var cur=arr[k]; var selOpts=opciones.replace('value="'+(cur===''?'':cur)+'"','value="'+(cur===''?'':cur)+'" selected');
+      h+='<div class="desg-row"><span style="color:#94a3b8;font-size:13px;min-width:64px">Hijo/a '+(k+1)+'</span>'
+        +'<select data-i="'+k+'" class="eh-sel" style="flex:1">'+selOpts+'</select></div>';
+    }
+    h+='</div><div class="desg-sum" id="ehSum"></div>';
+    wrap.innerHTML=h;
+    var refl=function(){
+      var sumel=wrap.querySelector('#ehSum'); if(!sumel)return;
+      var conoc=arr.map(function(x){return (x!==''&&x!=='__later__')?parseInt(x,10):null;}).filter(function(x){return x!==null&&isFinite(x);});
+      if(conoc.length){
+        var menor=Math.min.apply(null,conoc);
+        sumel.innerHTML='El más pequeño tiene <b>'+menor+'</b> año'+(menor===1?'':'s')+'. Lo usamos para medir cuándo se libera ese gasto y cuándo podrías ayudar a su emancipación.';
+      } else { sumel.innerHTML='<span style="color:#94a3b8">Sin problema: lo afinamos con una estimación prudente.</span>'; }
+    };
+    wrap.querySelectorAll('.eh-sel').forEach(function(sel){sel.onchange=function(){arr[+this.dataset.i]=this.value;st.datos.edades_hijos=arr;refl();};});
+    refl();
+  }catch(e){}
+}
+function contEdadesHijos(q){
+  try{
+    var arr=(st.datos&&Array.isArray(st.datos.edades_hijos))?st.datos.edades_hijos:[];
+    // Guardamos las edades como números; "indicar más tarde" o vacío -> null (el motor lo encaja sin romper)
+    var out=arr.map(function(x){var v=parseInt(x,10);return isFinite(v)?v:null;});
+    st.datos.edades_hijos=out;
+    // Derivamos la edad del menor para el motor existente (compatibilidad con edad_hijo_menor)
+    var conoc=out.filter(function(x){return x!==null;});
+    if(conoc.length) st.datos.edad_hijo_menor=Math.min.apply(null,conoc);
+  }catch(e){}
+  nextFade(()=>avanzar(q));
 }
 function _panelDinero(){
   try{

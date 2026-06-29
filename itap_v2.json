@@ -889,27 +889,27 @@
           "nivel": "profundizacion",
           "opciones": [
             {
-              "texto": "Algo realista (en torno al 5-7%).",
+              "texto": "En torno al 5-7%: lo que da una cartera diversificada a largo plazo.",
               "score": 0
             },
             {
-              "texto": "Realista pero algo optimista (8-10%).",
+              "texto": "Entre el 8% y el 10%: realista, pero ya algo optimista.",
               "score": 25
             },
             {
-              "texto": "Bastante más, asumiendo que toca arriesgar.",
+              "texto": "Más del 10% de forma sostenida: asumo bastante más riesgo.",
               "score": 50
             },
             {
-              "texto": "Muy alta; cuento con rentabilidades poco sostenibles.",
+              "texto": "Muy alta: cuento con rentabilidades difíciles de sostener en el tiempo.",
               "score": 75
             },
             {
-              "texto": "No lo sé, o espero multiplicar rápido.",
+              "texto": "No lo sé, o espero multiplicar mi dinero rápido.",
               "score": 100
             }
           ],
-          "ayuda": "Una cartera diversificada a largo plazo ronda el 5-7% anual.",
+          "ayuda": "Una cartera diversificada a largo plazo ronda el 5-7% anual. Esperar mucho más, de forma sostenida, suele acabar en sustos.",
           "activa_si": {
             "capa": "C2",
             "min_score": 35
@@ -1732,37 +1732,6 @@
             },
             {
               "texto": "Ni idea; como el saldo no baja, asumo que va bien.",
-              "score": 100
-            }
-          ],
-          "tier1": true
-        },
-        {
-          "id": "C4-03",
-          "faceta": "suscripciones",
-          "tipo": "escala",
-          "dimensiones": "LIQUIDEZ",
-          "texto": "¿Cuánto va a suscripciones, servicios y caprichos recurrentes que casi no usas?",
-          "nivel": "nucleo",
-          "opciones": [
-            {
-              "texto": "Muy poco; reviso y cancelo lo que no aporta.",
-              "score": 0
-            },
-            {
-              "texto": "Poco, lo reviso de vez en cuando.",
-              "score": 25
-            },
-            {
-              "texto": "Algo se acumula sin que lo controle.",
-              "score": 50
-            },
-            {
-              "texto": "Bastante que sé que no uso.",
-              "score": 75
-            },
-            {
-              "texto": "Bastante; pago cosas que ni recuerdo contratar.",
               "score": 100
             }
           ],
@@ -2639,37 +2608,6 @@
       },
       "items": [
         {
-          "id": "C7-01",
-          "faceta": "fuente_unica",
-          "tipo": "escala",
-          "dimensiones": "LIQUIDEZ",
-          "texto": "¿Qué parte de tus ingresos depende de una sola fuente (un empleo, un cliente, un negocio)?",
-          "nivel": "nucleo",
-          "opciones": [
-            {
-              "texto": "Menos de la mitad; varias fuentes que no caen a la vez.",
-              "score": 0
-            },
-            {
-              "texto": "Algo más de la mitad, con fuentes que no caen juntas.",
-              "score": 25
-            },
-            {
-              "texto": "La mayoría, con algún respaldo secundario.",
-              "score": 50
-            },
-            {
-              "texto": "Casi todo, con un respaldo mínimo.",
-              "score": 75
-            },
-            {
-              "texto": "Prácticamente todo.",
-              "score": 100
-            }
-          ],
-          "tier1": true
-        },
-        {
           "id": "C7-02",
           "faceta": "plan_b",
           "tipo": "escala",
@@ -2699,38 +2637,6 @@
             }
           ],
           "tier1": true
-        },
-        {
-          "id": "C7-03",
-          "faceta": "pasivos",
-          "tipo": "escala",
-          "dimensiones": "LIQUIDEZ",
-          "texto": "¿Tienes ingresos que entren sin cambiar tu tiempo por dinero (rentas, dividendos, un negocio que no te necesita)?",
-          "nivel": "nucleo",
-          "opciones": [
-            {
-              "texto": "Sí, una parte ya es así y crece.",
-              "score": 0
-            },
-            {
-              "texto": "Sí, una parte modesta pero estable.",
-              "score": 25
-            },
-            {
-              "texto": "Algo, todavía pequeño.",
-              "score": 50
-            },
-            {
-              "texto": "Casi nada; algún ingreso testimonial.",
-              "score": 75
-            },
-            {
-              "texto": "Nada; todo depende de mi tiempo.",
-              "score": 100
-            }
-          ],
-          "tier1": true,
-          "ayuda": "Ingresos pasivos: dinero que llega trabajes o no."
         },
         {
           "id": "C7-04",
@@ -2869,43 +2775,41 @@
           }
         },
         {
-          "id": "C7-08",
+          "id": "C7-09",
           "tipo": "escala",
-          "faceta": "pasivos",
+          "faceta": "concentracion_geografica",
           "dimensiones": "LIQUIDEZ",
           "nivel": "nucleo",
           "tier1": true,
-          "par_consistencia": "C7-03",
+          "par_consistencia": "C7-02",
           "invertido": true,
-          "texto": "A día de hoy, todo tu dinero entra a cambio de tu tiempo: no tienes ninguna fuente que ingrese sin que tú trabajes.",
+          "texto": "Si tu fuente principal de ingresos desapareciera mañana, no tendrías ningún plan B real al que recurrir.",
           "opciones": [
             {
               "score": 0,
-              "texto": "Falso: una parte ya entra sin mi tiempo, y crece."
+              "texto": "Falso: tengo capacidades y contactos que activaría en semanas."
             },
             {
               "score": 25,
-              "texto": "Más bien falso: una parte modesta pero estable."
+              "texto": "Más bien falso: lo activaría en uno o dos meses."
             },
             {
               "score": 50,
-              "texto": "A medias: algo, todavía pequeño."
+              "texto": "A medias: tardaría, pero saldría adelante reinventándome."
             },
             {
               "score": 75,
-              "texto": "Más bien cierto: casi nada, algún ingreso testimonial."
+              "texto": "Más bien cierto: tardaría mucho y a ciegas."
             },
             {
               "score": 100,
-              "texto": "Cierto del todo: todo depende de mi tiempo."
+              "texto": "Cierto del todo: no tengo plan B."
             }
           ]
         }
       ],
       "cribadores": [
-        "C7-01",
-        "C7-02",
-        "C7-03"
+        "C7-02"
       ]
     },
     {
@@ -3900,15 +3804,23 @@
           "nivel": "nucleo",
           "opciones": [
             {
-              "texto": "Sí: una afición, talento o red de contactos que podría convertir en ingresos ya mismo.",
+              "texto": "Un talento o conocimiento monetizable que ya domino y podría convertir en ingresos ya mismo.",
               "score": 0
             },
             {
-              "texto": "Capacidad de financiación barata que no estoy usando para adquirir activos.",
+              "texto": "Una red de contactos valiosa que aún no he puesto a trabajar.",
+              "score": 25
+            },
+            {
+              "texto": "Una afición con demanda real que podría profesionalizar con algo de empuje.",
               "score": 50
             },
             {
-              "texto": "Ninguno; dependo al 100% de un solo ingreso que exige todo mi tiempo, sin margen de maniobra.",
+              "texto": "Un activo o un tiempo infrautilizado (una plaza, un local, horas libres) que hoy no rinde nada.",
+              "score": 75
+            },
+            {
+              "texto": "Ninguno claro hoy; dependo al 100% de un solo ingreso que exige todo mi tiempo.",
               "score": 100
             }
           ],
@@ -4888,13 +4800,13 @@
       "id": "SD-25",
       "tipo": "opcion",
       "campo": "perfil_riesgo",
-      "texto": "Si tu inversión cayera un 20% en un mal año, ¿qué harías?",
-      "ayuda": "No hay respuesta correcta: solo la tuya. Conocer tu reacción real evita decisiones de las que luego te arrepientes.",
+      "texto": "Pensando en cómo quieres que se gestione tu dinero invertido, ¿con qué perfil te identificas más?",
+      "ayuda": "No hay perfil correcto: solo el que te deja dormir y encaja con tu horizonte. Define cuánto vaivén estás dispuesto a aceptar a cambio de más rentabilidad esperada.",
       "opciones": [
-        "Aprovecharía para comprar más barato",
-        "Aguantaría sin tocar nada",
-        "Me pondría nervioso, pero esperaría",
-        "Vendería para no perder más"
+        "Conservador: priorizo no perder, aunque eso signifique ganar menos",
+        "Moderado: acepto algún vaivén a cambio de crecer a buen ritmo",
+        "Agresivo: busco la máxima rentabilidad y asumo caídas fuertes sin problema",
+        "No lo tengo claro: nunca me lo he planteado así"
       ],
       "mostrar_si": {
         "campo": "invierte",
@@ -5380,10 +5292,11 @@
     },
     {
       "id": "NUM-15",
-      "campo": "edad_hijo_menor",
+      "tipo": "edades_hijos",
+      "campo": "edades_hijos",
       "unidad": "años",
-      "texto": "¿Qué edad tiene tu hijo o hija más pequeño?",
-      "ayuda": "Nos permite medir algo que casi nadie calcula: el tiempo de infancia que aún te queda con él o ella.",
+      "texto": "¿Qué edad tiene cada uno de tus hijos o hijas?",
+      "ayuda": "Nos permite medir algo que casi nadie calcula: el tiempo que aún te queda con cada uno en casa, cuándo se libera ese gasto y cuándo podrías ayudarle a emanciparse. Si ahora no lo sabes, elige «Prefiero indicarlo más tarde».",
       "mostrar_si": {
         "campo": "dependientes",
         "valor_in": [
