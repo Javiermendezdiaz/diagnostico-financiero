@@ -1074,10 +1074,17 @@ def _pdf_fallback(path, cliente, tier):
         c.setFillColorRGB(0.91,0.78,0.38); c.setFont("Helvetica-Bold",22); c.drawString(26*mm,H-40*mm,"ADAPTA FAMILY OFFICE")
         c.setFillColorRGB(0.93,0.92,0.89); c.setFont("Helvetica-Bold",16); c.drawString(26*mm,H-56*mm,"Tu Libro Financiero esta en preparacion")
         c.setFont("Helvetica",11.5); c.setFillColorRGB(0.62,0.65,0.71)
-        for i,ln in enumerate(["Hola %s,"%(cliente or ""),"","Tu pago se ha recibido correctamente y tu informe se esta generando.",
+        if tier==3:
+            _lineas=["Hola %s,"%(cliente or ""),"","Tu pago se ha recibido correctamente.",
+                "Recibireis vuestro Libro de Pareja por email en cuanto tu pareja complete su parte.","",
+                "Si tras completarlo ambos no lo recibis en una hora, escribenos y te lo entregamos al instante:",
+                "info@adaptafamilyoffice.com","","Gracias por confiar en Adapta Family Office."]
+        else:
+            _lineas=["Hola %s,"%(cliente or ""),"","Tu pago se ha recibido correctamente y tu informe se esta generando.",
                 "Te lo enviaremos a este mismo correo en cuanto este listo (unos minutos).","",
                 "Si en una hora no lo has recibido, escribenos y te lo entregamos al instante:",
-                "info@adaptafamilyoffice.com   -   WhatsApp +34 683 34 35 31","","Gracias por confiar en Adapta Family Office."]):
+                "info@adaptafamilyoffice.com","","Gracias por confiar en Adapta Family Office."]
+        for i,ln in enumerate(_lineas):
             c.drawString(26*mm, H-76*mm-i*7*mm, ln)
         c.showPage(); c.save()
         return path if os.path.exists(path) else None
@@ -1169,11 +1176,27 @@ def _enviar_copia_impl(session_id):
     if cli_valido:
         if fallback:
             if nuevo:
-                html_cli="<div style='font-family:Helvetica,Arial;color:#222;max-width:560px'><h2>Tu Libro Financiero esta en camino</h2><p>Hola %s, tu pago se recibio correctamente. Tu informe se esta terminando de generar y te llegara a este mismo correo en unos minutos. Si en una hora no lo tienes, escribenos a info@adaptafamilyoffice.com y te lo entregamos al instante.</p><p style='color:#888;font-size:12px'>Adapta Family Office</p></div>"%cliente
-                cli_ok=_enviar_resend("Tu Libro Financiero esta en camino - Adapta", html_cli, pdf_bytes, "Adapta_en_preparacion.pdf", to=[email_cli])
+                if row["tier"]==3:
+                    html_cli="<div style='font-family:Helvetica,Arial;color:#222;max-width:560px'><h2>Vuestro Libro de Pareja esta en camino</h2><p>Hola %s, tu pago se recibio correctamente. Lo recibireis los dos por email en cuanto tu pareja complete su parte. Si tras completarlo ambos no lo teneis en una hora, escribenos a info@adaptafamilyoffice.com y te lo entregamos al instante.</p><p style='color:#888;font-size:12px'>Adapta Family Office</p></div>"%cliente
+                    cli_ok=_enviar_resend("Vuestro Libro de Pareja esta en camino - Adapta", html_cli, pdf_bytes, "Adapta_en_preparacion.pdf", to=[email_cli])
+                else:
+                    html_cli="<div style='font-family:Helvetica,Arial;color:#222;max-width:560px'><h2>Tu Libro Financiero esta en camino</h2><p>Hola %s, tu pago se recibio correctamente. Tu informe se esta terminando de generar y te llegara a este mismo correo en unos minutos. Si en una hora no lo tienes, escribenos a info@adaptafamilyoffice.com y te lo entregamos al instante.</p><p style='color:#888;font-size:12px'>Adapta Family Office</p></div>"%cliente
+                    cli_ok=_enviar_resend("Tu Libro Financiero esta en camino - Adapta", html_cli, pdf_bytes, "Adapta_en_preparacion.pdf", to=[email_cli])
         else:
             html_cli="<div style='font-family:Helvetica,Arial;color:#222;max-width:560px'><h2 style='color:#0a0a0b'>Tu Libro Financiero</h2><p>Hola %s,</p><p>Aqui tienes tu <b>diagnostico psicofinanciero completo</b>, en el PDF adjunto. Guardalo: es tu mapa de los proximos 100 dias.</p><p>Gracias por confiar en Adapta Family Office.</p><p style='color:#888;font-size:12px'>Adapta Family Office</p></div>"%cliente
             cli_ok=_enviar_resend("Tu Libro Financiero - Adapta Family Office", html_cli, pdf_bytes, "Tu_Libro_Financiero_Adapta.pdf", to=[email_cli], extra=_card_extra)
+    # 2b) Pareja (tier 3): el segundo miembro recibe TAMBIEN el Libro de Pareja conjunto, en envio SEPARADO (privacidad)
+    if (not fallback) and row["tier"]==3 and row["pareja_de"]:
+        try:
+            with db() as c:
+                _pr = c.execute("SELECT email,nombre FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
+            _pe = ((_pr["email"] if _pr else "") or "").strip()
+            if _pe and "@" in _pe and not _pe.lower().endswith(".test") and _pe.lower()!=email_cli.lower():
+                _pn = ((_pr["nombre"] if _pr else "") or "").strip() or "(sin nombre)"
+                _html_p = "<div style='font-family:Helvetica,Arial;color:#222;max-width:560px'><h2 style='color:#0a0a0b'>Vuestro Libro de Pareja</h2><p>Hola %s,</p><p>Aqui teneis vuestro <b>Diagnostico de Pareja completo</b>, con los dos perfiles cruzados, en el PDF adjunto.</p><p>Gracias por confiar en Adapta Family Office.</p><p style='color:#888;font-size:12px'>Adapta Family Office</p></div>" % _pn
+                _enviar_resend("Vuestro Libro de Pareja - Adapta Family Office", _html_p, pdf_bytes, "Libro_de_Pareja_Adapta.pdf", to=[_pe], extra=_card_extra)
+        except Exception:
+            pass
     # 3) Adapta SIEMPRE recibe copia + estado (al entregar real, o la primera vez que algo va mal)
     if (not fallback) or nuevo:
         estado = "[REGENERAR-GENERACION-FALLO] " if fallback else ("[EMAIL-CLIENTE-FALLO] " if (cli_valido and not cli_ok) else ("[SIN-EMAIL-CLIENTE] " if not cli_valido else ""))

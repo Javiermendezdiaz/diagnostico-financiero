@@ -1178,7 +1178,8 @@
             "campo": "perfil_laboral",
             "valor_not_in": [
               "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
-              "Jubilado / pensionista"
+              "Jubilado / pensionista",
+              "Sin actividad remunerada (ama/o de casa, cuidados o estudios)"
             ]
           },
           "activa_si": {
@@ -1712,7 +1713,8 @@
             "campo": "perfil_laboral",
             "valor_not_in": [
               "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
-              "Jubilado / pensionista"
+              "Jubilado / pensionista",
+              "Sin actividad remunerada (ama/o de casa, cuidados o estudios)"
             ]
           }
         },
@@ -3803,7 +3805,8 @@
             "campo": "perfil_laboral",
             "valor_not_in": [
               "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
-              "Jubilado / pensionista"
+              "Jubilado / pensionista",
+              "Sin actividad remunerada (ama/o de casa, cuidados o estudios)"
             ]
           }
         },
@@ -3948,7 +3951,8 @@
             "campo": "perfil_laboral",
             "valor_not_in": [
               "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
-              "Jubilado / pensionista"
+              "Jubilado / pensionista",
+              "Sin actividad remunerada (ama/o de casa, cuidados o estudios)"
             ]
           },
           "activa_si": {
@@ -4612,6 +4616,7 @@
         "Tengo empresa propia (SL u otra)",
         "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
         "Jubilado / pensionista",
+        "Sin actividad remunerada (ama/o de casa, cuidados o estudios)",
         "Mezcla de varias"
       ]
     },
@@ -4683,7 +4688,8 @@
         "campo": "perfil_laboral",
         "valor_not_in": [
           "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
-          "Jubilado / pensionista"
+          "Jubilado / pensionista",
+          "Sin actividad remunerada (ama/o de casa, cuidados o estudios)"
         ]
       }
     },
@@ -4797,7 +4803,8 @@
         "campo": "perfil_laboral",
         "valor_not_in": [
           "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
-          "Jubilado / pensionista"
+          "Jubilado / pensionista",
+          "Sin actividad remunerada (ama/o de casa, cuidados o estudios)"
         ]
       }
     },
@@ -5207,7 +5214,8 @@
         "campo": "perfil_laboral",
         "valor_not_in": [
           "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
-          "Jubilado / pensionista"
+          "Jubilado / pensionista",
+          "Sin actividad remunerada (ama/o de casa, cuidados o estudios)"
         ]
       }
     },
@@ -5221,7 +5229,8 @@
         "campo": "perfil_laboral",
         "valor_not_in": [
           "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
-          "Jubilado / pensionista"
+          "Jubilado / pensionista",
+          "Sin actividad remunerada (ama/o de casa, cuidados o estudios)"
         ]
       }
     },
