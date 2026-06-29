@@ -1,5 +1,5 @@
 """ITAP — Backend de produccion. Instrumento + motor + Libros. Profundidad por tier. RGPD. Nombre del cliente."""
-import os, uuid, json, datetime, tempfile, sqlite3, base64, urllib.request, urllib.error
+import os, uuid, json, datetime, tempfile, sqlite3, base64, urllib.request, urllib.error, urllib.parse
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
@@ -31,6 +31,10 @@ PRIVACIDAD_VERSION = "1.0"
 BAREMO_MIN = int(os.environ.get("BAREMO_MIN", "30"))  # muestra minima para afirmar percentil
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 RESEND_FROM = os.environ.get("RESEND_FROM", "ITAP <itap@adaptafamilyoffice.com>")
+# Remitente e enlace base para la invitacion de pareja (parametrizables por env).
+INVITE_FROM = os.environ.get("INVITE_FROM", "Adapta Family Office <invitaciones@adaptafamilyoffice.com>")
+INVITE_BASE_URL = (os.environ.get("INVITE_BASE_URL", "").strip()
+                   or "https://diagnostico.adaptafamilyoffice.com/empezar2.html")
 NOTIFY_EMAIL = os.environ.get("NOTIFY_EMAIL", "javier@mendezconsultoria.com")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_SECRET_KEY = (os.environ.get("STRIPE_SECRET_KEY", "")
@@ -123,6 +127,11 @@ class CompletePayload(BaseModel):
 
 class BorrarPayload(BaseModel):
     email: str
+
+class InvitarParejaPayload(BaseModel):
+    uuid_pareja: str
+    email_destino: str
+    nombre_iniciador: Optional[str] = None
 
 class NotifyPayload(BaseModel):
     session_id: str
@@ -735,7 +744,7 @@ def estado(session_id: str):
 def pareja_estado(session_id: str):
     """Estado del flujo de pareja: dice al INICIADOR si ya puede descargar el libro conjunto."""
     with db() as c:
-        row = c.execute("SELECT pareja_de,pagado,tier,es_inic FROM sesiones WHERE id=?", (session_id,)).fetchone()
+        row = c.execute("SELECT pareja_de,pagado,tier,es_inic,nombre FROM sesiones WHERE id=?", (session_id,)).fetchone()
     if not row:
         return {"existe": False}
     pid = row["pareja_de"]; lista = False
@@ -743,8 +752,97 @@ def pareja_estado(session_id: str):
         with db() as c:
             pr = c.execute("SELECT respuestas FROM sesiones WHERE id=?", (pid,)).fetchone()
         lista = bool(pr and pr["respuestas"] not in (None, "{}", ""))
+    # nombre_iniciador: solo el de pila, para personalizar la invitacion ("Marta te ha invitado...").
+    # Nunca exponemos el email ni datos sensibles del iniciador.
+    _nom = (row["nombre"] or "").strip()
+    _nom_pila = _nom.split()[0] if _nom else ""
     return {"existe": True, "es_pareja": (row["tier"] == 3), "es_inic": bool(row["es_inic"]),
-            "pareja_lista": lista, "pagado": bool(row["pagado"]), "gated": bool(STRIPE_WEBHOOK_SECRET)}
+            "pareja_lista": lista, "pagado": bool(row["pagado"]), "gated": bool(STRIPE_WEBHOOK_SECRET),
+            "nombre_iniciador": _nom_pila}
+
+# --- Invitacion de pareja por email (Resend, con degradacion elegante) ---
+import re as _re
+_EMAIL_RE = _re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+def _email_valido(e):
+    e = (e or "").strip()
+    return bool(e) and len(e) <= 254 and bool(_EMAIL_RE.match(e))
+
+def _build_invite_email(uuid_pareja, email_destino, nombre_iniciador=None):
+    """Construye el payload de Resend para la invitacion de pareja.
+    Funcion pura (sin red) para poder testearla en aislamiento."""
+    enlace = "%s?pareja=%s" % (INVITE_BASE_URL.rstrip("/") if "?" not in INVITE_BASE_URL else INVITE_BASE_URL,
+                               urllib.parse.quote(uuid_pareja, safe=""))
+    quien = (nombre_iniciador or "").strip()
+    intro = ("%s te ha invitado a vuestro Diagnostico de Pareja de Adapta." % quien) if quien \
+            else "Te han invitado a vuestro Diagnostico de Pareja de Adapta."
+    asunto = ("%s te invita a vuestro Diagnostico de Pareja - Adapta" % quien) if quien \
+             else "Te invitan a vuestro Diagnostico de Pareja - Adapta"
+    html = (
+        "<div style=\"font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;"
+        "background:#101014;color:#e9e9e6;border-radius:16px;padding:30px 28px\">"
+        "<div style=\"font-weight:800;font-size:20px;letter-spacing:.5px\">ADAPTA "
+        "<span style=\"color:#fdd731;font-size:12px;font-weight:600\">family office</span></div>"
+        "<h1 style=\"font-size:21px;line-height:1.3;margin:22px 0 14px\">%s</h1>"
+        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">La otra persona ya ha completado su parte y "
+        "<b style=\"color:#fff\">el informe conjunto ya esta pagado</b>. Solo tienes que completar "
+        "<b style=\"color:#fff\">tu cuestionario</b> &mdash; es <b style=\"color:#fdd731\">gratis</b>, no tienes que pagar nada &mdash; "
+        "y se generara vuestro Libro de Pareja con los dos perfiles.</p>"
+        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">Te llevara unos 15-20 minutos. Cuando termines, "
+        "ambos recibis el documento conjunto por email.</p>"
+        "<div style=\"text-align:center;margin:26px 0\">"
+        "<a href=\"%s\" style=\"display:inline-block;background:#fdd731;color:#101014;text-decoration:none;"
+        "font-weight:700;font-size:16px;padding:14px 26px;border-radius:12px\">Empezar mi parte &rarr;</a></div>"
+        "<p style=\"font-size:12px;line-height:1.6;color:#8a8a84\">Si el boton no funciona, copia este enlace en tu navegador:<br>"
+        "<a href=\"%s\" style=\"color:#fdd731;word-break:break-all\">%s</a></p>"
+        "<p style=\"font-size:11.5px;color:#6b6b66;margin-top:22px;border-top:1px solid #2a2a30;padding-top:14px\">"
+        "Adapta Family Office &middot; Diagnostico psicofinanciero confidencial.</p>"
+        "</div>"
+    ) % (intro, enlace, enlace, enlace)
+    return {"from": INVITE_FROM, "to": [email_destino], "subject": asunto, "html": html}, enlace
+
+def _resend_post(payload):
+    """Envia un payload generico a Resend. Devuelve (status, body). No registra la clave."""
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request("https://api.resend.com/emails", data=data, method="POST",
+        headers={"Authorization": "Bearer %s" % RESEND_API_KEY, "Content-Type": "application/json",
+                 "Accept": "application/json",
+                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        return r.status, r.read().decode("utf-8", "ignore")
+
+@app.post("/api/invitar-pareja")
+def invitar_pareja(payload: InvitarParejaPayload):
+    """Envia por email el enlace de invitacion a la pareja.
+    Degradacion: si no hay RESEND_API_KEY o falla el envio, responde de forma controlada
+    (ok:false + motivo) para que el frontend siga ofreciendo el enlace copiable. Nunca rompe el flujo."""
+    email_destino = (payload.email_destino or "").strip()
+    if not _email_valido(email_destino):
+        return {"ok": False, "motivo": "email_invalido"}
+    # Seguridad anti-spam: solo enviamos el enlace de un uuid que exista y sea un iniciador de pareja (tier 3).
+    with db() as c:
+        row = c.execute("SELECT tier,nombre FROM sesiones WHERE id=?", (payload.uuid_pareja,)).fetchone()
+    if not row:
+        return {"ok": False, "motivo": "uuid_invalido"}
+    if row["tier"] != 3:
+        return {"ok": False, "motivo": "uuid_invalido"}
+    # Degradacion: sin clave configurada, no se rompe nada -> el frontend usa el enlace copiable.
+    if not RESEND_API_KEY:
+        return {"ok": False, "motivo": "email_no_configurado"}
+    # Nombre del iniciador: el que envia el cliente o, si no, el de la base.
+    nombre_iniciador = (payload.nombre_iniciador or "").strip()
+    if not nombre_iniciador:
+        _bn = (row["nombre"] or "").strip()
+        nombre_iniciador = _bn.split()[0] if _bn else ""
+    msg, _enlace = _build_invite_email(payload.uuid_pareja, email_destino, nombre_iniciador)
+    try:
+        status, _body = _resend_post(msg)
+        if 200 <= status < 300:
+            return {"ok": True}
+        return {"ok": False, "motivo": "envio_fallido"}
+    except Exception:
+        # No registramos la excepcion entera para no arriesgar fugas; mensaje neutro.
+        return {"ok": False, "motivo": "envio_fallido"}
 
 @app.post("/api/checkout/{session_id}")
 def checkout(session_id: str, consent: int = 0):

@@ -200,6 +200,29 @@ a{color:var(--am)}
   </div>
 </div>
 
+<div id="s-invite" class="step">
+  <div style="text-align:center;margin-bottom:6px">
+    <span style="display:inline-block;font-size:11px;color:var(--am);border:1px solid var(--am);border-radius:999px;padding:4px 13px;letter-spacing:.06em;text-transform:uppercase">Diagnóstico de Pareja · Adapta</span>
+  </div>
+  <div class="kick" style="text-align:center">Te están esperando</div>
+  <h1 style="font-size:23px;line-height:1.25;font-weight:800;letter-spacing:-0.3px;margin:8px 0 14px;text-align:center" id="inviteTitle">Te han invitado a vuestro <span style="color:var(--am)">Diagnóstico de Pareja</span></h1>
+  <div id="inviteResume" style="display:none"></div>
+  <div style="background:rgba(253,215,49,.07);border:1px solid var(--am);border-radius:14px;padding:17px 19px;margin:0 0 16px;text-align:left">
+    <p style="font-size:15px;line-height:1.6;margin:0 0 10px">La otra persona ya ha completado su parte y <b style="color:var(--tx)">el informe conjunto ya está pagado</b>.</p>
+    <p style="font-size:15px;line-height:1.6;margin:0">Solo tienes que completar <b style="color:var(--tx)">tu cuestionario</b> — es <b style="color:var(--am)">gratis, no pagas nada</b> — y se generará vuestro <b style="color:var(--tx)">Libro de Pareja</b> con los dos perfiles. Cuando termines, ambos lo recibís por email.</p>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;justify-content:center">
+    <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">Gratis para ti</span>
+    <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">15-20 min.</span>
+    <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">Confidencial</span>
+  </div>
+  <div class="lbl">Tu nombre</div><input id="inviteNombre" placeholder="Nombre">
+  <div class="lbl" style="margin-top:12px">Tu email</div><input id="inviteEmail" type="email" placeholder="tu@email.com">
+  <label class="chk"><input type="checkbox" id="inviteConsent"><span>Acepto la <a href="privacidad.html" target="_blank">Política de Privacidad</a> y el tratamiento de mis datos.</span></label>
+  <button class="btn" onclick="iniciarInvitado()">Empezar mi parte →</button>
+  <p style="font-size:11.5px;color:var(--gr);text-align:center;margin-top:9px;line-height:1.5">Responde con <b style="color:var(--tx)">tus</b> números individuales. Nosotros los cruzamos con los de tu pareja.</p>
+</div>
+
 <div id="s-load" class="step center"><div class="spin"></div><p style="color:var(--gr)">Preparando tu diagnóstico…</p></div>
 
 <div id="s-pacto" class="step pacto">
@@ -309,6 +332,12 @@ a{color:var(--am)}
       <button class="btn" id="parejaCopyBtn" style="margin-top:14px" onclick="copiarPareja()">📋 Copiar enlace</button>
       <button id="parejaShareBtn" style="display:none;margin-top:10px;background:none;border:1px solid var(--bd);color:var(--gr);border-radius:10px;padding:9px 16px;font-size:13px;cursor:pointer" onclick="compartirPareja()">Compartir por WhatsApp…</button>
       <p id="parejaCopyMsg" style="color:var(--gr);font-size:11.5px;margin-top:9px;line-height:1.5">Tu pareja abre ese enlace, responde su parte y vuestro libro conjunto se desbloquea.</p>
+      <div id="parejaEmailBox" style="margin-top:16px;padding-top:15px;border-top:1px solid var(--bd);text-align:left">
+        <div style="color:var(--gr);font-size:11px;text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px;text-align:center">…o se lo enviamos por ti</div>
+        <input id="parejaEmailInput" type="email" placeholder="email de tu pareja" style="width:100%;box-sizing:border-box">
+        <button class="btn" id="parejaEmailBtn" style="margin-top:10px" onclick="enviarInvitacionEmail()">Enviar invitación por email</button>
+        <p id="parejaEmailMsg" style="color:var(--gr);font-size:11.5px;margin-top:9px;line-height:1.5;text-align:center"></p>
+      </div>
       <p id="parejaWait" style="display:none;color:var(--am);font-size:11.5px;margin-top:10px;line-height:1.5">Esperando a que tu pareja complete su parte… esta página lo detecta sola y descargará vuestro libro.</p>
     </div>
   </div>
@@ -322,6 +351,38 @@ let CURSID=null;
 function fmt(n){try{return Math.round(n).toLocaleString('es-ES');}catch(e){return n;}}
 const PAREJA=new URLSearchParams(location.search).get('pareja');
 try{ofrecerReanudar();}catch(e){}
+// Invitación de pareja: si llega ?pareja=<uuid> válido, mostramos la pantalla de bienvenida
+// dedicada (informe ya pagado, completa tu parte gratis). Failsafe: si el uuid no es válido
+// o falla la verificación, NO tocamos nada -> el flujo genérico actual sigue intacto.
+async function verificarInvitacion(){
+  if(!PAREJA) return;
+  try{
+    const r=await fetch(API+'/api/pareja-estado/'+encodeURIComponent(PAREJA));
+    if(!r.ok) return;
+    const d=await r.json();
+    // Solo si existe y es un iniciador de pareja (T3). Si no, comportamiento actual.
+    if(!d || !d.existe || !d.es_pareja) return;
+    var t=document.getElementById('inviteTitle');
+    if(t && d.nombre_iniciador){
+      t.innerHTML=esc(d.nombre_iniciador)+' te ha invitado a vuestro <span style="color:var(--am)">Diagnóstico de Pareja</span>';
+    }
+    // Reanudar: si esta pareja ya empezó su parte en este navegador, ofrecemos continuar.
+    try{
+      var prog=hayProgreso(), slot=document.getElementById('inviteResume');
+      if(prog && slot){
+        var pct=Math.round((prog.i/prog.cola.length)*100);
+        slot.innerHTML='<div style="background:rgba(253,215,49,.08);border:1px solid var(--am);border-radius:14px;padding:14px 16px;margin:0 0 16px;text-align:left">'+
+          '<div style="font-weight:600;color:var(--tx);margin-bottom:8px">Ya empezaste tu parte ('+pct+'%)</div>'+
+          '<button class="btn btn-am" style="padding:10px 18px;font-size:14px" onclick="reanudar()">Reanudar mi parte →</button>'+
+          '<button style="margin-left:10px;background:none;border:none;color:var(--gr);font-size:12.5px;cursor:pointer;text-decoration:underline" onclick="limpiarProgreso();this.closest(\'div\').remove()">Empezar de nuevo</button></div>';
+        slot.style.display='block';
+      }
+    }catch(_){}
+    try{ show('s-invite'); }catch(e){}
+  }catch(e){ /* failsafe: dejamos el flujo genérico */ }
+}
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+try{ verificarInvitacion(); }catch(e){}
 const _qt=new URLSearchParams(location.search).get('tier'); if((_qt==='1'||_qt==='2'||_qt==='3')&&document.getElementById('tier')) document.getElementById('tier').value=_qt; try{descTier();}catch(e){}
 let INST=null, st={email:"",nombre:"",tier:2,sid:null,perfil:{},resp:{},datos:{},abiertas:{},
    cola:[], i:0, tens:[], reportUrl:null, abierta:new Set(), insertados:new Set(), inyectados:0, motorLog:[], _prog:0, _lastIdx:null, avisoEstres:false};
@@ -362,6 +423,19 @@ function ofrecerReanudar(){
   cont.insertBefore(box, cont.firstChild);
 }
 
+// Pareja invitada: arranca desde la pantalla de bienvenida. Tier BLOQUEADO a 3 (sin pago).
+// Reaprovecha iniciar() copiando los campos a los inputs del registro genérico.
+async function iniciarInvitado(){
+  var n=document.getElementById('inviteNombre'), e=document.getElementById('inviteEmail'), c=document.getElementById('inviteConsent');
+  if(!n.value.trim()){alert('Pon tu nombre');return}
+  if(!e.value.trim()){alert('Pon tu email');return}
+  if(!c.checked){alert('Debes aceptar la Política de Privacidad');return}
+  try{ if(document.getElementById('nombre')) document.getElementById('nombre').value=n.value.trim(); }catch(_){}
+  try{ if(document.getElementById('email')) document.getElementById('email').value=e.value.trim(); }catch(_){}
+  try{ if(document.getElementById('tier')) document.getElementById('tier').value='3'; }catch(_){}
+  try{ if(document.getElementById('consent')) document.getElementById('consent').checked=true; }catch(_){}
+  return iniciar();
+}
 async function iniciar(){
   limpiarProgreso();
   st.nombre=nombre.value.trim(); st.email=email.value.trim(); st.tier=parseInt(tier.value);
@@ -1192,6 +1266,34 @@ async function copiarPareja(){
 async function compartirPareja(){
   var link=window.PAREJA_LINK||(document.getElementById('parejaCode')||{}).textContent||'';
   try{ if(navigator.share) await navigator.share({title:'Diagnóstico de pareja · Adapta',text:'Completa tu parte para desbloquear nuestro libro financiero:',url:link}); }catch(e){}
+}
+// Envía la invitación por email vía backend. DEGRADACIÓN: si el email no está configurado o
+// falla, NO rompe nada -> el enlace copiable de arriba sigue siendo el respaldo de siempre.
+async function enviarInvitacionEmail(){
+  var inp=document.getElementById('parejaEmailInput'), btn=document.getElementById('parejaEmailBtn'), msg=document.getElementById('parejaEmailMsg');
+  var dest=(inp&&inp.value||'').trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(dest)){ if(msg) msg.textContent='Escribe un email válido.'; return; }
+  var sid=CURSID||(st&&st.sid); if(!sid){ if(msg) msg.textContent='Sesión no encontrada; usa el enlace de arriba.'; return; }
+  var o=btn?btn.textContent:''; if(btn){ btn.disabled=true; btn.textContent='Enviando…'; }
+  try{
+    var r=await fetch(API+'/api/invitar-pareja',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({uuid_pareja:sid,email_destino:dest,nombre_iniciador:(st&&st.nombre)||''})});
+    var d=await r.json();
+    if(d&&d.ok){
+      if(msg){ msg.style.color='#7ee3ad'; msg.textContent='✓ Invitación enviada a '+dest+'. (Pídele que mire también en Spam.)'; }
+      if(btn) btn.textContent='✓ Enviada';
+      return;
+    }
+    // Degradación elegante: sin servicio de email -> el enlace copiable es el respaldo.
+    if(msg){ msg.style.color='var(--am)';
+      msg.textContent = (d&&d.motivo==='email_no_configurado')
+        ? 'El envío automático no está disponible aún: de momento copia el enlace de arriba y envíaselo tú.'
+        : 'No se pudo enviar el email. Copia el enlace de arriba y envíaselo tú.'; }
+  }catch(e){
+    if(msg){ msg.style.color='var(--am)'; msg.textContent='No se pudo enviar el email. Copia el enlace de arriba y envíaselo tú.'; }
+  }finally{
+    if(btn){ btn.disabled=false; if(btn.textContent==='Enviando…') btn.textContent=o; }
+  }
 }
 async function pagar(){
   const _cb=document.getElementById('consentPago');
