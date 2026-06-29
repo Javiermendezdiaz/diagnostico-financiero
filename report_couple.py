@@ -391,6 +391,25 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
     if extras:
         try: out += rb.seccion_ratio_vida(extras) + rb.seccion_nudo(extras) + rb.seccion_coste_inaccion(extras)
         except Exception: pass
+        # --- Matiz colchón social ante pérdida de empleo (solo si el perfil tiene derecho) ---
+        try:
+            _res=(extras or {}).get("resiliencia") or {}
+            _cs=_res.get("colchon_social") if isinstance(_res,dict) else None
+            _mlp=_res.get("meses_liquido_paro"); _mliq=_res.get("meses_liquido")
+            if _cs and _cs.get("aplica") and _mlp is not None and _mliq is not None:
+                if _cs.get("perfil")=="empleado":
+                    _tcs=(f"<b>Sobre tu resistencia si perdieras el empleo:</b> este número ya contempla un colchón social "
+                          f"estimado. La prestación por desempleo (la asumimos prudente en ~60% de tu ingreso durante un máximo "
+                          f"de ~12 meses) y el finiquito amortiguan la caída antes de tocar tu ahorro: con ese colchón tu liquidez "
+                          f"individual aguantaría del orden de <b>{_mlp:g} meses</b> en vez de {_mliq:g}. Es una estimación "
+                          f"conservadora; aun así, en un hogar lo que de verdad cuenta es que no falléis los dos a la vez.")
+                else:
+                    _tcs=(f"<b>Sobre tu resistencia si perdieras tu actividad:</b> como autónomo o empresario tu red es mucho más "
+                          f"fina que la de un asalariado. Modelamos un amortiguador prudente (~40% durante hasta ~4 meses) que "
+                          f"estira tu liquidez de {_mliq:g} a unos <b>{_mlp:g} meses</b>. No es una prestación garantizada: tu "
+                          f"mejor seguro sigue siendo el colchón del hogar.")
+                out += [Spacer(1,3*mm), _callout("Colchón social estimado", _tcs, "#2C5C8A", "#EEF2F8")]
+        except Exception: pass
     out.append(PageBreak())
     out.append(Paragraph(f"{pn}: tus doce capas, una a una",h_sub))
     out.append(Paragraph("Tu lectura individual, capa por capa — las que más te pesan, primero. El cruce con tu pareja viene después.",small))

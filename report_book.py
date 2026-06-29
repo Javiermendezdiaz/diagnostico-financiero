@@ -3462,6 +3462,29 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                                    f"tienes solo <b>{_mliq:g} meses</b>. Tu casa o tu negocio valen, pero no pagan el súper del mes que "
                                    f"viene: conviene tener una parte realizable en días.",
                                    St("mlh3",fontSize=9.4,leading=13,textColor=colors.HexColor("#9A3B2E"),spaceBefore=5)))
+        # --- Matiz colchón social (paro / cese de actividad): solo si el perfil tiene derecho ---
+        try:
+            _cs=_res.get("colchon_social") if isinstance(_res,dict) else None
+            _mlp=_res.get("meses_liquido_paro") if isinstance(_res,dict) else None
+            if _cs and _cs.get("aplica") and _mlp is not None and _mliq is not None:
+                _perf=_cs.get("perfil")
+                _antes=("%g"%_mliq); _despues=("%g"%_mlp)
+                if _perf=="empleado":
+                    _txt_cs=(f"<b>Una nota honesta sobre la pérdida de empleo:</b> este cálculo ya contempla un colchón social "
+                             f"estimado. Si perdieras el trabajo, la prestación por desempleo —que asumimos de forma prudente en "
+                             f"~60% de tu ingreso durante un máximo de ~12 meses— y el finiquito amortiguarían la caída antes de "
+                             f"tocar tu ahorro. Con ese colchón, tu liquidez no aguantaría {_antes} meses, sino del orden de "
+                             f"<b>{_despues}</b>. Es una estimación conservadora (no conocemos tu historial de cotización, así que "
+                             f"el paro real podría durar más); aun así, conviene leer esa cifra como tu margen, no como tu techo.")
+                else:
+                    _txt_cs=(f"<b>Una nota honesta sobre la pérdida de actividad:</b> como autónomo o empresario, tu red ante un "
+                             f"cese es mucho más fina que la de un asalariado. Modelamos un colchón social prudente —cese de "
+                             f"actividad de ~40% durante hasta ~4 meses— que estira tu liquidez de {_antes} a unos "
+                             f"<b>{_despues}</b> meses. No es una prestación garantizada como el paro: es un amortiguador limitado y "
+                             f"condicionado. Tu mejor seguro sigue siendo tu propio colchón.")
+                _parr.append(Paragraph(_txt_cs,St("mlcs",fontSize=9.4,leading=13,textColor=colors.HexColor("#2C5C8A"),spaceBefore=5)))
+        except Exception:
+            pass
         if _niv=="libertad":
             _parr.append(Paragraph("<b>¿Y si vives más de 100 años?</b> Tu patrimonio ya es perpetuo: al 4% renta más de lo que "
                                    "gastas, así que no se agota con los años. Vivas hasta los 90 o los 110, te cubre — el escenario de "

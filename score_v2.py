@@ -137,6 +137,66 @@ def _es_rentista(perfil_in):
     return rent and not activo
 
 
+def colchon_social_paro(datos, perfil_in):
+    """Colchón social CONSERVADOR ante pérdida del trabajo activo (paro / cese de actividad).
+
+    Modela, de forma deliberadamente prudente y SIEMPRE etiquetada como estimación, el amortiguador
+    que recibiría la persona si perdiera su empleo, ANTES de empezar a consumir su ahorro:
+
+      - EMPLEADO (cuenta ajena): tiene derecho a la prestación por desempleo. Estimamos una
+        prestación ≈ 60% del ingreso neto del trabajo durante hasta 12 MESES. El máximo legal real
+        puede llegar a ~24 meses, pero como NO conocemos su historial de cotización usamos 12 como
+        tope prudente (infra-estima a propósito; nunca exagera la red).
+      - AUTÓNOMO / EMPRESA: el cese de actividad es mucho más limitado y condicionado. Modelamos un
+        buffer pequeño ≈ 40% del ingreso del trabajo durante hasta 4 MESES.
+      - RENTISTA / JUBILADO / SIN ACTIVIDAD REMUNERADA: sus ingresos NO provienen del trabajo
+        activo, así que la "pérdida de empleo" no aplica → 0 (no se inventa colchón).
+
+    El finiquito NO se cuantifica (no capturamos antigüedad): se menciona solo cualitativamente en el
+    informe. Devuelve un dict (failsafe) con la prestación mensual estimada, su tope en meses y la
+    etiqueta de perfil. Si faltan datos o el perfil no aplica → prestacion=0, meses_cobertura=0.
+    """
+    out = {"aplica": False, "perfil": "n/a", "prestacion_mes": 0.0,
+           "meses_cobertura": 0, "pct": 0.0, "base_ingreso": 0.0}
+    try:
+        d = datos or {}
+        # Base = ingreso del trabajo activo. Preferimos el ingreso por trabajo si se declaró;
+        # si no, caemos al ingreso neto mensual total (prudente: no separamos rentas pasivas aquí
+        # porque el escenario es perder SOLO el trabajo, y restar pasivas ya alarga el colchón).
+        ing_trab = _num0(d, "ing_trabajo")
+        ing_total = _num(d, "ingreso_mensual")
+        base = ing_trab if (ing_trab is not None and ing_trab > 0) else (ing_total or 0.0)
+        if not base or base <= 0:
+            return out
+        # Rentista / jubilado / sin actividad: el trabajo activo no es su sustento → no hay paro.
+        if _es_rentista(perfil_in):
+            out["perfil"] = "rentista"
+            return out
+        t = _perfil_laboral_txt(perfil_in).lower()
+        es_jub = ("jubil" in t) or ("pensionist" in t)
+        es_sin = ("sin actividad" in t) or ("ama" in t) or ("cuidados" in t) or ("estudios" in t)
+        es_empleado = "empleado" in t
+        es_autonomo = ("utónom" in t) or ("autonom" in t) or ("empresa" in t)
+        # Si SOLO es jubilado/sin actividad (y no trabaja por cuenta ajena ni autónomo) → no aplica.
+        if (es_jub or es_sin) and not (es_empleado or es_autonomo):
+            out["perfil"] = "jubilado" if es_jub else "sin_actividad"
+            return out
+        # Perfil mixto: nos quedamos con la red MÁS protectora aplicable (empleado > autónomo).
+        if es_empleado:
+            out.update(aplica=True, perfil="empleado", pct=0.60, meses_cobertura=12)
+        elif es_autonomo:
+            out.update(aplica=True, perfil="autonomo", pct=0.40, meses_cobertura=4)
+        else:
+            # Perfil desconocido o ausente → comportamiento base (sin colchón de paro).
+            return out
+        out["base_ingreso"] = float(base)
+        out["prestacion_mes"] = round(float(base) * out["pct"], 2)
+        return out
+    except Exception:
+        return {"aplica": False, "perfil": "n/a", "prestacion_mes": 0.0,
+                "meses_cobertura": 0, "pct": 0.0, "base_ingreso": 0.0}
+
+
 def calcular_brecha(datos, resp, perfil_in):
     """Brecha vital: lo que cuesta la vida ideal frente a lo que hoy ingresas/acumulas."""
     ingreso = _num(datos, "ingreso_mensual")
@@ -871,7 +931,7 @@ def _interp(x, pts):
     return pts[-1][1]
 
 
-def calcular_resiliencia(datos):
+def calcular_resiliencia(datos, perfil_in=None):
     """Resiliencia financiera OBJETIVA: los meses de libertad que tu patrimonio compra.
 
     Es la cifra que mide de verdad lo bien o mal que estas: el patrimonio neto
@@ -880,6 +940,11 @@ def calcular_resiliencia(datos):
     sobre un patrimonio minimo. Devuelve None si faltan datos para calcularla.
 
     Polaridad de 'fragilidad': 0 = solido/libre, 100 = al limite (igual que el resto del motor).
+
+    `perfil_in` es OPCIONAL y aditivo: si se pasa, se modela ademas un colchon social
+    CONSERVADOR (prestacion por desempleo / cese de actividad) que ALARGA la resistencia
+    inmediata en el escenario de perder el trabajo. Si no se pasa (o el perfil no aplica),
+    el comportamiento es IDENTICO al historico — no rompe a ningun llamador existente.
     """
     gasto = _num(datos, "gasto_mensual")
     if not gasto:
@@ -889,7 +954,7 @@ def calcular_resiliencia(datos):
     inv = _num0(datos, "inversiones_liquidas") or 0.0
     liq = colch + inv                               # convertible en dias (rapido)
     meses_pat = pat / gasto                          # libertad total (incluye activos lentos: vivienda, negocio)
-    meses_liq = liq / gasto                           # resistencia inmediata
+    meses_liq = liq / gasto                           # resistencia inmediata (sin colchon social)
     anios_pat = meses_pat / 12.0
     # Fragilidad objetiva: el patrimonio total manda (clave de la libertad),
     # pero la liquidez inmediata pondera para no llamar 'libre' a quien no tiene caja.
@@ -910,7 +975,44 @@ def calcular_resiliencia(datos):
         nivel = "expuesto"
     # Riesgo de caja: mucho patrimonio pero poca liquidez inmediata.
     iliquido = bool(meses_pat >= 24 and meses_liq < 3)
-    return {
+    # --- Colchon social CONSERVADOR ante perdida del trabajo activo (aditivo, failsafe) ---
+    # Escenario "pierdo mi empleo": durante los meses cubiertos por la prestacion, el deficit
+    # mensual NO es (gasto - 0) sino (gasto - prestacion). Eso ALARGA los meses de supervivencia.
+    # Si no se pasa perfil, o el perfil no tiene derecho a paro, el resultado es identico a meses_liq.
+    cs = None
+    meses_liq_paro = meses_liq
+    try:
+        if perfil_in is not None:
+            cs = colchon_social_paro(datos, perfil_in)
+            if cs and cs.get("aplica") and (cs.get("prestacion_mes") or 0) > 0:
+                prest = float(cs["prestacion_mes"])
+                cob = int(cs.get("meses_cobertura") or 0)
+                # Deficit con prestacion (por mes cubierto). Si la prestacion >= gasto, durante
+                # esos meses NO consume colchon: cap el deficit en >= 0.
+                def_con_prest = max(0.0, gasto - prest)
+                liq_rest = liq
+                meses_acum = 0.0
+                # Fase 1: meses cubiertos por la prestacion (deficit reducido).
+                if def_con_prest <= 0:
+                    # La prestacion sola sostiene la vida durante toda la cobertura: 0 consumo.
+                    meses_acum += cob
+                else:
+                    meses_en_fase1 = liq_rest / def_con_prest
+                    if meses_en_fase1 <= cob:
+                        # El colchon se agota dentro de la fase con prestacion.
+                        meses_acum += meses_en_fase1
+                        liq_rest = 0.0
+                    else:
+                        meses_acum += cob
+                        liq_rest -= def_con_prest * cob
+                # Fase 2: agotada la prestacion, vuelve el deficit completo (gasto).
+                if liq_rest > 0:
+                    meses_acum += liq_rest / gasto
+                meses_liq_paro = meses_acum
+    except Exception:
+        cs = None
+        meses_liq_paro = meses_liq
+    out = {
         "meses_libertad": round(meses_pat, 1),
         "anios_libertad": round(anios_pat, 1),
         "meses_liquido": round(meses_liq, 1),
@@ -921,6 +1023,11 @@ def calcular_resiliencia(datos):
         "nivel": nivel,
         "iliquido": iliquido,
     }
+    # Claves NUEVAS (solo presentes/relevantes si se paso perfil con derecho a colchon social).
+    if cs and cs.get("aplica") and (cs.get("prestacion_mes") or 0) > 0:
+        out["colchon_social"] = cs
+        out["meses_liquido_paro"] = round(meses_liq_paro, 1)
+    return out
 
 
 _FUENTE_DEFS = [
@@ -1047,7 +1154,7 @@ def calcular_nudo(perfil_in, datos):
     dep = (p.get("dependientes", "") or "")
     tiene_dep = dep.strip().lower().startswith("s")
     try:
-        res = calcular_resiliencia(datos) or {}
+        res = calcular_resiliencia(datos, perfil_in) or {}
     except Exception:
         res = {}
     meses = res.get("meses_libertad")
@@ -1671,8 +1778,8 @@ def computar_extras(resp, datos, perfil_in, inst=None):
         "asesor": calcular_asesor(perfil_in),
         "herencia": calcular_herencia(perfil_in),
         "fortuna_neta": calcular_fortuna_neta(datos),
-        "resiliencia": calcular_resiliencia(datos),
-        "paradoja": detectar_paradoja(datos, p, calcular_resiliencia(datos)),
+        "resiliencia": calcular_resiliencia(datos, perfil_in),
+        "paradoja": detectar_paradoja(datos, p, calcular_resiliencia(datos, perfil_in)),
         "fuentes": calcular_fuentes(datos, perfil_in),
         "ratio_vida": calcular_ratio_vida(perfil_in),
         "nudo": calcular_nudo(perfil_in, datos),
