@@ -172,6 +172,18 @@ def _fill(d):
     d=dict(d or {}); d.setdefault("gasto_mensual",2000); d.setdefault("ingreso_mensual",3000)
     d.setdefault("ahorro_mensual",300); d.setdefault("patrimonio",30000); d.setdefault("edad",40); return d
 
+def _gasto_hogar(dAf, dBf):
+    """Gasto mensual REAL del hogar, neteando el solape de gastos compartidos.
+    Cada miembro declara su gasto 'todo incluido', que suele incluir la MISMA bolsa
+    comun (alquiler, luz, comida). Sumarlos sin mas duplicaria esa parte e inflaria el
+    Numero de Libertad conjunto. Restamos como mucho UNA copia de la bolsa comun declarada
+    (gastos_comunes), con suelo en el mayor componente para no quedarnos cortos."""
+    gA = dAf.get("gasto_mensual") or 0
+    gB = dBf.get("gasto_mensual") or 0
+    gc = max((dAf.get("gastos_comunes") or 0), (dBf.get("gastos_comunes") or 0))
+    neto = (gA + gB) - min(gc, gA, gB)   # netea a lo sumo una copia de la bolsa comun
+    return max(neto, gA, gB, gc)         # nunca por debajo del mayor componente real
+
 def _callout(titulo, texto, barra, fondo):
     return KeepTogether([Table([[Paragraph(
         f"<font color='{barra}'><b>{titulo}</b></font><br/>"
@@ -207,7 +219,7 @@ def _compartimento(prof, resp):
 
 def seccion_acelerador_hogar(dA, dB, tmp="/tmp/_lp_"):
     a=_fill(dA); b=_fill(dB)
-    ing=a["ingreso_mensual"]+b["ingreso_mensual"]; gas=a["gasto_mensual"]+b["gasto_mensual"]
+    ing=a["ingreso_mensual"]+b["ingreso_mensual"]; gas=_gasto_hogar(a,b)
     pat=a["patrimonio"]+b["patrimonio"]; num=(gas*12.0/0.04) if gas>0 else 0
     if ing<=0 or num<=0: return []
     try:
@@ -256,7 +268,7 @@ def seccion_caminos_hogar(dA, dB):
          "patrimonio":a["patrimonio"]+b["patrimonio"],
          "ahorro_mensual":a["ahorro_mensual"]+b["ahorro_mensual"],
          "ingreso_mensual":a["ingreso_mensual"]+b["ingreso_mensual"],
-         "gasto_mensual":a["gasto_mensual"]+b["gasto_mensual"],
+         "gasto_mensual":_gasto_hogar(a,b),
          "inversiones_liquidas":(a.get("inversiones_liquidas") or 0)+(b.get("inversiones_liquidas") or 0),
          "colchon_liquido":(a.get("colchon_liquido") or 0)+(b.get("colchon_liquido") or 0),
          "rentabilidad_actual":max(a.get("rentabilidad_actual") or 0, b.get("rentabilidad_actual") or 0)}
@@ -821,7 +833,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         if getattr(rb,"_LEGADO_OK",False):
             import legado_pages as _lp
             _dAf=_fill(dA); _dBf=_fill(dB)
-            _hog={"gasto_mensual":_dAf["gasto_mensual"]+_dBf["gasto_mensual"],"ingreso_mensual":_dAf["ingreso_mensual"]+_dBf["ingreso_mensual"],"ahorro_mensual":_dAf["ahorro_mensual"]+_dBf["ahorro_mensual"],"patrimonio":_dAf["patrimonio"]+_dBf["patrimonio"],"edad":(_dAf["edad"]+_dBf["edad"])/2}
+            _hog={"gasto_mensual":_gasto_hogar(_dAf,_dBf),"ingreso_mensual":_dAf["ingreso_mensual"]+_dBf["ingreso_mensual"],"ahorro_mensual":_dAf["ahorro_mensual"]+_dBf["ahorro_mensual"],"patrimonio":_dAf["patrimonio"]+_dBf["patrimonio"],"edad":(_dAf["edad"]+_dBf["edad"])/2}
             _hn=rb.fi_metrics(_hog)[0]
             for _pg in _lp.pareja_hero(nA,nB,cliA,dA,dB,pA,pB,_hn,cliA.get("fecha",""),perfilA=perfilA,perfilB=perfilB):
                 S+=[rb.FullBleedImage(_pg), PageBreak()]
@@ -862,8 +874,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     S+=rb._secsafe(seccion_arquetipos,rA,rB,nA,nB)
     # compatibilidad + radar
     dAf=_fill(dA); dBf=_fill(dB)
-    _gA=dAf["gasto_mensual"]; _gB=dBf["gasto_mensual"]; _gh=_gA+_gB
-    _pfh=(((dAf.get("pct_gasto_fijo") or 0)*_gA+(dBf.get("pct_gasto_fijo") or 0)*_gB)/_gh) if _gh>0 else 0
+    _gA=dAf["gasto_mensual"]; _gB=dBf["gasto_mensual"]; _gh=_gasto_hogar(dAf,dBf)
+    _pfh=(((dAf.get("pct_gasto_fijo") or 0)*_gA+(dBf.get("pct_gasto_fijo") or 0)*_gB)/(_gA+_gB)) if (_gA+_gB)>0 else 0
     hogar={"gasto_mensual":_gh,
            "ingreso_mensual":dAf["ingreso_mensual"]+dBf["ingreso_mensual"],
            "ahorro_mensual":dAf["ahorro_mensual"]+dBf["ahorro_mensual"],
