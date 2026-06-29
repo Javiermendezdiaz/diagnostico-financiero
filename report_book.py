@@ -76,6 +76,34 @@ BLUEACC=colors.HexColor("#C9962B")
 def phi(x): return 0.5*(1+math.erf(x/math.sqrt(2)))
 def pctil(s): return round(100*(1-phi((s-45.0)/17.0)))
 def peso(it): return 0.5 if "metacognición" in it.get("dimensiones","") else 1.0
+def _sel_idx(val):
+    """Normaliza resp[id] a lista de indices. int->[int]; list->[int,...]; None/basura->[].
+    Soporta items multi-respuesta (el frontend guarda un array de indices). Failsafe total."""
+    try:
+        if val is None: return []
+        if isinstance(val,bool): return []
+        if isinstance(val,int): return [val]
+        if isinstance(val,(list,tuple)):
+            return [int(i) for i in val if isinstance(i,int) and not isinstance(i,bool)]
+        return []
+    except Exception:
+        return []
+def _ops_sel(it,val):
+    """Lista de dicts de opcion realmente seleccionados (orden de marcado). Salta indices invalidos."""
+    ops=it.get("opciones") or []; out=[]
+    for i in _sel_idx(val):
+        try: out.append(ops[i])
+        except (IndexError,KeyError,TypeError): continue
+    return out
+def _item_score(it,val):
+    """Score agregado de un item puntuado, multi-aware: unica->score de la opcion;
+    multi->PROMEDIO de los scores marcados. None si nada valido (el llamante salta el item)."""
+    sc=[]
+    for op in _ops_sel(it,val):
+        try: s=op["score"]
+        except (KeyError,TypeError): continue
+        if isinstance(s,(int,float)) and not isinstance(s,bool): sc.append(float(s))
+    return (statistics.mean(sc) if sc else None)
 # «Sobrecarga» es un término de estrés; para capas que no lo son, etiqueta por dominio (C1 lo conserva)
 _BANDA_FIX={"C2":"Sin rumbo","C3":"Frágil","C4":"A la deriva","C5":"Expuesta","C6":"Inflado","C7":"Expuesta","C8":"Vulnerable","C9":"Con fugas","C10":"Apretada","C11":"Estancada","C12":"Parado"}
 def banda(capa,s):
@@ -97,9 +125,9 @@ def score_capa(capa,resp):
         if it["tipo"]!="escala": continue
         if it.get("atencion"): continue
         if it.get("solo_validez"): continue   # gemela de control: NO suma a la media de la capa (solo valida consistencia)
-        idx=resp.get(it["id"])
-        if idx is None: continue
-        fac.setdefault(it["faceta"],[]).append((it["opciones"][idx]["score"],peso(it)))
+        sc=_item_score(it,resp.get(it["id"]))   # multi-aware: int->score; list->promedio de marcados
+        if sc is None: continue
+        fac.setdefault(it["faceta"],[]).append((sc,peso(it)))
     facetas={f:round(sum(v*w for v,w in l)/sum(w for _,w in l),1) for f,l in fac.items()}
     return (round(statistics.mean(list(facetas.values())),1) if facetas else 0),facetas
 def perfil(resp):
@@ -113,10 +141,10 @@ def perfil(resp):
             if it["tipo"]!="escala": continue
             if it.get("atencion"): continue
             if it.get("solo_validez"): continue   # gemela de control: fuera de las medias transversales (no doble-cuenta)
-            idx=resp.get(it["id"])
-            if idx is None: continue
+            _sc=_item_score(it,resp.get(it["id"]))   # multi-aware
+            if _sc is None: continue
             for t in [x for x in it.get("dimensiones","").split("·") if x in TRANS]:
-                tr[t].append(it["opciones"][idx]["score"])
+                tr[t].append(_sc)
     trans={t:(round(statistics.mean(v),1) if v else None) for t,v in tr.items()}
     return out,trans,round(statistics.mean([v["score"] for v in out.values()]),1)
 def fi_metrics(d):
@@ -2279,11 +2307,11 @@ def citas_capa(code, resp, k=2, min_score=50):
     capa=CAPAS[code]; out=[]
     for it in capa["items"]:
         if it["tipo"]!="escala": continue
-        idx=resp.get(it["id"])
-        if idx is None: continue
-        op=it["opciones"][idx]; tag=op.get("tag_narrativo") or op.get("texto")
-        if tag and op["score"]>=min_score:
-            out.append((op["score"], it["texto"], tag))
+        for op in _ops_sel(it, resp.get(it["id"])):   # multi-aware: cita TODAS las opciones marcadas
+            tag=op.get("tag_narrativo") or op.get("texto")
+            sc=op.get("score")
+            if tag and isinstance(sc,(int,float)) and not isinstance(sc,bool) and sc>=min_score:
+                out.append((sc, it["texto"], tag))
     out.sort(key=lambda x:-x[0])
     return out[:k]
 
@@ -2803,10 +2831,8 @@ def seccion_dictamen_comportamiento(resp):
     for kws,titulo,etiq_crit,dict_crit in FOCO:
         it=_match(kws)
         if not it or it["id"] in _vistos: continue
-        idx=resp.get(it["id"])
-        if idx is None: continue
-        try: sc=it["opciones"][idx]["score"]
-        except Exception: continue
+        sc=_item_score(it, resp.get(it["id"]))   # multi-aware
+        if sc is None: continue
         if sc<=35: continue   # fortaleza: no la convertimos en alarma
         _vistos.add(it["id"])
         if sc<=60: etiq="A VIGILAR"; col="#9A7B1F"
@@ -2857,18 +2883,16 @@ def seccion_dictamen_empresa(resp, datos=None, extras=None):
                 return it
         return None
     def _opt_txt(it):
-        """Texto de la opcion elegida (en minusculas) o None."""
+        """Texto de la(s) opcion(es) elegida(s) en minusculas, o None. Multi-aware: une las marcadas."""
         try:
-            idx = resp.get(it["id"])
-            if idx is None:
-                return None
-            return (it["opciones"][idx].get("texto") or "").strip().lower()
+            sel=_ops_sel(it, resp.get(it["id"]))
+            if not sel: return None
+            return " · ".join((o.get("texto") or "") for o in sel).strip().lower()
         except Exception:
             return None
     def _opt_score(it):
         try:
-            idx = resp.get(it["id"])
-            return it["opciones"][idx]["score"]
+            return _item_score(it, resp.get(it["id"]))   # multi-aware (promedio si lista)
         except Exception:
             return None
 
@@ -3810,9 +3834,9 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             if it.get("atencion"): continue   # control de atencion: fuera del anexo
             sc=None; na=False
             if it["tipo"]=="escala":
-                idx=resp.get(it["id"])
-                if idx is not None:
-                    ans=it["opciones"][idx]["texto"]; sc=it["opciones"][idx]["score"]
+                _sel=_ops_sel(it, resp.get(it["id"]))   # multi-aware: lista de opciones marcadas
+                if _sel:
+                    ans=" · ".join((o.get("texto") or "") for o in _sel)   # multi: une todas las marcadas
                 else: ans=""; na=True
             else:
                 v=datos.get(NUM_MAP.get(it["id"],"")); na=(v is None); ans=("%s %s"%(v,it.get("unidad",""))).strip() if v is not None else ""

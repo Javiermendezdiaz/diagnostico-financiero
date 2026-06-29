@@ -445,12 +445,26 @@ function umbralCapa(cap){
   const u=(INST.meta&&INST.meta.umbrales)||{};
   return (u[cap]!=null) ? u[cap] : ((INST.meta&&INST.meta.umbral_profundizacion)||35);
 }
+// Score de un item, multi-aware: respuesta unica (int)->score de la opcion;
+// respuesta multiple (array de indices)->PROMEDIO de los scores marcados. NaN -> null (el llamante decide).
+function _scoreItem(it){
+  const v=st.resp[it.id];
+  let idxs;
+  if(Array.isArray(v)) idxs=v;
+  else if(typeof v==='number') idxs=[v];
+  else return null;
+  const sc=[];
+  for(const i of idxs){ const op=it.opciones&&it.opciones[i]; const s=op?op.score:undefined;
+    if(typeof s==='number'&&!isNaN(s)) sc.push(s); }
+  if(!sc.length) return null;
+  return sc.reduce((a,b)=>a+b,0)/sc.length;
+}
 function statsCapa(cap){
   const c=INST.capas.find(x=>x.code===cap); if(!c) return null;
   const crib=c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null);
   if(!crib.length) return null;
-  const sc=crib.map(it=>{                                   // #blindaje anti-NaN
-    const op=it.opciones[st.resp[it.id]]; let s=op?op.score:undefined;
+  const sc=crib.map(it=>{                                   // #blindaje anti-NaN, multi-aware
+    let s=_scoreItem(it);
     if(typeof s!=='number' || isNaN(s)){ _log('[Step '+st.i+'] ['+cap+'] SCORE_INVALIDO -> '+it.id+' (default 0)'); s=0; }
     return s;
   });
@@ -523,7 +537,7 @@ function capaBand(cap){
   const c=INST.capas.find(x=>x.code===cap); if(!c) return null;
   const crib=c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null);
   if(!crib.length) return null;
-  const m=crib.reduce((a,it)=>a+it.opciones[st.resp[it.id]].score,0)/crib.length;
+  const m=crib.reduce((a,it)=>{const s=_scoreItem(it);return a+(typeof s==='number'&&!isNaN(s)?s:0);},0)/crib.length;
   if(m<26) return {n:c.nombre,t:'Sólido en esta área. Pasando a la siguiente.',c:'#7ee3ad'};
   if(m<51) return {n:c.nombre,t:'Con margen de mejora. Seguimos.',c:'#f2cf6b'};
   if(m<76) return {n:c.nombre,t:'Sobrecarga detectada. Abriendo preguntas de excavación.',c:'#f6a89c'};
@@ -1072,7 +1086,7 @@ function capaMean(cap){
   const c=INST.capas.find(x=>x.code===cap); if(!c) return 0;
   const crib=c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null);
   if(!crib.length) return 0;
-  return crib.reduce((a,it)=>a+it.opciones[st.resp[it.id]].score,0)/crib.length;
+  return crib.reduce((a,it)=>{const s=_scoreItem(it);return a+(typeof s==='number'&&!isNaN(s)?s:0);},0)/crib.length;
 }
 function popupEstres(cb){
   document.getElementById('modalP').innerHTML='He encontrado focos de tensión reales en tu perfil — de los que cuestan dinero y sueño. No te los enseño para asustarte, sino para que dejes de fingir que no están. Al terminar tendrás el <b>plan, paso a paso, para desactivar cada uno</b>. Seguimos.';

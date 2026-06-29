@@ -3811,8 +3811,9 @@
           "id": "C11-02",
           "faceta": "activo_latente",
           "tipo": "escala",
+          "multi": true,
           "dimensiones": "PSIQUE",
-          "texto": "¿Cuál es tu mayor activo latente: una afición, un talento, un conocimiento o un contacto que, si le dedicaras un mes a fondo, te cambiaría los ingresos?",
+          "texto": "¿Cuáles son tus mayores activos latentes: aficiones, talentos, conocimientos o contactos que, si les dedicaras un mes a fondo, te cambiarían los ingresos? Marca todas las que apliquen.",
           "nivel": "nucleo",
           "opciones": [
             {
@@ -3826,6 +3827,14 @@
             {
               "texto": "Una afición con demanda real que podría profesionalizar con algo de empuje.",
               "score": 50
+            },
+            {
+              "texto": "Un conocimiento o formación que podría monetizar (cursos, consultoría, contenido).",
+              "score": 35
+            },
+            {
+              "texto": "Un proyecto o segunda actividad que tengo parado por falta de tiempo.",
+              "score": 60
             },
             {
               "texto": "Un activo o un tiempo infrautilizado (una plaza, un local, horas libres) que hoy no rinde nada.",
@@ -3849,7 +3858,7 @@
             }
           ],
           "tier1": true,
-          "ayuda": "Opus lo pondrá en portada como tu prioridad de crecimiento a 90 días. Las tres últimas opciones son para perfil empresa/autónomo."
+          "ayuda": "Marca todas las que apliquen: Opus las pondrá en portada como tus prioridades de crecimiento a 90 días. Las tres últimas opciones son para perfil empresa/autónomo."
         },
         {
           "id": "C11-03",

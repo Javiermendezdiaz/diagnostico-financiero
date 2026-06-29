@@ -22,6 +22,46 @@ def _peso(it):
     return 0.5 if "metacognición" in (it.get("dimensiones", "") or "") else 1.0
 
 
+def _sel_indices(val):
+    """Normaliza el valor de resp[id] a una lista de indices de opcion.
+    - int  -> [int]            (comportamiento clasico de respuesta unica)
+    - list -> [int, int, ...]  (item multi: el frontend guarda un array de indices)
+    - None / vacio / basura -> [] (failsafe)
+    Toda excepcion se traga: ante la duda, no aporta indices (se salta el item)."""
+    try:
+        if val is None:
+            return []
+        if isinstance(val, bool):   # bool es subclase de int: lo descartamos explicito
+            return []
+        if isinstance(val, int):
+            return [val]
+        if isinstance(val, (list, tuple)):
+            return [int(i) for i in val if isinstance(i, int) and not isinstance(i, bool)]
+        return []
+    except Exception:
+        return []
+
+
+def _item_score(it, val):
+    """Score agregado de un item puntuado, multi-aware.
+    Respuesta unica (int): score de la opcion elegida (comportamiento previo).
+    Respuesta multiple (list): PROMEDIO de los scores de las opciones marcadas.
+    Failsafe: si nada valido se puede leer, devuelve None y el llamante salta el item
+    (no contamina la media de la capa)."""
+    ops = it.get("opciones") or []
+    scores = []
+    for idx in _sel_indices(val):
+        try:
+            s = ops[idx]["score"]
+        except (IndexError, KeyError, TypeError):
+            continue
+        if isinstance(s, (int, float)) and not isinstance(s, bool):
+            scores.append(float(s))
+    if not scores:
+        return None
+    return statistics.mean(scores)
+
+
 def perfil_scores(resp, capas):
     """Replica fiel de report_book.perfil: por capa, media de facetas (con peso);
     score capa = media de las facetas respondidas (denominador flotante)."""
@@ -35,12 +75,8 @@ def perfil_scores(resp, capas):
                 continue
             if it.get("solo_validez"):   # gemela de control: solo cuenta para el indice de validez,
                 continue                 # NO suma su score a la media de la capa (evita doble-conteo del concepto)
-            idx = resp.get(it["id"])
-            if idx is None:
-                continue
-            try:
-                sc = it["opciones"][idx]["score"]
-            except (IndexError, KeyError, TypeError):
+            sc = _item_score(it, resp.get(it["id"]))
+            if sc is None:
                 continue
             fac.setdefault(it["faceta"], []).append((sc, _peso(it)))
         facetas = {f: round(sum(v * w for v, w in l) / sum(w for _, w in l), 1)
