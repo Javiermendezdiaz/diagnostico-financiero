@@ -1072,12 +1072,10 @@ def seccion_perfil_inversor(rA_resp, rB_resp, dAf, dBf, pA, pB, nA, nB):
          Spacer(1,2*mm),
          Paragraph(lectura,St("piL",fontSize=10,leading=14.5,textColor=INK)),
          Spacer(1,3*mm),
-         # borrar el PNG temporal
          ]
-    try:
-        rb._os.remove(path)
-    except Exception:
-        pass
+    # NOTA: NO borrar el PNG aqui: reportlab abre la imagen en doc.build(), que ocurre
+    # despues de esta funcion. El _GEN_LOCK serializa la generacion, asi que el nombre fijo
+    # es seguro (se sobrescribe en el siguiente build, igual que los demas graficos del libro).
     return out
 
 def seccion_timeline_friccion(divs, nA, nB):
@@ -1285,10 +1283,8 @@ def seccion_indice_friccion(rA, rB, nA, nB):
             out.append(Image(_dp, width=96*mm, height=58*mm, hAlign="CENTER"))
         except Exception:
             pass
-        try:
-            (rb._os.remove if hasattr(rb, "_os") else __import__("os").remove)(_dp)
-        except Exception:
-            pass
+        # NO borrar el PNG aqui: reportlab lo abre en doc.build() (despues de esta funcion).
+        # Nombre fijo seguro porque _GEN_LOCK serializa la generacion.
     # Lectura del número (sin alarmismo, sin € inventados)
     _choca = ("ninguno choca de frente" if nc == 0 else
               ("1 choca de frente" if nc == 1 else f"{nc} chocan de frente"))
