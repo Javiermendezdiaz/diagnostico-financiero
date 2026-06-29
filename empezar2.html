@@ -898,7 +898,11 @@ function contNum(){
   // === Auditoría de coherencia: alerta SIEMPRE que una posición no cuadre, para corregir ===
   if(q.campo){
     var _iss=auditCoherencia(q.campo);
-    if(_iss.length) toast(100, _iss[0]+' — pulsa ← Atrás para revisarlo.');
+    if(_iss.length){
+      var _m=_iss[0];
+      if(/inusual|pensi/i.test(_m)){ toast(100, _m+' — revísalo si quieres.'); }
+      else { alert('No podemos seguir el diagnóstico con cifras que no cuadran:\n\n'+_m+'.\n\nCorrige ese dato para continuar (pulsa Aceptar y luego ← Atrás).'); return; }
+    }
   }
   // === Confirmacion positiva: cuando ya tenemos el nucleo, le devolvemos lo entendido (una vez) ===
   if(!st._confirmado){
