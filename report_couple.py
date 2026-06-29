@@ -892,6 +892,259 @@ def seccion_asimetria_inversora(dAf, dBf, pA, pB, nA, nB):
            Spacer(1, 4*mm)]
     return out
 
+def _kpi_celda_par(rotulo, valor, color="#1A1A17", nota=""):
+    parr=[Paragraph(rotulo,St("opp_l_%s"%rotulo[:6],fontSize=8.5,leading=11,textColor=colors.HexColor("#6B7280"),fontName="Helvetica-Bold")),
+          Paragraph("<b>%s</b>"%valor,St("opp_v_%s"%rotulo[:6],fontSize=20,leading=24,textColor=colors.HexColor(color),fontName="Helvetica-Bold",spaceBefore=1))]
+    if nota: parr.append(Paragraph(nota,St("opp_n_%s"%rotulo[:6],fontSize=7.5,leading=10,textColor=colors.HexColor("#8A8472"))))
+    return parr
+
+def seccion_one_pager(nA, nB, dA, dB, compat, saludA, saludB):
+    """ÍTEM 1 — Resumen ejecutivo de pareja 'de un vistazo' tras la portada. KPIs YA derivados de
+    datos reales del hogar (no recalcula scoring). Failsafe: omite cualquier KPI sin dato."""
+    try:
+        a=_fill(dA); b=_fill(dB)
+        hog={"gasto_mensual":_gasto_hogar(a,b),
+             "ingreso_mensual":a["ingreso_mensual"]+b["ingreso_mensual"],
+             "ahorro_mensual":a["ahorro_mensual"]+b["ahorro_mensual"],
+             "patrimonio":a["patrimonio"]+b["patrimonio"],
+             "inversiones_liquidas":(a.get("inversiones_liquidas") or 0)+(b.get("inversiones_liquidas") or 0),
+             "colchon_liquido":(a.get("colchon_liquido") or 0)+(b.get("colchon_liquido") or 0)}
+        fih=rb.fi_metrics(hog)
+        cells=[]
+        try:
+            ccol="#1D6F42" if compat>=60 else ("#C2710C" if compat>=40 else "#9A3B2E")
+            cells.append(_kpi_celda_par("COMPATIBILIDAD","%d<font size=10 color='#6B7280'>/100</font>"%int(compat),ccol,"Cómo de parecido vivís el dinero"))
+        except Exception: pass
+        try:
+            nlib=float(fih[0]) if fih and fih[0] else 0
+            if nlib>0: cells.append(_kpi_celda_par("NÚMERO DE LIBERTAD",rb._eur(nlib),"#1A1A17","Vuestro capital objetivo (gasto × 25)"))
+        except Exception: pass
+        try:
+            prog=float(fih[1]) if fih and fih[1] is not None else None
+            if prog is not None: cells.append(_kpi_celda_par("PROGRESO","%.0f%%"%prog,"#1A1A17","Hacia vuestra libertad"))
+        except Exception: pass
+        try:
+            pat=float(hog.get("patrimonio") or 0)
+            if pat>0: cells.append(_kpi_celda_par("FORTUNA NETA",rb._eur(pat),"#1A1A17","Lo que ya es vuestro hoy"))
+        except Exception: pass
+        try:
+            tasa=float(fih[2]) if fih and fih[2] is not None else None
+            if tasa is not None:
+                tcol="#1D6F42" if tasa>=20 else ("#C2710C" if tasa>=10 else "#9A3B2E")
+                cells.append(_kpi_celda_par("TASA DE AHORRO","%.0f%%"%tasa,tcol,"De cada euro que entra al hogar"))
+        except Exception: pass
+        try:
+            cells.append(_kpi_celda_par("SALUD MEDIA","%d<font size=10 color='#6B7280'>/100</font>"%round((rb._sal100(saludA)+rb._sal100(saludB))/2),"#1A1A17","Vuestra media psicofinanciera"))
+        except Exception: pass
+        if not cells: return []
+        out=[Paragraph("Vuestro diagnóstico de un vistazo",h_sec),
+             Paragraph("Las cifras que mandan en vuestra economía de hogar, en una sola página. El resto del libro es el porqué y el cómo.",body),
+             Spacer(1,5*mm)]
+        for i in range(0,len(cells),3):
+            fila=cells[i:i+3]
+            while len(fila)<3: fila.append([Paragraph("",small)])
+            out.append(Table([fila],colWidths=[53*mm,53*mm,54*mm],
+                style=[("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),2),("RIGHTPADDING",(0,0),(-1,-1),6),
+                       ("TOPPADDING",(0,0),(-1,-1),7),("BOTTOMPADDING",(0,0),(-1,-1),7),
+                       ("LINEBELOW",(0,0),(-1,-1),0.4,LINE)]))
+        out+=[Spacer(1,3*mm),
+              Paragraph("Estas cifras son conjuntas y nacen de vuestras propias respuestas. Donde de verdad diferís es en cómo las vive cada uno por dentro — eso lo recorre el libro.",small),
+              PageBreak()]
+        return out
+    except Exception:
+        return []
+
+def seccion_impuesto_friccion(dAf, dBf, pA, pB, nA, nB):
+    """ÍTEM 3 — 'Impuesto de la Fricción' en €: SI hay capital parado Y asimetría inversora real
+    (misma señal que seccion_asimetria_inversora), estima el coste anual de oportunidad de forma
+    HONESTA: capital_parado × rentabilidad prudente. Si falta cualquier dato → []. Cero invención."""
+    R_PRUDENTE=3.0   # % prudente, dicho explícitamente al cliente
+    def _ratio_inv(d):
+        try:
+            inv=float((d or {}).get("inversiones_liquidas") or 0); par=float((d or {}).get("colchon_liquido") or 0)
+            base=inv+par
+            if base<=0: return None
+            return inv/base
+        except Exception:
+            return None
+    try:
+        rA=_ratio_inv(dAf); rB=_ratio_inv(dBf)
+        # capital parado real del hogar = suma de colchones líquidos no invertidos
+        cap_parado=float((dAf or {}).get("colchon_liquido") or 0)+float((dBf or {}).get("colchon_liquido") or 0)
+        # Señal de asimetría (réplica de seccion_asimetria_inversora)
+        asimetria=False
+        if rA is not None and rB is not None and abs(rA-rB)>=0.40:
+            asimetria=True
+        else:
+            try:
+                cA=float(pA["C12"]["score"]); cB=float(pB["C12"]["score"])
+                if abs(cA-cB)>=30: asimetria=True
+            except Exception:
+                pass
+        if not asimetria or cap_parado<=0:
+            return []
+        coste=cap_parado*(R_PRUDENTE/100.0)
+        if coste<=0: return []
+        return [Paragraph("El impuesto de vuestra fricción, en euros", h_sec),
+                rb._box([
+                    Paragraph("<b>Lo que la parálisis os cuesta cada año</b>",St("if0",fontSize=11,leading=15,textColor=ACCDK,fontName="Helvetica-Bold")),
+                    Paragraph("Vuestra parálisis conyugal mantiene <b>~%s</b> parados; a un <b>%.0f%% prudente</b>, eso son "
+                              "<b>~%s al año</b> en rendimiento no capturado. No es una pérdida contable —el dinero sigue ahí— "
+                              "pero es crecimiento que no llega: cada año que el desacuerdo deja el capital quieto, la inflación "
+                              "le resta valor y el interés compuesto no se activa." % (rb._eur(cap_parado), R_PRUDENTE, rb._eur(coste)),
+                              St("if1",fontSize=10,leading=14.5,textColor=INK,spaceBefore=4)),
+                    Paragraph("Es una cifra deliberadamente conservadora: a una rentabilidad de mercado más alta, el coste sería "
+                              "mayor. La buena noticia es que es enteramente reversible — y no depende del mercado, sino de poneros "
+                              "de acuerdo.",
+                              St("if2",fontSize=9.5,leading=14,textColor=GREY,spaceBefore=4))],
+                    "#FBF4E4","#B45309",ancho=160*mm),
+                Spacer(1,4*mm)]
+    except Exception:
+        return []
+
+def seccion_perfil_inversor(rA_resp, rB_resp, dAf, dBf, pA, pB, nA, nB):
+    """ÍTEM 4 — Scatter de cuadrantes del perfil inversor de la pareja. Ejes DERIVADOS de datos reales:
+      X = apetito de riesgo (conservador→agresivo) := % del capital líquido puesto en mercado (ratio invertido).
+      Y = constancia inversora (inactivo→recurrente) := 100 - score C12 (Disciplina de Inversión).
+    Un punto por miembro + un punto ponderado (media). Si no se pueden derivar AMBOS ejes con datos
+    reales para AMBOS → [] (no inventa posiciones). Figura ligera; cierra fig + gc en finally."""
+    def _ratio_inv(d):
+        try:
+            inv=float((d or {}).get("inversiones_liquidas") or 0); par=float((d or {}).get("colchon_liquido") or 0)
+            base=inv+par
+            if base<=0: return None
+            return inv/base
+        except Exception:
+            return None
+    # X: apetito de riesgo real (0-100)
+    xa=_ratio_inv(dAf); xb=_ratio_inv(dBf)
+    if xa is None or xb is None: return []
+    xa*=100.0; xb*=100.0
+    # Y: constancia inversora real (0-100) desde C12 (score alto = capital dormido -> menos constancia)
+    try:
+        ya=100.0-float(pA["C12"]["score"]); yb=100.0-float(pB["C12"]["score"])
+    except Exception:
+        return []
+    ya=max(0.0,min(100.0,ya)); yb=max(0.0,min(100.0,yb))
+    xw=(xa+xb)/2.0; yw=(ya+yb)/2.0
+    path="_perfilinv_par.png"; fig=None
+    try:
+        fig=plt.figure(figsize=(5.0,4.0),dpi=140); fig.patch.set_facecolor("#FCFAF2")
+        ax=fig.add_axes([0.13,0.13,0.80,0.80]); ax.set_facecolor("#FCFAF2")
+        ax.set_xlim(0,100); ax.set_ylim(0,100)
+        ax.axhline(50,color="#D9D3C2",lw=1.0,zorder=1); ax.axvline(50,color="#D9D3C2",lw=1.0,zorder=1)
+        for sp in ax.spines.values(): sp.set_color("#D9D3C2")
+        ax.set_xticks([0,50,100]); ax.set_yticks([0,50,100])
+        ax.set_xticklabels(["Conservador","","Agresivo"],fontsize=8,color="#6B7280")
+        ax.set_yticklabels(["Inactivo","","Recurrente"],fontsize=8,color="#6B7280",rotation=90,va="center")
+        ax.set_xlabel("Apetito de riesgo",fontsize=9,color="#1F2937")
+        ax.set_ylabel("Constancia inversora",fontsize=9,color="#1F2937")
+        ax.scatter([xw],[yw],s=120,color="#9CA3AF",edgecolors="#5C6470",linewidths=1.2,zorder=4,marker="D")
+        ax.annotate("Ponderado",(xw,yw),textcoords="offset points",xytext=(8,-12),fontsize=7.5,color="#5C6470")
+        ax.scatter([xa],[ya],s=150,color=A_COL,edgecolors="white",linewidths=1.4,zorder=5)
+        ax.scatter([xb],[yb],s=150,color=B_COL,edgecolors="white",linewidths=1.4,zorder=5)
+        ax.annotate(nA,(xa,ya),textcoords="offset points",xytext=(8,6),fontsize=8.5,color=A_COL,weight="bold")
+        ax.annotate(nB,(xb,yb),textcoords="offset points",xytext=(8,6),fontsize=8.5,color=B_COL,weight="bold")
+        fig.savefig(path,dpi=140,facecolor="#FCFAF2")
+    except Exception:
+        return []
+    finally:
+        try:
+            if fig is not None: plt.close(fig)
+        except Exception:
+            pass
+        gc.collect()
+    # Lectura honesta del gráfico (cualitativa cuando no hay número que añada)
+    dx=abs(xa-xb); dy=abs(ya-yb)
+    if dx>=30 or dy>=30:
+        lectura=("Estáis en cuadrantes distintos: uno tira hacia el mercado o hacia la constancia donde el otro frena. "
+                 "El punto gris marca vuestro <b>perfil ponderado</b> — es ahí, en el centro de gravedad de los dos, donde conviene "
+                 "converger: un único plan que ni paralice por el miedo de uno ni exponga de más por el impulso del otro.")
+    else:
+        lectura=("Vuestros puntos están cerca: compartís un perfil inversor parecido. El punto gris (perfil ponderado) confirma que "
+                 "podéis decidir con un único criterio común, sin grandes cesiones de ninguno.")
+    out=[Paragraph("Vuestro mapa de perfil inversor", h_sec),
+         Paragraph("Cada eje sale de vuestros datos reales: cuánto de vuestro capital líquido está puesto en mercado (apetito de "
+                   "riesgo) y cuánta disciplina inversora mostráis (constancia). No es un test de personalidad: es dónde os coloca "
+                   "vuestro dinero hoy.",body),
+         Spacer(1,2*mm),
+         Image(path,width=128*mm,height=102*mm,hAlign="CENTER"),
+         Spacer(1,2*mm),
+         Paragraph(lectura,St("piL",fontSize=10,leading=14.5,textColor=INK)),
+         Spacer(1,3*mm),
+         # borrar el PNG temporal
+         ]
+    try:
+        rb._os.remove(path)
+    except Exception:
+        pass
+    return out
+
+def seccion_timeline_friccion(divs, nA, nB):
+    """ÍTEM 5 — Eje/timeline de fricción: eje vertical fino color bronce con las divergencias a un
+    lado y otro (A | eje | B), marcando los choques de mayor gap con un nodo. ReportLab puro.
+    Failsafe: si no hay divergencias resolubles → []."""
+    if not divs: return []
+    BRONCE="#B45309"
+    try:
+        filas=[]
+        for d in divs[:6]:
+            es_vinc=bool(d.get("vinc")); gap=d.get("gap",0)
+            nodo_col = "#9A3B2E" if (es_vinc or gap>=66) else BRONCE
+            tag = "VÍNCULO" if es_vinc else ("Δ %.0f"%gap)
+            nm = CAPAS.get(d["capa"],{}).get("nombre",d.get("capa",""))
+            celA=[Paragraph("<font color='%s'>● %s</font>"%(A_COL,nA),small),
+                  Paragraph("<i>%s</i>"%d.get("A",""),St("tlA_%d"%len(filas),fontSize=9,leading=12,textColor=INK,alignment=2))]
+            celB=[Paragraph("<font color='%s'>● %s</font>"%(B_COL,nB),small),
+                  Paragraph("<i>%s</i>"%d.get("B",""),St("tlB_%d"%len(filas),fontSize=9,leading=12,textColor=INK))]
+            # nodo central: punto + etiqueta corta de capa
+            nodo=[Paragraph("<font color='%s' size=15>●</font>"%nodo_col,St("tlN_%d"%len(filas),fontSize=15,leading=16,alignment=1)),
+                  Paragraph("<font color='%s'><b>%s</b></font><br/><font size=6.5 color='#8A8472'>%s</font>"%(nodo_col,tag,nm),
+                            St("tlNt_%d"%len(filas),fontSize=7.5,leading=9,alignment=1))]
+            filas.append([celA, nodo, celB])
+        t=Table(filas,colWidths=[64*mm,32*mm,64*mm],
+            style=TableStyle([("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+                ("LINEAFTER",(0,0),(0,-1),1.4,colors.HexColor(BRONCE)),   # eje vertical bronce A|centro
+                ("LINEBEFORE",(2,0),(2,-1),1.4,colors.HexColor(BRONCE)),  # eje vertical bronce centro|B
+                ("ALIGN",(0,0),(0,-1),"RIGHT"),("ALIGN",(1,0),(1,-1),"CENTER"),("ALIGN",(2,0),(2,-1),"LEFT"),
+                ("LEFTPADDING",(0,0),(-1,-1),6),("RIGHTPADDING",(0,0),(-1,-1),6),
+                ("TOPPADDING",(0,0),(-1,-1),9),("BOTTOMPADDING",(0,0),(-1,-1),9),
+                ("LINEBELOW",(0,0),(-1,-1),0.3,LINE)]))
+        return [Paragraph("La línea de vuestros choques", h_sec),
+                Paragraph("Vuestras divergencias, ordenadas en un solo eje. A la izquierda, lo que respondió <b>%s</b>; a la "
+                          "derecha, <b>%s</b>. Los nodos en <font color='#9A3B2E'>rojo</font> marcan los choques de mayor distancia "
+                          "—y los de vínculo y transparencia—: son por donde conviene empezar a hablar." % (nA,nB),body),
+                Spacer(1,3*mm), t, PageBreak()]
+    except Exception:
+        return []
+
+def seccion_glosario():
+    """ÍTEM 2b — Glosario ejecutivo de pareja (cierre del libro): 8-12 términos clave, voz de pareja. Failsafe."""
+    terminos=[
+        ("Número de Libertad","El capital que, invertido a una retirada prudente, cubriría vuestro gasto sin volver a depender del trabajo de ninguno. Se estima como vuestro gasto anual del hogar multiplicado por 25 (regla 25×)."),
+        ("Regla 25×","Atajo para fijar la meta común: ahorrad 25 veces vuestro gasto anual. Equivale a poder retirar ~4% al año del patrimonio invertido sin agotarlo."),
+        ("Compatibilidad financiera","Cuánto de parecido vivís el dinero los dos. No es bueno ni malo en sí: las diferencias bien habladas suman; las calladas, erosionan."),
+        ("Tasa de ahorro","Qué porción de lo que ingresa el hogar conseguís no gastar. La palanca que más controláis juntos."),
+        ("DTI (deuda/ingreso)","Cuánto de vuestro ingreso mensual se va en cuotas de deuda. Por debajo del 20% es holgado; por encima del 35%, tensión."),
+        ("Colchón de resistencia","Los meses que podríais sostener vuestra vida con la liquidez del hogar si dejarais de ingresar. Vuestro primer escudo ante un imprevisto."),
+        ("Renta pasiva","Ingreso que no depende de vuestro tiempo: alquileres, dividendos, intereses. Cuanto mayor, menos atados estáis al trabajo."),
+        ("Fortuna neta","Todo lo que poseéis menos todo lo que debéis. La foto de lo que de verdad es vuestro hoy."),
+        ("Capital invertible","La parte de vuestro patrimonio líquida y disponible para hacer crecer (mercados y liquidez), sin contar la vivienda ni el negocio ilíquido."),
+        ("Impuesto de la fricción","El rendimiento que dejáis de capturar cada año por mantener capital parado mientras no os ponéis de acuerdo. Es reversible y no depende del mercado."),
+        ("Interés compuesto","El efecto de que vuestros rendimientos generen, a su vez, nuevos rendimientos. El motor que construye patrimonio con el tiempo, si el dinero está puesto a trabajar."),
+    ]
+    rows=[]
+    for t,d in terminos:
+        rows.append([Paragraph("<b>%s</b>"%t,St("glp_t_%s"%t[:5],fontSize=9.5,leading=13,textColor=ACCDK,fontName="Helvetica-Bold")),
+                     Paragraph(d,St("glp_d_%s"%t[:5],fontSize=9,leading=12.5,textColor=INK))])
+    tabla=Table(rows,colWidths=[40*mm,116*mm],
+        style=TableStyle([("VALIGN",(0,0),(-1,-1),"TOP"),("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
+            ("LEFTPADDING",(0,0),(-1,-1),4),("RIGHTPADDING",(0,0),(-1,-1),6),
+            ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)]))
+    return [PageBreak(), Paragraph("Glosario ejecutivo",h_sec),
+            Paragraph("Los términos que usa este libro, en una frase cada uno. Para que ningún concepto se interponga entre vosotros y vuestro plan.",body),
+            Spacer(1,4*mm), tabla, Spacer(1,3*mm)]
+
 def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=None):
     global INST, CAPAS
     _iv2=rb._cargar_v2(); _c2={c["code"]:c for c in _iv2["capas"]}
@@ -951,6 +1204,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                   "divergís (vuestros focos de fricción). Al final encontraréis un guion para hablarlo.",body),
         Paragraph("Leedlo juntos. Esa es la mitad del valor.",body),
         PageBreak()]
+    # === ÍTEM 1 · ONE-PAGER EJECUTIVO DE PAREJA (justo tras la portada) ===
+    S+=rb._secsafe(seccion_one_pager,nA,nB,dA,dB,compat,saludA,saludB)
     S+=rb._secsafe(seccion_arquetipos,rA,rB,nA,nB)
     # compatibilidad + radar
     dAf=_fill(dA); dBf=_fill(dB)
@@ -1182,9 +1437,15 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                     colWidths=[26*mm,130*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),3),("VALIGN",(0,0),(-1,-1),"TOP")])]
         S.append(KeepTogether(card)); S.append(Spacer(1,4*mm))
     S+=[PageBreak()]
+    # === ÍTEM 5 · EJE/TIMELINE DE FRICCIÓN (mejora visual del mapa de fricción) ===
+    S+=rb._secsafe(seccion_timeline_friccion,divs,nA,nB)
     S+=rb._secsafe(seccion_coste_no_hablarlo,pA,pB,nA,nB,hogar,fi_h,divs)
     S+=rb._secsafe(seccion_sociedad_conyugal,hogar,nA,nB)
     S+=rb._secsafe(seccion_asimetria_inversora,dAf,dBf,pA,pB,nA,nB)
+    # === ÍTEM 3 · IMPUESTO DE LA FRICCIÓN (€) ===
+    S+=rb._secsafe(seccion_impuesto_friccion,dAf,dBf,pA,pB,nA,nB)
+    # === ÍTEM 4 · SCATTER DE PERFIL INVERSOR DE LA PAREJA ===
+    S+=rb._secsafe(seccion_perfil_inversor,rA,rB,dAf,dBf,pA,pB,nA,nB)
     # cruce semantico de pareja (sintesis IA de las abiertas)
     if sintesis and str(sintesis).strip():
         S+=[Paragraph("Análisis de asimetría y brecha de comunicación",h_sec),
@@ -1284,6 +1545,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
             ("LEFTPADDING",(0,0),(-1,-1),7),("RIGHTPADDING",(0,0),(-1,-1),7),
             ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]+bgs))
         S+=[Paragraph("%s \u00b7 %s"%(capa["code"],capa["nombre"]),h_sub), t]
+    # === \u00cdTEM 2b \u00b7 GLOSARIO EJECUTIVO (cierre de anexos) ===
+    S+=rb._secsafe(seccion_glosario)
     # --- saneador: colapsa PageBreaks consecutivos (elimina paginas en blanco) ---
     _clean=[]
     for _f in S:

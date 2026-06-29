@@ -2695,6 +2695,99 @@ def seccion_resumen_ejecutivo(extras, datos):
     out+=[PageBreak()]
     return out
 
+def _kpi_celda(rotulo, valor, color="#1A1A17", nota=""):
+    """Celda KPI: rótulo pequeño arriba, cifra grande debajo, nota opcional. Para el one-pager."""
+    parr=[Paragraph(rotulo,St("op_lbl_%s"%rotulo[:6],fontSize=8.5,leading=11,textColor=colors.HexColor("#6B7280"),fontName=FB)),
+          Paragraph("<b>%s</b>"%valor,St("op_val_%s"%rotulo[:6],fontSize=21,leading=25,textColor=colors.HexColor(color),fontName=FB,spaceBefore=1))]
+    if nota: parr.append(Paragraph(nota,St("op_nt_%s"%rotulo[:6],fontSize=7.5,leading=10,textColor=colors.HexColor("#8A8472"))))
+    return parr
+
+def seccion_one_pager(salud, fi, datos, extras=None):
+    """Resumen ejecutivo 'de un vistazo' tras la portada: KPIs YA calculados en grande, pocas palabras.
+    Solo lee KPIs que existen en el flujo (no recalcula). Failsafe: omite cualquier KPI sin dato.
+    fi = tupla de fi_metrics(datos): (numero_libertad, progreso_pct, tasa_ahorro, anios)."""
+    try:
+        d=datos or {}; ex=extras or {}
+        cells=[]
+        # Salud psicofinanciera (0-100, mayor=mejor mostrado)
+        try:
+            sv=_sal100(salud); scol="#1D6F42" if sv>=60 else ("#C2710C" if sv>=40 else "#9A3B2E")
+            cells.append(_kpi_celda("SALUD FINANCIERA","%d<font size=10 color='#6B7280'>/100</font>"%sv,scol))
+        except Exception: pass
+        # Número de libertad + progreso
+        try:
+            nlib=float(fi[0]) if fi and fi[0] else 0
+            if nlib>0: cells.append(_kpi_celda("NÚMERO DE LIBERTAD",_eur(nlib),"#1A1A17","Tu capital objetivo (gasto × 25)"))
+        except Exception: pass
+        try:
+            prog=float(fi[1]) if fi and fi[1] is not None else None
+            if prog is not None: cells.append(_kpi_celda("PROGRESO","%.0f%%"%prog,"#1A1A17","Hacia tu libertad"))
+        except Exception: pass
+        # Patrimonio neto
+        try:
+            pat=float(d.get("patrimonio") or 0)
+            if pat>0: cells.append(_kpi_celda("FORTUNA NETA",_eur(pat),"#1A1A17","Lo que ya es tuyo hoy"))
+        except Exception: pass
+        # Meses de colchón / resistencia (resiliencia patrimonial)
+        try:
+            res=ex.get("resiliencia") or {}
+            ml=res.get("meses_libertad")
+            if ml is not None:
+                ml=float(ml); mt=("%.0f meses"%ml) if ml<24 else ("%.1f años"%(ml/12.0))
+                cells.append(_kpi_celda("MESES DE RESISTENCIA",mt,"#1A1A17","Sin ingresos, manteniendo tu vida"))
+        except Exception: pass
+        # Tasa de ahorro
+        try:
+            tasa=float(fi[2]) if fi and fi[2] is not None else None
+            if tasa is not None:
+                tcol="#1D6F42" if tasa>=20 else ("#C2710C" if tasa>=10 else "#9A3B2E")
+                cells.append(_kpi_celda("TASA DE AHORRO","%.0f%%"%tasa,tcol,"De cada euro que entra"))
+        except Exception: pass
+        if not cells: return []
+        out=[Paragraph("Tu diagnóstico de un vistazo",h_sec),
+             Paragraph("Las cifras que mandan, en una sola página. El resto del libro es el porqué y el cómo.",body),
+             Spacer(1,5*mm)]
+        # Maqueta en filas de 3 columnas
+        for i in range(0,len(cells),3):
+            fila=cells[i:i+3]
+            while len(fila)<3: fila.append([Paragraph("",small)])
+            out.append(Table([fila],colWidths=[53*mm,53*mm,54*mm],
+                style=[("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),2),("RIGHTPADDING",(0,0),(-1,-1),6),
+                       ("TOPPADDING",(0,0),(-1,-1),7),("BOTTOMPADDING",(0,0),(-1,-1),7),
+                       ("LINEBELOW",(0,0),(-1,-1),0.4,LINE)]))
+        out+=[Spacer(1,3*mm),
+              Paragraph("Cada una de estas cifras nace de tus propias respuestas. Ninguna está inventada: son tu retrato exacto a día de hoy.",small),
+              PageBreak()]
+        return out
+    except Exception:
+        return []
+
+def seccion_glosario():
+    """Glosario ejecutivo breve (al final del libro): 8-12 términos clave en lista sobria. Failsafe."""
+    terminos=[
+        ("Número de Libertad","El capital que, invertido a una retirada prudente, cubriría tu gasto sin volver a depender de tu trabajo. Se estima como tu gasto anual multiplicado por 25 (regla 25×)."),
+        ("Regla 25×","Atajo para fijar tu meta: ahorra 25 veces tu gasto anual. Equivale a poder retirar ~4% al año de tu patrimonio invertido sin agotarlo."),
+        ("Tasa de ahorro","Qué porción de lo que ingresas consigues no gastar. Es la palanca que más controlas: sube tu ahorro y tu número se acerca."),
+        ("DTI (deuda/ingreso)","Cuánto de tu ingreso mensual se va en cuotas de deuda. Por debajo del 20% es holgado; por encima del 35%, tensión."),
+        ("Colchón de resistencia","Los meses que podrías sostener tu vida con tu liquidez si dejaras de ingresar. Tu primer escudo ante un imprevisto."),
+        ("Renta pasiva","Ingreso que no depende de tu tiempo: alquileres, dividendos, intereses. Cuanto mayor, menos atado estás a tu trabajo."),
+        ("Fortuna neta","Todo lo que posees menos todo lo que debes. La foto de lo que de verdad es tuyo hoy."),
+        ("Capital invertible","La parte de tu patrimonio líquida y disponible para hacer crecer (mercados y liquidez), sin contar tu vivienda ni tu negocio ilíquido."),
+        ("Salud psicofinanciera","Lectura de tu relación con el dinero a través de 12 dimensiones: del estrés y la deuda al control del flujo y la inversión."),
+        ("Interés compuesto","El efecto de que tus rendimientos generen, a su vez, nuevos rendimientos. El motor que construye patrimonio sin esfuerzo adicional con el tiempo."),
+    ]
+    rows=[]
+    for t,d in terminos:
+        rows.append([Paragraph("<b>%s</b>"%t,St("gl_t_%s"%t[:5],fontSize=9.5,leading=13,textColor=ACCDK,fontName=FB)),
+                     Paragraph(d,St("gl_d_%s"%t[:5],fontSize=9,leading=12.5,textColor=INK))])
+    tabla=Table(rows,colWidths=[40*mm,116*mm],
+        style=TableStyle([("VALIGN",(0,0),(-1,-1),"TOP"),("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
+            ("LEFTPADDING",(0,0),(-1,-1),4),("RIGHTPADDING",(0,0),(-1,-1),6),
+            ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)]))
+    return [PageBreak(), Paragraph("Glosario ejecutivo",h_sec),
+            Paragraph("Los términos que usa este libro, en una frase cada uno. Para que ningún concepto se interponga entre tú y tu plan.",body),
+            Spacer(1,4*mm), tabla, Spacer(1,3*mm)]
+
 def seccion_fiabilidad(extras):
     """Escala de validez: cuanto fiarse del retrato. Banda + indice 0-100.
     Devuelve [] si no hay dato (nunca rompe)."""
@@ -3036,6 +3129,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         Paragraph(f"DOCUMENTO CONFIDENCIAL · REF {report_id(cli.get('email') or 'ITAP',cli['fecha'])} · USO PRIVADO",
                   St("cvr",fontSize=7.5,textColor=GREY,fontName="Helvetica")),
         PageBreak()]
+    # === ONE-PAGER EJECUTIVO (justo tras la portada): KPIs ya calculados, en grande ===
+    S+=_secsafe(seccion_one_pager, salud, fi, datos, extras)
     # carta de apertura
     S+=[Paragraph("Antes de empezar",h_sec),
         _box([Paragraph("<font color='#234E70'><b>&#9656;  Eres de los primeros — y lo afinamos contigo</b></font>",St("fbk1",fontSize=11,leading=15,fontName=FB)),
@@ -3858,6 +3953,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     except Exception:
         _const=None
     if _const: S+=[PageBreak(), FullBleedImage(_const)]
+    # === GLOSARIO EJECUTIVO (cierre de anexos) ===
+    S+=_secsafe(seccion_glosario)
     S+=[PageBreak(), DarkPage(titulo="ADAPTA  ·  family office",
         sub="Tu Libro Financiero · Documento confidencial",
         legal="Adapta Family Office · Herramienta de autoconocimiento financiero; no constituye asesoramiento personalizado regulado. Las estimaciones son orientativas. © 2026.")]
