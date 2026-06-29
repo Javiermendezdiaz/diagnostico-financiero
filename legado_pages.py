@@ -210,11 +210,18 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
     ci=br.get("coste_ideal_mes"); ing=br.get("ingreso_mes"); gap=br.get("brecha_mes")
     if ci:
         if gap and gap>0:
-            dn,du=_compact(gap*12)
+            # Cifra hero = brecha ANUAL exacta. Para brechas grandes (>=10k) la compactamos a "k/año"
+            # (lee bien: "12k/año"); por debajo mostramos el importe exacto en €/año para que el valor
+            # y la unidad SIEMPRE cuadren con el cuerpo (evita el bug "2k/año" sobre "2.000 €/mes").
+            _gap_anual=gap*12
+            if _gap_anual>=10000:
+                dn,du=_compact(_gap_anual); _hero="%s%s/año"%(dn,du)
+            else:
+                _hero=LD_fmt(_gap_anual).replace(" €","")+" €/año"
             seq.append(LD.efecto_espejo(tmp+"02.svg","El espejo",
                 "La vida que describí como ideal cuesta %s al mes."%LD_fmt(ci),
-                "%s%s/año"%(dn,du),
-                "Hoy tu modelo genera %s/mes; tu vida ideal pide %s/mes. Esa distancia anual es, exactamente, lo que vamos a cerrar. No es un fracaso: es el mapa."%(LD_fmt(ing or 0),LD_fmt(ci)),
+                _hero,
+                "Hoy tu modelo genera %s/mes; tu vida ideal pide %s/mes — una brecha de %s/mes, %s al año. Esa distancia es, exactamente, lo que vamos a cerrar. No es un fracaso: es el mapa."%(LD_fmt(ing or 0),LD_fmt(ci),LD_fmt(gap),LD_fmt(_gap_anual)),
                 "Cerremos la brecha.", accent="#8FA1BC"))
         else:
             seq.append(LD.efecto_espejo(tmp+"02.svg","El espejo",

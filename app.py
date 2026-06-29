@@ -222,7 +222,7 @@ def datos_completos(d):
     d.setdefault("gasto_mensual", 2000); d.setdefault("ingreso_mensual", 3000)
     d.setdefault("ahorro_mensual", 300); d.setdefault("patrimonio", 30000); d.setdefault("edad", 40)
     # Saneamiento anti-GIGO: una cifra disparatada del cliente no debe romper el informe.
-    for _k in ("pct_gasto_fijo", "pct_vivienda", "rentabilidad_actual"):
+    for _k in ("pct_gasto_fijo", "pct_vivienda", "rentabilidad_actual", "suscripciones_pct", "dti", "concentracion_ingresos"):
         if d.get(_k) is not None:
             try: d[_k] = max(0.0, min(100.0, float(d[_k])))
             except Exception: d[_k] = None
@@ -254,6 +254,58 @@ def datos_completos(d):
             _tot=sum(float((r or {}).get("v") or 0) for r in _pd)
             _viv=sum(float((r or {}).get("v") or 0) for r in _pd if "vivienda" in str((r or {}).get("c","")).lower())
             if _tot>0 and _viv>0: d["pct_vivienda"]=max(0.0,min(100.0,100.0*_viv/_tot))
+    except Exception: pass
+    # Coste de vivienda: se DERIVA de la categoria Vivienda del desglose de gasto (ya no se pregunta suelta)
+    try:
+        _gd=d.get("gasto_mensual_detalle")
+        if isinstance(_gd,list):
+            _cv=sum(float((r or {}).get("v") or 0) for r in _gd if "vivienda" in str((r or {}).get("c","")).lower())
+            if _cv>0: d["coste_vivienda"]=_cv
+    except Exception: pass
+    # Suscripciones: peso de la categoria "Suscripciones / servicios" del desglose de gasto sobre el gasto total.
+    # Sustituye la pregunta cualitativa: el dato manda sobre la sensacion.
+    try:
+        _gd=d.get("gasto_mensual_detalle")
+        if isinstance(_gd,list):
+            _gtot=sum(float((r or {}).get("v") or 0) for r in _gd)
+            _sus=sum(float((r or {}).get("v") or 0) for r in _gd if "suscrip" in str((r or {}).get("c","")).lower())
+            if _sus>0:
+                d["suscripciones_eur"]=_sus
+                if _gtot>0: d["suscripciones_pct"]=max(0.0,min(100.0,100.0*_sus/_gtot))
+    except Exception: pass
+    # Concentracion de ingresos: cuanto pesa la mayor fuente del desglose de ingresos (% del total).
+    # Deriva de las partidas, no de una pregunta de percepcion. Tambien deja el nº de fuentes con peso real.
+    try:
+        _ind=d.get("ingreso_mensual_detalle")
+        if isinstance(_ind,list):
+            _vals=[float((r or {}).get("v") or 0) for r in _ind if float((r or {}).get("v") or 0)>0]
+            _tot=sum(_vals)
+            if _tot>0 and _vals:
+                d["concentracion_ingresos"]=max(0.0,min(100.0,100.0*max(_vals)/_tot))
+                d["n_fuentes_ingreso"]=len(_vals)
+    except Exception: pass
+    # DTI (debt-to-income): peso fijo de la deuda sobre el ingreso. Se deriva de cuota_deuda/ingreso_mensual
+    # cuando el cliente da la cuota; complementa (no sustituye) la percepcion cualitativa de la capa C10.
+    try:
+        _cuo=float(d.get("cuota_deuda") or 0); _ing=float(d.get("ingreso_mensual") or 0)
+        if _cuo>0 and _ing>0:
+            d["dti"]=max(0.0,min(100.0,100.0*_cuo/_ing))
+    except Exception: pass
+    # Hijos: si el cliente dio las edades una a una (edades_hijos=[...]), el nº de hijos y la edad del menor
+    # se DERIVAN del array (manda sobre las preguntas sueltas). Las edades "no las sé / más tarde" llegan como
+    # null y no rompen el calculo. Se conserva edad_hijo_menor por compatibilidad con el motor existente.
+    try:
+        _eh=d.get("edades_hijos")
+        if isinstance(_eh,list) and _eh:
+            d["n_hijos"]=len(_eh)
+            _conoc=[]
+            for _x in _eh:
+                try:
+                    if _x is not None and str(_x)!="":
+                        _conoc.append(int(float(_x)))
+                except Exception: pass
+            if _conoc:
+                d["edad_hijo_menor"]=min(_conoc)
     except Exception: pass
     # Art. 2 (una cifra, un dueno): si el cliente desgloso sus fuentes de ingreso, el TOTAL se DERIVA
     # de las partes y nunca puede contradecirlas. Mata el bug de "valor hora x4" y totales incoherentes.

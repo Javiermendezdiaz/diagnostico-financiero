@@ -1457,6 +1457,46 @@ def _box(parras, fondo, barra, ancho=76*mm):
           ("TOPPADDING",(0,0),(-1,-1),8),("BOTTOMPADDING",(0,0),(-1,-1),8),
           ("LINEBEFORE",(0,0),(0,-1),3,colors.HexColor(barra)),("VALIGN",(0,0),(-1,-1),"TOP")]))
 
+# --- Sellos de rating estilo agencia (A / BBB / C) sobre métricas clave ---
+# Mapea valor->nota con la gama institucional (verde bosque / bronce / terracota), NO semáforo puro.
+_RATING_COL={"A":("#1D6F42","#EAF4ED"),"AA":("#1D6F42","#EAF4ED"),"BBB":("#9A7B1F","#FBF4E4"),
+             "BB":("#9A7B1F","#FBF4E4"),"C":("#9A3B2E","#FBEDEC"),"CCC":("#9A3B2E","#FBEDEC")}
+def _rating_ahorro(t):
+    try: t=float(t)
+    except Exception: return None
+    return "A" if t>=20 else ("BBB" if t>=10 else "C")
+def _rating_dti(d):
+    try: d=float(d)
+    except Exception: return None
+    return "A" if d<20 else ("BBB" if d<=35 else "C")
+def _rating_cobertura(pct):
+    try: pct=float(pct)
+    except Exception: return None
+    return "A" if pct>=60 else ("BBB" if pct>=30 else "C")
+def _sello(nota):
+    """Pequeño sello de rating para la esquina de un bloque. Devuelve un Flowable Table compacto."""
+    if not nota: return None
+    fg,bg=_RATING_COL.get(nota,("#5C6470","#F1EFE8"))
+    return Table([[Paragraph("<b>%s</b>"%nota,St("slr",fontSize=12.5,leading=14,textColor=colors.HexColor(fg),fontName=FB,alignment=TA_CENTER)),],
+                  [Paragraph("RATING",St("slx",fontSize=4.6,leading=6,textColor=colors.HexColor(fg),fontName=FB,alignment=TA_CENTER))]],
+                 colWidths=[15*mm],
+                 style=TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.HexColor(bg)),("BOX",(0,0),(-1,-1),0.8,colors.HexColor(fg)),
+                   ("TOPPADDING",(0,0),(-1,-1),1),("BOTTOMPADDING",(0,0),(-1,-1),1),("LEFTPADDING",(0,0),(-1,-1),1),
+                   ("RIGHTPADDING",(0,0),(-1,-1),1),("VALIGN",(0,0),(-1,-1),"MIDDLE")]))
+def _box_sello(parras, fondo, barra, nota=None, ancho=160*mm):
+    """_box con un sello de rating en la esquina superior derecha. Failsafe: si nota es None, _box normal."""
+    sl=_sello(nota)
+    if sl is None: return _box(parras, fondo, barra, ancho=ancho)
+    cont=Table([[parras]],colWidths=[ancho-18*mm],
+        style=TableStyle([("LEFTPADDING",(0,0),(-1,-1),0),("RIGHTPADDING",(0,0),(-1,-1),0),
+          ("TOPPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),0),("VALIGN",(0,0),(-1,-1),"TOP")]))
+    return Table([[cont, sl]],colWidths=[ancho-18*mm,18*mm],
+        style=TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.HexColor(fondo)),
+          ("LEFTPADDING",(0,0),(-1,-1),9),("RIGHTPADDING",(0,0),(-1,-1),6),
+          ("TOPPADDING",(0,0),(-1,-1),8),("BOTTOMPADDING",(0,0),(-1,-1),8),
+          ("LINEBEFORE",(0,0),(0,-1),3,colors.HexColor(barra)),("VALIGN",(0,0),(0,-1),"TOP"),
+          ("VALIGN",(1,0),(1,-1),"TOP")]))
+
 def _lineas(n=3, ancho=160*mm, alto=7*mm):
     rows=[[""] for _ in range(n)]
     return Table(rows,colWidths=[ancho],rowHeights=[alto]*n,
@@ -1765,6 +1805,36 @@ def seccion_familia(datos, extras=None):
                   "\u2014 un seguro de vida suficiente y un patrimonio l\u00edquido que cubra su sost\u00e9n si t\u00fa faltaras \u2014 "
                   "es la que m\u00e1s tranquilidad da tenerla resuelta a tiempo. Es banca privada en su sentido m\u00e1s "
                   "humano: proteger a los tuyos del peor de los escenarios.",body))
+    # --- Liberacion de gasto por hijo, cuando el cliente dio la edad de cada uno (edades_hijos) ---
+    # Aditivo y conservador: estima cuando cada hijo alcanza ~24 (independencia tipica en Espana) y, por tanto,
+    # cuando se libera el gasto que hoy consume. No inventa edades: solo usa las que el cliente conoce.
+    try:
+        _eh=d.get("edades_hijos")
+        if isinstance(_eh,list):
+            _con=sorted([int(float(x)) for x in _eh if x not in (None,"") and 0<=int(float(x))<=30])
+            if len(_con)>=1:
+                INDEP=24
+                _pend=[a for a in _con if a<INDEP]
+                if _pend:
+                    _libera_eur=COSTE_ANUAL*len(_pend)
+                    # El PRIMERO en independizarse es el mayor de los pendientes; el ULTIMO, el mas joven.
+                    _anios_primero=max(0,INDEP-max(_pend))
+                    _anios_ultimo=max(0,INDEP-min(_pend))
+                    out.append(Paragraph("<b>Tu calendario de liberaci\u00f3n de gasto.</b> Con las edades que nos has dado, "
+                              "el primero de tus hijos a\u00fan en casa se independizar\u00eda en torno a <b>%d a\u00f1o(s)</b> y el "
+                              "m\u00e1s peque\u00f1o en torno a <b>%d a\u00f1o(s)</b>. A medida que cada uno vuele, recuperar\u00e1s "
+                              "capacidad de ahorro \u2014 del orden de <b>%s al a\u00f1o</b> por hijo, una estimaci\u00f3n prudente. "
+                              "El acto inteligente es decidir HOY ad\u00f3nde ir\u00e1 ese aire (inversi\u00f3n, plan de pensiones, "
+                              "tu propia libertad) antes de que se diluya en gasto nuevo."%(_anios_primero,_anios_ultimo,_eur(_libera_eur)),body))
+                    out.append(Paragraph("Y un apunte honesto sobre el \u00faltimo tramo: la emancipaci\u00f3n rara vez es limpia. "
+                              "Reservar para ese empuj\u00f3n final \u2014 una entrada, los primeros meses fuera \u2014 evita que el "
+                              "salto les pille (y te pille) sin colch\u00f3n.",body))
+                else:
+                    out.append(Paragraph("Por las edades que nos has dado, tus hijos ya rondan o superan la independencia. "
+                              "Si a\u00fan apoyas a alguno, lo sano es ponerle un horizonte y un importe: el apoyo indefinido sin "
+                              "l\u00edmite es el que m\u00e1s erosiona un patrimonio sin que se note.",body))
+    except Exception:
+        pass
     out.append(PageBreak())
     return out
 
@@ -2014,9 +2084,9 @@ def glosario(p, datos, fi):
     # Deuda
     if p["C10"]["score"]>=45:
         g.append(("Deuda de alto interés (deuda mala)",
-            "Financiación al consumo —tarjetas revolving, microcréditos— a tasas de doble dígito.",
-            "Tu capa de deuda muestra tensión: si tienes deuda de este tipo (tarjetas, revolving), es tu prioridad absoluta.",
-            "El interés compuesto jugando en tu contra. Atacar la más cara primero es la mejor inversión que existe."))
+            "Financiación al consumo —tarjetas revolving, microcréditos— que en España se mueven en el entorno del 20% TAE.",
+            "Tu capa de deuda muestra tensión. Si arrastras revolving, esto no admite matices: amortizarla es tu prioridad absoluta, por delante de cualquier inversión.",
+            "Ninguna cartera te renta de forma fiable un 20% neto; cancelar esa deuda sí. Es la rentabilidad más alta, segura y libre de impuestos a tu alcance — ejecútala primero."))
     # Resiliencia / emergencia
     if p["C3"]["score"]>=45:
         g.append(("Fondo de resiliencia",
@@ -2340,12 +2410,17 @@ def seccion_alertas_perfil(datos):
                     "El mayor riesgo tras una venta no es invertir mal: es no tener un plan listo cuando llega el "
                     "dinero. La fiscalidad de la operación, los objetivos y la inversión por fases <b>se deciden "
                     "antes de firmar</b> — el día del ingreso ya es tarde para optimizar.")
-        pr=str(d.get("perfil_riesgo") or "")
-        if "vender" in pr.lower():
-            _alerta("Tu reacción ante una caída es vender. Ahí está el riesgo real.",
-                    "Vender cuando todo baja convierte una caída temporal en una <b>pérdida permanente</b>. No es "
-                    "un defecto: es humano. Pero saberlo de antemano permite diseñar una cartera que aguantes sin "
-                    "tocarla — y ese es medio camino hacia el resultado.")
+        pr=str(d.get("perfil_riesgo") or "").lower()
+        if "conservador" in pr:
+            _alerta("Tu perfil es conservador. Conviene que sea una elección, no un miedo.",
+                    "Priorizar no perder es legítimo, pero tiene un coste silencioso: a largo plazo, un perfil muy "
+                    "conservador suele <b>perder poder adquisitivo frente a la inflación</b>. Si el horizonte es largo, "
+                    "merece la pena revisar si ese perfil te protege de verdad o solo te protege del susto a corto.")
+        elif "no lo tengo claro" in pr or "no me lo he planteado" in pr:
+            _alerta("No tienes definido tu perfil de inversión. Ese vacío decide por ti.",
+                    "Sin un perfil claro, las decisiones se toman por impulso — comprar en la euforia, vender en el "
+                    "pánico. Definir tu perfil (cuánto vaivén toleras a cambio de cuánta rentabilidad esperada) es "
+                    "el primer paso para que tu dinero trabaje según tu plan, no según el titular del día.")
         tt=str(d.get("testamento") or "")
         if "no tengo" in tt.lower():
             _alerta("No tienes testamento. Hoy decide la ley, no tú.",
@@ -2499,6 +2574,47 @@ def _realidad(p, datos):
         pass
     return p
 
+def seccion_salud_porcentajes(datos):
+    """Juicio de salud sobre los porcentajes que el motor DERIVA del desglose (no de una pregunta cualitativa):
+    peso de suscripciones sobre el gasto y concentracion de ingresos sobre la fuente dominante.
+    Vivienda, DTI, concentracion patrimonial e ingresos pasivos ya se comentan en el cuadro financiero,
+    asi que aqui solo se anade lo que NO esta cubierto. Aditivo y failsafe."""
+    d=datos or {}
+    out=[]
+    def _g(k):
+        try: return float(d.get(k))
+        except Exception: return None
+    def _caja(titulo,texto,bg,borde):
+        out.append(Spacer(1,3*mm))
+        out.append(_box([Paragraph(titulo,St("sp_h%d"%len(out),fontSize=12,leading=15,textColor=colors.HexColor("#1A1A17"),fontName=FB)),
+                         Paragraph(texto,St("sp_t%d"%len(out),fontSize=10.5,leading=15,textColor=colors.HexColor("#2C313A"),spaceBefore=3))],
+                        bg,borde,ancho=160*mm))
+    # Suscripciones: peso de la categoria del desglose de gasto. <5% sano; 5-10% vigilar; >10% goteo serio.
+    sus_pct=_g("suscripciones_pct"); sus_eur=_g("suscripciones_eur")
+    if sus_pct is not None and sus_eur and sus_eur>0:
+        _anual=_eur(sus_eur*12)
+        if sus_pct>=10:
+            _caja("Tus suscripciones pesan más de lo que crees",
+                  "Las suscripciones y servicios recurrentes se llevan el <b>%.0f%%</b> de tu gasto mensual — del orden de "
+                  "<b>%s al año</b>. El problema no es el importe de cada una, es que se renuevan solas y dejas de "
+                  "notarlas. Audita la lista de una sentada y cancela todo lo que no hayas usado este mes: ese euro "
+                  "recurrente, invertido, trabaja para ti en vez de para otros."%(sus_pct,_anual),"#FBEDEC","#9A3B2E")
+        elif sus_pct>=5:
+            _caja("Vigila el goteo de tus suscripciones",
+                  "Tus suscripciones suman el <b>%.0f%%</b> de tu gasto (unos <b>%s al año</b>). No es alarmante, pero es "
+                  "la clase de gasto que crece sin que lo decidas. Una revisión anual de la lista basta para mantenerlo a "
+                  "raya."%(sus_pct,_anual),"#FBF6E6","#C9962B")
+    # Concentracion de ingresos: peso de la fuente dominante (derivado del desglose de ingresos).
+    # Complementa el mapa de fuentes con el dato exacto de cuanto cuelga de un solo hilo.
+    conc=_g("concentracion_ingresos"); nf=_g("n_fuentes_ingreso")
+    if conc is not None and nf is not None and nf>=2 and conc>=65:
+        _caja("Tienes varias fuentes, pero una manda demasiado",
+              "Sobre el papel diversificas, pero una sola fuente concentra el <b>%.0f%%</b> de lo que ingresas. "
+              "Diversificar de verdad no es tener varias fuentes: es que ninguna pueda hundirte ella sola. "
+              "El siguiente paso es engordar la segunda, no abrir una décima."%conc,"#FBF6E6","#C9962B")
+    if out: out.append(Spacer(1,2*mm))
+    return out
+
 def _secsafe(fn, *a, **k):
     """Red de seguridad: si una seccion falla, se salta y se registra — nunca tumba el PDF entero."""
     try:
@@ -2508,6 +2624,97 @@ def _secsafe(fn, *a, **k):
         sys.stderr.write("[secsafe] seccion %s fallo (se omite): %s\n" % (getattr(fn,"__name__","?"), _e))
         traceback.print_exc()
         return []
+
+def seccion_dictamen_comportamiento(resp):
+    """Convierte el test (preguntas de comportamiento) en DICTAMEN ejecutivo: encabezado + etiqueta
+    de diagnóstico en bronce + prosa de consultor. No sustituye el anexo de transparencia: lo precede
+    con la lectura, no con el formulario. Aditivo y failsafe.
+    Etiquetas por puntuación de la respuesta elegida (score 0-100, mayor=peor):
+      <=35 [SÓLIDA] · 36-60 [A VIGILAR] · >60 etiqueta crítica específica."""
+    # Robusto a v1/v2: se busca por PALABRAS CLAVE en el texto de la pregunta (los IDs cambian entre
+    # instrumentos). Cada foco: (keywords_obligatorias, encabezado, etiqueta crítica, dictamen).
+    FOCO=[
+      (("constancia","inviert"),"Frecuencia de inversión","INACTIVA",
+       "El perfil denota ausencia de aportaciones recurrentes. Sin una cadencia fija, el interés compuesto —el único motor que construye patrimonio sin esfuerzo adicional— no llega a activarse: cada mes sin aportar es crecimiento que no se recupera."),
+      (("plan","horizonte"),"Plan de inversión","SIN RUMBO",
+       "Las decisiones de inversión carecen de un marco definido de plazo y riesgo. Sin plan, la cartera la dirige el titular del día: se compra en la euforia y se vende en el pánico, justo al revés de lo que construye valor."),
+      (("invertido","parado"),"Capital puesto a trabajar","PARADO",
+       "Una parte del capital que no necesitas a corto plazo permanece ocioso. Dinero quieto pierde poder adquisitivo cada año frente a la inflación: no es prudencia, es un coste silencioso."),
+      (("sistema","repartir"),"Arquitectura de cuentas","DIFUSA",
+       "No existe una separación operativa del dinero (operativa, contingencia, inversión). Cuando todo convive en una cuenta, el excedente se diluye en el gasto antes de poder asignarse con intención."),
+      (("escapa","mes"),"Control del flujo","CON FUGAS",
+       "Hay un margen mensual que no cuadra. Lo que no se mide, no se gobierna: esa fuga, sostenida, es de los primeros frenos a corregir porque no exige ganar más, solo ver mejor."),
+      (("relación con la deuda",),"Relación con la deuda","TENSIONADA",
+       "La deuda convive con cierta tensión. Mientras exista financiación cara, amortizarla rinde más —y con certeza— que casi cualquier inversión: es la prioridad técnica antes de crecer."),
+    ]
+    try:
+        items=[]
+        for capa in INST["capas"]:
+            if capa.get("code") not in ("C9","C10","C11","C12"): continue
+            for it in capa["items"]:
+                if it.get("tipo")=="escala" and not it.get("atencion"):
+                    items.append(it)
+    except Exception:
+        return []
+    def _match(kws):
+        for it in items:
+            tx=(it.get("texto") or "").lower()
+            if all(k in tx for k in kws): return it
+        return None
+    filas=[]; _vistos=set()
+    for kws,titulo,etiq_crit,dict_crit in FOCO:
+        it=_match(kws)
+        if not it or it["id"] in _vistos: continue
+        idx=resp.get(it["id"])
+        if idx is None: continue
+        try: sc=it["opciones"][idx]["score"]
+        except Exception: continue
+        if sc<=35: continue   # fortaleza: no la convertimos en alarma
+        _vistos.add(it["id"])
+        if sc<=60: etiq="A VIGILAR"; col="#9A7B1F"
+        else: etiq=etiq_crit; col="#9A3B2E"
+        filas.append((titulo,etiq,col,dict_crit))
+    if not filas: return []
+    out=[PageBreak(), Paragraph("El dictamen de tu comportamiento financiero", h_sec),
+         Paragraph("Tus respuestas no son un test con nota: son la radiografía de tus hábitos. Esto es lo que dicen, "
+                   "leídas como las leería tu consultor — sin rodeos y por orden de impacto.", body),
+         Spacer(1,4*mm)]
+    for titulo,etiq,col,txt in filas:
+        out.append(Table([[Paragraph("<b>%s</b>"%titulo,St("dcb_t%d"%len(out),fontSize=12,leading=15,textColor=ACCDK,fontName=FB)),
+                           Paragraph("[%s]"%etiq,St("dcb_e%d"%len(out),fontSize=9,leading=12,textColor=colors.HexColor(col),fontName=FB,alignment=TA_LEFT))]],
+                  colWidths=[110*mm,50*mm],
+                  style=TableStyle([("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0),
+                    ("BOTTOMPADDING",(0,0),(-1,-1),1)])))
+        out.append(Paragraph(txt,St("dcb_x%d"%len(out),fontSize=10,leading=14,textColor=INK,spaceBefore=1,spaceAfter=6)))
+        out.append(Table([[""]],colWidths=[160*mm],style=[("LINEBELOW",(0,0),(-1,-1),0.4,LINE)]))
+        out.append(Spacer(1,3*mm))
+    return out
+
+def seccion_coste_inflacion(datos):
+    """Cuantifica en € lo que pierde el capital ocioso cada año contra la inflación, y nombra la
+    optimización fiscal como palanca. Solo aparece si hay liquidez parada relevante. Aditivo y failsafe."""
+    d=datos or {}
+    try:
+        tap=tapon_coste(d)
+    except Exception:
+        tap=None
+    if not tap: return []
+    exceso, _ = tap
+    INFL=0.03
+    perdida=exceso*INFL
+    return [Spacer(1,3*mm),
+            _box_sello([Paragraph("El coste de tu capital ocioso",St("cinf_h",fontSize=12,leading=15,textColor=ACCDK,fontName=FB)),
+                  Paragraph("Tienes alrededor de <b>%s</b> en liquidez por encima de un colchón sano. A una inflación del 3%%, "
+                            "ese dinero pierde del orden de <b>%s al año</b> de poder de compra solo por estar parado — sin que "
+                            "nada malo ocurra. No es una pérdida que veas en el extracto; es una que descubres cuando lo que antes "
+                            "comprabas con esa cifra ya no lo cubre."%(_eur(exceso),_eur(perdida)),
+                            St("cinf_t",fontSize=10,leading=14,textColor=INK,spaceBefore=3)),
+                  Paragraph("<b>Dos palancas, no una:</b> poner ese excedente a rentar al menos lo que sube la vida, y revisar la "
+                            "<b>capa fiscal</b> de cómo lo haces (vehículo, diferimiento, traspasos). La rentabilidad financiera y "
+                            "la eficiencia fiscal se suman: ignorar la segunda regala cada año una parte de la primera a Hacienda.",
+                            St("cinf_f",fontSize=10,leading=14,textColor=INK,spaceBefore=4))],
+                 "#FBF4E4","#B45309",nota="C",ancho=160*mm),
+            Spacer(1,2*mm)]
 
 def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=None,arq_override=None):
     p,tr,salud=perfil(resp); p=_realidad(p,datos)
@@ -2609,6 +2816,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     if extras: S+=_secsafe(seccion_paradoja,extras)
     S+=_secsafe(seccion_incapacidad,datos)
     S+=_secsafe(seccion_alertas_perfil,datos)
+    S+=_secsafe(seccion_salud_porcentajes,datos)
+    S+=_secsafe(seccion_coste_inflacion,datos)
     if extras: S+=_secsafe(seccion_numero_realista,datos,extras)
     if extras: S+=_secsafe(seccion_fiabilidad,extras)
     # resumen + radar
@@ -3122,14 +3331,25 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         S+=[Paragraph("<i>La fórmula no es «Ingresos − Ahorro = Gastos». Es <b>Ingresos − Estilo de vida = Inversión</b>: "
                       "defines el estilo de vida que quieres, inviertes el resto antes de gastarlo, y trabajas para ensanchar "
                       "esa diferencia subiendo ingresos.</i>",St("formula",fontSize=9.8,leading=14,textColor=GREY,spaceBefore=3,spaceAfter=2))]
-    if (not _gestion) and _tasa_f is not None and _tasa_f<20:
-        S+=[Spacer(1,2*mm),_box([Paragraph("<b>Tu palanca número uno: la tasa de ahorro</b>",St("p20a",fontSize=11,leading=15,textColor=ACCDK,fontName=FB)),
+    if (not _gestion) and _tasa_f is not None and _tasa_f<10:
+        # DICTAMEN firme (banca privada): por debajo del 10% el modelo es estructuralmente vulnerable.
+        # Mantiene el guardarrail Adapta (sin catastrofismo) pero con firmeza técnica de consultor.
+        S+=[Spacer(1,2*mm),_box_sello([Paragraph("<b>Dictamen: tu modelo es financieramente vulnerable</b>",St("p10a",fontSize=11.5,leading=15,textColor=colors.HexColor("#9A3B2E"),fontName=FB)),
+              Paragraph("Con una tasa de ahorro del <b>%.0f%%</b>, tu economía depende de que nada se tuerza: un solo imprevisto severo "
+                        "—una baja, una reparación grande, un mes sin ingresos— bastaría para desestabilizarla. No es una opinión, es "
+                        "estructura: a este ritmo no se construye colchón ni capital, solo se sobrevive al mes. Requiere intervención "
+                        "inmediata sobre tus gastos fijos: la prioridad no es invertir mejor, es liberar margen. Recuperar capacidad de "
+                        "ahorro es, hoy, la única decisión que cambia tu trayectoria."%_tasa_f,
+                        St("p10b",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
+              "#FBEDEC","#9A3B2E",nota=_rating_ahorro(_tasa_f),ancho=160*mm)]
+    elif (not _gestion) and _tasa_f is not None and _tasa_f<20:
+        S+=[Spacer(1,2*mm),_box_sello([Paragraph("<b>Tu palanca número uno: la tasa de ahorro</b>",St("p20a",fontSize=11,leading=15,textColor=ACCDK,fontName=FB)),
               Paragraph("Estás en fase de construcción de patrimonio y tu tasa de ahorro es del <b>%.0f%%</b>. Por debajo del 20%%, "
                         "el capital crece despacio y tu libertad se aleja años. El 20%% no es una cifra arbitraria: es el umbral donde "
                         "el interés compuesto empieza a trabajar de verdad a tu favor en lugar de en tu contra. Llevar tu ahorro hacia "
                         "ese nivel es, con diferencia, la decisión de mayor impacto que tienes ahora sobre la mesa."%_tasa_f,
                         St("p20b",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
-              "#FBF4E4","#B45309",ancho=160*mm)]
+              "#FBF4E4","#B45309",nota=_rating_ahorro(_tasa_f),ancho=160*mm)]
     _pat_h=datos.get("patrimonio")
     if (not _gestion) and _pat_h is not None and _pat_h<100000:
         S+=[Spacer(1,2*mm),_box([Paragraph("<b>Tu primer hito no es la libertad total: son los primeros 100.000 €.</b>",St("h100a",fontSize=10.8,leading=15,textColor=ACCDK,fontName=FB)),
@@ -3302,6 +3522,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
               St("debc",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=2))]
         S+=[PageBreak()]+_dp
     if extras: S+=_secsafe(seccion_conclusion,extras)
+    # DICTAMEN de comportamiento (convierte el test en prosa ejecutiva, antes del anexo crudo)
+    S+=_secsafe(seccion_dictamen_comportamiento,resp)
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
     S+=[PageBreak(), Paragraph("Anexo \u2014 Tus respuestas",h_sec),

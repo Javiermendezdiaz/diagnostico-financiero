@@ -890,6 +890,24 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
             _cobp=round(100*_h_pat/fi_h[0]) if fi_h[0] else 0   # potencial movilizando todo (incluida la vivienda, llegado el momento)
             _lt=" — con eso quedaríais en <b>libertad financiera</b>" if _cobp>=100 else ""
             S+=[Paragraph("<b>Patrimonio no es renta — y es vuestra mayor oportunidad:</b> tenéis %s de patrimonio, pero hoy solo %s está invertido o líquido generando renta (la cobertura del %s%% de arriba). Si movilizarais lo ilíquido —rentabilizando lo parado y, llegado el momento de simplificar, vendiendo o reduciendo la vivienda que ya no necesitéis—, vuestra cobertura pasaría del %s%% al <b>%s%%</b>%s. Convertir patrimonio dormido en renta es donde más mueve la aguja un family office."%(rb._eur(_h_pat),rb._eur(_h_inv+_h_par),("%.0f"%fi_h[1]),("%.0f"%fi_h[1]),("%.0f"%_cobp),_lt),small),Spacer(1,2*mm)]
+    # --- Coste de la inflación sobre el capital ocioso del hogar (aditivo, failsafe) ---
+    try:
+        _tapH=rb.tapon_coste(hogar)
+        if _tapH:
+            _excH,_=_tapH; _perdH=_excH*0.03
+            S+=[Spacer(1,3*mm),
+                rb._box_sello([Paragraph("El coste de vuestro capital ocioso",St("cinfh_h",fontSize=12,leading=15,textColor=ACCDK,fontName=rb.FB)),
+                      Paragraph("Tenéis alrededor de <b>%s</b> en liquidez por encima de un colchón sano. A una inflación del 3%%, ese dinero "
+                                "pierde del orden de <b>%s al año</b> de poder de compra solo por estar parado. No lo veis en el extracto: lo "
+                                "notáis cuando lo que antes comprabais con esa cifra ya no lo cubre."%(rb._eur(_excH),rb._eur(_perdH)),
+                                St("cinfh_t",fontSize=10,leading=14,textColor=INK,spaceBefore=3)),
+                      Paragraph("<b>Dos palancas, no una:</b> poner ese excedente a rentar al menos lo que sube la vida, y revisar la <b>capa "
+                                "fiscal</b> de cómo lo hacéis (vehículo, diferimiento, traspasos). Rentabilidad y eficiencia fiscal se suman.",
+                                St("cinfh_f",fontSize=10,leading=14,textColor=INK,spaceBefore=4))],
+                     "#FBF4E4","#B45309",nota="C",ancho=160*mm),
+                Spacer(1,2*mm)]
+    except Exception:
+        pass
     # --- Foto del flujo del hogar (activo/pasivo, fijo/variable) ---
     _x_ing=float(hogar["ingreso_mensual"]); _x_gas=float(hogar["gasto_mensual"])
     _x_pas=min(float(hogar["renta_pasiva"]),_x_ing); _x_act=max(0.0,_x_ing-_x_pas)
