@@ -762,6 +762,39 @@ def pareja_estado(session_id: str):
             "pareja_lista": lista, "pagado": bool(row["pagado"]), "gated": bool(STRIPE_WEBHOOK_SECRET),
             "nombre_iniciador": _nom_pila}
 
+@app.get("/api/diag-couple/{session_id}")
+def diag_couple(session_id: str):
+    """TEMPORAL (depuracion): reproduce la generacion del libro de pareja y devuelve el traceback
+    si falla. Solo para sesiones tier3 pagadas con pareja enlazada. Quitar tras depurar."""
+    import traceback as _tb
+    with db() as c:
+        row = c.execute("SELECT email,nombre,tier,respuestas,datos,pareja_de,sexo,sintesis,perfil,es_inic,pagado FROM sesiones WHERE id=?", (session_id,)).fetchone()
+    if not row:
+        return {"ok": False, "reason": "no_existe"}
+    if row["tier"] != 3 or not row["pareja_de"] or not row["pagado"]:
+        return {"ok": False, "reason": "no_aplica", "tier": row["tier"],
+                "tiene_pareja": bool(row["pareja_de"]), "pagado": bool(row["pagado"])}
+    try:
+        with db() as c:
+            prow = c.execute("SELECT email,nombre,respuestas,datos,perfil,sintesis FROM sesiones WHERE id=?", (row["pareja_de"],)).fetchone()
+        if not prow or prow["respuestas"] in (None, "{}"):
+            return {"ok": False, "reason": "pareja_sin_respuestas"}
+        import tempfile as _tf
+        _fd, _tmp = _tf.mkstemp(suffix=".pdf", prefix="diagc_", dir=REPORTS_DIR); os.close(_fd)
+        with _GEN_LOCK:
+            if row["es_inic"]:
+                generar_couple(_tmp, row, prow)
+            else:
+                generar_couple(_tmp, prow, row)
+        _ok = os.path.exists(_tmp) and os.path.getsize(_tmp) > 1000
+        try: os.remove(_tmp)
+        except Exception: pass
+        return {"ok": True, "generado": _ok}
+    except Exception as e:
+        return {"ok": False, "error": repr(e)[:300], "trace": _tb.format_exc()[-2600:]}
+    finally:
+        _liberar_memoria()
+
 # --- Invitacion de pareja por email (Resend, con degradacion elegante) ---
 import re as _re
 _EMAIL_RE = _re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
