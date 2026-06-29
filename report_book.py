@@ -2289,6 +2289,34 @@ def seccion_coste_inaccion(extras):
                St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=4)))
     return out
 
+def seccion_numero_realista(datos, extras):
+    """Art. 7: no se da una meta inalcanzable sin decir que la haria alcanzable. Si a su ritmo de
+    ahorro el numero son decadas, se nombra: no se llega ahorrando, sino cambiando de fase de ingresos.
+    Solo aparece cuando aplica. Failsafe."""
+    d=datos or {}; ex=extras or {}
+    N=(ex.get("brecha") or {}).get("numero_canonico")
+    try:
+        N=float(N); aho=float(d.get("ahorro_mensual") or 0); pat=float(d.get("patrimonio") or 0)
+    except Exception:
+        return []
+    if not N or N<=0 or aho<=0:
+        return []
+    falta=max(0.0,N-pat)
+    anios=falta/(aho*12.0)
+    if anios<40:
+        return []
+    return [Spacer(1,3*mm),
+            _box([Paragraph("UN NÚMERO HONESTO",St("nr0",fontSize=8.5,leading=11,textColor=colors.HexColor("#9A3B2E"),fontName=FB)),
+                  Paragraph("Tu número de libertad es real, pero conviene decirlo sin rodeos: a tu ritmo de ahorro de hoy "
+                            "(<b>%s/mes</b>), llegar a él tomaría del orden de <b>%d años</b>. Eso significa que <b>no se "
+                            "alcanza ahorrando</b> —ningún recorte de gastos cierra esa distancia—: se alcanza <b>cambiando "
+                            "de fase de ingresos</b>: subir lo que generas, poner a trabajar tu patrimonio, o crear una "
+                            "fuente que no dependa de tu tiempo. Ese, y no apretarte el cinturón, es el verdadero trabajo."
+                            %(_eur(aho), int(round(anios))),St("nr1",fontSize=10.5,leading=15,textColor=colors.HexColor("#2C313A"),spaceBefore=3))],
+                 "#FBEDEC","#9A3B2E",ancho=160*mm),
+            Spacer(1,3*mm)]
+
+
 def seccion_alertas_perfil(datos):
     """Consume las preguntas nuevas (cotizacion, venta de empresa, perfil de riesgo, testamento)
     y emite SOLO las alertas que apliquen a este cliente. Aditivo y failsafe."""
@@ -2581,6 +2609,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     if extras: S+=_secsafe(seccion_paradoja,extras)
     S+=_secsafe(seccion_incapacidad,datos)
     S+=_secsafe(seccion_alertas_perfil,datos)
+    if extras: S+=_secsafe(seccion_numero_realista,datos,extras)
     if extras: S+=_secsafe(seccion_fiabilidad,extras)
     # resumen + radar
     if depth!="esencial":
