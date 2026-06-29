@@ -611,13 +611,14 @@ var _DESG={
  gasto_mensual:['Vivienda (hipoteca/alquiler)','Suministros y hogar','Alimentación','Transporte / vehículo','Colegios / educación','Salud / seguros','Ocio y viajes','Restauración','Suscripciones / servicios','Cuotas y deudas (coche, préstamos, tarjetas)','Cuidado personal','Otros'],
  deuda_total:['Hipoteca habitual','Hipoteca de inversión','Préstamo personal','Coche / leasing','Tarjeta / revolving','Crédito al consumo','Deuda de empresa','Préstamo familiar','Otros'],
  inversiones_liquidas:['Fondos / ETF','Acciones directas','Renta fija / bonos','Planes de pensiones','Inmobiliario (REIT/SOCIMI)','Capital riesgo / private equity','Cripto','Materias primas / oro','Liquidez / depósitos','Otros'],
- patrimonio:['Vivienda habitual','Otros inmuebles','Negocio / participaciones','Cartera financiera','Planes de pensiones','Liquidez / depósitos','Vehículos / bienes','Arte / coleccionables','Otros']
+ patrimonio:['Vivienda habitual','Segunda vivienda','Otros inmuebles','Negocio / participaciones','Cartera financiera (fondos, acciones, ETF)','Planes de pensiones','Seguro de ahorro / unit-linked','Criptomonedas','Liquidez / depósitos','Vehículos','Arte / coleccionables','Préstamos concedidos / a cobrar','Otros']
 };
 function _desgSum(campo){var d=(st.datos||{})[campo+'_detalle']||[];return d.reduce(function(a,r){return a+(parseFloat(r.v)||0);},0);}
 function _buildDesglose(campo,total,wrap){
   try{
     if(!wrap)return;
-    if(!(total>0)){wrap.style.display='none';wrap.innerHTML='';return;}
+    var isPat=(campo==='patrimonio');
+    if(!isPat && !(total>0)){wrap.style.display='none';wrap.innerHTML='';return;}
     wrap.style.display='block';
     var cs=_DESG[campo]||[];
     var det=st.datos[campo+'_detalle'];
