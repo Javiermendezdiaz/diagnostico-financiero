@@ -192,19 +192,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 <!-- DECISIÓN DE COMPRA · justo bajo el hero, para comprar rápido -->
 <div class="wrap">
   <section class="closing" id="planes" style="margin:46px 0 0">
-    <span class="kick">El entregable</span>
-    <h2 class="serif">Lo que recibes en tu libro</h2>
-    <p>No es un PDF plano de un segundo. Tu cuestionario alimenta un motor de 12 capas que cruza tu psicología con tus números reales y compone un libro a tu medida.</p>
-    <div class="inc">
-      <div><b>Tu Espejo:</b> lo que dices frente a lo que dicen tus datos.</div>
-      <div><b>Termómetro de estrés</b> y tu mapa de tensión por áreas.</div>
-      <div><b>Tu Cifra de Libertad</b> y tu margen de maniobra reales.</div>
-      <div><b>Brecha, palancas y contradicciones</b> de tu comportamiento.</div>
-      <div><b>Plan de acción de 100 días</b>, paso a paso.</div>
-      <div><b>Tu Constitución Financiera</b> personalizada.</div>
-    </div>
-    <div class="plan-sub">¿Cuál es para ti?</div>
-    <p style="text-align:center;color:var(--gr);font-size:12.5px;margin:2px auto 14px;max-width:520px">Los tres <b style="color:var(--am)">empiezan con un adelanto gratis</b> y personalizado con tus cifras. Solo pagas si quieres tu libro completo.</p>
+    <span class="kick">Elige tu diagnóstico</span>
+    <h2 class="serif">Tres formas de mirarte de verdad</h2>
+    <p style="text-align:center;color:var(--gr);font-size:13.5px;margin:12px auto 0;max-width:540px">Los tres <b style="color:var(--am)">empiezan con un adelanto gratis</b> personalizado con tus cifras. Solo pagas si quieres tu libro completo.</p>
     <div class="plan-grid">
       <div class="plan">
         <div class="pn">Rápido</div>
@@ -245,6 +235,15 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
         </ul>
         <a class="pb gh" href="empezar2.html?tier=3">Empezar en Pareja</a>
       </div>
+    </div>
+    <div class="plan-sub" style="margin-top:56px">Lo que incluye tu libro</div>
+    <div class="inc" style="margin-top:18px">
+      <div><b>Tu Espejo:</b> lo que dices frente a lo que dicen tus datos.</div>
+      <div><b>Termómetro de estrés</b> y tu mapa de tensión por áreas.</div>
+      <div><b>Tu Cifra de Libertad</b> y tu margen de maniobra reales.</div>
+      <div><b>Brecha, palancas y contradicciones</b> de tu comportamiento.</div>
+      <div><b>Plan de acción de 100 días</b>, paso a paso.</div>
+      <div><b>Tu Constitución Financiera</b> personalizada.</div>
     </div>
     <div class="cmp-h2">Compara los tres en detalle</div>
     <div class="cmp-wrap">
@@ -677,7 +676,7 @@ function simBM(){
 sim10(); simG(); simC(); simBM();
 $('arq-t').textContent=ARQ.escasez.t; $('arq-d').textContent=ARQ.escasez.d;
 </script>
-<a id="stickyCta" href="#planes" style="position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:60;background:var(--am);color:#000;font-weight:700;font-size:14px;padding:13px 28px;border-radius:999px;text-decoration:none;box-shadow:0 12px 34px -8px rgba(253,215,49,.55);opacity:0;pointer-events:none;transition:opacity .3s">Quiero probarlo →</a>
+<a id="stickyCta" href="#planes" style="position:fixed;right:22px;bottom:22px;z-index:60;background:var(--am);color:#000;font-weight:700;font-size:13px;padding:12px 22px;border-radius:999px;text-decoration:none;box-shadow:0 12px 34px -8px rgba(253,215,49,.55);opacity:0;pointer-events:none;transition:opacity .3s,transform .2s">Empezar gratis →</a>
 <script>(function(){var s=document.getElementById('stickyCta');if(!s)return;function f(){var on=window.scrollY>560;s.style.opacity=on?'1':'0';s.style.pointerEvents=on?'auto':'none';}addEventListener('scroll',f,{passive:true});f();})();</script>
 </body>
 </html>
