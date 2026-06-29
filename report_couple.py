@@ -1145,6 +1145,199 @@ def seccion_glosario():
             Paragraph("Los términos que usa este libro, en una frase cada uno. Para que ningún concepto se interponga entre vosotros y vuestro plan.",body),
             Spacer(1,4*mm), tabla, Spacer(1,3*mm)]
 
+# ---------------------------------------------------------------------------
+# ÍNDICE DE FRICCIÓN CONYUGAL (Fase 1) — sin preguntas nuevas: todo se deriva
+# de las divergencias que el motor ya cruza. Polaridad INVERTIDA: alto = malo.
+# ---------------------------------------------------------------------------
+def indice_friccion(rA, rB):
+    """Devuelve (idx, n, n_conf). idx 0-100 = media ponderada del gap entre A y B
+    sobre los ítems de escala (no atención), VÍNCULO ×1.5. n = ítems válidos;
+    n_conf = ítems con gap>=50. Defensiva total: nunca lanza; sin datos -> (0,0,0)."""
+    try:
+        capas = (INST or {}).get("capas") or []
+    except Exception:
+        return (0, 0, 0)
+    suma_pond = 0.0
+    suma_peso = 0.0
+    n = 0
+    n_conf = 0
+    for capa in capas:
+        try:
+            items = capa.get("items") or []
+        except Exception:
+            continue
+        for it in items:
+            try:
+                if it.get("tipo") != "escala":
+                    continue
+                if it.get("atencion"):
+                    continue
+                _ra = _resp_op(it, (rA or {}).get(it.get("id")))
+                _rb = _resp_op(it, (rB or {}).get(it.get("id")))
+                if _ra is None or _rb is None:
+                    continue
+                sa = float(_ra[0]); sb = float(_rb[0])
+                gap = abs(sa - sb)
+                peso = 1.5 if ("VINCULO" in (it.get("dimensiones") or "")) else 1.0
+                suma_pond += gap * peso
+                suma_peso += peso
+                n += 1
+                if gap >= 50:
+                    n_conf += 1
+            except Exception:
+                continue
+    if n == 0 or suma_peso <= 0:
+        return (0, 0, 0)
+    try:
+        idx = int(round(max(0.0, min(100.0, suma_pond / suma_peso))))
+    except Exception:
+        return (0, 0, 0)
+    return (idx, n, n_conf)
+
+def dial_friccion(path, idx):
+    """Arco semicircular tipo velocímetro: verde (baja fricción, izq) -> ámbar -> terracota
+    (alta fricción, der). Aguja en idx. Polaridad INVERTIDA (alto = malo). Figura ligera.
+    Cierra la figura + gc en finally. Devuelve True/False. Defensiva."""
+    fig = None
+    try:
+        try:
+            v = max(0.0, min(100.0, float(idx)))
+        except Exception:
+            v = 0.0
+        import numpy as _np
+        from matplotlib.collections import LineCollection
+        # Gradiente verde -> ámbar -> terracota (izquierda baja fricción, derecha alta)
+        _STOPS = [(0.0, (29, 111, 66)), (0.5, (224, 169, 59)), (1.0, (198, 92, 78))]
+        def _col(t):
+            t = max(0.0, min(1.0, t))
+            for i in range(len(_STOPS) - 1):
+                t0, c0 = _STOPS[i]; t1, c1 = _STOPS[i + 1]
+                if t0 <= t <= t1:
+                    f = (t - t0) / (t1 - t0) if t1 > t0 else 0.0
+                    return tuple((c0[k] + (c1[k] - c0[k]) * f) / 255.0 for k in range(3))
+            return tuple(c / 255.0 for c in _STOPS[-1][1])
+        INKG = "#2A2622"; MUTG = "#8A8472"; crema = "#FBF6E0"
+        fig = plt.figure(figsize=(5.0, 3.0), dpi=140); fig.patch.set_facecolor(crema)
+        ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(-1.25, 1.25); ax.set_ylim(-0.45, 1.32)
+        ax.axis("off"); ax.set_aspect("equal")
+        N = 240; th = _np.linspace(_np.pi, 0, N); R = 1.0
+        ax.plot(_np.cos(th) * R, _np.sin(th) * R, color="#E2DBC9", lw=17, solid_capstyle="round", zorder=2)
+        pts = _np.array([_np.cos(th) * R, _np.sin(th) * R]).T.reshape(-1, 1, 2)
+        segs = _np.concatenate([pts[:-1], pts[1:]], axis=1)
+        cols = [_col(t) for t in _np.linspace(0, 1, N - 1)]
+        ax.add_collection(LineCollection(segs, colors=cols, linewidth=15, capstyle="round", zorder=3))
+        for tk in (0, 25, 50, 75, 100):
+            a = _np.pi * (1 - tk / 100.0)
+            ax.plot([_np.cos(a) * (R - 0.11), _np.cos(a) * (R + 0.01)],
+                    [_np.sin(a) * (R - 0.11), _np.sin(a) * (R + 0.01)],
+                    color="#CFC7B2", lw=1.0, zorder=4)
+        a = _np.pi * (1 - v / 100.0)
+        ax.plot([0, _np.cos(a) * (R - 0.06)], [0, _np.sin(a) * (R - 0.06)],
+                color=INKG, lw=2.4, solid_capstyle="round", zorder=6)
+        ax.add_patch(plt.Circle((0, 0), 0.055, color=INKG, zorder=7))
+        ax.add_patch(plt.Circle((0, 0), 0.022, color=crema, zorder=8))
+        ax.text(0, -0.30, "%d" % round(v), color=INKG, fontsize=34, fontweight="bold", ha="center", va="center", zorder=9)
+        ax.text(-1.02, -0.12, "baja", color=MUTG, fontsize=8.5, ha="center", va="center", zorder=9)
+        ax.text(1.02, -0.12, "alta", color=MUTG, fontsize=8.5, ha="center", va="center", zorder=9)
+        ax.text(0, 1.20, "ÍNDICE DE FRICCIÓN", color=MUTG, fontsize=9.5, fontweight="bold", ha="center", va="center", zorder=9)
+        fig.savefig(path, dpi=140, facecolor=crema)
+        return True
+    except Exception:
+        return False
+    finally:
+        try:
+            if fig is not None:
+                plt.close(fig)
+        except Exception:
+            pass
+        gc.collect()
+
+def seccion_indice_friccion(rA, rB, nA, nB):
+    """Sección Fase 1: temperatura de fricción (dial con polaridad invertida) +
+    tarjetas de contraste lateral (efecto espejo) sobre las top divergencias.
+    Todo defensivo; siempre devuelve list. Sin datos válidos -> []."""
+    try:
+        idx, n, nc = indice_friccion(rA, rB)
+    except Exception:
+        return []
+    if n == 0:
+        return []
+    if idx <= 33:
+        banda = "Alineados"; bcol = "#1D6F42"; bfondo = "#EAF3EC"
+    elif idx <= 66:
+        banda = "Fricción moderada"; bcol = "#B45309"; bfondo = "#FBF4E4"
+    else:
+        banda = "Fricción estructural"; bcol = "#9A3B2E"; bfondo = "#FBECE8"
+    out = [Paragraph("Vuestra temperatura de fricción financiera", h_sec),
+           Paragraph(f"<font size=40 color='{bcol}'><b>{idx}</b></font>"
+                     f"<font size=13 color='#6B7280'>/100</font>  "
+                     f"<font color='{bcol}'><b>· {banda}</b></font>",
+                     St("ifr_t", fontSize=11, leading=44, textColor=INK))]
+    # Dial (failsafe: si no se genera, seguimos con número + banda)
+    _dp = "_dial_friccion.png"
+    _dial_ok = False
+    try:
+        _dial_ok = bool(dial_friccion(_dp, idx))
+    except Exception:
+        _dial_ok = False
+    if _dial_ok:
+        try:
+            out.append(Image(_dp, width=96*mm, height=58*mm, hAlign="CENTER"))
+        except Exception:
+            pass
+        try:
+            (rb._os.remove if hasattr(rb, "_os") else __import__("os").remove)(_dp)
+        except Exception:
+            pass
+    # Lectura del número (sin alarmismo, sin € inventados)
+    _choca = ("ninguno choca de frente" if nc == 0 else
+              ("1 choca de frente" if nc == 1 else f"{nc} chocan de frente"))
+    out += [Spacer(1, 2*mm),
+            Paragraph(f"Este número resume, de los <b>{n}</b> puntos donde os hemos comparado, cuánta distancia "
+                      f"hay entre cómo vivís el dinero cada uno — y, de ellos, {_choca}. No mide quién acierta: "
+                      f"mide cuánto tenéis por hablar. La fricción no se cura sola ni con cifras; se gestiona "
+                      f"poniéndola en palabras. Cada punto que baje será una conversación que ya habréis tenido.",
+                      body),
+            Spacer(1, 3*mm)]
+    # Tarjetas de Contraste Lateral (efecto espejo) sobre las top divergencias
+    try:
+        divs = divergencias_item(rA, rB)
+    except Exception:
+        divs = []
+    if divs:
+        BRONCE = "#B45309"
+        GRIS_AZ = "#EEF2F6"; CREMA_T = "#FBF4E4"
+        out.append(Paragraph("El efecto espejo: lo que respondió cada uno", h_sub))
+        for d in divs[:5]:
+            try:
+                es_vinc = bool(d.get("vinc")); gap = d.get("gap", 0)
+                resalta = es_vinc or gap >= 66
+                concepto = d.get("texto", "")
+                celdaA = [Paragraph(f"<font color='{A_COL}'><b>● {nA}</b></font>", small),
+                          Paragraph("<i>%s</i>" % d.get("A", ""),
+                                    St("ifrA_%d" % gap, fontSize=9.2, leading=12.5, textColor=INK))]
+                celdaB = [Paragraph(f"<font color='{B_COL}'><b>● {nB}</b></font>", small),
+                          Paragraph("<i>%s</i>" % d.get("B", ""),
+                                    St("ifrB_%d" % gap, fontSize=9.2, leading=12.5, textColor=INK))]
+                cab = Paragraph(f"<b>{concepto}</b>",
+                                St("ifrC_%d" % gap, fontSize=9.8, leading=13, textColor=ACCDK))
+                cuerpo = Table([[celdaA, celdaB]], colWidths=[78*mm, 78*mm],
+                               style=TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"),
+                                   ("BACKGROUND", (0, 0), (0, 0), colors.HexColor(GRIS_AZ)),
+                                   ("BACKGROUND", (1, 0), (1, 0), colors.HexColor(CREMA_T)),
+                                   ("LEFTPADDING", (0, 0), (-1, -1), 8), ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                                   ("TOPPADDING", (0, 0), (-1, -1), 7), ("BOTTOMPADDING", (0, 0), (-1, -1), 7)]))
+                sty = [("LEFTPADDING", (0, 0), (-1, -1), 0), ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+                       ("TOPPADDING", (0, 0), (-1, -1), 2), ("BOTTOMPADDING", (0, 0), (-1, -1), 2)]
+                if resalta:
+                    sty.append(("BOX", (0, 0), (-1, -1), 1.0, colors.HexColor(BRONCE)))
+                tarjeta = Table([[cab], [cuerpo]], colWidths=[156*mm], style=TableStyle(sty))
+                out.append(KeepTogether([tarjeta, Spacer(1, 3*mm)]))
+            except Exception:
+                continue
+    out.append(PageBreak())
+    return out
+
 def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=None):
     global INST, CAPAS
     _iv2=rb._cargar_v2(); _c2={c["code"]:c for c in _iv2["capas"]}
@@ -1411,6 +1604,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                 Paragraph("Para hablar entre vosotros: "+rb.REFLEX[code],St("rf2",fontSize=10,leading=14,
                           textColor=INK,fontName="Helvetica-Oblique",spaceBefore=3))]
         S.append(KeepTogether(bloque)); S.append(PageBreak())
+    # === ÍNDICE DE FRICCIÓN CONYUGAL (Fase 1) — corona el Mapa de Fricción ===
+    S+=rb._secsafe(seccion_indice_friccion, rA, rB, nA, nB)
     # focos de friccion (item-level)
     S+=[Paragraph("Vuestros focos de fricción",h_sec),
         Paragraph("Las preguntas concretas donde respondisteis casi en extremos opuestos. Aquí es donde el dinero "
