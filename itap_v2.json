@@ -5132,6 +5132,27 @@
           "Pareja de hecho o pareja estable sin casar"
         ]
       }
+    },
+    {
+      "id": "SD-31",
+      "tipo": "opcion",
+      "campo": "tolerancia_deuda",
+      "texto": "¿Cómo lleváis el uso de financiación o préstamos para consumo (coche, viajes, reformas, tarjetas)?",
+      "ayuda": "No hay modelo correcto: solo el que os da paz. Esto nos dice si vuestro sistema encaja con vuestra realidad.",
+      "opciones": [
+        "Aversión total: solo la hipoteca; el resto, al contado.",
+        "Muy prudente: evito financiar, salvo algo grande y puntual.",
+        "Equilibrado: financiar a plazos cosas razonables no me preocupa.",
+        "Cómodo financiando consumo (coche, viajes, reformas) a plazos.",
+        "Sin problema con tarjetas de crédito o revolving si hace falta."
+      ],
+      "mostrar_si": {
+        "campo": "estado_civil",
+        "valor_in": [
+          "Casado/a",
+          "Pareja de hecho o pareja estable sin casar"
+        ]
+      }
     }
   ],
   "vision_brecha": [

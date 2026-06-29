@@ -1722,6 +1722,99 @@ def seccion_ansiedad_liquidez(rA, rB, nA, nB):
             _callout(titulo, txt, A_COL, "#FBF3E8"),
             Spacer(1, 4*mm)]
 
+def seccion_asimetria_pasivo(rA, rB, nA, nB):
+    """Asimetria en la gestion del pasivo a partir de 'tolerancia_deuda' (SD-31).
+    Las opciones son ordinales (aversion -> comodidad con la deuda); la brecha se mide en tramos.
+    Tres dictamenes segun brecha (>=2 asimetria / ==1 matiz / ==0 refuerzo).
+    Solo dictamen de texto aditivo: NO toca el Numero de Libertad ni nada del motor.
+    Sin cifras inventadas: solo el mapeo de respuestas + texto. Defensiva total:
+    ante datos ausentes, item ausente o indices invalidos -> []. Siempre devuelve list."""
+    # --- localizar el item tolerancia_deuda en el instrumento (por campo/id) ---
+    def _item_col():
+        try:
+            for sec in (INST.values() if isinstance(INST, dict) else []):
+                if not isinstance(sec, list):
+                    continue
+                for it in sec:
+                    if isinstance(it, dict) and (it.get("campo") == "tolerancia_deuda" or it.get("id") == "SD-31"):
+                        return it
+        except Exception:
+            return None
+        return None
+
+    def _idx(resp, it):
+        """Indice (int) elegido por un miembro para tolerancia_deuda. None si no resoluble."""
+        if not it or not isinstance(resp, dict):
+            return None
+        idx = resp.get(it.get("id"))
+        ops = it.get("opciones") or []
+        try:
+            if isinstance(idx, list):
+                idx = idx[0] if idx else None
+            if not isinstance(idx, int) or isinstance(idx, bool):
+                return None
+            if 0 <= idx < len(ops):
+                return idx
+        except Exception:
+            return None
+        return None
+
+    it = _item_col()
+    iA = _idx(rA, it)
+    iB = _idx(rB, it)
+    if iA is None or iB is None:
+        return []
+
+    ops = it.get("opciones") or []
+    def _txt(i):
+        try:
+            op = ops[i]
+            return op if isinstance(op, str) else (op.get("texto") if isinstance(op, dict) else None)
+        except Exception:
+            return None
+    tA = _txt(iA); tB = _txt(iB)
+    if tA is None or tB is None:
+        return []
+
+    brecha = abs(iA - iB)
+
+    if brecha >= 2:
+        titulo = u"Asimetría en la gestión del pasivo"
+        txt = (u"Aquí los dos vivís la deuda de consumo de forma muy distinta: para uno de vosotros financiar a plazos "
+               u"el coche, un viaje o una reforma es una carga psicológica casi inasumible, mientras el otro la "
+               u"normaliza como una herramienta más del día a día. Esa diferencia no solo drena vuestro flujo libre "
+               u"con intereses; es, sobre todo, un foco latente de desconfianza conyugal, porque cada compra a plazos "
+               u"reabre en silencio la misma discusión. La solución no es que uno ceda al criterio del otro, sino "
+               u"acordar juntos una política de deuda del hogar, por escrito: decidir entre los dos qué deudas son "
+               u"aceptables —por ejemplo, solo la hipoteca, o deuda que compre activos que se pagan solos— y cuáles "
+               u"preferís evitar. Así deja de ser una discusión que vuelve una y otra vez y pasa a ser una regla "
+               u"compartida, conocida de antemano por ambos. Vale la pena nombrarlo en voz alta: uno de vosotros "
+               u"respondió «" + tA + u"» y el otro «" + tB + u"»; esa distancia es exactamente lo que una política de "
+               u"deuda común viene a ordenar.")
+    elif brecha == 1:
+        titulo = u"Criterios cercanos sobre la deuda"
+        txt = (u"Estáis prácticamente en la misma página sobre cuánta financiación de consumo os resulta cómoda: uno se "
+               u"sitúa solo un peldaño por encima del otro. Es un matiz menor, más de temperamento que de rumbo. Merece "
+               u"la pena nombrarlo para que quien es algo más prudente no se sienta arrastrado, pero no condiciona "
+               u"vuestra estrategia: acordar qué deudas aceptáis y cuáles no os resultará sencillo.")
+    else:
+        titulo = u"Misma filosofía de deuda: una fuente menos de conflicto"
+        txt = (u"Los dos coincidís en cómo lleváis la financiación de consumo. Eso es más valioso de lo que parece: "
+               u"cuando la pareja comparte la misma filosofía de deuda, las compras a plazos dejan de ser terreno de "
+               u"discusión y se convierten en una decisión tranquila. Vuestro trabajo no es negociar cuánta deuda "
+               u"asumir, sino dejar por escrito esa política común de deuda y revisar juntos, cada cierto tiempo, que "
+               u"sigue encajando con vuestra realidad.")
+
+    return [Paragraph(u"Cómo lleváis la deuda de consumo", h_sec),
+            Paragraph(u"Os preguntamos por separado cómo lleváis el uso de financiación o préstamos para consumo. "
+                      u"Esto es lo que cada uno respondió:", body),
+            _callout(nA, tA, A_COL, "#FBF6E0"),
+            Spacer(1, 2*mm),
+            _callout(nB, tB, B_COL, "#F4F4F2"),
+            Spacer(1, 3*mm),
+            _callout(titulo, txt, A_COL, "#FBF3E8"),
+            Spacer(1, 4*mm)]
+
 def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=None):
     global INST, CAPAS
     _iv2=rb._cargar_v2(); _c2={c["code"]:c for c in _iv2["capas"]}
@@ -2027,6 +2120,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     S+=rb._secsafe(seccion_horizonte_retiro, rA, rB, nA, nB)
     # === ANSIEDAD DE LIQUIDEZ (colchon_ideal_meses / SD-30) ===
     S+=rb._secsafe(seccion_ansiedad_liquidez, rA, rB, nA, nB)
+    # === ASIMETRÍA EN LA GESTIÓN DEL PASIVO (tolerancia_deuda / SD-31) ===
+    S+=rb._secsafe(seccion_asimetria_pasivo, rA, rB, nA, nB)
     S+=rb._secsafe(seccion_asimetria_inversora,dAf,dBf,pA,pB,nA,nB)
     # === ÍTEM 3 · IMPUESTO DE LA FRICCIÓN (€) ===
     S+=rb._secsafe(seccion_impuesto_friccion,dAf,dBf,pA,pB,nA,nB)
