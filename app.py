@@ -32,7 +32,9 @@ BAREMO_MIN = int(os.environ.get("BAREMO_MIN", "30"))  # muestra minima para afir
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 RESEND_FROM = os.environ.get("RESEND_FROM", "ITAP <itap@adaptafamilyoffice.com>")
 # Remitente e enlace base para la invitacion de pareja (parametrizables por env).
-INVITE_FROM = os.environ.get("INVITE_FROM", "Adapta Family Office <invitaciones@adaptafamilyoffice.com>")
+# Por fiabilidad de entrega, por defecto usa el MISMO remitente probado que los informes (RESEND_FROM, itap@),
+# que ya tiene historial de envio y reputacion. Override con INVITE_FROM si se quiere otra direccion.
+INVITE_FROM = (os.environ.get("INVITE_FROM", "").strip() or RESEND_FROM)
 INVITE_BASE_URL = (os.environ.get("INVITE_BASE_URL", "").strip()
                    or "https://diagnostico.adaptafamilyoffice.com/empezar2.html")
 NOTIFY_EMAIL = os.environ.get("NOTIFY_EMAIL", "javier@mendezconsultoria.com")
