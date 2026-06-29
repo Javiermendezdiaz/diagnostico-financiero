@@ -1814,10 +1814,12 @@ def seccion_familia(datos, extras=None):
             _con=sorted([int(float(x)) for x in _eh if x not in (None,"") and 0<=int(float(x))<=30])
             if len(_con)>=1:
                 INDEP=24
-                _pend=[a for a in _con if a<INDEP]
+                _pend=[a for a in _con if a<INDEP]        # aun lejos de la independencia: liberacion futura
+                _trans=[a for a in _con if a>=INDEP]      # en/superada la independencia: fase de transicion (clamp: nunca anios negativos)
                 if _pend:
                     _libera_eur=COSTE_ANUAL*len(_pend)
                     # El PRIMERO en independizarse es el mayor de los pendientes; el ULTIMO, el mas joven.
+                    # clamp: anios_para_liberacion = max(0, INDEP - edad). Nunca un numero negativo en el PDF.
                     _anios_primero=max(0,INDEP-max(_pend))
                     _anios_ultimo=max(0,INDEP-min(_pend))
                     out.append(Paragraph("<b>Tu calendario de liberaci\u00f3n de gasto.</b> Con las edades que nos has dado, "
@@ -1829,10 +1831,20 @@ def seccion_familia(datos, extras=None):
                     out.append(Paragraph("Y un apunte honesto sobre el \u00faltimo tramo: la emancipaci\u00f3n rara vez es limpia. "
                               "Reservar para ese empuj\u00f3n final \u2014 una entrada, los primeros meses fuera \u2014 evita que el "
                               "salto les pille (y te pille) sin colch\u00f3n.",body))
-                else:
-                    out.append(Paragraph("Por las edades que nos has dado, tus hijos ya rondan o superan la independencia. "
-                              "Si a\u00fan apoyas a alguno, lo sano es ponerle un horizonte y un importe: el apoyo indefinido sin "
-                              "l\u00edmite es el que m\u00e1s erosiona un patrimonio sin que se note.",body))
+                    if _trans:
+                        # Hijos mayores que conviven con los pendientes: fase de transicion, sin numero negativo.
+                        out.append(Paragraph("Adem\u00e1s, %s de tus hijos ya ronda o supera la edad de independencia: est\u00e1 en "
+                                  "<b>fase de transici\u00f3n</b>, con la emancipaci\u00f3n inminente. Ah\u00ed el gasto que liberas no es "
+                                  "futuro, es de ahora: en cuanto d\u00e9 el salto, ese aire vuelve a tu plan. Lo sano es ponerle "
+                                  "horizonte e importe al apoyo, para que no se vuelva indefinido."%("alguno" if len(_trans)>1 else "uno"),body))
+                elif _trans:
+                    # TODOS en/superada la independencia: emancipacion inminente, nunca "en -2 anios liberaras".
+                    out.append(Paragraph("Por las edades que nos has dado, tus hijos ya rondan o superan la edad de independencia: "
+                              "est\u00e1n en <b>fase de transici\u00f3n, con la emancipaci\u00f3n inminente</b>. No hay un calendario futuro "
+                              "que esperar \u2014 el gasto se libera ahora, a medida que cada uno da el salto. Si a\u00fan apoyas a alguno, "
+                              "lo sano es ponerle un horizonte y un importe: el apoyo indefinido sin l\u00edmite es el que m\u00e1s erosiona "
+                              "un patrimonio sin que se note. Y reservar para ese \u00faltimo empuj\u00f3n \u2014 una entrada, los primeros "
+                              "meses fuera \u2014 evita que el salto les pille (y te pille) sin colch\u00f3n.",body))
     except Exception:
         pass
     out.append(PageBreak())

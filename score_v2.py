@@ -193,12 +193,25 @@ def calcular_palancas(datos, p, perfil_in, resp=None):
     out = []
 
     # 1) Flujo de caja: tasa real vs consciente y el excedente sin destino
+    # Guardarrail estacional: un autonomo/comisionista con gran colchon que rellena un mes flojo
+    # NO es vulnerable por tasa de ahorro baja. Si el colchon cubre >=12 meses de gasto, reclasifica.
+    _colch = _num0(datos, "colchon_liquido") or 0.0
+    _g_mes = (gasto or 0)
+    _acumulando = (_g_mes > 0 and _colch >= 12 * _g_mes)
     if ingreso:
         superavit = ingreso - (gasto or 0)
         gap = max(0.0, superavit - ahorro)
         tasa_real = round(100 * max(0.0, superavit) / ingreso)
         tasa_consc = round(100 * ahorro / ingreso)
-        if gap >= max(200, ingreso * 0.08):
+        if _acumulando and superavit <= 0:
+            _meses_col = round(_colch / _g_mes) if _g_mes > 0 else 0
+            out.append(("Perfil en acumulación: tu colchón absorbe la estacionalidad",
+                        "Este mes tu ahorro sale plano o negativo, pero no eres un perfil vulnerable: tienes %s en líquido, "
+                        "unos %d meses de gasto cubiertos. Eso es exactamente el colchón que un perfil de ingresos variables "
+                        "(autónomo, comisiones, estacional) necesita para no depender del mes flojo. Si tus ingresos oscilan, "
+                        "trabaja siempre con la MEDIA de los últimos 12 meses, no con la foto de un mes suelto: sobre esa media "
+                        "verás tu verdadera capacidad de ahorro." % (_eur(_colch), _meses_col)))
+        elif gap >= max(200, ingreso * 0.08):
             out.append(("Tus números dicen que sobra dinero cada mes: ¿dónde está?",
                         "Según lo que has declarado, entran %s más de lo que gastas, y solo %s tiene un destino fijo: tu tasa "
                         "de ahorro podría ser del %d%%, no el %d%% que parece. Pero seamos honestos: si no ves ese excedente, "
@@ -641,12 +654,19 @@ def calcular_ratios(datos, perfil_in):
                 "verde" if mr >= 12 else ("ambar" if mr >= 6 else "rojo"),
                 ("Sumando lo que rescatarías en días, tu resistencia real es muy superior a tu colchón inmediato: no estás desprotegido, solo tienes poco en líquido inmediato." if m < 3
                  else "Tu colchón inmediato más lo realizable te dan un margen amplio ante cualquier imprevisto."))
+    # Guardarrail estacional: con un colchon >= 12 meses, una tasa baja en un mes flojo no es "vulnerable".
+    acumulando = (gasto and colchon is not None and colchon >= 12 * gasto)
     if ing:
         sup = max(0.0, ing - (gasto or 0))
         t_real = 100 * sup / ing
         t_consc = 100 * ahorro / ing
         gap = max(0.0, sup - ahorro)
-        if gap >= max(200, ing * 0.08):
+        if acumulando and t_consc < 10:
+            mcol = round(colchon / gasto) if gasto else 0
+            add("Tasa de ahorro", "%.0f%% este mes · colchón de %d meses" % (t_consc, mcol), "ambar",
+                "Si tus ingresos son variables (autónomo, comisiones, estacional), un mes flojo no define tu tasa: trabaja con "
+                "la media de 12 meses. Tu colchón cubre la estacionalidad, así que no estás en riesgo, estás en acumulación.")
+        elif gap >= max(200, ing * 0.08):
             add("Tasa de ahorro", "%.0f%% real · %.0f%% con destino" % (t_real, t_consc),
                 "verde" if t_real >= 20 else ("ambar" if t_real >= 10 else "rojo"),
                 "Tu capacidad es alta; el problema es que %s/mes no tienen destino. Automatiza ese excedente el día 1, no recortes." % _eur(gap))
@@ -659,8 +679,25 @@ def calcular_ratios(datos, perfil_in):
             "Asfixia inmobiliaria: por encima del 30% tu techo te quita músculo para invertir. Revisa refinanciación, condiciones o tamaño." if cv >= 30 else "En zona sana: por debajo del 30% de tus ingresos.")
     if cuota is not None and ing:
         dti = 100 * cuota / ing
-        add("Carga de deuda (DTI)", "%.0f%% de tus ingresos" % dti, "verde" if dti < 30 else ("ambar" if dti < 35 else "rojo"),
-            "DTI = de cada 100 € que ingresas, cuánto se va a deuda. Por encima del 35% aprieta: plan de amortización, ataca primero la deuda más cara." if dti >= 35 else "DTI = qué parte de tu ingreso se va a deuda. El tuyo está bajo control.")
+        # DTI neto: descuenta de la cuota lo que cubren tus alquileres (deuda de inversion).
+        # La ALERTA de asfixia se dispara por el criterio NETO, no por el bruto. Un inversor
+        # con hipotecas cubiertas por rentas no esta asfixiado aunque su DTI bruto sea alto.
+        ial = _num0(datos, "ingreso_alquiler") or 0.0
+        cuota_neta = max(0.0, cuota - ial)
+        dti_neto = 100 * cuota_neta / ing
+        cubre = (ial / cuota) if cuota > 0 else 0.0   # fraccion de la cuota cubierta por alquileres
+        if ial > 0 and cubre >= 0.40:
+            # Parte significativa de la deuda es de inversion y se autofinancia: no peso real sobre la economia.
+            add("Carga de deuda (DTI)", "%.0f%% bruto · %.0f%% neto de alquileres" % (dti, dti_neto),
+                "verde" if dti_neto < 30 else ("ambar" if dti_neto < 35 else "rojo"),
+                ("Tu DTI bruto parece alto, pero buena parte de tu deuda es de inversión y se cubre con tus alquileres: "
+                 "descontándolos, el peso real sobre tu economía es del %.0f%%. No estás asfixiado; tu deuda trabaja." % dti_neto)
+                if dti_neto < 35 else
+                ("Aun descontando lo que cubren tus alquileres, la deuda pesa el %.0f%% de tu ingreso: plan de amortización, "
+                 "ataca primero la deuda más cara." % dti_neto))
+        else:
+            add("Carga de deuda (DTI)", "%.0f%% de tus ingresos" % dti, "verde" if dti < 30 else ("ambar" if dti < 35 else "rojo"),
+                "DTI = de cada 100 € que ingresas, cuánto se va a deuda. Por encima del 35% aprieta: plan de amortización, ataca primero la deuda más cara." if dti >= 35 else "DTI = qué parte de tu ingreso se va a deuda. El tuyo está bajo control.")
     if deuda is not None and pat > 0:
         ap = 100 * deuda / pat
         add("Apalancamiento", "%.0f%% de tu patrimonio" % ap, "verde" if ap < 50 else ("ambar" if ap < 80 else "rojo"),
@@ -1342,7 +1379,9 @@ def plan_hogar(hogar):
                 "Como hogar aguantariais %s meses con vuestro colchon liquido. Por debajo de 3, un imprevisto os obliga a malvender o endeudaros." % m1(m),
                 "Abrid UNA cuenta remunerada conjunta, separada del dia a dia, y automatizad %s/mes el dia de cobro." % e(ap or round(gas*0.1)),
                 "En 12 meses pasais de %s a 3 meses de colchon: de vulnerables a a prueba de sustos." % m1(m))
-    if ing > 0 and cuo > 0 and (100 * cuo / ing) >= 35:
+    ial_h = g("ingreso_alquiler")
+    cuo_neta_h = max(0.0, cuo - ial_h)
+    if ing > 0 and cuo > 0 and (100 * cuo_neta_h / ing) >= 35:
         add(2, "rojo", "Desactivad la deuda que os asfixia",
             "Vuestras cuotas de deuda (%s/mes) se llevan el %d%% de lo que entra en casa." % (e(cuo), round(100*cuo/ing)),
             "Listad TODAS vuestras deudas con su TAE y volcad el excedente del hogar a amortizar la mas cara primero (metodo avalancha).",
@@ -1407,8 +1446,10 @@ def plan_maestro(datos, p=None, perfil_in=None):
                 "Hoy aguantarias %s meses con tu colchon liquido. Por debajo de 3, cualquier imprevisto te obliga a malvender o pedir prestado." % (("%.1f" % m).rstrip("0").rstrip(".")),
                 "Abre una cuenta remunerada SEPARADA del dia a dia y automatiza %s/mes el dia de cobro." % e(ap or round(gas*0.1)),
                 "En 12 meses pasas de %s a 3 meses de colchon: de vulnerable a a prueba de sustos." % (("%.1f" % m).rstrip("0").rstrip(".")))
-    # 2) DEUDA cara
-    if ing > 0 and cuo > 0 and (100 * cuo / ing) >= 35:
+    # 2) DEUDA cara — criterio NETO: descuenta lo que cubren los alquileres (deuda de inversion).
+    ial_pm = g("ingreso_alquiler")
+    cuo_neta_pm = max(0.0, cuo - ial_pm)
+    if ing > 0 and cuo > 0 and (100 * cuo_neta_pm / ing) >= 35:
         add(2, "rojo", "Deuda", "Desactiva la deuda que te asfixia",
             "Tu cuota de deuda (%s/mes) se lleva el %d%% de lo que ingresas. Por encima del 35%%, cada mes empiezas cuesta arriba." % (e(cuo), round(100*cuo/ing)),
             "Lista tus deudas con su TAE real y vuelca todo el excedente a amortizar la MAS CARA primero (metodo avalancha).",
@@ -1418,8 +1459,8 @@ def plan_maestro(datos, p=None, perfil_in=None):
             "Tu deuda equivale al %d%% de tu patrimonio neto. Es mucho peso para cualquier viento en contra." % round(100*deu/pat),
             "Antes de asumir mas riesgo, dirige tu excedente a reducir la deuda mas cara hasta bajar de ese umbral.",
             "Menos deuda = mas margen y menos intereses: la rentabilidad mas segura que existe.")
-    # 3) TASA DE AHORRO < 20%
-    if ing > 0 and gas > 0:
+    # 3) TASA DE AHORRO < 20% — salvo perfil en acumulacion (colchon >= 12 meses absorbe la estacionalidad)
+    if ing > 0 and gas > 0 and not (col >= 12 * gas):
         tasa = (aho / ing * 100) if aho > 0 else (sup / ing * 100)
         if tasa < 20:
             extra = max(0.0, 0.20 * ing - max(aho, 0)); anual = round(extra * 12)

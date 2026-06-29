@@ -222,7 +222,7 @@ def datos_completos(d):
     d.setdefault("gasto_mensual", 2000); d.setdefault("ingreso_mensual", 3000)
     d.setdefault("ahorro_mensual", 300); d.setdefault("patrimonio", 30000); d.setdefault("edad", 40)
     # Saneamiento anti-GIGO: una cifra disparatada del cliente no debe romper el informe.
-    for _k in ("pct_gasto_fijo", "pct_vivienda", "rentabilidad_actual", "suscripciones_pct", "dti", "concentracion_ingresos"):
+    for _k in ("pct_gasto_fijo", "pct_vivienda", "rentabilidad_actual", "suscripciones_pct", "dti", "dti_neto", "concentracion_ingresos"):
         if d.get(_k) is not None:
             try: d[_k] = max(0.0, min(100.0, float(d[_k])))
             except Exception: d[_k] = None
@@ -284,12 +284,29 @@ def datos_completos(d):
                 d["concentracion_ingresos"]=max(0.0,min(100.0,100.0*max(_vals)/_tot))
                 d["n_fuentes_ingreso"]=len(_vals)
     except Exception: pass
+    # Ingreso por alquileres: se deriva de la categoria «Alquileres» del desglose de ingresos,
+    # del campo ing_alquiler, o de la renta pasiva tipo alquiler. Conservador: solo lo que es claramente alquiler.
+    try:
+        _ial=0.0
+        _ind=d.get("ingreso_mensual_detalle")
+        if isinstance(_ind,list):
+            _ial=sum(float((r or {}).get("v") or 0) for r in _ind if "alquil" in str((r or {}).get("c","")).strip().lower())
+        if _ial<=0:
+            _ial=float(d.get("ing_alquiler") or 0)
+        if _ial>0:
+            d["ingreso_alquiler"]=_ial
+    except Exception: pass
     # DTI (debt-to-income): peso fijo de la deuda sobre el ingreso. Se deriva de cuota_deuda/ingreso_mensual
     # cuando el cliente da la cuota; complementa (no sustituye) la percepcion cualitativa de la capa C10.
+    # dti_neto: resta del coste de la deuda lo que cubren los alquileres (deuda de inversion multipatrimonial).
+    # Un inversor con hipotecas cubiertas por alquileres NO esta asfixiado; el dti bruto daria una alerta roja falsa.
     try:
         _cuo=float(d.get("cuota_deuda") or 0); _ing=float(d.get("ingreso_mensual") or 0)
         if _cuo>0 and _ing>0:
             d["dti"]=max(0.0,min(100.0,100.0*_cuo/_ing))
+            _ial=float(d.get("ingreso_alquiler") or 0)
+            _cuo_neta=max(0.0,_cuo-_ial)
+            d["dti_neto"]=max(0.0,min(100.0,100.0*_cuo_neta/_ing))
     except Exception: pass
     # Hijos: si el cliente dio las edades una a una (edades_hijos=[...]), el nº de hijos y la edad del menor
     # se DERIVAN del array (manda sobre las preguntas sueltas). Las edades "no las sé / más tarde" llegan como

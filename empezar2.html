@@ -624,7 +624,7 @@ function _buildDesglose(campo,total,wrap){
     if(!Array.isArray(det)||!det.length){det=[{c:cs[0]||'',v:''}];st.datos[campo+'_detalle']=det;}
     var euros=function(x){return Math.round(x).toLocaleString('es-ES');};
     var isPat=(campo==='patrimonio');
-    var _hint=isPat?'valor de mercado y deuda de cada activo':(campo==='gasto_mensual'?'Desglósalo — obligatorio':'Desglósalo (opcional)');
+    var _hint=isPat?'valor de mercado y deuda de cada activo':'Desglósalo — obligatorio';
     var h='<div class="desg-h">'+(isPat?'Tus activos':'¿De dónde salen esos '+euros(total)+' €?')+' <span>'+_hint+'</span></div><div class="desg-rows">';
     det.forEach(function(r,i){
       h+='<div class="desg-row"><select data-i="'+i+'" class="desg-c">'+cs.map(function(o){return '<option'+(o===r.c?' selected':'')+'>'+o+'</option>';}).join('')+'</select>'
@@ -841,19 +841,32 @@ function contNum(){
   const q=st.cola[st.i]; const v=document.getElementById('num').value;
   if(v===''){alert('Introduce un número');return}
   if(q.campo) st.datos[q.campo]=parseFloat(v);
-  // Desglose de gasto OBLIGATORIO (los 3 tiers): debe cuadrar con el total antes de avanzar
-  if(q.campo==='gasto_mensual'){
-    var _gt=parseFloat(v)||0, _gs=_desgSum('gasto_mensual');
+  // Desglose OBLIGATORIO (los 3 tiers) en TODOS los campos con desglose: debe cuadrar antes de avanzar
+  var _OBLIG_CUADRA=['ingreso_mensual','gasto_mensual','deuda_total','inversiones_liquidas'];
+  var _LBL={ingreso_mensual:'tu ingreso',gasto_mensual:'tu gasto',deuda_total:'tu deuda',inversiones_liquidas:'tus inversiones'};
+  if(_OBLIG_CUADRA.indexOf(q.campo)>=0){
+    var _gt=parseFloat(v)||0, _gs=_desgSum(q.campo);
     if(_gt>0 && Math.abs(_gs-_gt)>Math.max(50,_gt*0.05)){
-      alert('Desglosa tu gasto por partidas hasta que cuadre con el total ('+Math.round(_gt).toLocaleString('es-ES')+' €). Es obligatorio para tu diagnóstico.');
+      alert('Desglosa '+(_LBL[q.campo]||'esta cifra')+' por partidas hasta que cuadre con el total ('+Math.round(_gt).toLocaleString('es-ES')+' €). Es obligatorio para tu diagnóstico.');
       return;
     }
+  }
+  if(q.campo==='gasto_mensual'){
     // Deriva el coste de vivienda de la categoría Vivienda del desglose (alimenta la carga del techo)
     try{
       var _gd=st.datos.gasto_mensual_detalle||[];
       var _cv=_gd.reduce(function(a,r){return a+(/vivienda/i.test(r.c||'')?(parseFloat(r.v)||0):0);},0);
       if(_cv>0) st.datos.coste_vivienda=_cv;
     }catch(e){}
+  }
+  // Patrimonio (neto auto-derivado): no se "cuadra con total" porque el total se deriva. Exige al menos una partida con valor>0.
+  if(q.campo==='patrimonio'){
+    var _pd=st.datos.patrimonio_detalle||[];
+    var _hayAct=_pd.some(function(r){return (parseFloat(r.v)||0)>0;});
+    if(!_hayAct){
+      alert('Añade al menos un activo con su valor de mercado (vivienda, cartera, negocio…). Es obligatorio para calcular tu patrimonio neto.');
+      return;
+    }
   }
   // Poda de redundancia: si el desglose ya cubre una pregunta posterior, no se la repetimos
   try{
@@ -907,6 +920,17 @@ function contNum(){
     const b=st.datos['coste_vida_ideal']-st.datos['ingreso_mensual'];
     if(b>200) toast(100,'🕒 Brecha detectada: tu vida ideal cuesta '+Math.round(b)+' €/mes más de lo que ingresas hoy.');
     else toast(0,'✓ Tu vida ideal está al alcance de tu ingreso actual.');
+  }
+  // === AHORRO in-situ: ¿declaras MENOS ahorro del superávit real? (al completar ahorro o gasto) ===
+  if((q.campo==='ahorro_mensual'||q.campo==='gasto_mensual'||q.campo==='ingreso_mensual')){
+    var _ai=+st.datos['ingreso_mensual']||0, _ag=+st.datos['gasto_mensual']||0, _aa=+st.datos['ahorro_mensual'];
+    if(_ai>0 && _ag>0 && isFinite(_aa) && _aa>=0){
+      var _sup=_ai-_ag;                                  // superávit real
+      var _difer=_sup-_aa;                               // lo que sobra y no declaras como ahorro
+      if(_sup>0 && _difer>Math.max(50,_ai*0.15)){        // umbral: >15% del ingreso (y al menos 50 €)
+        toast(50,'Tu ingreso menos gasto deja '+Math.round(_sup)+' €/mes, pero declaras '+Math.round(_aa)+' € de ahorro — ¿dónde va esa diferencia de '+Math.round(_difer)+' €?');
+      }
+    }
   }
   nextFade(()=>avanzar(q));
 }

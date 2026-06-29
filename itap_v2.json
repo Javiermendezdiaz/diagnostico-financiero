@@ -4537,6 +4537,36 @@
       ]
     },
     {
+      "id": "NUM-14B",
+      "tipo": "numerica",
+      "campo": "n_hijos",
+      "unidad": "hijos",
+      "texto": "¿Cuántos hijos o hijas tienes?",
+      "ayuda": "Cada hijo cambia tu protección y tu sucesión. Lo ajustamos a tu familia real, no a una media.",
+      "mostrar_si": {
+        "campo": "dependientes",
+        "valor_in": [
+          "Sí, hijos",
+          "Sí, de varios a la vez"
+        ]
+      }
+    },
+    {
+      "id": "NUM-15",
+      "tipo": "edades_hijos",
+      "campo": "edades_hijos",
+      "unidad": "años",
+      "texto": "¿Qué edad tiene cada uno de tus hijos o hijas?",
+      "ayuda": "Nos permite medir algo que casi nadie calcula: el tiempo que aún te queda con cada uno en casa, cuándo se libera ese gasto y cuándo podrías ayudarle a emanciparse. Si ahora no lo sabes, elige «Prefiero indicarlo más tarde».",
+      "mostrar_si": {
+        "campo": "dependientes",
+        "valor_in": [
+          "Sí, hijos",
+          "Sí, de varios a la vez"
+        ]
+      }
+    },
+    {
       "id": "SD-6",
       "tipo": "opcion",
       "campo": "perfil_laboral",
@@ -5034,7 +5064,7 @@
       "campo": "ingreso_mensual",
       "unidad": "€/mes",
       "texto": "¿Cuál es tu ingreso neto mensual? Es decir, lo que de verdad te queda en el bolsillo cada mes, ya descontados todos los impuestos.",
-      "ayuda": "Si eres autónomo o empresario, NO pongas tu facturación bruta: pon lo que te queda tras IRPF, IVA y cuota de autónomo (y si te pagas por nómina + dividendos de tu sociedad, suma lo neto de ambos). Importante: los impuestos NO son un gasto aparte — ya van restados aquí, en el ingreso."
+      "ayuda": "Si eres autónomo o empresario, NO pongas tu facturación bruta: pon lo que te queda tras IRPF, IVA y cuota de autónomo (y si te pagas por nómina + dividendos de tu sociedad, suma lo neto de ambos). Importante: los impuestos NO son un gasto aparte — ya van restados aquí, en el ingreso. Si tus ingresos son variables (autónomo, comisiones, estacional), introduce la MEDIA mensual de los últimos 12 meses, no la cifra de un mes suelto: un mes flojo o muy bueno distorsiona todo el diagnóstico."
     },
     {
       "id": "NUM-3",
@@ -5275,35 +5305,6 @@
       "unidad": "€/mes",
       "texto": "De tu gasto mensual, ¿cuánto se va en sostener una imagen o un estatus por encima de lo que de verdad necesitas (coche de gama, marcas, restaurantes caros, suscripciones premium)?",
       "ayuda": "El gasto que impresiona a otros, no el que te hace feliz. Si no aplica, pon 0. Nadie lo verá salvo tú."
-    },
-    {
-      "id": "NUM-14B",
-      "campo": "n_hijos",
-      "unidad": "hijos",
-      "texto": "¿Cuántos hijos o hijas tienes?",
-      "ayuda": "Cada hijo cambia tu protección y tu sucesión. Lo ajustamos a tu familia real, no a una media.",
-      "mostrar_si": {
-        "campo": "dependientes",
-        "valor_in": [
-          "Sí, hijos",
-          "Sí, de varios a la vez"
-        ]
-      }
-    },
-    {
-      "id": "NUM-15",
-      "tipo": "edades_hijos",
-      "campo": "edades_hijos",
-      "unidad": "años",
-      "texto": "¿Qué edad tiene cada uno de tus hijos o hijas?",
-      "ayuda": "Nos permite medir algo que casi nadie calcula: el tiempo que aún te queda con cada uno en casa, cuándo se libera ese gasto y cuándo podrías ayudarle a emanciparse. Si ahora no lo sabes, elige «Prefiero indicarlo más tarde».",
-      "mostrar_si": {
-        "campo": "dependientes",
-        "valor_in": [
-          "Sí, hijos",
-          "Sí, de varios a la vez"
-        ]
-      }
     },
     {
       "id": "NUM-16",
