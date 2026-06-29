@@ -812,6 +812,86 @@ def mapa_relacion(path, capas, compat, nA, nB):
     T(8,4,"DOCUMENTO CONFIDENCIAL · ADAPTA FAMILY OFFICE",6.2,GRC)
     fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
 
+def seccion_sociedad_conyugal(hogar, nA, nB):
+    """El Tercer Actor Financiero: la pareja como UNA entidad económica con patrimonio consolidado.
+    Solo cifra real (patrimonio conjunto); el resto, afirmaciones cualitativas defendibles."""
+    pat = float((hogar or {}).get("patrimonio") or 0)
+    if pat <= 0:
+        return []
+    out = [Paragraph("La sociedad conyugal", h_sec),
+           Paragraph("Hasta aquí os hemos leído como dos personas. Pero hay una tercera que también decide, "
+                     "aunque no aparezca en ninguna cuenta a su nombre.", body),
+           rb._box([
+                Paragraph("<b>Vuestro tercer actor económico</b>", St("scy0", fontSize=11, leading=15, textColor=ACCDK, fontName="Helvetica-Bold")),
+                Paragraph("Más allá de vuestras cuentas individuales existe una tercera entidad: <b>vuestra sociedad "
+                          "conyugal</b>. No es la suma de %s más %s — es un único patrimonio con criterio común. Hoy "
+                          "asciende a <b>%s</b>." % (nA, nB, rb._eur(pat)),
+                          St("scy1", fontSize=10, leading=14.5, textColor=INK, spaceBefore=4)),
+                Paragraph("La banca privada y las mejores oportunidades de inversión no negocian con dos carteras "
+                          "pequeñas y dispersas, sino con un patrimonio unificado que sabe lo que quiere. Ahí es donde "
+                          "una pareja alineada gana una capacidad que, por separado, ninguno de los dos tendría: peso "
+                          "para negociar, escala para diversificar y una sola estrategia que rema en la misma dirección.",
+                          St("scy2", fontSize=10, leading=14.5, textColor=INK, spaceBefore=4)),
+                Paragraph("Dejar de pensar «lo mío y lo tuyo» para empezar a gobernar «lo nuestro» no os quita "
+                          "autonomía: os da músculo. Vuestro patrimonio ya es uno; vuestra estrategia debería serlo también.",
+                          St("scy3", fontSize=10, leading=14.5, textColor=INK, spaceBefore=4))],
+               "#FBF6E0", "#B8860B", ancho=160*mm),
+           Spacer(1, 4*mm)]
+    return out
+
+def seccion_asimetria_inversora(dAf, dBf, pA, pB, nA, nB):
+    """Detecta divergencia clara en cultura inversora entre A y B. Si la hay, emite dictamen.
+    Si no, devuelve [] (no imprime nada). Defensiva ante datos ausentes."""
+    def _ratio_invertido(d):
+        """Fracción del patrimonio líquido que está invertido (trabajando) vs parado. None si no hay base."""
+        try:
+            inv = float((d or {}).get("inversiones_liquidas") or 0)
+            par = float((d or {}).get("colchon_liquido") or 0)
+            base = inv + par
+            if base <= 0:
+                return None
+            return inv / base
+        except Exception:
+            return None
+    rA = _ratio_invertido(dAf); rB = _ratio_invertido(dBf)
+    # Señal secundaria: score de la capa de inversión (C12). Más alto = peor (más capital dormido).
+    try:
+        cA = float(pA["C12"]["score"]); cB = float(pB["C12"]["score"])
+    except Exception:
+        cA = cB = None
+    activo = quieto = None
+    # 1) Señal primaria: ratio de capital invertido vs parado (uno tracciona, otro lo deja quieto)
+    if rA is not None and rB is not None and abs(rA - rB) >= 0.40:
+        if rA >= rB:
+            activo, quieto = nA, nB
+        else:
+            activo, quieto = nB, nA
+    # 2) Señal de respaldo: divergencia clara en la capa de inversión
+    elif cA is not None and cB is not None and abs(cA - cB) >= 30:
+        # score alto = capital dormido -> ese es el "quieto"
+        if cA >= cB:
+            quieto, activo = nA, nB
+        else:
+            quieto, activo = nB, nA
+    if not activo or not quieto:
+        return []
+    out = [Paragraph("Asimetría de cultura inversora", h_sec),
+           rb._box([
+                Paragraph("<b>Dos relojes distintos frente al mercado</b>", St("aci0", fontSize=11, leading=15, textColor=ACCDK, fontName="Helvetica-Bold")),
+                Paragraph("Existe entre vosotros una asimetría de cultura inversora: mientras <b>%s</b> mantiene el "
+                          "capital quieto —sufriendo en silencio el coste de la inflación—, <b>%s</b> empuja hacia el "
+                          "mercado. No es un defecto de ninguno de los dos: es una palanca que aún no habéis acoplado." % (quieto, activo),
+                          St("aci1", fontSize=10, leading=14.5, textColor=INK, spaceBefore=4)),
+                Paragraph("El riesgo no es que penséis distinto, sino que cada uno gobierne su mitad por libre: la "
+                          "prudencia de %s frena el crecimiento de ambos, y el impulso de %s puede exponer de más al "
+                          "hogar. Unificad <b>un único perfil ponderado</b> y un <b>vehículo común</b> —por ejemplo, una "
+                          "cartera indexada conjunta— para que el miedo de uno no paralice y el empuje del otro no "
+                          "desequilibre." % (quieto, activo),
+                          St("aci2", fontSize=10, leading=14.5, textColor=INK, spaceBefore=4))],
+               "#FBF4E4", "#B45309", ancho=160*mm),
+           Spacer(1, 4*mm)]
+    return out
+
 def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=None):
     global INST, CAPAS
     _iv2=rb._cargar_v2(); _c2={c["code"]:c for c in _iv2["capas"]}
@@ -1103,6 +1183,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         S.append(KeepTogether(card)); S.append(Spacer(1,4*mm))
     S+=[PageBreak()]
     S+=rb._secsafe(seccion_coste_no_hablarlo,pA,pB,nA,nB,hogar,fi_h,divs)
+    S+=rb._secsafe(seccion_sociedad_conyugal,hogar,nA,nB)
+    S+=rb._secsafe(seccion_asimetria_inversora,dAf,dBf,pA,pB,nA,nB)
     # cruce semantico de pareja (sintesis IA de las abiertas)
     if sintesis and str(sintesis).strip():
         S+=[Paragraph("Análisis de asimetría y brecha de comunicación",h_sec),
