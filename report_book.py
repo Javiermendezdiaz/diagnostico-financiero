@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """ITAP — Generador del 'Libro Financiero' (informe PDF narrativo, Tier 2)."""
 import json, math, statistics, gc
+from io import BytesIO
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
@@ -449,6 +450,53 @@ class Bar(Flowable):
         h=100-s.v  # se dibuja SALUD (alto=bien): barra llena y verde = sano
         col=BANDC[0] if h>=75 else BANDC[1] if h>=50 else BANDC[2] if h>=25 else BANDC[3]
         c.setFillColor(colors.HexColor(col)); c.roundRect(0,0,max(3,W*h/100),s.h,2,fill=1,stroke=0)
+
+# --- Velocimetro / dial semicircular (Indice de Vulnerabilidad, Termometro de Estres) ---
+# Degradado suave oliva apagado -> bronce/ocre -> terracota/burdeos. Aguja fina grafito,
+# digito limpio bajo el eje. Patron de memoria identico a los demas charts: BytesIO, savefig,
+# plt.close, DPI consistente (130). Polaridad por defecto: valor alto = peor (estres/vulnerabilidad).
+_GAUGE_STOPS=[(0.00,(0x6E,0x73,0x44)),(0.50,(0xB0,0x85,0x37)),(1.00,(0x8C,0x3A,0x2E))]
+def _gauge_color(t):
+    t=max(0.0,min(1.0,t))
+    for i in range(len(_GAUGE_STOPS)-1):
+        t0,c0=_GAUGE_STOPS[i]; t1,c1=_GAUGE_STOPS[i+1]
+        if t0<=t<=t1:
+            f=(t-t0)/(t1-t0) if t1>t0 else 0.0
+            return tuple((c0[k]+(c1[k]-c0[k])*f)/255.0 for k in range(3))
+    return tuple(v/255.0 for v in _GAUGE_STOPS[-1][1])
+def gauge_png(valor, etiqueta="", path=None, crema="#F3EFE2"):
+    """Dibuja un gauge tipo velocimetro (0-100) a un PNG (DPI 130). Si path es None devuelve BytesIO.
+    valor: 0-100; alto = mas tension (terracota a la derecha). Failsafe: el llamador cae a barra si falla."""
+    import matplotlib.pyplot as plt, numpy as np
+    from matplotlib.collections import LineCollection
+    try: v=max(0.0,min(100.0,float(valor)))
+    except Exception: v=0.0
+    INKG="#2A2622"; MUTG="#8A8472"
+    fig=plt.figure(figsize=(4.2,2.9),dpi=130); fig.patch.set_facecolor(crema)
+    ax=fig.add_axes([0,0,1,1]); ax.set_xlim(-1.25,1.25); ax.set_ylim(-0.45,1.32)
+    ax.axis("off"); ax.set_aspect("equal")
+    N=240; th=np.linspace(np.pi,0,N); R=1.0
+    ax.plot(np.cos(th)*R,np.sin(th)*R,color="#E2DBC9",lw=17,solid_capstyle="round",zorder=2)
+    pts=np.array([np.cos(th)*R,np.sin(th)*R]).T.reshape(-1,1,2)
+    segs=np.concatenate([pts[:-1],pts[1:]],axis=1)
+    cols=[_gauge_color(t) for t in np.linspace(0,1,N-1)]
+    ax.add_collection(LineCollection(segs,colors=cols,linewidth=15,capstyle="round",zorder=3))
+    for tk in (0,25,50,75,100):
+        a=np.pi*(1-tk/100.0)
+        ax.plot([np.cos(a)*(R-0.11),np.cos(a)*(R+0.01)],[np.sin(a)*(R-0.11),np.sin(a)*(R+0.01)],
+                color="#CFC7B2",lw=1.0,zorder=4)
+    a=np.pi*(1-v/100.0)
+    ax.plot([0,np.cos(a)*(R-0.06)],[0,np.sin(a)*(R-0.06)],color=INKG,lw=2.2,solid_capstyle="round",zorder=6)
+    ax.add_patch(plt.Circle((0,0),0.055,color=INKG,zorder=7))
+    ax.add_patch(plt.Circle((0,0),0.022,color=crema,zorder=8))
+    ax.text(0,-0.30,"%d"%round(v),color=INKG,fontsize=34,fontweight="bold",ha="center",va="center",zorder=9)
+    if etiqueta:
+        ax.text(0,1.20,etiqueta.upper(),color=MUTG,fontsize=9.5,fontweight="bold",ha="center",va="center",zorder=9)
+    if path is None:
+        bio=BytesIO(); fig.savefig(bio,format="png",dpi=130,facecolor=crema); plt.close(fig); gc.collect()
+        bio.seek(0); return bio
+    fig.savefig(path,dpi=130,facecolor=crema); plt.close(fig); gc.collect()
+    return path
 
 class FotoPatrimonio(Flowable):
     """Barra apilada: cuanto del patrimonio esta invertido (trabaja), parado (liquido) e iliquido (ladrillo/negocio)."""
@@ -1451,6 +1499,60 @@ def foda(p):
     oport=[OPORTUNIDAD[c] for c,_ in debi[:2]]
     amen=[RIESGO[c] for c,_ in debi[:2]]
     return fort,debi,oport,amen
+
+# --- Tracker del metodo S.I.S.T.E.M.A: tira fina horizontal con los 7 pasos. El paso activo
+# en bronce, el resto en gris atenuado. Conservador: se llama al INICIO de las portadillas de
+# bloque (no en page template), asi nunca toca numeracion ni layout de paginas normales. ---
+_SISTEMA=["S","I","S","T","E","M","A"]
+_SISTEMA_NOMBRE=["Situacion","Ingresos","Sistema","Tactica","Estructura","Mision","Accion"]
+def tracker_sistema(activo=None, ancho=160*mm):
+    """activo: indice 0-6 del paso resaltado (o None = ninguno). Devuelve un Flowable Table fino.
+    Failsafe: ante cualquier dato raro, devuelve un Spacer minimo en vez de romper."""
+    try:
+        ai=int(activo) if activo is not None else -1
+    except Exception:
+        ai=-1
+    GOLDB=colors.HexColor("#9A7B1F"); MUTG=colors.HexColor("#B7B2A4")
+    cells=[]
+    for i,ltr in enumerate(_SISTEMA):
+        on=(i==ai)
+        cells.append(Paragraph("<b>%s</b>"%ltr,
+            St("trk%d"%i,fontSize=11 if on else 9.5,leading=12,
+               textColor=(GOLDB if on else MUTG),fontName=FB,alignment=TA_CENTER)))
+    n=len(_SISTEMA); cw=ancho/n
+    _sty=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+          ("TOPPADDING",(0,0),(-1,-1),3),("BOTTOMPADDING",(0,0),(-1,-1),4),
+          ("LINEBELOW",(0,0),(-1,-1),0.6,colors.HexColor("#E7E3D8"))]
+    if 0<=ai<n:
+        _sty.append(("LINEBELOW",(ai,0),(ai,0),1.6,GOLDB))
+    return Table([cells],colWidths=[cw]*n,style=TableStyle(_sty))
+
+# --- Estilo de dictamen: parrafo prioritario con linea de acento vertical dorada/bronce (1.5px)
+# en el margen izquierdo (en vez de caja de 4 bordes), y chunking en parrafos cortos (~3 lineas).
+# Solo se usa en los bloques de dictamen nuevos. Failsafe: ante error, devuelve un Paragraph simple.
+def _dictamen_chunks(txt, por=2):
+    """Parte la prosa en trozos de ~por frases (~3 lineas) por parrafo. Conservador con la puntuacion."""
+    import re as _re
+    try:
+        fr=[s.strip() for s in _re.split(r'(?<=[\.\!\?])\s+', str(txt)) if s.strip()]
+        if not fr: return [str(txt)]
+        return [" ".join(fr[i:i+por]) for i in range(0,len(fr),por)]
+    except Exception:
+        return [str(txt)]
+def dictamen_parrafo(txt, ancho=160*mm, acento="#9A7B1F", _key="dp"):
+    """Parrafo(s) de dictamen con acento vertical bronce a la izquierda + chunking de 3 lineas."""
+    try:
+        inner=[]
+        for j,ch in enumerate(_dictamen_chunks(txt)):
+            inner.append(Paragraph(ch,St("%s%d"%(_key,j),fontSize=10,leading=14,textColor=INK,
+                                          spaceBefore=(0 if j==0 else 4))))
+        return Table([[inner]],colWidths=[ancho],
+            style=TableStyle([("LINEBEFORE",(0,0),(0,-1),1.5,colors.HexColor(acento)),
+              ("LEFTPADDING",(0,0),(-1,-1),8),("RIGHTPADDING",(0,0),(-1,-1),2),
+              ("TOPPADDING",(0,0),(-1,-1),1),("BOTTOMPADDING",(0,0),(-1,-1),2),
+              ("VALIGN",(0,0),(-1,-1),"TOP")]))
+    except Exception:
+        return Paragraph(str(txt),St(_key+"_fb",fontSize=10,leading=14,textColor=INK))
 
 def _box(parras, fondo, barra, ancho=76*mm):
     return Table([[parras]],colWidths=[ancho],
@@ -2619,9 +2721,12 @@ def seccion_salud_porcentajes(datos):
         except Exception: return None
     def _caja(titulo,texto,bg,borde):
         out.append(Spacer(1,3*mm))
-        out.append(_box([Paragraph(titulo,St("sp_h%d"%len(out),fontSize=12,leading=15,textColor=colors.HexColor("#1A1A17"),fontName=FB)),
-                         Paragraph(texto,St("sp_t%d"%len(out),fontSize=10.5,leading=15,textColor=colors.HexColor("#2C313A"),spaceBefore=3))],
-                        bg,borde,ancho=160*mm))
+        # titular corto «inhalar» (conclusion grande) + aire + prosa chunked (~3 lineas/parrafo)
+        _p=[Paragraph(titulo,St("sp_h%d"%len(out),fontSize=14,leading=18,textColor=colors.HexColor("#1A1A17"),fontName=SB,spaceAfter=4))]
+        for _j,_ch in enumerate(_dictamen_chunks(texto)):
+            _p.append(Paragraph(_ch,St("sp_t%d_%d"%(len(out),_j),fontSize=10.5,leading=15,
+                                       textColor=colors.HexColor("#2C313A"),spaceBefore=(3 if _j==0 else 4))))
+        out.append(_box(_p,bg,borde,ancho=160*mm))
     # Suscripciones: peso de la categoria del desglose de gasto. <5% sano; 5-10% vigilar; >10% goteo serio.
     sus_pct=_g("suscripciones_pct"); sus_eur=_g("suscripciones_eur")
     if sus_pct is not None and sus_eur and sus_eur>0:
@@ -2708,7 +2813,10 @@ def seccion_dictamen_comportamiento(resp):
         else: etiq=etiq_crit; col="#9A3B2E"
         filas.append((titulo,etiq,col,dict_crit))
     if not filas: return []
-    out=[PageBreak(), Paragraph("El dictamen de tu comportamiento financiero", h_sec),
+    out=[PageBreak(), tracker_sistema(2), Spacer(1,3*mm),
+         Paragraph("Conclusión: tus hábitos te frenan.",St("ihd_dc",fontSize=18,leading=22,textColor=ACCDK,fontName=SB,spaceAfter=2)),
+         Spacer(1,3*mm),
+         Paragraph("El dictamen de tu comportamiento financiero", h_sec),
          Paragraph("Tus respuestas no son un test con nota: son la radiografía de tus hábitos. Esto es lo que dicen, "
                    "leídas como las leería tu consultor — sin rodeos y por orden de impacto.", body),
          Spacer(1,4*mm)]
@@ -2718,7 +2826,8 @@ def seccion_dictamen_comportamiento(resp):
                   colWidths=[110*mm,50*mm],
                   style=TableStyle([("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0),
                     ("BOTTOMPADDING",(0,0),(-1,-1),1)])))
-        out.append(Paragraph(txt,St("dcb_x%d"%len(out),fontSize=10,leading=14,textColor=INK,spaceBefore=1,spaceAfter=6)))
+        out.append(dictamen_parrafo(txt,ancho=160*mm,acento=col,_key="dcb_x%d"%len(out)))
+        out.append(Spacer(1,2*mm))
         out.append(Table([[""]],colWidths=[160*mm],style=[("LINEBELOW",(0,0),(-1,-1),0.4,LINE)]))
         out.append(Spacer(1,3*mm))
     return out
@@ -2820,7 +2929,10 @@ def seccion_dictamen_empresa(resp, datos=None, extras=None):
 
     if not bloques:
         return []
-    out = [PageBreak(), Paragraph("El dictamen de tu empresa", h_sec),
+    out = [PageBreak(), tracker_sistema(4), Spacer(1,3*mm),
+           Paragraph("Tu empresa: activo y riesgo.",St("ihd_de",fontSize=18,leading=22,textColor=ACCDK,fontName=SB,spaceAfter=2)),
+           Spacer(1,3*mm),
+           Paragraph("El dictamen de tu empresa", h_sec),
            Paragraph("Tu sociedad no es solo tu fuente de ingresos: es tu mayor activo y, a la vez, tu mayor riesgo de "
                      "concentración. Esto es lo que dicen tus respuestas, leídas como las leería tu asesor patrimonial.", body),
            Spacer(1, 4*mm)]
@@ -2830,7 +2942,8 @@ def seccion_dictamen_empresa(resp, datos=None, extras=None):
                   colWidths=[110*mm, 50*mm],
                   style=TableStyle([("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("LEFTPADDING", (0, 0), (-1, -1), 0),
                     ("BOTTOMPADDING", (0, 0), (-1, -1), 1)])))
-        out.append(Paragraph(txt, St("deb_x%d" % len(out), fontSize=10, leading=14, textColor=INK, spaceBefore=1, spaceAfter=6)))
+        out.append(dictamen_parrafo(txt, ancho=160*mm, acento=col, _key="deb_x%d" % len(out)))
+        out.append(Spacer(1, 2*mm))
         out.append(Table([[""]], colWidths=[160*mm], style=[("LINEBELOW", (0, 0), (-1, -1), 0.4, LINE)]))
         out.append(Spacer(1, 3*mm))
     return out
@@ -2848,7 +2961,7 @@ def seccion_coste_inflacion(datos):
     INFL=0.03
     perdida=exceso*INFL
     return [Spacer(1,3*mm),
-            _box_sello([Paragraph("El coste de tu capital ocioso",St("cinf_h",fontSize=12,leading=15,textColor=ACCDK,fontName=FB)),
+            _box_sello([Paragraph("El coste de tu capital ocioso",St("cinf_h",fontSize=14,leading=18,textColor=ACCDK,fontName=SB,spaceAfter=3)),
                   Paragraph("Tienes alrededor de <b>%s</b> en liquidez por encima de un colchón sano. A una inflación del 3%%, "
                             "ese dinero pierde del orden de <b>%s al año</b> de poder de compra solo por estar parado — sin que "
                             "nada malo ocurra. No es una pérdida que veas en el extracto; es una que descubres cuando lo que antes "
@@ -3146,12 +3259,26 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         if v<51: return "est\u00e1 en zona razonable, con margen de mejora."
         if v<76: return "empieza a pesar y conviene atenderlo pronto."
         return "es un foco importante que cruza varias \u00e1reas a la vez."
+    # PSIQUE -> Termometro de Estres ; LIQUIDEZ -> Indice de Vulnerabilidad: gauge tipo velocimetro
+    # (valor 0-100 de TENSION, alto=peor). VINCULO se queda en barra (desglose secundario).
+    _GAUGE_LBL={"PSIQUE":"Termometro de estres","LIQUIDEZ":"Indice de vulnerabilidad"}
     for t in ("PSIQUE","LIQUIDEZ","VINCULO"):
         val=tr[t]; tt,dd=desc[t]
         vtxt=("%s"%_sal100(val)) if val is not None else "\u2014"
+        _viz=None
+        if t in _GAUGE_LBL and val is not None:
+            try:
+                _gp="_gauge_%s.png"%t.lower()
+                gauge_png(val,_GAUGE_LBL[t],_gp)
+                _viz=Image(_gp,width=70*mm,height=48*mm,hAlign="CENTER")
+            except Exception as _eg:
+                import sys; sys.stderr.write("[gauge] %s cae a barra: %s\n"%(t,_eg)); _viz=None
+        if _viz is None:
+            # Failsafe: barra plana previa (no rompe el PDF si el gauge falla / falta valor)
+            _viz=Table([[Paragraph(f"<b>{vtxt}</b>/100",body),Bar(val or 0,w=120*mm)]],
+                  colWidths=[28*mm,124*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)])
         S+=[Paragraph(tt,h_sub),
-            Table([[Paragraph(f"<b>{vtxt}</b>/100",body),Bar(val or 0,w=120*mm)]],
-                  colWidths=[28*mm,124*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),
+            _viz,
             Paragraph(f"Mide {dd} En tu caso, {_lect(val)}",body),
             Paragraph(qhacer[t],St("qh",fontSize=9.6,leading=13,textColor=INK,leftIndent=4,backColor=LIGHT,borderPadding=6,spaceAfter=8))]
     S+=[PageBreak()]

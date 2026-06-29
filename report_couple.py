@@ -332,10 +332,24 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
     for c in orden[-3:][::-1]:
         out.append(Paragraph(f"&#8226;  <b>{rb.CAPAS[c]['nombre']}</b> ({rb._sal100(prof[c]['score'])}/100). {rb.RIESGO[c]}",St("if2",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
     out.append(Paragraph(f"{pn}: patrones transversales",h_sub))
+    # PSIQUE -> Termometro de Estres ; LIQUIDEZ -> Indice de Vulnerabilidad: gauge velocimetro
+    # (mismo patron y failsafe que el libro individual). VINCULO se queda en barra.
+    _GLBL={"PSIQUE":"Termometro de estres","LIQUIDEZ":"Indice de vulnerabilidad"}
+    _ptok="".join(ch for ch in str(pn).lower() if ch.isalnum())[:8] or "x"
     for t in ("PSIQUE","LIQUIDEZ","VINCULO"):
         v=trans[t]; vt=("%s"%rb._sal100(v)) if v is not None else "\u2014"
-        out.append(Table([[Paragraph(f"<b>{t.capitalize()}</b>  {vt}/100",small),rb.Bar(v or 0,w=110*mm)]],
-                         colWidths=[42*mm,114*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
+        _viz=None
+        if t in _GLBL and v is not None:
+            try:
+                _gp="_gauge_par_%s_%s.png"%(_ptok,t.lower())
+                rb.gauge_png(v,_GLBL[t],_gp)
+                _viz=Image(_gp,width=66*mm,height=45*mm,hAlign="CENTER")
+            except Exception as _eg:
+                import sys; sys.stderr.write("[gauge-par] %s cae a barra: %s\n"%(t,_eg)); _viz=None
+        if _viz is None:
+            _viz=Table([[Paragraph(f"<b>{t.capitalize()}</b>  {vt}/100",small),rb.Bar(v or 0,w=110*mm)]],
+                         colWidths=[42*mm,114*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),5)])
+        out.append(_viz)
     out.append(Paragraph(f"{pn}: lo que revelan tus respuestas",h_sub))
     for ti,tx in rb.insights(prof,trans,fi_hogar):
         out.append(Paragraph(f"<font color='#1A1A17'>&#8226;</font>  <b>{ti}</b>",small))
