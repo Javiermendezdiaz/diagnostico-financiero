@@ -95,6 +95,7 @@ def score_capa(capa,resp):
     for it in capa["items"]:
         if it["tipo"]!="escala": continue
         if it.get("atencion"): continue
+        if it.get("solo_validez"): continue   # gemela de control: NO suma a la media de la capa (solo valida consistencia)
         idx=resp.get(it["id"])
         if idx is None: continue
         fac.setdefault(it["faceta"],[]).append((it["opciones"][idx]["score"],peso(it)))
@@ -110,6 +111,7 @@ def perfil(resp):
         for it in capa["items"]:
             if it["tipo"]!="escala": continue
             if it.get("atencion"): continue
+            if it.get("solo_validez"): continue   # gemela de control: fuera de las medias transversales (no doble-cuenta)
             idx=resp.get(it["id"])
             if idx is None: continue
             for t in [x for x in it.get("dimensiones","").split("·") if x in TRANS]:
@@ -1764,8 +1766,27 @@ def seccion_rentabilidad_alquiler(datos, extras=None):
                    "torno al 7% nominal a largo plazo, es l\u00edquida y no depende de un solo inquilino. Tu inmueble "
                    "concentra patrimonio en un \u00fanico activo poco l\u00edquido. No es bueno ni malo en s\u00ed: es una "
                    "decisi\u00f3n que conviene tomar con el n\u00famero real delante, no con el que se intuye.</font>",
-                   St("ralq3",fontSize=9.3,leading=13,spaceBefore=4)),
-         PageBreak()]
+                   St("ralq3",fontSize=9.3,leading=13,spaceBefore=4))]
+    # Diferenciar inmueble de RENTA (alquiler -> rentabilidad, ya calculada arriba) de inmueble de USO
+    # (segunda vivienda -> activo patrimonial sin yield). Aditivo y a prueba de fallos.
+    try:
+        _segunda=0.0
+        _pd=d.get("patrimonio_detalle")
+        if isinstance(_pd,list):
+            for r in _pd:
+                _c=str((r or {}).get("c","")).strip().lower()
+                if "segunda vivienda" in _c:
+                    try: _segunda+=max(0.0,float((r or {}).get("v") or 0))
+                    except Exception: pass
+        if _segunda>0:
+            out.append(Paragraph("Nota: este c\u00e1lculo solo cubre tus inmuebles <b>en alquiler</b> (los que generan renta). "
+                      "Tu <b>segunda vivienda</b> \u2014 valorada en torno a <b>%s</b> \u2014 es un activo de <b>uso</b>, no de "
+                      "renta: no entra en esta rentabilidad porque no produce yield. Cuenta como patrimonio y como "
+                      "disfrute, pero no como inversi\u00f3n que rinda."%_eur(_segunda),
+                      St("ralq4",fontSize=9.3,leading=13,spaceBefore=4)))
+    except Exception:
+        pass
+    out.append(PageBreak())
     return out
 
 

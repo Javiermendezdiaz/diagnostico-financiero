@@ -255,6 +255,34 @@ def datos_completos(d):
             _viv=sum(float((r or {}).get("v") or 0) for r in _pd if "vivienda" in str((r or {}).get("c","")).lower())
             if _tot>0 and _viv>0: d["pct_vivienda"]=max(0.0,min(100.0,100.0*_viv/_tot))
     except Exception: pass
+    # Valor de los inmuebles EN ALQUILER (inversion): se DERIVA de la categoria «Otros inmuebles» del
+    # desglose de patrimonio (ya no se pregunta suelta). NO incluye «Vivienda habitual» ni «Segunda vivienda»
+    # (son activos de USO, no de renta). Solo se deriva si hay senal de alquiler (ingreso de alquiler > 0) o
+    # si ya hay «Otros inmuebles» > 0. Con esto report_book calcula la rentabilidad REAL del ladrillo.
+    try:
+        _pd=d.get("patrimonio_detalle")
+        if isinstance(_pd,list):
+            _otros=0.0
+            for r in _pd:
+                _c=str((r or {}).get("c","")).strip().lower()
+                if "otros inmuebles" in _c:
+                    try: _otros+=max(0.0,float((r or {}).get("v") or 0))
+                    except Exception: pass
+            # senal de alquiler: ingreso de alquiler derivado, campo suelto, o categoria «Alquileres» del desglose de ingresos
+            _senal_alq=0.0
+            try: _senal_alq=float(d.get("ingreso_alquiler") or 0)
+            except Exception: _senal_alq=0.0
+            if _senal_alq<=0:
+                try: _senal_alq=float(d.get("ing_alquiler") or 0)
+                except Exception: _senal_alq=0.0
+            if _senal_alq<=0:
+                _ind2=d.get("ingreso_mensual_detalle")
+                if isinstance(_ind2,list):
+                    try: _senal_alq=sum(float((r or {}).get("v") or 0) for r in _ind2 if "alquil" in str((r or {}).get("c","")).strip().lower())
+                    except Exception: _senal_alq=0.0
+            if _otros>0 and (_senal_alq>0 or _otros>0):
+                d["valor_inmuebles"]=_otros
+    except Exception: pass
     # Coste de vivienda: se DERIVA de la categoria Vivienda del desglose de gasto (ya no se pregunta suelta)
     try:
         _gd=d.get("gasto_mensual_detalle")

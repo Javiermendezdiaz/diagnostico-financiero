@@ -681,6 +681,7 @@
           "nivel": "nucleo",
           "tier1": true,
           "par_consistencia": "C1-02",
+          "solo_validez": true,
           "invertido": true,
           "texto": "Pase lo que pase con tu dinero, tu cuerpo lo encaja sin enterarse: ni insomnio, ni tensión, ni malestar físico.",
           "opciones": [
@@ -1257,6 +1258,7 @@
           "nivel": "nucleo",
           "tier1": true,
           "par_consistencia": "C2-03",
+          "solo_validez": true,
           "invertido": true,
           "texto": "Hoy por hoy, tu camino a la libertad financiera es más un deseo que un plan: no tienes pasos ni fechas concretas que seguir.",
           "opciones": [
@@ -2782,6 +2784,7 @@
           "nivel": "nucleo",
           "tier1": true,
           "par_consistencia": "C7-02",
+          "solo_validez": true,
           "invertido": true,
           "texto": "Si tu fuente principal de ingresos desapareciera mañana, no tendrías ningún plan B real al que recurrir.",
           "opciones": [
@@ -3392,6 +3395,7 @@
           "nivel": "nucleo",
           "tier1": true,
           "par_consistencia": "C9-03",
+          "solo_validez": true,
           "invertido": true,
           "texto": "A final de mes sabes con claridad en qué se ha ido tu dinero, hasta los gastos pequeños.",
           "opciones": [
@@ -5232,19 +5236,6 @@
       "unidad": "horas/semana",
       "texto": "¿Cuántas horas a la semana te llevan tus alquileres?",
       "ayuda": "Gestión de inquilinos, averías, papeleo. Si lo tienes delegado o es mínimo, pon 0.",
-      "mostrar_si": {
-        "campo": "fuentes_ingreso",
-        "valor_in": [
-          "Alquileres de inmuebles"
-        ]
-      }
-    },
-    {
-      "id": "NUM-INM",
-      "campo": "valor_inmuebles",
-      "unidad": "€",
-      "texto": "¿Cuánto valdrían hoy en el mercado los inmuebles que tienes en alquiler (todos juntos)?",
-      "ayuda": "Lo que te darían si los vendieras hoy. Con esto y tu renta limpia calculamos la rentabilidad REAL (neta de gastos e impuestos) de tu ladrillo.",
       "mostrar_si": {
         "campo": "fuentes_ingreso",
         "valor_in": [

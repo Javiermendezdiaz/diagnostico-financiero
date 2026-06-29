@@ -33,6 +33,8 @@ def perfil_scores(resp, capas):
                 continue
             if it.get("atencion"):   # control de atencion: no puntua ninguna faceta
                 continue
+            if it.get("solo_validez"):   # gemela de control: solo cuenta para el indice de validez,
+                continue                 # NO suma su score a la media de la capa (evita doble-conteo del concepto)
             idx = resp.get(it["id"])
             if idx is None:
                 continue
