@@ -1629,6 +1629,99 @@ def seccion_horizonte_retiro(rA, rB, nA, nB):
             _callout(titulo, txt, A_COL, "#FBF3E8"),
             Spacer(1, 4*mm)]
 
+def seccion_ansiedad_liquidez(rA, rB, nA, nB):
+    """Ansiedad de liquidez a partir de 'colchon_ideal_meses' (SD-30).
+    Las opciones son ordinales (menos -> mas colchon); la brecha se mide en tramos.
+    Tres dictamenes segun brecha (>=2 paralisis / ==1 matiz / ==0 refuerzo).
+    Solo dictamen de texto aditivo: NO toca el Numero de Libertad ni nada del motor.
+    Sin cifras inventadas: solo el mapeo de respuestas + texto. Defensiva total:
+    ante datos ausentes, item ausente o indices invalidos -> []. Siempre devuelve list."""
+    # --- localizar el item colchon_ideal_meses en el instrumento (por campo/id) ---
+    def _item_col():
+        try:
+            for sec in (INST.values() if isinstance(INST, dict) else []):
+                if not isinstance(sec, list):
+                    continue
+                for it in sec:
+                    if isinstance(it, dict) and (it.get("campo") == "colchon_ideal_meses" or it.get("id") == "SD-30"):
+                        return it
+        except Exception:
+            return None
+        return None
+
+    def _idx(resp, it):
+        """Indice (int) elegido por un miembro para colchon_ideal_meses. None si no resoluble."""
+        if not it or not isinstance(resp, dict):
+            return None
+        idx = resp.get(it.get("id"))
+        ops = it.get("opciones") or []
+        try:
+            if isinstance(idx, list):
+                idx = idx[0] if idx else None
+            if not isinstance(idx, int) or isinstance(idx, bool):
+                return None
+            if 0 <= idx < len(ops):
+                return idx
+        except Exception:
+            return None
+        return None
+
+    it = _item_col()
+    iA = _idx(rA, it)
+    iB = _idx(rB, it)
+    if iA is None or iB is None:
+        return []
+
+    ops = it.get("opciones") or []
+    def _txt(i):
+        try:
+            op = ops[i]
+            return op if isinstance(op, str) else (op.get("texto") if isinstance(op, dict) else None)
+        except Exception:
+            return None
+    tA = _txt(iA); tB = _txt(iB)
+    if tA is None or tB is None:
+        return []
+
+    brecha = abs(iA - iB)
+
+    if brecha >= 2:
+        titulo = u"Parálisis por ansiedad de liquidez"
+        txt = (u"Aquí los dos vivís el efectivo de forma muy distinta: uno necesita una montaña de dinero guardado para "
+               u"dormir tranquilo, mientras el otro ve ese mismo dinero como capital ocioso que la inflación devora "
+               u"poco a poco. Esa diferencia, si no se gestiona, bloquea cualquier estrategia conjunta de crecimiento: "
+               u"el miedo de uno frena el impulso del otro y nadie avanza. La solución no es forzar al prudente a "
+               u"invertir contra su instinto, sino la estrategia de los «dos cubos». El primero, el Cubo de la Paz: "
+               u"blindar el colchón que el miembro más precavido necesita para estar tranquilo, en una cuenta segura y "
+               u"a su nombre, intocable. Y solo el excedente que quede por encima de ese colchón alimenta el segundo, "
+               u"el Cubo del Crecimiento: invertir de forma sistemática y sin sobresaltos. Así el miedo de uno deja de "
+               u"frenar el crecimiento de ambos, porque la seguridad y el crecimiento dejan de competir por el mismo "
+               u"euro. Vale la pena nombrarlo en voz alta: uno de vosotros respondió «" + tA + u"» y el otro «" + tB +
+               u"»; ese es exactamente el espacio que los dos cubos vienen a ordenar.")
+    elif brecha == 1:
+        titulo = u"Casi alineados en vuestra prudencia"
+        txt = (u"Estáis prácticamente en la misma página sobre cuánto efectivo necesitáis para dormir tranquilos: uno "
+               u"quiere un colchón solo un peldaño mayor que el otro. Es un matiz menor, más de temperamento que de "
+               u"rumbo. Merece la pena nombrarlo para que quien necesita un poco más de margen no se sienta empujado, "
+               u"pero no condiciona la estrategia: el tamaño del colchón común es fácil de acordar.")
+    else:
+        titulo = u"Mismo umbral de tranquilidad: fácil de acordar"
+        txt = (u"Los dos coincidís en cuánto efectivo necesitáis guardado para estar tranquilos. Eso es más valioso de "
+               u"lo que parece: cuando la pareja comparte el mismo umbral de prudencia, fijar el tamaño del colchón "
+               u"común no genera tensión y el excedente puede ponerse a trabajar sin discusiones. Vuestro trabajo no "
+               u"es negociar cuánto guardar, sino dejarlo por escrito y revisar juntos, cada cierto tiempo, que ese "
+               u"colchón sigue ajustado a vuestra realidad.")
+
+    return [Paragraph(u"Cuánto efectivo necesitáis para dormir tranquilos", h_sec),
+            Paragraph(u"Os preguntamos por separado cuánto dinero en efectivo necesitáis tener guardado para dormir "
+                      u"tranquilos. Esto es lo que cada uno respondió:", body),
+            _callout(nA, tA, A_COL, "#FBF6E0"),
+            Spacer(1, 2*mm),
+            _callout(nB, tB, B_COL, "#F4F4F2"),
+            Spacer(1, 3*mm),
+            _callout(titulo, txt, A_COL, "#FBF3E8"),
+            Spacer(1, 4*mm)]
+
 def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=None):
     global INST, CAPAS
     _iv2=rb._cargar_v2(); _c2={c["code"]:c for c in _iv2["capas"]}
@@ -1932,6 +2025,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     S+=rb._secsafe(seccion_transparencia, rA, rB, nA, nB)
     # === CONVERGENCIA DE HORIZONTES DE RETIRO (edad_retiro_ideal / SD-29) ===
     S+=rb._secsafe(seccion_horizonte_retiro, rA, rB, nA, nB)
+    # === ANSIEDAD DE LIQUIDEZ (colchon_ideal_meses / SD-30) ===
+    S+=rb._secsafe(seccion_ansiedad_liquidez, rA, rB, nA, nB)
     S+=rb._secsafe(seccion_asimetria_inversora,dAf,dBf,pA,pB,nA,nB)
     # === ÍTEM 3 · IMPUESTO DE LA FRICCIÓN (€) ===
     S+=rb._secsafe(seccion_impuesto_friccion,dAf,dBf,pA,pB,nA,nB)

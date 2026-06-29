@@ -5111,6 +5111,27 @@
           "Pareja de hecho o pareja estable sin casar"
         ]
       }
+    },
+    {
+      "id": "SD-30",
+      "tipo": "opcion",
+      "campo": "colchon_ideal_meses",
+      "texto": "¿Cuánto dinero en efectivo (meses de gastos) necesitas tener guardado para dormir tranquilo?",
+      "ayuda": "No hay modelo correcto: solo el que os da paz. Esto nos dice si vuestro sistema encaja con vuestra realidad.",
+      "opciones": [
+        "Con 3 meses me sobra; prefiero que el resto trabaje invertido.",
+        "Unos 6 meses me dan tranquilidad.",
+        "Quiero 12 meses guardados antes de invertir con calma.",
+        "18-24 meses; soy muy precavido.",
+        "Cuanto más en efectivo, mejor; me cuesta invertir aunque sobre."
+      ],
+      "mostrar_si": {
+        "campo": "estado_civil",
+        "valor_in": [
+          "Casado/a",
+          "Pareja de hecho o pareja estable sin casar"
+        ]
+      }
     }
   ],
   "vision_brecha": [
