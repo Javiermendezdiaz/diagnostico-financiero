@@ -4849,6 +4849,7 @@
       "texto": "Pensando en cómo quieres que se gestione tu dinero invertido, ¿con qué perfil te identificas más?",
       "ayuda": "No hay perfil correcto: solo el que te deja dormir y encaja con tu horizonte. Define cuánto vaivén estás dispuesto a aceptar a cambio de más rentabilidad esperada.",
       "opciones": [
+        "Muy conservador: no tolero perder; prefiero seguridad total aunque apenas rente",
         "Conservador: priorizo no perder, aunque eso signifique ganar menos",
         "Moderado: acepto algún vaivén a cambio de crecer a buen ritmo",
         "Agresivo: busco la máxima rentabilidad y asumo caídas fuertes sin problema",
@@ -4871,6 +4872,7 @@
       "opciones": [
         "Sí, hecho y revisado hace poco",
         "Sí, pero hace años que no lo reviso",
+        "Lo estoy preparando, aún sin firmar",
         "No tengo testamento",
         "No lo sé"
       ],
@@ -4890,9 +4892,11 @@
       "texto": "¿Cómo está afectando tu situación financiera y laboral a tu conciliación familiar?",
       "ayuda": "Para quien tiene familia, el dinero compra sobre todo una cosa: tiempo y tranquilidad para los suyos.",
       "opciones": [
+        "Equilibrio: separo el dinero y el trabajo de mi vida familiar; ese tiempo es sagrado",
+        "Bastante bien: en general desconecto, aunque algún día el trabajo se me cuela en casa",
         "Presencia física, ausencia mental: estoy con ellos pero mi cabeza sigue en el trabajo; me cuesta desconectar",
-        "Ausencia total: trabajo tantas horas que me pierdo momentos clave con mis hijos o mi pareja",
-        "Equilibrio: separo el dinero y el trabajo de mi vida familiar; ese tiempo es sagrado"
+        "A trompicones: hay semanas que voy bien y otras en que el trabajo se lo come casi todo",
+        "Ausencia total: trabajo tantas horas que me pierdo momentos clave con mis hijos o mi pareja"
       ],
       "mostrar_si": {
         "campo": "dependientes",
@@ -4911,7 +4915,9 @@
       "opciones": [
         "No tengo ninguna deuda",
         "Tengo deuda y la llevo bajo control",
-        "Tengo deuda y me pesa"
+        "Tengo deuda y me pesa",
+        "Tengo deuda buena: la uso como palanca de inversión y me renta",
+        "Tengo deuda y me está ahogando"
       ]
     },
     {
@@ -4924,6 +4930,7 @@
         "Mitad y mitad: cada uno pone lo mismo, gane lo que gane",
         "Proporcional: quien gana más, aporta más, para equilibrar el esfuerzo",
         "Cuenta única: todo va a una bolsa común y no distinguimos de quién es",
+        "Lo cubre sobre todo uno de los dos",
         "No tenemos un sistema claro; lo vamos resolviendo sobre la marcha"
       ],
       "mostrar_si": {
@@ -4963,6 +4970,8 @@
       "ayuda": "El espacio personal intocable es uno de los mayores predictores de paz financiera en pareja.",
       "opciones": [
         "Sí, cada uno tiene el suyo y se respeta",
+        "Solo uno de los dos lo tiene; el otro no",
+        "Lo tenemos, pero acaba siendo motivo de discusión",
         "No, todo gasto se justifica",
         "No, pero deberíamos tenerlo"
       ],
@@ -4983,7 +4992,9 @@
       "opciones": [
         "Todo en común: una sola bolsa, cuentas e inversiones compartidas",
         "Mixto: una cuenta común para gastos y, aparte, lo de cada uno",
-        "Independiente: cada uno con sus cuentas e inversiones, y reparto de gastos"
+        "Independiente: cada uno con sus cuentas e inversiones, y reparto de gastos",
+        "Lo lleva uno: uno de los dos gestiona el dinero de ambos y el otro apenas entra",
+        "En transición: lo estamos cambiando o aún no lo tenemos claro"
       ],
       "mostrar_si": {
         "campo": "estado_civil",
@@ -5038,6 +5049,16 @@
           "texto": "Seguridad radical: no busco lujo, busco paz; saber que los míos están blindados de por vida.",
           "arq": "SEGURIDAD",
           "tag_narrativo": "Tu motor es la paz: la riqueza, para ti, es dormir sin miedo."
+        },
+        {
+          "texto": "Legado e impacto: dejar algo que perdure — a los míos o a una causa que me importa.",
+          "arq": "LEGADO",
+          "tag_narrativo": "Tu motor es el legado: la riqueza, para ti, es lo que dejas detrás."
+        },
+        {
+          "texto": "Propósito y creación: proyectos que me reten — crear, aprender, emprender sin freno.",
+          "arq": "PROPOSITO",
+          "tag_narrativo": "Tu motor es crear: la riqueza, para ti, es libertad para construir lo tuyo."
         }
       ]
     },
@@ -5062,9 +5083,19 @@
           "tag_narrativo": "En rumbo: tu trayectoria actual sí te lleva a tu vida ideal."
         },
         {
+          "texto": "Casi en rumbo: con pequeños ajustes en ahorro o ingresos, llegaría.",
+          "score": 25,
+          "tag_narrativo": "Casi en rumbo: estás cerca; unos ajustes finos cierran la brecha."
+        },
+        {
           "texto": "Espejismo: mi ingreso mantiene el hoy, pero no acumulo a la velocidad que ese futuro exige.",
           "score": 50,
           "tag_narrativo": "Espejismo: vives bien el presente mientras el futuro se aleja en silencio."
+        },
+        {
+          "texto": "Lejos: tendría que cambiar bastante mi modelo para acercarme.",
+          "score": 75,
+          "tag_narrativo": "Lejos: el rumbo actual no basta; hace falta un cambio de fondo."
         },
         {
           "texto": "Vía muerta: hay una desconexión total; sin cambiar de modelo, esa vida será una fantasía.",
@@ -5339,6 +5370,14 @@
         },
         {
           "texto": "Tengo deuda y me pesa",
+          "score": 100
+        },
+        {
+          "texto": "Tengo deuda buena: la uso como palanca de inversión y me renta",
+          "score": 25
+        },
+        {
+          "texto": "Tengo deuda y me está ahogando",
           "score": 100
         }
       ]
