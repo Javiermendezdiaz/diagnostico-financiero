@@ -126,12 +126,15 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
       <div class="arch-name" id="rName"></div>
       <div class="card-bar" id="cardBar"></div>
       <div class="arch-lema" id="rLema"></div>
+      <div id="lockedRead" style="display:none">
+      <div class="arch-eyebrow" style="margin-top:6px">Cómo te comportas con el dinero</div>
       <div class="arch-desc" id="rDesc"></div>
       <div class="arch-row">
         <div class="lab luz">Lo que aportas</div>
         <p id="rLuz"></p>
         <div class="lab sombra">Tu punto ciego</div>
         <p id="rSombra"></p>
+      </div>
       </div>
       <div class="card-foot">adaptafamilyoffice.com · Diagnóstico psicofinanciero ITAP</div>
     </div>
@@ -151,6 +154,7 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
       </div>
     </div>
 
+    <div id="shareBlock" style="display:none">
     <div class="share-title">Reta a tu pareja o a un amigo</div>
     <button class="btn block" style="margin:0 0 14px" onclick="reto()">⚔️ Retar por WhatsApp →</button>
     <div class="share-row">
@@ -165,18 +169,23 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
       <button class="share" onclick="downloadStory()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg> Descargar para Stories</button>
     </div>
 
-    <div class="cta">
+    </div>
+    <div class="cta" id="ctaBox" style="display:none">
       <h3 id="ctaH">Esto es el <b>5%</b> de lo que ITAP ve de ti</h3>
       <p id="ctaP">Tu arquetipo es solo la superficie. El diagnóstico completo cruza 131 señales y te entrega tu libro financiero: tus números, tus puntos ciegos y un plan de acción. Desde 19&nbsp;€.</p>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 14px;font-size:13px;color:#B9B9BD">
+        <span><b style="color:#fff">Rápido</b> 19€</span><span>·</span><span><b style="color:#FDD731">Avanzado</b> 39€</span><span>·</span><span><b style="color:#fff">Pareja</b> 54€</span>
+      </div>
       <a class="btn block" href="./inicio.html" id="ctaBtn">Quiero mi diagnóstico completo →</a>
     </div>
 
     <div id="leadBox" style="margin-top:16px;border:1.5px solid var(--linea);background:var(--panel);border-radius:14px;padding:18px 18px 16px">
-      <div style="color:#fff;font-size:15px;font-weight:600;line-height:1.4">¿Te enviamos tu arquetipo y un mini-plan a tu correo?</div>
+      <div style="color:#fff;font-size:16px;font-weight:700;line-height:1.35">Esto es solo tu nombre. 👇</div>
+      <div style="color:#B9B9BD;font-size:14px;line-height:1.5;margin-top:6px">Desbloquea <b style="color:#fff">qué dice de tu comportamiento</b> — cómo decides, tu fuerza y tu punto ciego — más un <b style="color:#fff">mini-plan</b>. Te lo enviamos también al correo.</div>
       <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
         <input type="email" id="leadEmail" placeholder="tu@email.com" autocomplete="email"
                style="flex:1 1 180px;min-width:0;padding:13px 14px;border-radius:11px;border:1.5px solid var(--linea);background:#020203;color:#fff;font-family:inherit;font-size:15px;outline:none">
-        <button class="btn" id="leadBtn" style="flex:0 0 auto;padding:13px 20px" onclick="enviarLead()">Enviármelo →</button>
+        <button class="btn" id="leadBtn" style="flex:0 0 auto;padding:13px 20px" onclick="enviarLead()">Desbloquear mi lectura →</button>
       </div>
       <div id="leadMsg" style="display:none;color:#FDD731;font-size:14px;font-weight:600;margin-top:10px"></div>
     </div>
@@ -270,6 +279,10 @@ function finish(){
   const txt="Soy "+m.n+" 💰 ¿Y tú? Descubre tu arquetipo del dinero en 60 segundos:";
   $("shWa").href="https://wa.me/?text="+encodeURIComponent(txt+" "+url);
   $("shLi").href="https://www.linkedin.com/sharing/share-offsite/?url="+encodeURIComponent(url);
+  if($("lockedRead")) $("lockedRead").style.display="none";
+  if($("shareBlock")) $("shareBlock").style.display="none";
+  if($("ctaBox")) $("ctaBox").style.display="none";
+  if($("leadBox")) $("leadBox").style.display="block";
   $("quiz").style.display="none";$("result").style.display="block";window.scrollTo(0,0);
 }
 function restart(){$("result").style.display="none";$("hero").style.display="block";window.scrollTo(0,0);}
@@ -304,7 +317,11 @@ function enviarLead(){
   if(box){
     Array.prototype.forEach.call(box.children,function(ch){ if(ch.id!=="leadMsg") ch.style.display="none"; });
   }
-  if(msg){ msg.style.display="block"; msg.textContent="¡Hecho! Te lo hemos enviado a tu correo ✓"; }
+  if(msg){ msg.style.display="block"; msg.textContent="¡Desbloqueado! También te lo hemos enviado a tu correo ✓"; }
+  if($("lockedRead")) $("lockedRead").style.display="";
+  if($("shareBlock")) $("shareBlock").style.display="block";
+  if($("ctaBox")) $("ctaBox").style.display="";
+  setTimeout(function(){ var lr=$("lockedRead"); if(lr&&lr.scrollIntoView) lr.scrollIntoView({behavior:"smooth",block:"center"}); },140);
 }
 function downloadCard(){
   const card=$("card");
