@@ -5363,7 +5363,7 @@
       "campo": "h_inversion",
       "unidad": "horas/semana",
       "texto": "¿Cuántas horas a la semana dedicas a gestionar esas inversiones?",
-      "ayuda": "Solo la gestión real (decisiones, seguimiento). Si es prácticamente automático, pon 0.",
+      "ayuda": "Si tu dinero trabaja solo, pon 0. Cuantas más horas necesite, menos pasiva es en realidad tu renta — y más cerca está de ser otro trabajo.",
       "mostrar_si": {
         "campo": "fuentes_ingreso",
         "valor_in": [
