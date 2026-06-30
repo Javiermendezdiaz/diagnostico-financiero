@@ -115,7 +115,7 @@ def banda(capa,s):
     return 3,capa["bandas"][-1]["etiqueta"]
 def _sal100(s):
     """Salud mostrada 0-100 con SUELO en 5: un '0/100' se lee como error, no como diagnostico.
-    Solo afecta al numero que ve el cliente; el scoring y las bandas usan el valor real."""
+    Solo afecta al número que ve el cliente; el scoring y las bandas usan el valor real."""
     try: return max(5, min(95, round(100 - float(s))))
     except Exception: return 50
 
@@ -527,7 +527,7 @@ def gauge_png(valor, etiqueta="", path=None, crema="#F3EFE2"):
     return path
 
 class FotoPatrimonio(Flowable):
-    """Barra apilada: cuanto del patrimonio esta invertido (trabaja), parado (liquido) e iliquido (ladrillo/negocio)."""
+    """Barra apilada: cuanto del patrimonio esta invertido (trabaja), parado (líquido) e iliquido (ladrillo/negocio)."""
     def __init__(s,inv,par,ili,w=160,h=12):
         s.inv=max(0.0,inv); s.par=max(0.0,par); s.ili=max(0.0,ili); s.w=w; s.h=h; Flowable.__init__(s)
     def wrap(s,*a): return (s.w*mm, s.h*mm)
@@ -546,7 +546,7 @@ class FotoPatrimonio(Flowable):
                 x+=ww
 
 class FlujoEstructura(Flowable):
-    """Dos barras comparables: arriba ingresos (activo|pasivo), abajo gastos (fijo|variable). El hueco = ahorro o deficit."""
+    """Dos barras comparables: arriba ingresos (activo|pasivo), abajo gastos (fijo|variable). El hueco = ahorro o déficit."""
     def __init__(s,act,pas,fij,var,w=160,h=12):
         s.act=max(0.0,act); s.pas=max(0.0,pas); s.fij=max(0.0,fij); s.var=max(0.0,var); s.w=w; s.h=h; Flowable.__init__(s)
     def wrap(s,*a): return (s.w*mm, s.h*2*mm+9*mm)
@@ -691,7 +691,7 @@ ADAPTA={
  "C9":("Control de tu flujo de caja","Montamos contigo el sistema para que sepas a d\u00f3nde va cada euro y decidas t\u00fa, no las circunstancias.","https://www.adaptafamilyoffice.com/servicios"),
  "C10":("Planificaci\u00f3n y reestructuraci\u00f3n de hipoteca","Renegociaci\u00f3n, subrogaci\u00f3n y las mejores condiciones que tu perfil permite \u2014 para que la deuda deje de pesar.","https://www.adaptafamilyoffice.com/casos/planificacion-hipoteca"),
  "C11":("Estrategia de crecimiento patrimonial","Ponemos a trabajar tu excedente y tu patrimonio con un plan a a\u00f1os vista \u2014 para que tu dinero deje de defenderse y empiece a construir la vida que quieres.","https://www.adaptafamilyoffice.com/casos/banca-privada"),
- "C12":("Estrategia de inversión","Diseñamos y gestionamos una cartera a tu medida —diversificada, de bajo coste y alineada con tu horizonte— para que tu ahorro deje de estar parado y empiece a componer a tu favor.","https://www.adaptafamilyoffice.com/casos/gestion-patrimonio")}
+ "C12":("Estrategia de inversión","Diseñamos y gestionamos una cartera a tu medida —diversificada, de bajo coste y alineada con tu horizonte— para que tu ahorro deje de estar parado y empiece a componer a tu favor.","https://www.adaptafamilyoffice.com/casos/gestión-patrimonio")}
 
 def seccion_adapta(p, datos=None):
     out=[PageBreak(), Paragraph("El siguiente paso con Adapta",h_sec),
@@ -1077,7 +1077,7 @@ def cashflow_waterfall(datos, path):
     return libre
 
 def panel_compat(path, compat, nA, nB, notaA, notaB):
-    """Heroe oscuro de compatibilidad de pareja: el numero titular del libro."""
+    """Heroe oscuro de compatibilidad de pareja: el número titular del libro."""
     import matplotlib.pyplot as plt, numpy as np
     from matplotlib.patches import Rectangle, FancyBboxPatch
     BG="#0E1018"; CARD="#161A24"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"
@@ -1142,7 +1142,7 @@ def cierre_cta(path, titulo, subtitulo, puntos, contacto):
     fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
 
 def portadilla(path, acto, titulo, subtitulo):
-    """Divisor de acto a sangre: numero filigrana, kicker dorado, titulo grande, subtitulo."""
+    """Divisor de acto a sangre: número filigrana, kicker dorado, titulo grande, subtitulo."""
     import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle
     BG="#0E1018"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"; FAINT="#171C28"
@@ -1510,7 +1510,7 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
     return [path,p2]
 
 def tapon_coste(datos, real=0.025):
-    """Coste de oportunidad de la liquidez parada por encima de un colchon de 6 meses.
+    """Coste de oportunidad de la liquidez parada por encima de un colchón de 6 meses.
     Usa el COLCHON LIQUIDO declarado, nunca el patrimonio neto (que puede estar invertido
     o ser iliquido). Asumir que el patrimonio es efectivo es justo el bug que destruye credibilidad."""
     gas=datos.get("gasto_mensual",0); colch=datos.get("colchon_liquido")
@@ -1782,9 +1782,9 @@ def seccion_conclusion(extras):
 
 
 def seccion_cuatro_caminos(datos, fi, extras=None):
-    """Las 4 vias para llegar al numero de libertad (neto de pension): ahorrar mas,
+    """Las 4 vias para llegar al número de libertad (neto de pension): ahorrar mas,
     rentar mejor, ajustar el objetivo, o el plan recomendado. Brutalmente accionable.
-    Usa el mismo numero neto de pension que el resto del libro. Se salta sin datos."""
+    Usa el mismo número neto de pension que el resto del libro. Se salta sin datos."""
     try:
         import motor_financiero_v3 as mfv3
     except Exception:
@@ -1921,7 +1921,7 @@ def seccion_rentabilidad_alquiler(datos, extras=None):
 
 
 def seccion_familia(datos, extras=None):
-    """La linea temporal de la familia y la proteccion recomendada. Solo si hay dependientes."""
+    """La linea temporal de la familia y la protección recomendada. Solo si hay dependientes."""
     d=datos or {}
     dep=(d.get("dependientes") or "")
     dep=" ".join(dep) if isinstance(dep,list) else str(dep)
@@ -2421,7 +2421,7 @@ def seccion_extras(extras, datos=None):
             out.append(Spacer(1,3*mm))
             out.append(_box([
                 Paragraph("<font color='#1F6FB2'><b>Nota de dirección patrimonial: el registro contable no es arquitectura financiera</b></font>",St("dp1",fontSize=10.6,leading=15)),
-                Paragraph("Tu <b>gestoría</b> mira hacia atrás: registra lo que ya pasó y liquida tus impuestos. Es necesaria, pero no diseña tu futuro. La <b>dirección patrimonial</b> mira hacia delante: ordena la estructura de tus activos, tu vehículo societario y la pasarela entre tu empresa y tu patrimonio personal <i>antes</i> de que cierre el año fiscal. El gestor rellena el formulario; la estrategia decide qué debe decir ese formulario.",St("dp2",fontSize=9.4,leading=14,textColor=colors.HexColor('#2C313A'),spaceBefore=3))],
+                Paragraph("Tu <b>gestoría</b> mira hacia atrás: registra lo que ya pasó y líquida tus impuestos. Es necesaria, pero no diseña tu futuro. La <b>dirección patrimonial</b> mira hacia delante: ordena la estructura de tus activos, tu vehículo societario y la pasarela entre tu empresa y tu patrimonio personal <i>antes</i> de que cierre el año fiscal. El gestor rellena el formulario; la estrategia decide qué debe decir ese formulario.",St("dp2",fontSize=9.4,leading=14,textColor=colors.HexColor('#2C313A'),spaceBefore=3))],
                 "#EAF1FB","#0284C7",ancho=160*mm))
     vi=extras.get("vivienda")
     if vi and vi.get("modo"):
@@ -2524,7 +2524,7 @@ def seccion_coste_inaccion(extras):
 
 def seccion_numero_realista(datos, extras):
     """Art. 7: no se da una meta inalcanzable sin decir que la haria alcanzable. Si a su ritmo de
-    ahorro el numero son decadas, se nombra: no se llega ahorrando, sino cambiando de fase de ingresos.
+    ahorro el número son decadas, se nombra: no se llega ahorrando, sino cambiando de fase de ingresos.
     Solo aparece cuando aplica. Failsafe."""
     d=datos or {}; ex=extras or {}
     N=(ex.get("brecha") or {}).get("numero_canonico")
@@ -2834,7 +2834,7 @@ def seccion_salud_porcentajes(datos):
     """Juicio de salud sobre los porcentajes que el motor DERIVA del desglose (no de una pregunta cualitativa):
     peso de suscripciones sobre el gasto y concentracion de ingresos sobre la fuente dominante.
     Vivienda, DTI, concentracion patrimonial e ingresos pasivos ya se comentan en el cuadro financiero,
-    asi que aqui solo se anade lo que NO esta cubierto. Aditivo y failsafe."""
+    así que aquí solo se anade lo que NO esta cubierto. Aditivo y failsafe."""
     d=datos or {}
     out=[]
     def _g(k):
@@ -2955,7 +2955,7 @@ def seccion_dictamen_empresa(resp, datos=None, extras=None):
     """DICTAMEN EMPRESA: prosa firme corporativa para el cliente con sociedad propia. Detecta las
     respuestas del modulo empresa por PALABRAS CLAVE del texto de pregunta/opcion (los id varian),
     nunca por id fijo. Emite tres juicios cuando proceden:
-      1) Key-Person Risk (sucesion/dependencia del fundador).
+      1) Key-Person Risk (sucesión/dependencia del fundador).
       2) Trampa fiscal societaria (caja/beneficio atrapado en la sociedad por miedo fiscal).
       3) Salud fiscal de la autorretribucion (ratio_dividendo_nomina derivado del desglose).
     Tono Adapta: firme, sin catastrofismo, cliente primero. Aditivo y failsafe."""
@@ -3380,7 +3380,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         return "es un foco importante que cruza varias \u00e1reas a la vez."
     # PSIQUE -> Termometro de Estres ; LIQUIDEZ -> Indice de Vulnerabilidad: gauge tipo velocimetro
     # (valor 0-100 de TENSION, alto=peor). VINCULO se queda en barra (desglose secundario).
-    _GAUGE_LBL={"PSIQUE":"Termometro de estres","LIQUIDEZ":"Indice de vulnerabilidad"}
+    _GAUGE_LBL={"PSIQUE":"Termometro de estrés","LIQUIDEZ":"Indice de vulnerabilidad"}
     for t in ("PSIQUE","LIQUIDEZ","VINCULO"):
         val=tr[t]; tt,dd=desc[t]
         vtxt=("%s"%_sal100(val)) if val is not None else "\u2014"
@@ -3727,11 +3727,11 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         _edad_j=int(float(datos.get("edad") or 0)); _y0_j=fi[3]; _JUB=67
         if _edad_j>0 and (_y0_j is None or (_edad_j+_y0_j)>_JUB):
             if _y0_j is None or (_edad_j+_y0_j)>95:
-                _mj="<b>Aviso — a este ritmo, trabajarás más allá de tu jubilación.</b> Con tu ahorro y rentabilidad de hoy, tu patrimonio no alcanza tu libertad financiera. Al llegar a los 67 dependerías solo de tu pensión pública y, muy probablemente, tendrías que seguir generando ingresos despues de la edad de jubilacion. No es destino: acelerar el ahorro o poner a trabajar tu capital cambia esta foto."
+                _mj="<b>Aviso — a este ritmo, trabajarás más allá de tu jubilación.</b> Con tu ahorro y rentabilidad de hoy, tu patrimonio no alcanza tu libertad financiera. Al llegar a los 67 dependerías solo de tu pensión pública y, muy probablemente, tendrías que seguir generando ingresos después de la edad de jubilación. No es destino: acelerar el ahorro o poner a trabajar tu capital cambia esta foto."
             else:
                 _desp=int(round(_edad_j+_y0_j-_JUB)); _lleg=int(round(_edad_j+_y0_j))
-                _mj=("<b>Aviso — a este ritmo, trabajarás más allá de tu jubilación.</b> A tu ritmo actual alcanzarías tu libertad hacia los <b>%d años</b>: unos <b>%d años después</b> de la edad de jubilacion (67). Es decir, al jubilarte no podrias dejar de depender de tus ingresos. Cada punto que subas tu ahorro o tu rentabilidad adelanta esa fecha. En la p\u00e1gina siguiente tienes las 4 v\u00edas exactas \u2014 cu\u00e1nto subir el ahorro o la rentabilidad \u2014 para adelantarla.") % (_lleg,_desp)
-            _mj += " Y no es solo dinero: cada ano de mas atado al trabajo es salud que no vuelve, tiempo con los tuyos, relaciones y aficiones que no se recuperan. Tu libertad financiera es, en el fondo, libertad de vida."
+                _mj=("<b>Aviso — a este ritmo, trabajarás más allá de tu jubilación.</b> A tu ritmo actual alcanzarías tu libertad hacia los <b>%d años</b>: unos <b>%d años después</b> de la edad de jubilación (67). Es decir, al jubilarte no podrias dejar de depender de tus ingresos. Cada punto que subas tu ahorro o tu rentabilidad adelanta esa fecha. En la p\u00e1gina siguiente tienes las 4 v\u00edas exactas \u2014 cu\u00e1nto subir el ahorro o la rentabilidad \u2014 para adelantarla.") % (_lleg,_desp)
+            _mj += " Y no es solo dinero: cada año de mas atado al trabajo es salud que no vuelve, tiempo con los tuyos, relaciones y aficiones que no se recuperan. Tu libertad financiera es, en el fondo, libertad de vida."
             S+=[Spacer(1,3*mm),_box([Paragraph(_mj,St("jub1",fontSize=10,leading=14,textColor=INK))],"#FBF4E4","#B45309",ancho=160*mm)]
     except Exception:
         pass
@@ -4010,7 +4010,7 @@ def _cargar_v2():
     if _INST_V2 is None:
         _INST_V2=json.load(open("itap_v2.json",encoding="utf-8"))
         _FAC_FIX={"Alto interes":"Alto interés","Concentración geografica":"Concentración geográfica",
-            "Exito":"Éxito","Fuente unica":"Fuente única","Polvora seca":"Pólvora seca","Colchon":"Colchón",
+            "Exito":"Éxito","Fuente unica":"Fuente única","Polvora seca":"Pólvora seca","Colchón":"Colchón",
             "Anticiclico":"Anticíclico","Creep ingreso":"Inflación del estilo de vida","Número fi":"Tu cifra de libertad",
             "Plan b":"Plan B","Plan b crisis":"Plan B de crisis","Sistema cajas":"Sistema de cuentas",
             "Anticipa grandes":"Anticipa gastos grandes","Carga cuota":"Carga de la cuota","Relación deuda":"Relación deuda/ingresos",

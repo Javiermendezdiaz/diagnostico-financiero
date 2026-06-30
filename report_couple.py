@@ -157,8 +157,8 @@ def comparar_capa(code,a,b,nA,nB):
 def paso_pareja(code):
     return {
      "C1":"compartid una cosa que el dinero os quita el sueño a cada uno. Nombrarlo en voz alta ya alivia.",
-     "C2":"acordad UN numero comun de libertad y a qué edad lo querríais. Tener una meta compartida cambia todo.",
-     "C3":"decidid juntos el tamano del colchon de emergencia de la casa y quién lo alimenta.",
+     "C2":"acordad UN número comun de libertad y a qué edad lo querríais. Tener una meta compartida cambia todo.",
+     "C3":"decidid juntos el tamano del colchón de emergencia de la casa y quién lo alimenta.",
      "C4":"elegid un gasto de estilo de vida que ninguno de los dos defendería ante el otro, y recortadlo.",
      "C5":"revisad si, faltando uno, el otro tendría acceso y protección. Es el regalo más grande que os podéis hacer.",
      "C6":"contaos sin juicio en qué gasta cada uno por imagen. Reír juntos de ello lo desactiva.",
@@ -176,7 +176,7 @@ def _gasto_hogar(dAf, dBf):
     """Gasto mensual REAL del hogar, neteando el solape de gastos compartidos.
     Cada miembro declara su gasto 'todo incluido', que suele incluir la MISMA bolsa
     comun (alquiler, luz, comida). Sumarlos sin mas duplicaria esa parte e inflaria el
-    Numero de Libertad conjunto. Restamos como mucho UNA copia de la bolsa comun declarada
+    Número de Libertad conjunto. Restamos como mucho UNA copia de la bolsa comun declarada
     (gastos_comunes), con suelo en el mayor componente para no quedarnos cortos."""
     gA = dAf.get("gasto_mensual") or 0
     gB = dBf.get("gasto_mensual") or 0
@@ -368,7 +368,7 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
     out.append(Paragraph(f"{pn}: patrones transversales",h_sub))
     # PSIQUE -> Termometro de Estres ; LIQUIDEZ -> Indice de Vulnerabilidad: gauge velocimetro
     # (mismo patron y failsafe que el libro individual). VINCULO se queda en barra.
-    _GLBL={"PSIQUE":"Termometro de estres","LIQUIDEZ":"Indice de vulnerabilidad"}
+    _GLBL={"PSIQUE":"Termometro de estrés","LIQUIDEZ":"Indice de vulnerabilidad"}
     _ptok="".join(ch for ch in str(pn).lower() if ch.isalnum())[:8] or "x"
     for t in ("PSIQUE","LIQUIDEZ","VINCULO"):
         v=trans[t]; vt=("%s"%rb._sal100(v)) if v is not None else "\u2014"
@@ -1545,7 +1545,7 @@ def seccion_horizonte_retiro(rA, rB, nA, nB):
     """Convergencia de horizontes de retiro a partir de 'edad_retiro_ideal' (SD-29).
     Las opciones son ordinales (antes -> mas tarde); la brecha se mide en tramos.
     Tres dictamenes segun brecha (>=2 desalineados / ==1 matiz / ==0 refuerzo).
-    Solo dictamen de texto aditivo: NO toca el Numero de Libertad ni nada del motor.
+    Solo dictamen de texto aditivo: NO toca el Número de Libertad ni nada del motor.
     Sin cifras inventadas: solo el mapeo de respuestas + texto. Defensiva total:
     ante datos ausentes, item ausente o indices invalidos -> []. Siempre devuelve list."""
     # --- localizar el item edad_retiro_ideal en el instrumento (por campo/id) ---
@@ -1599,11 +1599,11 @@ def seccion_horizonte_retiro(rA, rB, nA, nB):
 
     if brecha >= 2:
         titulo = u"Horizontes de retiro desalineados"
-        txt = (u"Aqui los dos no mirais al mismo punto del calendario: uno quiere soltar amarras bastante antes y el "
+        txt = (u"Aquí los dos no mirais al mismo punto del calendario: uno quiere soltar amarras bastante antes y el "
                u"otro se imagina dejandolo mucho mas tarde. No hay que unificar la meta a la fuerza —forzar un unico "
                u"horizonte suele generar mas tension que la propia diferencia—. Lo sano es proyectar el plan conjunto "
                u"por fases: primero liberar al que quiere parar antes, mientras el otro mantiene ingresos por eleccion "
-               u"y no por obligacion; despues, el retiro total de ambos cuando toque. Lo importante no es coincidir en "
+               u"y no por obligacion; después, el retiro total de ambos cuando toque. Lo importante no es coincidir en "
                u"la edad, sino decidir juntos —y dejarlo por escrito— como encajais los dos ritmos en un mismo plan.")
     elif brecha == 1:
         titulo = u"Horizontes casi alineados"
@@ -1614,7 +1614,7 @@ def seccion_horizonte_retiro(rA, rB, nA, nB):
     else:
         titulo = u"Mismo horizonte: una gran ventaja para planificar"
         txt = (u"Los dos os imaginais dejando de depender del sueldo en el mismo tramo de edad. Eso es mas valioso de "
-               u"lo que parece: cuando la pareja comparte horizonte, cada decision de ahorro, inversion y gasto rema "
+               u"lo que parece: cuando la pareja comparte horizonte, cada decisión de ahorro, inversion y gasto rema "
                u"en la misma direccion, sin tira y afloja sobre el «cuando». Vuestro trabajo no es negociar la meta, "
                u"sino blindarla: ponerla por escrito y revisar juntos, cada cierto tiempo, que el plan sigue "
                u"apuntando a ese horizonte comun.")
@@ -1631,9 +1631,9 @@ def seccion_horizonte_retiro(rA, rB, nA, nB):
 
 def seccion_ansiedad_liquidez(rA, rB, nA, nB):
     """Ansiedad de liquidez a partir de 'colchon_ideal_meses' (SD-30).
-    Las opciones son ordinales (menos -> mas colchon); la brecha se mide en tramos.
+    Las opciones son ordinales (menos -> mas colchón); la brecha se mide en tramos.
     Tres dictamenes segun brecha (>=2 paralisis / ==1 matiz / ==0 refuerzo).
-    Solo dictamen de texto aditivo: NO toca el Numero de Libertad ni nada del motor.
+    Solo dictamen de texto aditivo: NO toca el Número de Libertad ni nada del motor.
     Sin cifras inventadas: solo el mapeo de respuestas + texto. Defensiva total:
     ante datos ausentes, item ausente o indices invalidos -> []. Siempre devuelve list."""
     # --- localizar el item colchon_ideal_meses en el instrumento (por campo/id) ---
@@ -1723,10 +1723,10 @@ def seccion_ansiedad_liquidez(rA, rB, nA, nB):
             Spacer(1, 4*mm)]
 
 def seccion_asimetria_pasivo(rA, rB, nA, nB):
-    """Asimetria en la gestion del pasivo a partir de 'tolerancia_deuda' (SD-31).
+    """Asimetria en la gestión del pasivo a partir de 'tolerancia_deuda' (SD-31).
     Las opciones son ordinales (aversion -> comodidad con la deuda); la brecha se mide en tramos.
     Tres dictamenes segun brecha (>=2 asimetria / ==1 matiz / ==0 refuerzo).
-    Solo dictamen de texto aditivo: NO toca el Numero de Libertad ni nada del motor.
+    Solo dictamen de texto aditivo: NO toca el Número de Libertad ni nada del motor.
     Sin cifras inventadas: solo el mapeo de respuestas + texto. Defensiva total:
     ante datos ausentes, item ausente o indices invalidos -> []. Siempre devuelve list."""
     # --- localizar el item tolerancia_deuda en el instrumento (por campo/id) ---
@@ -1819,7 +1819,7 @@ def seccion_tangibilidad(rA, rB, nA, nB):
     """Sesgo de tangibilidad a partir de 'pref_activos' (SD-32).
     Las opciones son ordinales (tangible -> financiero); la brecha se mide en tramos.
     Tres dictamenes segun brecha (>=2 sesgo / ==1 matiz / ==0 refuerzo).
-    Solo dictamen de texto aditivo: NO toca el Numero de Libertad ni nada del motor.
+    Solo dictamen de texto aditivo: NO toca el Número de Libertad ni nada del motor.
     Sin cifras inventadas: solo el mapeo de respuestas + texto. Defensiva total:
     ante datos ausentes, item ausente o indices invalidos -> []. Siempre devuelve list."""
     # --- localizar el item pref_activos en el instrumento (por campo/id) ---
@@ -2293,7 +2293,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                   "donde respondisteis en extremos opuestos (vuestros campos de minas); "
                   "<font color=\'#B45309\'>en \u00e1mbar</font>, divergencias moderadas; en blanco, donde est\u00e1is alineados.",body)]
     def _na(txt, na):
-        return Paragraph("<font color='#B5B3A6'>N/A</font>", small) if na else Paragraph(txt, small)
+        return Paragraph("<font color='#B5B3A6'>&#8212;</font>", small) if na else Paragraph(txt, small)
     for capa in INST["capas"]:
         rows=[[Paragraph("<b>Pregunta</b>",small),Paragraph("<b>%s</b>"%nA,small),Paragraph("<b>%s</b>"%nB,small)]]
         bgs=[]; ri=1
