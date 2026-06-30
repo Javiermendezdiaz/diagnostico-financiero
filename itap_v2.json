@@ -5324,33 +5324,11 @@
       "ayuda": "Es tu colchón ante un imprevisto. Dinero seguro, pero que apenas renta: lo que tengas por encima de tu fondo de emergencia pierde valor con la inflación."
     },
     {
-      "id": "NUM-10",
-      "campo": "pct_vivienda",
-      "unidad": "%",
-      "texto": "Aproximadamente, ¿qué % de tu patrimonio está concentrado en tu mayor activo (tu vivienda, tu empresa o una sola inversión)?",
-      "ayuda": "Si vives de alquiler y no tienes un activo que destaque, será un porcentaje bajo. Demasiada concentración en uno solo es un riesgo silencioso."
-    },
-    {
       "id": "NUM-11",
       "campo": "pension_estimada",
       "unidad": "€/mes",
       "texto": "¿Qué pensión pública estimas que cobrarás al jubilarte? Haz tu mejor cálculo aproximado — no lo dejes en cero salvo que de verdad no vayas a tener pensión.",
       "ayuda": "Como orientación, la pensión suele rondar el 50-60 % de tu último sueldo neto (la Seguridad Social tiene un simulador oficial). Nos sirve para medir la brecha entre tu pensión y tu coste de vida.",
-      "mostrar_si": {
-        "campo": "perfil_laboral",
-        "valor_not_in": [
-          "Rentista — vivo de las rentas de mi patrimonio (alquileres, dividendos, intereses)",
-          "Jubilado / pensionista",
-          "Sin actividad remunerada (ama/o de casa, cuidados o estudios)"
-        ]
-      }
-    },
-    {
-      "id": "NUM-5",
-      "campo": "horas_semana",
-      "unidad": "horas/semana",
-      "texto": "¿Cuántas horas reales dedicas cada semana a generar tus ingresos, incluyendo el desplazamiento al trabajo y los correos o llamadas fuera de horario?",
-      "ayuda": "Cuenta el tiempo que el trabajo te quita de verdad, no solo el horario oficial. Con esto y tu ingreso calculamos lo que vale realmente tu hora.",
       "mostrar_si": {
         "campo": "perfil_laboral",
         "valor_not_in": [

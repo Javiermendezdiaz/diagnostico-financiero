@@ -119,6 +119,19 @@ def _num0(d, k):
         return None
 
 
+def _pct_vivienda(datos):
+    """% del patrimonio concentrado en el mayor activo (vivienda/empresa/inversión única).
+    Se deriva del patrimonio ilíquido cuando el usuario no lo declara explícitamente."""
+    v = _num(datos, "pct_vivienda")
+    if v:
+        return v
+    pat = _num(datos, "patrimonio") or 0
+    if pat <= 0:
+        return 0
+    iliq = max(0.0, pat - (_num(datos, "inversiones_liquidas") or 0) - (_num(datos, "colchon_liquido") or 0))
+    return round(max(0.0, min(100.0, 100.0 * iliq / pat)))
+
+
 def _perfil_laboral_txt(perfil_in):
     pl = (perfil_in or {}).get("perfil_laboral")
     return " ".join(pl) if isinstance(pl, list) else (pl or "")
@@ -790,7 +803,7 @@ def calcular_ratios(datos, perfil_in):
     ing = _num(datos, "ingreso_mensual"); gasto = _num(datos, "gasto_mensual"); pat = _num(datos, "patrimonio") or 0
     ahorro = _num(datos, "ahorro_mensual") or 0
     colchon = _num(datos, "colchon_liquido"); cuota = _num(datos, "cuota_deuda"); cvm = _num(datos, "coste_vivienda")
-    deuda = _num(datos, "deuda_total"); pctv = _num(datos, "pct_vivienda"); pension = _num(datos, "pension_estimada")
+    deuda = _num(datos, "deuda_total"); pctv = _pct_vivienda(datos); pension = _num(datos, "pension_estimada")
     R = []
     def add(n, v, e, a): R.append({"nombre": n, "valor": v, "estado": e, "accion": a})
     inv_liq = _num0(datos, "inversiones_liquidas")
@@ -1324,7 +1337,7 @@ def calcular_vivienda(datos, perfil_in):
     coste = _num(datos, "coste_vivienda")
     ingreso = _num(datos, "ingreso_mensual")
     ahorro = _num0(datos, "ahorro_mensual") or 0
-    pct_viv = _num0(datos, "pct_vivienda")
+    pct_viv = _pct_vivienda(datos)
     carga = (100.0 * coste / ingreso) if (coste and ingreso) else None
     tasa = (100.0 * ahorro / ingreso) if ingreso else None
 

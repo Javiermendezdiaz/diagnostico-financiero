@@ -76,6 +76,18 @@ BLUEACC=colors.HexColor("#C9962B")
 def phi(x): return 0.5*(1+math.erf(x/math.sqrt(2)))
 def pctil(s): return round(100*(1-phi((s-45.0)/17.0)))
 def peso(it): return 0.5 if "metacognición" in it.get("dimensiones","") else 1.0
+def _fijo_viv_deuda(cv, cd, tenencia):
+    """Coste fijo de vivienda+deuda evitando doble cómputo de la hipoteca.
+    cuota_deuda incluye la cuota hipotecaria; para un propietario con hipoteca esa
+    cuota ya está dentro de coste_vivienda, así que se toma el máximo, no la suma."""
+    t = (tenencia or "")
+    try:
+        cv = float(cv or 0); cd = float(cd or 0)
+    except Exception:
+        cv = cv or 0; cd = cd or 0
+    if "hipoteca" in t.lower():
+        return max(cv, cd)
+    return cv + cd
 def _sel_idx(val):
     """Normaliza resp[id] a lista de indices. int->[int]; list->[int,...]; None/basura->[].
     Soporta items multi-respuesta (el frontend guarda un array de indices). Failsafe total."""
@@ -1427,7 +1439,7 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
     pgf=d.get("pct_gasto_fijo")
     try: pgf=max(0.0,min(100.0,float(pgf))) if pgf is not None else None
     except Exception: pgf=None
-    fijo=(min(gas,g("coste_vivienda")+g("cuota_deuda")) if pgf is None else gas*pgf/100.0); fijo=min(fijo,gas)
+    fijo=(min(gas,_fijo_viv_deuda(g("coste_vivienda"),g("cuota_deuda"),d.get("vivienda_tenencia"))) if pgf is None else gas*pgf/100.0); fijo=min(fijo,gas)
     var=max(0.0,gas-fijo)
     deu=g("deuda_total"); cuota=g("cuota_deuda")
     pat=g("patrimonio"); inv=g("inversiones_liquidas"); colch=g("colchon_liquido")
@@ -3157,7 +3169,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         _pat=float(datos.get("patrimonio") or 0); _ili=max(0.0,_pat-_inv-_par)
         _ing=float(datos.get("ingreso_mensual") or 0); _ipas=min(float(datos.get("renta_pasiva") or 0),_ing); _iact=max(0.0,_ing-_ipas)
         _gas=float(datos.get("gasto_mensual") or 0); _pf=float(datos.get("pct_gasto_fijo") or 0)
-        _gfij=min(_gas,(_gas*_pf/100.0) if _pf>0 else (float(datos.get("coste_vivienda") or 0)+float(datos.get("cuota_deuda") or 0))); _gvar=max(0.0,_gas-_gfij)
+        _gfij=min(_gas,(_gas*_pf/100.0) if _pf>0 else _fijo_viv_deuda(datos.get("coste_vivienda"),datos.get("cuota_deuda"),datos.get("vivienda_tenencia"))); _gvar=max(0.0,_gas-_gfij)
         panel_dashboard("_panel.png", 100-salud, bl, fi[0], fi[1] or 0, fi[2] or 0, _inv,_par,_ili, _iact,_ipas, _gfij,_gvar, _ili, cli.get("fecha",""))
         S+=[FullBleedImage("_panel.png"), PageBreak()]
         try:
@@ -3697,7 +3709,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     _x_it=datos.get("ing_trabajo")
     _x_act=float(_x_it) if (_x_it and float(_x_it)>0) else max(0.0,_x_ing-_x_pas)
     _x_pf=min(100.0,max(0.0,float(datos.get("pct_gasto_fijo") or 0)))
-    _x_fij=_x_gas*_x_pf/100.0 if _x_pf>0 else min(_x_gas,float(datos.get("coste_vivienda") or 0)+float(datos.get("cuota_deuda") or 0))
+    _x_fij=_x_gas*_x_pf/100.0 if _x_pf>0 else min(_x_gas,_fijo_viv_deuda(datos.get("coste_vivienda"),datos.get("cuota_deuda"),datos.get("vivienda_tenencia")))
     _x_fij=min(_x_fij,_x_gas); _x_var=max(0.0,_x_gas-_x_fij)
     if _x_ing>0 and _x_gas>0:
         _pp_pas=100*_x_pas/_x_ing if _x_ing else 0; _pp_fij=100*_x_fij/_x_gas if _x_gas else 0
