@@ -171,6 +171,16 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
       <a class="btn block" href="./inicio.html" id="ctaBtn">Quiero mi diagnóstico completo →</a>
     </div>
 
+    <div id="leadBox" style="margin-top:16px;border:1.5px solid var(--linea);background:var(--panel);border-radius:14px;padding:18px 18px 16px">
+      <div style="color:#fff;font-size:15px;font-weight:600;line-height:1.4">¿Te enviamos tu arquetipo y un mini-plan a tu correo?</div>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+        <input type="email" id="leadEmail" placeholder="tu@email.com" autocomplete="email"
+               style="flex:1 1 180px;min-width:0;padding:13px 14px;border-radius:11px;border:1.5px solid var(--linea);background:#020203;color:#fff;font-family:inherit;font-size:15px;outline:none">
+        <button class="btn" id="leadBtn" style="flex:0 0 auto;padding:13px 20px" onclick="enviarLead()">Enviármelo →</button>
+      </div>
+      <div id="leadMsg" style="display:none;color:#FDD731;font-size:14px;font-weight:600;margin-top:10px"></div>
+    </div>
+
     <button class="btn ghost block" style="margin-top:14px" onclick="restart()">Repetir el test</button>
   </section>
 
@@ -246,6 +256,7 @@ function finish(){
   current=_ax.map(p=>counts[p[0]]>counts[p[1]]?p[0]:(counts[p[1]]>counts[p[0]]?p[1]:p[2])).join("");
   const m=META[current]||META.SLMO;
   const traits=current.split("").map(x=>POLO[x]||x);
+  leadArquetipo=m.n;
   $("rName").textContent=m.n; $("rName").style.color=m.c;
   $("rLema").textContent="«"+m.l+"»";
   $("rDesc").innerHTML=traits.map(t=>'<span class="trait">'+t+'</span>').join("");
@@ -275,6 +286,26 @@ function reto(){
   window.open("https://wa.me/?text="+encodeURIComponent(txt+" "+url),"_blank","noopener");
 }
 function copyLink(){const url=location.origin+location.pathname;navigator.clipboard.writeText(url).then(()=>{$("copyTxt").textContent="¡Copiado!";setTimeout(()=>$("copyTxt").textContent="Copiar enlace",1800);});}
+var leadArquetipo="";
+function enviarLead(){
+  const inp=$("leadEmail"); if(!inp) return;
+  const email=(inp.value||"").trim();
+  if(!email||email.indexOf("@")<1||email.indexOf(".")<0){
+    inp.style.borderColor="#FDD731"; inp.focus(); return;
+  }
+  const box=$("leadBox"), msg=$("leadMsg");
+  try{
+    fetch("https://diagnostico-financiero-app.onrender.com/api/lead",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email:email,arquetipo:leadArquetipo})
+    }).catch(function(){});
+  }catch(e){}
+  // Optimista: confirmamos siempre, pase lo que pase con el fetch.
+  if(box){
+    Array.prototype.forEach.call(box.children,function(ch){ if(ch.id!=="leadMsg") ch.style.display="none"; });
+  }
+  if(msg){ msg.style.display="block"; msg.textContent="¡Hecho! Te lo hemos enviado a tu correo ✓"; }
+}
 function downloadCard(){
   const card=$("card");
   html2canvas(card,{backgroundColor:"#020203",scale:2}).then(canvas=>{

@@ -144,6 +144,11 @@ class ProgressPayload(BaseModel):
     total: Optional[int] = 0
     last_qid: Optional[str] = None
 
+class LeadPayload(BaseModel):
+    email: str = ""
+    arquetipo: str = ""
+    nombre: str = ""
+
 def adaptar_item(it):
     base = {"id": it["id"], "pregunta": it["texto"], "bloque": it.get("faceta", "")}
     if it["tipo"] == "escala":
@@ -845,6 +850,74 @@ def invitar_pareja(payload: InvitarParejaPayload):
     except Exception:
         # No registramos la excepcion entera para no arriesgar fugas; mensaje neutro.
         return {"ok": False, "motivo": "envio_fallido"}
+
+def _build_lead_email(arquetipo, nombre=""):
+    """Construye el payload de Resend para el lead del test de arquetipo gratuito.
+    Funcion pura (sin red). Voz Adapta, max 560px, estilos inline."""
+    arq = (arquetipo or "").strip() or "tu arquetipo"
+    saludo = ("Hola %s," % nombre.strip().split()[0]) if (nombre or "").strip() else "Hola,"
+    html = (
+        "<div style=\"font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;"
+        "background:#101014;color:#e9e9e6;border-radius:16px;padding:32px 28px\">"
+        "<div style=\"font-weight:800;font-size:20px;letter-spacing:.5px\">ADAPTA "
+        "<span style=\"color:#fdd731;font-size:12px;font-weight:600\">family office</span></div>"
+        "<h1 style=\"font-size:22px;line-height:1.3;margin:24px 0 8px\">%s</h1>"
+        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd;margin:0 0 18px\">"
+        "Tu arquetipo del dinero es <b style=\"color:#fdd731\">%s</b>.</p>"
+        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
+        "Lo que tu dinero dice de ti no son tus cifras: es la manera en que decides, ahorras, gastas y "
+        "evitas mirar. Tu arquetipo es ese patron invisible que se repite en cada decision &mdash; y conocerlo "
+        "es el primer paso para cambiarlo.</p>"
+        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
+        "El test gratuito es solo el reflejo. El diagnostico completo te devuelve el mapa entero: tu brecha, "
+        "tus palancas y el camino concreto hacia tu libertad financiera.</p>"
+        "<div style=\"text-align:center;margin:28px 0 8px\">"
+        "<a href=\"https://diagnostico.adaptafamilyoffice.com/inicio.html\" "
+        "style=\"display:inline-block;background:#fdd731;color:#101014;text-decoration:none;"
+        "font-weight:700;font-size:16px;padding:14px 26px;border-radius:12px\">"
+        "Quiero mi diagnostico completo &rarr;</a></div>"
+        "<p style=\"font-size:11.5px;color:#6b6b66;margin-top:24px;border-top:1px solid #2a2a30;padding-top:14px\">"
+        "Adapta Family Office &middot; Diagnostico psicofinanciero confidencial.</p>"
+        "</div>"
+    ) % (saludo, arq)
+    return {"from": RESEND_FROM, "to": None, "subject": "Tu arquetipo del dinero \u2014 Adapta Family Office", "html": html}
+
+@app.post("/api/lead")
+def lead(payload: LeadPayload):
+    """Captura de lead del test de arquetipo gratuito. Todo failsafe: nunca lanza excepcion al cliente.
+    Guarda el lead y, si hay RESEND_API_KEY, le envia su arquetipo por email."""
+    email = (payload.email or "").strip()
+    # 1) Validar email
+    try:
+        valido = _email_valido(email)
+    except Exception:
+        valido = ("@" in email) and ("." in email)
+    if not valido:
+        return {"ok": False, "reason": "email_invalido"}
+    arquetipo = (payload.arquetipo or "").strip()
+    nombre = (payload.nombre or "").strip()
+    # 2) Guardar el lead (failsafe: nunca rompe)
+    try:
+        with db() as c:
+            c.execute("CREATE TABLE IF NOT EXISTS leads (email TEXT, arquetipo TEXT, nombre TEXT, creado TEXT)")
+            c.execute("INSERT INTO leads (email, arquetipo, nombre, creado) VALUES (?,?,?,?)",
+                      (email, arquetipo, nombre, datetime.datetime.utcnow().isoformat()))
+    except Exception as e:
+        print("[lead] no se pudo guardar el lead:", repr(e))
+    # 3) Enviar email con su arquetipo (failsafe)
+    if RESEND_API_KEY:
+        try:
+            msg = _build_lead_email(arquetipo, nombre)
+            msg["to"] = [email]
+            status, _body = _resend_post(msg)
+            if not (200 <= status < 300):
+                print("[lead] envio Resend no-2xx:", status)
+                return {"ok": False, "reason": "envio_fallido"}
+        except Exception as e:
+            print("[lead] fallo enviando email:", repr(e))
+            return {"ok": False, "reason": "envio_fallido"}
+    # 4) Siempre devolvemos un objeto controlado
+    return {"ok": True}
 
 @app.post("/api/checkout/{session_id}")
 def checkout(session_id: str, consent: int = 0):
