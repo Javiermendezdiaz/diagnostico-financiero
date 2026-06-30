@@ -890,15 +890,15 @@
           "nivel": "profundizacion",
           "opciones": [
             {
-              "texto": "En torno al 5-7%: lo que da una cartera diversificada a largo plazo.",
+              "texto": "Conservadora: en torno al 5-7% o menos, lo que da una cartera diversificada a largo plazo.",
               "score": 0
             },
             {
-              "texto": "Entre el 8% y el 10%: realista, pero ya algo optimista.",
+              "texto": "Optimista: entre el 8% y el 10%, realista pero ya estirado.",
               "score": 25
             },
             {
-              "texto": "Más del 10% de forma sostenida: asumo bastante más riesgo.",
+              "texto": "Agresiva: más del 10% sostenido, asumo bastante más riesgo.",
               "score": 50
             },
             {
@@ -1963,7 +1963,7 @@
           "tier1": true,
           "atencion": true,
           "opcion_correcta": 2,
-          "texto": "Comprobación de lectura (las incluye todo cuestionario serio): por favor, elige exactamente la opción «Algo en desacuerdo».",
+          "texto": "Una pregunta de control rápido, habitual en cuestionarios serios para asegurar lecturas atentas: marca, por favor, la opción «Algo en desacuerdo».",
           "opciones": [
             {
               "score": 0,
