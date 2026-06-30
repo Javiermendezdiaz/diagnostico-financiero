@@ -4644,7 +4644,14 @@
         "Inversiones (dividendos, intereses, fondos)",
         "Alquileres de inmuebles",
         "Otras fuentes (un negocio que funciona sin mí, royalties…)"
-      ]
+      ],
+      "mostrar_si": {
+        "campo": "perfil_laboral",
+        "valor_not_in": [
+          "Jubilado / pensionista",
+          "Sin actividad remunerada (ama/o de casa, cuidados o estudios)"
+        ]
+      }
     },
     {
       "id": "SD-12",
