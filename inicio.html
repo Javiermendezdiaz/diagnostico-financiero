@@ -194,11 +194,31 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
   <section class="closing" id="planes" style="margin:46px 0 0">
     <span class="kick">Elige tu diagnóstico</span>
     <h2 class="serif">Tres formas de mirarte de verdad</h2>
-    <p style="text-align:center;color:var(--gr);font-size:13.5px;margin:12px auto 0;max-width:540px">Los tres <b style="color:var(--am)">empiezan con un adelanto gratis</b> personalizado con tus cifras. Solo pagas si quieres tu libro completo.</p>
+    <p style="text-align:center;color:var(--gr);font-size:13.5px;margin:12px auto 0;max-width:560px">Los tres <b style="color:var(--am)">empiezan con un adelanto gratis</b> personalizado con tus cifras. Solo pagas si quieres tu libro completo.</p>
+    <style>
+    .authority{display:flex;align-items:stretch;justify-content:center;max-width:700px;margin:26px auto 0;border:1px solid var(--bd);border-radius:16px;background:linear-gradient(180deg,var(--pa),transparent);overflow:hidden}
+    .au-item{flex:1;padding:18px 22px;text-align:center;display:flex;flex-direction:column;gap:5px}
+    .au-item .au-k{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--am);font-weight:700}
+    .au-item b{font-size:15px;color:var(--tx);font-weight:600}
+    .au-item span{font-size:12px;color:var(--gr);line-height:1.45}
+    .au-sep{width:1px;background:var(--bd)}
+    .anchor-note{text-align:center;color:var(--gr);font-size:13.5px;margin:16px auto 0;max-width:560px;line-height:1.5}
+    .anchor{display:flex;align-items:baseline;gap:7px;margin:2px 0 -2px}
+    .anchor s{color:var(--gr);font-size:15px;text-decoration-color:var(--ro);text-decoration-thickness:2px}
+    .anchor .lbl{font-size:10px;color:var(--gr);text-transform:uppercase;letter-spacing:.6px}
+    @media(max-width:520px){.authority{flex-direction:column}.au-sep{width:auto;height:1px}}
+    </style>
+    <div class="authority">
+      <div class="au-item"><span class="au-k">Experiencia</span><b>El método de un family office</b><span>El rigor de Adapta Family Office, capa a capa.</span></div>
+      <div class="au-sep"></div>
+      <div class="au-item"><span class="au-k">Inteligencia artificial</span><b>La potencia de la IA</b><span>La misma profundidad, sin la factura de una consultoría.</span></div>
+    </div>
+    <p class="anchor-note">Una auditoría psicofinanciera equivalente se cobra entre <b style="color:var(--tx)">150&nbsp;€ y 600&nbsp;€</b>. Aquí, gracias a IA&nbsp;+&nbsp;experiencia, <b style="color:var(--am)">desde 19&nbsp;€</b>.</p>
     <div class="plan-grid">
       <div class="plan">
         <div class="pn">Rápido</div>
         <div class="pw">Para ti. Una foto rápida y honesta.</div>
+        <div class="anchor"><s>150&nbsp;€</s><span class="lbl">en consultoría</span></div>
         <div class="pp serif">19<small> €</small></div>
         <ul>
           <li><i>✓</i> Tu salud psicofinanciera global</li>
@@ -212,6 +232,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
         <div class="badge">El más elegido</div>
         <div class="pn">Avanzado</div>
         <div class="pw">Para ti, a fondo: patrimonio, deudas o una empresa.</div>
+        <div class="anchor"><s>450&nbsp;€</s><span class="lbl">auditoría completa</span></div>
         <div class="pp serif">39<small> €</small></div>
         <ul>
           <li><i>✓</i> Todo lo del Rápido, en profundidad</li>
@@ -226,6 +247,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
         <div class="badge" style="background:rgba(244,63,94,.14);color:var(--ro);border-color:rgba(244,63,94,.35)">Para los dos</div>
         <div class="pn">Pareja</div>
         <div class="pw">Donde el dinero deja de ser cifras y se vuelve relación.</div>
+        <div class="anchor"><s>600&nbsp;€</s><span class="lbl">auditoría de pareja</span></div>
         <div class="pp serif">54<small> €</small></div>
         <ul>
           <li><i>✓</i> Un diagnóstico Avanzado para cada uno</li>
