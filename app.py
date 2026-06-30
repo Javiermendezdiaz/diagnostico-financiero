@@ -38,6 +38,7 @@ INVITE_FROM = (os.environ.get("INVITE_FROM", "").strip() or RESEND_FROM)
 INVITE_BASE_URL = (os.environ.get("INVITE_BASE_URL", "").strip()
                    or "https://diagnostico.adaptafamilyoffice.com/empezar2.html")
 NOTIFY_EMAIL = os.environ.get("NOTIFY_EMAIL", "javier@mendezconsultoria.com")
+ADMIN_KEY = os.environ.get("ADMIN_KEY", "")  # clave para panel de leads y cron de nurturing
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_SECRET_KEY = (os.environ.get("STRIPE_SECRET_KEY", "")
                      or os.environ.get("STRIPE_API_KEY", "")
@@ -899,9 +900,9 @@ def lead(payload: LeadPayload):
     # 2) Guardar el lead (failsafe: nunca rompe)
     try:
         with db() as c:
-            c.execute("CREATE TABLE IF NOT EXISTS leads (email TEXT, arquetipo TEXT, nombre TEXT, creado TEXT)")
-            c.execute("INSERT INTO leads (email, arquetipo, nombre, creado) VALUES (?,?,?,?)",
-                      (email, arquetipo, nombre, datetime.datetime.utcnow().isoformat()))
+            _ensure_leads_table(c)
+            c.execute("INSERT INTO leads (email, arquetipo, nombre, creado, paso, paso_fecha) VALUES (?,?,?,?,?,?)",
+                      (email, arquetipo, nombre, datetime.datetime.utcnow().isoformat(), 1, datetime.datetime.utcnow().isoformat()))
     except Exception as e:
         print("[lead] no se pudo guardar el lead:", repr(e))
     # 3) Enviar email con su arquetipo (failsafe)
@@ -926,6 +927,124 @@ def lead(payload: LeadPayload):
             print("[lead] aviso interno fallo:", repr(e))
     # 4) Siempre devolvemos un objeto controlado
     return {"ok": True}
+
+def _ensure_leads_table(c):
+    """Crea la tabla de leads y anade columnas de seguimiento si faltan (failsafe)."""
+    c.execute("CREATE TABLE IF NOT EXISTS leads (email TEXT, arquetipo TEXT, nombre TEXT, creado TEXT)")
+    cols = [r["name"] for r in c.execute("PRAGMA table_info(leads)")]
+    for col, ddl in [("paso", "INTEGER"), ("paso_fecha", "TEXT")]:
+        if col not in cols:
+            c.execute("ALTER TABLE leads ADD COLUMN %s %s" % (col, ddl))
+
+
+def _lead_wrap(cuerpo_html):
+    return ("<div style=\"font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;"
+            "background:#101014;color:#e9e9e6;border-radius:16px;padding:32px 28px\">"
+            "<div style=\"font-weight:800;font-size:20px;letter-spacing:.5px\">ADAPTA "
+            "<span style=\"color:#fdd731;font-size:12px;font-weight:600\">family office</span></div>"
+            + cuerpo_html +
+            "<div style=\"text-align:center;margin:28px 0 8px\">"
+            "<a href=\"https://diagnostico.adaptafamilyoffice.com/inicio.html\" "
+            "style=\"display:inline-block;background:#fdd731;color:#101014;text-decoration:none;"
+            "font-weight:700;font-size:16px;padding:14px 26px;border-radius:12px\">"
+            "Quiero mi diagnostico completo &rarr;</a></div>"
+            "<p style=\"font-size:11.5px;color:#6b6b66;margin-top:24px;border-top:1px solid #2a2a30;padding-top:14px\">"
+            "Adapta Family Office &middot; Diagnostico psicofinanciero confidencial. "
+            "Recibes esto porque hiciste el test del arquetipo del dinero.</p></div>")
+
+
+def _build_lead_followup(arquetipo, nombre, paso):
+    """Correo de seguimiento (nurturing). paso=2 (dia 2) o paso=3 (dia 4). Funcion pura."""
+    arq = (arquetipo or "").strip() or "tu arquetipo"
+    saludo = ("Hola %s," % nombre.strip().split()[0]) if (nombre or "").strip() else "Hola,"
+    if paso == 2:
+        asunto = "Lo que %s no te deja ver" % arq
+        cuerpo = (
+            "<h1 style=\"font-size:22px;line-height:1.3;margin:24px 0 8px\">%s</h1>"
+            "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
+            "Cada arquetipo tiene una fuerza &mdash; y un punto ciego que se repite en cada decision de dinero. "
+            "El de <b style=\"color:#fdd731\">%s</b> no es la excepcion.</p>"
+            "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
+            "Ese patron no se ve solo: es justo lo que tu mente evita mirar. Por eso buenos numeros conviven a veces con "
+            "malas decisiones, y al reves. No es cuestion de cuanto ganas &mdash; es como decides.</p>"
+            "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
+            "El diagnostico completo pone tu punto ciego sobre la mesa, con tus cifras reales, y te da el plan para "
+            "neutralizarlo en los proximos 100 dias.</p>") % (saludo, arq)
+    else:
+        asunto = "La diferencia nunca fue el dinero"
+        cuerpo = (
+            "<h1 style=\"font-size:22px;line-height:1.3;margin:24px 0 8px\">%s</h1>"
+            "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
+            "He visto a gente ganar mucho y vivir con angustia. Y a familias normales conquistar la vida que "
+            "planificaron, el dia que dejaron de huir de sus numeros.</p>"
+            "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
+            "Una auditoria psicofinanciera como esta se cobra entre <b>150&nbsp;&euro; y 600&nbsp;&euro;</b>. "
+            "Gracias a IA + la experiencia de Adapta, tu diagnostico completo arranca <b style=\"color:#fdd731\">desde 19&nbsp;&euro;</b> "
+            "&mdash; y empiezas viendo tu adelanto gratis, con tus cifras. Solo pagas si quieres el libro entero.</p>"
+            "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
+            "Hoy te toca a ti: dar el primer paso, o seguir huyendo.</p>") % saludo
+    return {"from": RESEND_FROM, "to": None, "subject": asunto, "html": _lead_wrap(cuerpo)}
+
+
+@app.get("/api/leads")
+def leads_list(key: str = ""):
+    """Panel privado de leads. Requiere ?key=ADMIN_KEY."""
+    if not ADMIN_KEY or key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="no autorizado")
+    filas = []
+    try:
+        with db() as c:
+            _ensure_leads_table(c)
+            for r in c.execute("SELECT email, arquetipo, nombre, creado, paso FROM leads ORDER BY creado DESC LIMIT 1000"):
+                filas.append({"email": r["email"], "arquetipo": r["arquetipo"], "nombre": r["nombre"],
+                              "creado": r["creado"], "paso": r["paso"]})
+    except Exception as e:
+        print("[leads] error listando:", repr(e))
+    return {"total": len(filas), "leads": filas}
+
+
+@app.get("/api/cron/nurture")
+def cron_nurture(key: str = ""):
+    """Envia los correos de seguimiento que tocan (paso 2 a >=2 dias, paso 3 a >=4 dias).
+    Llamar 1 vez al dia. Requiere ?key=ADMIN_KEY. Failsafe."""
+    if not ADMIN_KEY or key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="no autorizado")
+    if not RESEND_API_KEY:
+        return {"ok": False, "reason": "sin_resend"}
+    ahora = datetime.datetime.utcnow()
+    enviados = {"paso2": 0, "paso3": 0}
+    pendientes = []
+    try:
+        with db() as c:
+            _ensure_leads_table(c)
+            for r in c.execute("SELECT rowid, email, arquetipo, nombre, creado, paso FROM leads"):
+                try:
+                    creado = datetime.datetime.fromisoformat(r["creado"])
+                except Exception:
+                    continue
+                dias = (ahora - creado).total_seconds() / 86400.0
+                paso = r["paso"] or 1
+                if paso < 2 and dias >= 2:
+                    pendientes.append((r["rowid"], r["email"], r["arquetipo"], r["nombre"], 2))
+                elif paso < 3 and dias >= 4:
+                    pendientes.append((r["rowid"], r["email"], r["arquetipo"], r["nombre"], 3))
+    except Exception as e:
+        print("[nurture] error leyendo leads:", repr(e))
+        return {"ok": False, "reason": "db"}
+    for rowid, email, arquetipo, nombre, paso in pendientes:
+        try:
+            msg = _build_lead_followup(arquetipo, nombre, paso)
+            msg["to"] = [email]
+            status, _b = _resend_post(msg)
+            if 200 <= status < 300:
+                with db() as c:
+                    c.execute("UPDATE leads SET paso=?, paso_fecha=? WHERE rowid=?",
+                              (paso, datetime.datetime.utcnow().isoformat(), rowid))
+                enviados["paso%d" % paso] += 1
+        except Exception as e:
+            print("[nurture] fallo enviando a", email, repr(e))
+    return {"ok": True, "enviados": enviados, "candidatos": len(pendientes)}
+
 
 @app.post("/api/checkout/{session_id}")
 def checkout(session_id: str, consent: int = 0):

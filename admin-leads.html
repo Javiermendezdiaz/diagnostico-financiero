@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Panel de leads · Adapta Family Office</title>
+<style>
+:root{--am:#FDD731;--ng:#06070d;--pa:#0d0f1a;--bd:#23252e;--tx:#f4f4f5;--gr:#94a3b8;--em:#10b981}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ng);color:var(--tx);font-family:system-ui,'Segoe UI',Arial,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:920px;margin:0 auto;padding:28px 20px 60px}
+.logo{font-weight:800;letter-spacing:1px;font-size:20px}.logo b{color:var(--am)}
+.logo small{font-size:9px;letter-spacing:2px;color:var(--gr);text-transform:uppercase;margin-left:8px;font-weight:600}
+h1{font-size:22px;margin:18px 0 4px}
+.sub{color:var(--gr);font-size:13.5px;margin-bottom:20px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+input{flex:1 1 220px;min-width:0;padding:11px 13px;border-radius:10px;border:1.5px solid var(--bd);background:#020203;color:#fff;font-size:14px;font-family:inherit;outline:none}
+button{background:var(--am);color:#06070d;border:none;font-weight:700;border-radius:10px;padding:11px 18px;font-size:14px;cursor:pointer;font-family:inherit}
+button.ghost{background:transparent;color:var(--tx);border:1.5px solid var(--bd)}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.stat{background:var(--pa);border:1px solid var(--bd);border-radius:12px;padding:14px 18px;min-width:120px}
+.stat .n{font-size:24px;font-weight:700}.stat .l{font-size:11px;color:var(--gr);text-transform:uppercase;letter-spacing:1px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--bd)}
+th{color:var(--gr);font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+tr:hover td{background:var(--pa)}
+.pill{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;background:rgba(253,215,49,.12);color:var(--am);font-weight:600}
+.paso{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--bd);color:var(--gr)}
+.msg{color:var(--gr);font-size:14px;margin-top:14px}
+.tablewrap{overflow-x:auto;border:1px solid var(--bd);border-radius:12px}
+a.dl{color:var(--am);font-size:13px;text-decoration:none}
+@media(max-width:560px){th:nth-child(4),td:nth-child(4){display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">ADAPTA <b>·</b> <small>family office</small></div>
+  <h1>Panel de leads</h1>
+  <div class="sub">Quienes han hecho el test del arquetipo y han dejado su correo.</div>
+
+  <div class="bar">
+    <input id="key" type="password" placeholder="Clave de acceso" autocomplete="off">
+    <button onclick="cargar()">Ver leads</button>
+    <button class="ghost" onclick="cargar()">Actualizar</button>
+  </div>
+
+  <div class="stats" id="stats" style="display:none">
+    <div class="stat"><div class="n" id="sTotal">0</div><div class="l">Leads totales</div></div>
+    <div class="stat"><div class="n" id="sHoy">0</div><div class="l">Últimas 24 h</div></div>
+    <div class="stat"><div class="n" id="sArq">0</div><div class="l">Arquetipos distintos</div></div>
+  </div>
+
+  <div id="out" class="msg">Introduce la clave y pulsa «Ver leads».</div>
+  <div style="margin-top:14px"><a class="dl" id="csv" href="#" style="display:none" onclick="descargarCSV();return false">⬇ Descargar CSV</a></div>
+</div>
+
+<script>
+var API="https://diagnostico-financiero-app.onrender.com/api/leads";
+var DATA=[];
+function esc(s){return (s==null?"":String(s)).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function ffecha(iso){try{var d=new Date(iso+ (iso.indexOf("Z")<0?"Z":"")); return d.toLocaleString("es-ES",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"});}catch(e){return iso||"";}}
+function pasoTxt(p){if(p>=3)return "Secuencia completa";if(p==2)return "Seguimiento 1 enviado";return "Arquetipo enviado";}
+async function cargar(){
+  var k=document.getElementById("key").value.trim();
+  var out=document.getElementById("out");
+  if(!k){out.textContent="Escribe la clave.";return;}
+  out.textContent="Cargando…";
+  try{
+    var r=await fetch(API+"?key="+encodeURIComponent(k));
+    if(r.status===403){out.textContent="Clave incorrecta o panel no configurado en el servidor (falta ADMIN_KEY).";return;}
+    var j=await r.json();
+    DATA=j.leads||[];
+    render();
+    try{localStorage.setItem("adapta_admin_key",k);}catch(e){}
+  }catch(e){out.textContent="No se pudo conectar con el servidor. Reintenta en unos segundos.";}
+}
+function render(){
+  var out=document.getElementById("out");
+  document.getElementById("stats").style.display="flex";
+  document.getElementById("sTotal").textContent=DATA.length;
+  var ahora=Date.now(), h24=0, arqs={};
+  DATA.forEach(function(l){
+    if(l.arquetipo) arqs[l.arquetipo]=1;
+    try{ if(ahora-new Date(l.creado+"Z").getTime() < 86400000) h24++; }catch(e){}
+  });
+  document.getElementById("sHoy").textContent=h24;
+  document.getElementById("sArq").textContent=Object.keys(arqs).length;
+  if(!DATA.length){out.innerHTML="<div class='msg'>Aún no hay leads. En cuanto alguien deje su correo en el test, aparecerá aquí.</div>";document.getElementById("csv").style.display="none";return;}
+  var html="<div class='tablewrap'><table><thead><tr><th>Email</th><th>Arquetipo</th><th>Nombre</th><th>Fecha</th><th>Estado</th></tr></thead><tbody>";
+  DATA.forEach(function(l){
+    html+="<tr><td><a class='dl' href='mailto:"+esc(l.email)+"'>"+esc(l.email)+"</a></td>"+
+          "<td>"+(l.arquetipo?"<span class='pill'>"+esc(l.arquetipo)+"</span>":"—")+"</td>"+
+          "<td>"+esc(l.nombre||"—")+"</td>"+
+          "<td>"+esc(ffecha(l.creado))+"</td>"+
+          "<td><span class='paso'>"+esc(pasoTxt(l.paso||1))+"</span></td></tr>";
+  });
+  html+="</tbody></table></div>";
+  out.innerHTML=html;
+  document.getElementById("csv").style.display="inline-block";
+}
+function descargarCSV(){
+  var rows=[["email","arquetipo","nombre","fecha","paso"]];
+  DATA.forEach(function(l){rows.push([l.email||"",l.arquetipo||"",l.nombre||"",l.creado||"",l.paso||1]);});
+  var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(",");}).join("\n");
+  var a=document.createElement("a");a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);a.download="leads-adapta.csv";a.click();
+}
+try{var sk=localStorage.getItem("adapta_admin_key"); if(sk){document.getElementById("key").value=sk;}}catch(e){}
+</script>
+</body>
+</html>
