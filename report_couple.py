@@ -40,14 +40,14 @@ class Bar2(Flowable):
             c.setFillColor(colors.HexColor("#EEF2F6")); c.roundRect(0,y,W,7,2,fill=1,stroke=0)
             c.setFillColor(colors.HexColor(col)); c.roundRect(0,y,max(3,W*val/100),7,2,fill=1,stroke=0)
 
-def dual_radar(pA,pB,path):
+def dual_radar(pA,pB,path,nA="Yo",nB="Pareja"):
     labels=[c for c in CAPAS]
     N=len(labels); ang=np.linspace(0,2*np.pi,N,endpoint=False).tolist(); ang+=ang[:1]
     fig,ax=plt.subplots(figsize=(5.8,5.8),subplot_kw=dict(polar=True))
     ax.set_theta_offset(np.pi/2); ax.set_theta_direction(-1); ax.set_ylim(0,100)
     ax.set_yticks([25,50,75]); ax.set_yticklabels(["25","50","75"],color="#9CA3AF",size=8)
     ax.set_xticks(ang[:-1]); ax.set_xticklabels(labels,size=10,color="#1F2937",weight="bold")
-    for prof,col,lab in [(pA,A_COL,"Persona A"),(pB,B_COL,"Persona B")]:
+    for prof,col,lab in [(pA,A_COL,nA),(pB,B_COL,nB)]:
         v=[100-prof[c]["score"] for c in CAPAS]; v+=v[:1]
         ax.plot(ang,v,color=col,linewidth=2.2,label=lab); ax.fill(ang,v,color=col,alpha=0.14)
     ax.spines["polar"].set_color("#D5DBE3"); ax.grid(color="#E5E7EB")
@@ -746,7 +746,7 @@ def seccion_coste_no_hablarlo(pA,pB,nA,nB,hogar,fi_h,divs):
         fin.append("<b>%s</b> de vuestro patrimonio está hoy parado o ilíquido, sin generar renta. Cada año que sigue "
                    "dormido es rentabilidad que no vuelve." % rb._eur(dormido))
     if fi_h and fi_h[1] is not None and fi_h[1]<100:
-        fin.append("Estáis al <b>%.0f%%</b> de vuestro número de libertad. Sin un plan común, ese porcentaje se mueve "
+        fin.append("Estáis al <b>%.1f%%</b> de vuestro número de libertad. Sin un plan común, ese porcentaje se mueve "
                    "despacio — o no se mueve." % fi_h[1])
     if fin:
         cp=[Paragraph("<b>Lo que cuesta en dinero</b>",St("cn0",fontSize=10.5,leading=14,fontName="Helvetica-Bold"))]
@@ -940,7 +940,7 @@ def seccion_one_pager(nA, nB, dA, dB, compat, saludA, saludB):
         except Exception: pass
         try:
             prog=float(fih[1]) if fih and fih[1] is not None else None
-            if prog is not None: cells.append(_kpi_celda_par("PROGRESO","%.0f%%"%prog,"#1A1A17","Hacia vuestra libertad"))
+            if prog is not None: cells.append(_kpi_celda_par("PROGRESO","%.1f%%"%prog,"#1A1A17","Hacia vuestra libertad"))
         except Exception: pass
         try:
             pat=float(hog.get("patrimonio") or 0)
@@ -950,7 +950,7 @@ def seccion_one_pager(nA, nB, dA, dB, compat, saludA, saludB):
             tasa=float(fih[2]) if fih and fih[2] is not None else None
             if tasa is not None:
                 tcol="#1D6F42" if tasa>=20 else ("#C2710C" if tasa>=10 else "#9A3B2E")
-                cells.append(_kpi_celda_par("TASA DE AHORRO","%.0f%%"%tasa,tcol,"De cada euro que entra al hogar"))
+                cells.append(_kpi_celda_par("TASA DE AHORRO","%.1f%%"%tasa,tcol,"De cada euro que entra al hogar"))
         except Exception: pass
         try:
             cells.append(_kpi_celda_par("SALUD MEDIA","%d<font size=10 color='#6B7280'>/100</font>"%round((rb._sal100(saludA)+rb._sal100(saludB))/2),"#1A1A17","Vuestra media psicofinanciera"))
@@ -1925,7 +1925,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     gaps=[abs(pA[c]["score"]-pB[c]["score"]) for c in CAPAS]
     compat=max(0,round(100-statistics.mean(gaps)))
     divs=divergencias_item(rA,rB)
-    dual_radar(pA,pB,"_dualradar.png")
+    dual_radar(pA,pB,"_dualradar.png",nA,nB)
     S=[]
     _hero_done=False
     try:
@@ -2002,8 +2002,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                           f"bien habladas suman.</font>",body)]],
               colWidths=[42*mm,118*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),
         Spacer(1,1*mm),
-        Table([[Paragraph(f"<font color='{A_COL}'>●</font> {cliA['nombre']}: <b>{rb._sal100(saludA)}</b>/100",small),
-                Paragraph(f"<font color='{B_COL}'>●</font> {cliB['nombre']}: <b>{rb._sal100(saludB)}</b>/100",small)]],
+        Table([[Paragraph(f"<font color='{A_COL}'>●</font> Salud · {cliA['nombre']}: <b>{rb._sal100(saludA)}</b>/100",small),
+                Paragraph(f"<font color='{B_COL}'>●</font> Salud · {cliB['nombre']}: <b>{rb._sal100(saludB)}</b>/100",small)]],
               colWidths=[80*mm,80*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0)]),
         Image("_dualradar.png",width=125*mm,height=125*mm,hAlign="CENTER"),
         Spacer(1,2*mm),
@@ -2038,7 +2038,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         if _h_pat > (_h_inv+_h_par)*1.5+20000:
             _cobp=round(100*_h_pat/fi_h[0]) if fi_h[0] else 0   # potencial movilizando todo (incluida la vivienda, llegado el momento)
             _lt=" — con eso quedaríais en <b>libertad financiera</b>" if _cobp>=100 else ""
-            S+=[Paragraph("<b>Patrimonio no es renta — y es vuestra mayor oportunidad:</b> tenéis %s de patrimonio, pero hoy solo %s está invertido o líquido generando renta (la cobertura del %s%% de arriba). Si movilizarais lo ilíquido —rentabilizando lo parado y, llegado el momento de simplificar, vendiendo o reduciendo la vivienda que ya no necesitéis—, vuestra cobertura pasaría del %s%% al <b>%s%%</b>%s. Convertir patrimonio dormido en renta es donde más mueve la aguja un family office."%(rb._eur(_h_pat),rb._eur(_h_inv+_h_par),("%.0f"%fi_h[1]),("%.0f"%fi_h[1]),("%.0f"%_cobp),_lt),small),Spacer(1,2*mm)]
+            S+=[Paragraph("<b>Patrimonio no es renta — y es vuestra mayor oportunidad:</b> tenéis %s de patrimonio, pero hoy solo %s está invertido o líquido generando renta (la cobertura del %s%% de arriba). Si movilizarais lo ilíquido —rentabilizando lo parado y, llegado el momento de simplificar, vendiendo o reduciendo la vivienda que ya no necesitéis—, vuestra cobertura pasaría del %s%% al <b>%s%%</b>%s. Convertir patrimonio dormido en renta es donde más mueve la aguja un family office."%(rb._eur(_h_pat),rb._eur(_h_inv+_h_par),("%.1f"%fi_h[1]),("%.1f"%fi_h[1]),("%.0f"%_cobp),_lt),small),Spacer(1,2*mm)]
     # --- Coste de la inflación sobre el capital ocioso del hogar (aditivo, failsafe) ---
     try:
         _tapH=rb.tapon_coste(hogar)
@@ -2074,6 +2074,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
             Table([[Paragraph("<font color='#C65C4E'>●</font> Gasto <b>fijo</b> (ata): %s · %.0f%%"%(rb._eur(_x_fij),(100*_x_fij/_x_gas if _x_gas else 0)),small),
                     Paragraph("<font color='#C9A227'>●</font> Gasto <b>variable</b>: %s"%rb._eur(_x_var),small)]],
                    colWidths=[80*mm,80*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0)]),
+            Paragraph("<font size=7 color='#9CA3AF'>Fijo = compromisos contractuales recurrentes (vivienda, cuotas, seguros). Variable = todo lo demás, gestionable mes a mes (comida, transporte, ocio, caprichos).</font>",small),
             Spacer(1,3*mm)]
     rb.cashflow_waterfall(hogar,"_cashH.png")
     S+=[KeepTogether([Paragraph("Vuestro flujo de caja conjunto",h_sub),
