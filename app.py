@@ -916,6 +916,14 @@ def lead(payload: LeadPayload):
         except Exception as e:
             print("[lead] fallo enviando email:", repr(e))
             return {"ok": False, "reason": "envio_fallido"}
+    # 3b) Aviso interno a Adapta de cada nuevo lead (failsafe, no afecta la respuesta)
+    if RESEND_API_KEY:
+        try:
+            _resend_post({"from": RESEND_FROM, "to": [NOTIFY_EMAIL],
+                          "subject": "Nuevo lead (test arquetipo): %s" % (arquetipo or "-"),
+                          "html": "<p><b>Nuevo lead del test gratuito</b></p><p>Email: <b>%s</b><br>Arquetipo: %s<br>Nombre: %s</p>" % (email, arquetipo or "-", nombre or "-")})
+        except Exception as e:
+            print("[lead] aviso interno fallo:", repr(e))
     # 4) Siempre devolvemos un objeto controlado
     return {"ok": True}
 
