@@ -1589,7 +1589,7 @@ def plan_hogar(hogar):
             add(1, "rojo", "Construid vuestro suelo de seguridad",
                 "Como hogar aguantariais %s meses con vuestro colchon liquido. Por debajo de 3, un imprevisto os obliga a malvender o endeudaros." % m1(m),
                 "Abrid UNA cuenta remunerada conjunta, separada del dia a dia, y automatizad %s/mes el dia de cobro." % e(ap or round(gas*0.1)),
-                "En 12 meses pasais de %s a 3 meses de colchon: de vulnerables a a prueba de sustos." % m1(m))
+                "En 12 meses pasais de %s a 3 meses de colchón: de vulnerables a estar a prueba de sustos." % m1(m))
     ial_h = g("ingreso_alquiler")
     cuo_neta_h = max(0.0, cuo - ial_h)
     if ing > 0 and cuo > 0 and (100 * cuo_neta_h / ing) >= 35:
@@ -1656,7 +1656,7 @@ def plan_maestro(datos, p=None, perfil_in=None):
             add(1, "rojo", "Colchon", "Construye tu suelo de seguridad",
                 "Hoy aguantarias %s meses con tu colchon liquido. Por debajo de 3, cualquier imprevisto te obliga a malvender o pedir prestado." % (("%.1f" % m).rstrip("0").rstrip(".")),
                 "Abre una cuenta remunerada SEPARADA del dia a dia y automatiza %s/mes el dia de cobro." % e(ap or round(gas*0.1)),
-                "En 12 meses pasas de %s a 3 meses de colchon: de vulnerable a a prueba de sustos." % (("%.1f" % m).rstrip("0").rstrip(".")))
+                "En 12 meses pasas de %s a 3 meses de colchón: de vulnerable a estar a prueba de sustos." % (("%.1f" % m).rstrip("0").rstrip(".")))
     # 2) DEUDA cara — criterio NETO: descuenta lo que cubren los alquileres (deuda de inversion).
     ial_pm = g("ingreso_alquiler")
     cuo_neta_pm = max(0.0, cuo - ial_pm)
