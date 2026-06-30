@@ -24,7 +24,7 @@
 <style>
 :root{--amarillo:#FDD731;--negro:#020203;--panel:#0E0E10;--blanco:#FFFFFF;--suave:#B9B9BD;--linea:#26262B;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco);-webkit-font-smoothing:antialiased;line-height:1.5;}
+body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco);-webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden;}
 .wrap{max-width:640px;margin:0 auto;padding:28px 22px 60px;min-height:100vh;}
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;}
 .topbar img{height:30px;}
@@ -300,35 +300,4 @@ function reto(){
 }
 function copyLink(){const url=location.origin+location.pathname;navigator.clipboard.writeText(url).then(()=>{$("copyTxt").textContent="¡Copiado!";setTimeout(()=>$("copyTxt").textContent="Copiar enlace",1800);});}
 var leadArquetipo="";
-function enviarLead(){
-  const inp=$("leadEmail"); if(!inp) return;
-  const email=(inp.value||"").trim();
-  if(!email||email.indexOf("@")<1||email.indexOf(".")<0){
-    inp.style.borderColor="#FDD731"; inp.focus(); return;
-  }
-  const box=$("leadBox"), msg=$("leadMsg");
-  try{
-    fetch("https://diagnostico-financiero-app.onrender.com/api/lead",{
-      method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({email:email,arquetipo:leadArquetipo})
-    }).catch(function(){});
-  }catch(e){}
-  // Optimista: confirmamos siempre, pase lo que pase con el fetch.
-  if(box){
-    Array.prototype.forEach.call(box.children,function(ch){ if(ch.id!=="leadMsg") ch.style.display="none"; });
-  }
-  if(msg){ msg.style.display="block"; msg.textContent="¡Desbloqueado! También te lo hemos enviado a tu correo ✓"; }
-  if($("lockedRead")) $("lockedRead").style.display="";
-  if($("shareBlock")) $("shareBlock").style.display="block";
-  if($("ctaBox")) $("ctaBox").style.display="";
-  setTimeout(function(){ var lr=$("lockedRead"); if(lr&&lr.scrollIntoView) lr.scrollIntoView({behavior:"smooth",block:"center"}); },140);
-}
-function downloadCard(){
-  const card=$("card");
-  html2canvas(card,{backgroundColor:"#020203",scale:2}).then(canvas=>{
-    const a=document.createElement("a");a.download="mi-arquetipo-adapta.png";a.href=canvas.toDataURL("image/png");a.click();
-  });
-}
-</script>
-</body>
-</html>
+function enviarLead()
