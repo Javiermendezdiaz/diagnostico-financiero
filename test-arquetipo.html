@@ -205,30 +205,42 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
 /* ===== Motor de los 16 Arquetipos del Dinero (espejo de arq16.py) =====
    4 ejes binarios: Riesgo S/A · Tiempo P/L · Decisión M/I · Esfera O/T  */
 const ARQ=[
- {q:"El dinero que no necesitas a corto plazo, ¿qué prefieres?",o:[
-   {t:"Que esté seguro y a mano, aunque rente poco.",a:"S"},
-   {t:"Que trabaje y crezca, aunque vibre.",a:"A"}]},
- {q:"Tu inversión cae con fuerza de golpe. Por dentro, ¿qué sientes?",o:[
-   {t:"Urgencia de proteger lo que queda.",a:"S"},
-   {t:"Una oportunidad de comprar más barato.",a:"A"}]},
- {q:"Te cae un dinero extra inesperado. ¿Qué te apetece más?",o:[
-   {t:"Disfrutarlo: un viaje, un capricho, vivir.",a:"P"},
-   {t:"Invertirlo para construir mañana.",a:"L"}]},
- {q:"¿Qué te define mejor?",o:[
-   {t:"Vivir bien hoy; el futuro ya se verá.",a:"P"},
-   {t:"Construir algo que dure y dejar huella.",a:"L"}]},
- {q:"Cuando decides sobre tu dinero, ¿de qué te fías más?",o:[
-   {t:"De los números y un sistema.",a:"M"},
-   {t:"De mi intuición y cómo lo siento.",a:"I"}]},
- {q:"Tus cuentas y tus gastos, ¿cómo los llevas?",o:[
-   {t:"Con orden: los reviso y los controlo.",a:"M"},
-   {t:"A ojo; ya sé más o menos por dónde voy.",a:"I"}]},
- {q:"Las decisiones de dinero importantes…",o:[
-   {t:"Las tomo yo; es asunto mío.",a:"O"},
-   {t:"Las decido con los míos.",a:"T"}]},
- {q:"Cuando piensas en tu dinero, piensas sobre todo en…",o:[
-   {t:"Mi libertad y mi independencia.",a:"O"},
-   {t:"Mi familia y los que dependen de mí.",a:"T"}]}
+ {q:"El dinero que no necesitas ahora mismo, ¿qué prefieres?",o:[
+   {t:"Que esté a salvo, aunque crezca despacio.",a:"S"},
+   {t:"Que crezca de verdad, aunque dé algún susto.",a:"A"}]},
+ {q:"Te cae un dinero extra inesperado. ¿Qué te pide el cuerpo?",o:[
+   {t:"Dártelo: un gusto, un viaje, vivirlo.",a:"P"},
+   {t:"Ponerlo a trabajar para el mañana.",a:"L"}]},
+ {q:"Una decisión de dinero importante. ¿De qué te fías más?",o:[
+   {t:"De los números y un plan.",a:"M"},
+   {t:"De mi olfato y mi experiencia.",a:"I"}]},
+ {q:"Las decisiones sobre tu dinero, prefieres…",o:[
+   {t:"Tomarlas por tu cuenta, a tu ritmo.",a:"O"},
+   {t:"Tomarlas en equipo, con los tuyos.",a:"T"}]},
+ {q:"El mercado cae con fuerza de golpe. Tu primer impulso:",o:[
+   {t:"Poner a salvo lo que queda.",a:"S"},
+   {t:"Buscar qué se ha puesto barato.",a:"A"}]},
+ {q:"Cuando piensas en tu dinero, ¿qué pesa más?",o:[
+   {t:"Vivir bien el presente.",a:"P"},
+   {t:"Construir para el futuro.",a:"L"}]},
+ {q:"Tus cuentas, ¿cómo las llevas?",o:[
+   {t:"Con orden: las reviso y las controlo.",a:"M"},
+   {t:"A grandes rasgos; ya sé por dónde voy.",a:"I"}]},
+ {q:"Lo que más valoras que te dé el dinero:",o:[
+   {t:"Tu independencia y tu libertad.",a:"O"},
+   {t:"Tranquilidad para los tuyos y para ti.",a:"T"}]},
+ {q:"Una oportunidad con buen potencial, pero que puede bajar bastante:",o:[
+   {t:"Entro: quien no arriesga, no gana.",a:"A"},
+   {t:"Paso: duermo mejor sin sobresaltos.",a:"S"}]},
+ {q:"Tu idea de hacerlo bien con el dinero es…",o:[
+   {t:"Disfrutar el camino, no solo la meta.",a:"P"},
+   {t:"Dejar algo que perdure.",a:"L"}]},
+ {q:"Ante una oportunidad, sueles decidir…",o:[
+   {t:"Rápido: si lo siento, voy.",a:"I"},
+   {t:"Con calma: primero lo analizo.",a:"M"}]},
+ {q:"Cuando ganas o pierdes con el dinero, lo vives…",o:[
+   {t:"Como algo tuyo, personal.",a:"O"},
+   {t:"Como algo del grupo, compartido.",a:"T"}]}
 ];
 const META={
  SPMO:{n:"El Centinela",l:"Vigilo lo mío, sin sobresaltos.",c:"#0E8A6E",luz:"Orden y serenidad; nada se te escapa.",s:"Dinero parado por miedo a moverlo."},
