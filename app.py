@@ -882,7 +882,8 @@ def _build_lead_email(arquetipo, nombre=""):
         "evitas mirar. Tu arquetipo es ese patron invisible que se repite en cada decision &mdash; y conocerlo "
         "es el primer paso para cambiarlo.</p>"
         "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
-        "El test gratuito es solo el reflejo. El diagnostico completo te devuelve el mapa entero &mdash; con TUS cifras.</p>"
+        "El test gratuito es solo el reflejo. El informe completo te dice, desde donde estas hoy, "
+        "como llegar a donde quieres &mdash; con TUS cifras: tus numeros, tu punto ciego y tu plan.</p>"
         + _tiers_html() +
         "<p style=\"font-size:13px;line-height:1.55;color:#8b8b90;margin:16px 0 0\">"
         "Empiezas viendo tu adelanto gratis, con tus cifras reales. Solo pagas si quieres el libro completo.</p>"

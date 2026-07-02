@@ -174,7 +174,7 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
     </div>
     <div class="cta" id="ctaBox" style="display:none">
       <h3 id="ctaH">Esto es el <b>5%</b> de lo que ITAP ve de ti</h3>
-      <p id="ctaP">Tu arquetipo es solo la superficie. El diagnóstico completo cruza 131 señales y te entrega tu libro financiero: tus números, tus puntos ciegos y un plan de acción. Desde 19&nbsp;€.</p>
+      <p id="ctaP">Tu arquetipo es solo la superficie. El informe completo te dice, desde donde estás hoy, cómo llegar a donde quieres: tus números, tus puntos ciegos y tu plan de acción. Desde 19&nbsp;€.</p>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 14px;font-size:13px;color:#B9B9BD">
         <span><b style="color:#fff">Rápido</b> 19€</span><span>·</span><span><b style="color:#FDD731">Avanzado</b> 39€</span><span>·</span><span><b style="color:#fff">Pareja</b> 54€</span>
       </div>
@@ -287,7 +287,7 @@ function finish(){
   const card=$("card"); if(card){ card.style.borderColor=m.c; }
   const cb=$("cardBar"); if(cb){ cb.style.background=m.c; }
   if($("ctaH")) $("ctaH").textContent=m.n+" tiene un punto ciego que no ve solo";
-  if($("ctaP")) $("ctaP").innerHTML=m.s+" El diagnóstico completo cruza más de 100 señales y te dice exactamente dónde estás expuesto, cuánto te cuesta y qué hacer. <b>Tu libro financiero, desde 19&nbsp;€.</b>";
+  if($("ctaP")) $("ctaP").innerHTML=m.s+" El informe completo te dice, desde donde estás hoy, cómo llegar: dónde estás expuesto, cuánto te cuesta y qué hacer. <b>Tu libro financiero, desde 19&nbsp;€.</b>";
   if($("stName")){ $("stName").textContent=m.n; $("stLema").textContent="«"+m.l+"»"; if($("stLuz"))$("stLuz").innerHTML="<b style='color:#fff'>Lo que aporto:</b> "+m.luz; $("stDesc").textContent=traits.join("  ·  "); }
   const url=location.origin+location.pathname;
   const txt="Soy "+m.n+" 💰 ¿Qué dice tu dinero de ti? Descúbrelo en 60 s:";
