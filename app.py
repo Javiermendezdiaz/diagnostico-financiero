@@ -946,7 +946,7 @@ def _ensure_leads_table(c):
     """Crea la tabla de leads y anade columnas de seguimiento si faltan (failsafe)."""
     c.execute("CREATE TABLE IF NOT EXISTS leads (email TEXT, arquetipo TEXT, nombre TEXT, creado TEXT)")
     cols = [r["name"] for r in c.execute("PRAGMA table_info(leads)")]
-    for col, ddl in [("paso", "INTEGER"), ("paso_fecha", "TEXT")]:
+    for col, ddl in [("paso", "INTEGER"), ("paso_fecha", "TEXT"), ("oculto", "INTEGER")]:
         if col not in cols:
             c.execute("ALTER TABLE leads ADD COLUMN %s %s" % (col, ddl))
 
@@ -1011,7 +1011,7 @@ def leads_list(key: str = ""):
     try:
         with db() as c:
             _ensure_leads_table(c)
-            for r in c.execute("SELECT email, arquetipo, nombre, creado, paso FROM leads ORDER BY creado DESC LIMIT 1000"):
+            for r in c.execute("SELECT email, arquetipo, nombre, creado, paso FROM leads WHERE (oculto IS NULL OR oculto=0) ORDER BY creado DESC LIMIT 1000"):
                 filas.append({"email": r["email"], "arquetipo": r["arquetipo"], "nombre": r["nombre"],
                               "creado": r["creado"], "paso": r["paso"]})
     except Exception as e:
@@ -1060,6 +1060,24 @@ def cron_nurture(key: str = ""):
         except Exception as e:
             print("[nurture] fallo enviando a", email, repr(e))
     return {"ok": True, "enviados": enviados, "candidatos": len(pendientes)}
+
+
+@app.get("/api/leads/hide")
+def leads_hide(key: str = "", like: str = ""):
+    """Oculta (soft-delete reversible) leads cuyo email contenga 'like'. Requiere ?key=ADMIN_KEY."""
+    if not ADMIN_KEY or key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="no autorizado")
+    if not like:
+        return {"ok": False, "reason": "sin_patron"}
+    n = 0
+    try:
+        with db() as c:
+            _ensure_leads_table(c)
+            cur = c.execute("UPDATE leads SET oculto=1 WHERE email LIKE ?", ("%" + like + "%",))
+            n = cur.rowcount
+    except Exception as e:
+        print("[leads_hide]", repr(e)); return {"ok": False}
+    return {"ok": True, "ocultados": n}
 
 
 @app.post("/api/checkout/{session_id}")
