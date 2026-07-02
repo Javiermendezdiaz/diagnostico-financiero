@@ -1947,7 +1947,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         Spacer(1,5*mm),
         Table([[""]],colWidths=[60*mm],style=[("LINEBELOW",(0,0),(-1,-1),4,colors.HexColor("#FDD731"))]),
         Spacer(1,7*mm),
-        Paragraph("Dos vidas, una economía. Dónde os sostenéis y dónde chocáis.",St("c2",fontSize=12,textColor=ACCDK)),
+        Paragraph("El informe que os dice, desde donde estáis hoy, cómo llegar juntos a donde queréis.",St("c2",fontSize=12,textColor=ACCDK)),
         Spacer(1,38*mm),
         Paragraph(f"Escrito para  <b>{cliA['nombre']}</b>  &amp;  <b>{cliB['nombre']}</b>",St("cn",fontSize=12)),
         Paragraph(cliA["fecha"],small),

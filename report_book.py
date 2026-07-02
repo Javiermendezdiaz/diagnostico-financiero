@@ -636,8 +636,19 @@ class DarkPage(_Flowable):
             c.setFillColor(colors.HexColor("#E9E4D6")); c.setFont(FR,11)
             c.drawCentredString(cx, self.h/2.0-6*mm, self.sub)
         if self.legal:
-            c.setFillColor(colors.HexColor("#8A8F99")); c.setFont(FR,7.5)
-            c.drawCentredString(cx, 14*mm, self.legal)
+            c.setFillColor(colors.HexColor("#8A8F99"))
+            from reportlab.pdfbase.pdfmetrics import stringWidth as _sw
+            _maxw = self.w - 36*mm  # respetar margenes laterales
+            _fs = 7.5
+            while _fs > 5.5 and _sw(self.legal, FR, _fs) > _maxw:
+                _fs -= 0.5
+            if _sw(self.legal, FR, _fs) <= _maxw:
+                c.setFont(FR, _fs); c.drawCentredString(cx, 14*mm, self.legal)
+            else:
+                # dos lineas: partir por el punto medio de palabras
+                _ws = self.legal.split(" "); _half = len(_ws)//2
+                _l1 = " ".join(_ws[:_half]); _l2 = " ".join(_ws[_half:])
+                c.setFont(FR, 7); c.drawCentredString(cx, 17*mm, _l1); c.drawCentredString(cx, 11*mm, _l2)
         c.restoreState()
 
 class FullBleedImage(_Flowable):
@@ -2401,7 +2412,7 @@ def seccion_extras(extras, datos=None):
         out+=[_rt]
     fnt=extras.get("fortuna_neta")
     if fnt:
-        cm=(" &#183; colchón de <b>%g meses</b> de gastos" % fnt["colchon_meses"]) if fnt.get("colchon_meses") else ""
+        cm=(" &#183; colchón de <b>%s meses</b> de gastos" % (("%g" % fnt["colchon_meses"]).replace(".",","))) if fnt.get("colchon_meses") else ""
         out+=[Spacer(1,5*mm), Paragraph("Tu fortuna neta hoy",h_sub),
               Paragraph("El número maestro: lo que de verdad es tuyo cuando restas todo lo que debes. Es la cifra que conviene recalcular cada seis meses.",small),
               Spacer(1,2*mm),
@@ -2412,7 +2423,7 @@ def seccion_extras(extras, datos=None):
                   Paragraph("Solo con lo que has declarado, sin suponer nada:",small),
                   Image("_donut.png",width=152*mm,height=60*mm,hAlign="CENTER")]
             if fnt.get("resistencia_meses"):
-                out.append(Paragraph("Tu <b>músculo de resistencia</b> —colchón inmediato más lo que rescatarías en días— cubre <b>%g meses</b> de gastos. No estás desprotegido; lo que conviene ajustar es cuánto tienes en líquido inmediato." % fnt["resistencia_meses"], St("mr",fontSize=9.7,leading=14,spaceBefore=3)))
+                out.append(Paragraph("Tu <b>músculo de resistencia</b> —colchón inmediato más lo que rescatarías en días— cubre <b>%s meses</b> de gastos. No estás desprotegido; lo que conviene ajustar es cuánto tienes en líquido inmediato." % (("%g" % fnt["resistencia_meses"]).replace(".",",")), St("mr",fontSize=9.7,leading=14,spaceBefore=3)))
     dt=extras.get("deuda_tipo")
     if dt:
         out+=[Spacer(1,5*mm), Paragraph(dt[0],h_sub), Spacer(1,2*mm),
@@ -2687,7 +2698,7 @@ def seccion_resumen_ejecutivo(extras, datos):
         _bc="#1D6F42" if rv["iri"]>=60 else ("#C2710C" if rv["iri"]>=40 else "#9A3B2E")
         cells.append([Paragraph("Tu Ratio de Vida",_lbl),Paragraph("<b>%d</b><font size=11 color='#6B7280'>/100</font>"%rv["iri"],St("ren1",fontSize=26,leading=30,textColor=colors.HexColor(_bc),fontName=FB))])
     if res and res.get("meses_libertad") is not None:
-        _m=res["meses_libertad"]; _mt=("%.0f meses"%_m) if _m<24 else ("%.1f años"%(_m/12.0))
+        _m=res["meses_libertad"]; _mt=("%.0f meses"%_m) if _m<24 else (("%.1f años"%(_m/12.0)).replace(".",","))
         cells.append([Paragraph("Meses de libertad",_lbl),Paragraph("<b>%s</b>"%_mt,St("ren2",fontSize=20,leading=26,textColor=INK,fontName=FB))])
     if rv:
         cells.append([Paragraph("Tu eslabón más débil",_lbl),Paragraph("<b>%s</b>"%rv["weakest"],St("ren3",fontSize=20,leading=26,textColor=colors.HexColor("#9A3B2E"),fontName=FB))])
@@ -2745,7 +2756,7 @@ def seccion_one_pager(salud, fi, datos, extras=None):
             res=ex.get("resiliencia") or {}
             ml=res.get("meses_libertad")
             if ml is not None:
-                ml=float(ml); mt=("%.0f meses"%ml) if ml<24 else ("%.1f años"%(ml/12.0))
+                ml=float(ml); mt=("%.0f meses"%ml) if ml<24 else (("%.1f años"%(ml/12.0)).replace(".",","))
                 cells.append(_kpi_celda("MESES DE RESISTENCIA",mt,"#1A1A17","Sin ingresos, manteniendo tu vida"))
         except Exception: pass
         # Tasa de ahorro
@@ -2757,7 +2768,7 @@ def seccion_one_pager(salud, fi, datos, extras=None):
         except Exception: pass
         if not cells: return []
         out=[Paragraph("Tu diagnóstico de un vistazo",h_sec),
-             Paragraph("Las cifras que mandan, en una sola página. El resto del libro es el porqué y el cómo.",body),
+             Paragraph("<b>El informe completo que te dice, desde donde estás hoy, cómo llegar a donde quieres.</b> Empezamos por las cifras que mandan; el resto del libro es el porqué y el cómo.",body),
              Spacer(1,5*mm)]
         # Maqueta en filas de 3 columnas
         for i in range(0,len(cells),3):
@@ -3132,7 +3143,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         Spacer(1,5*mm),
         Table([[""]],colWidths=[60*mm],style=[("LINEBELOW",(0,0),(-1,-1),4,AMARILLO)]),
         Spacer(1,7*mm),
-        Paragraph("Una lectura honesta de tu relación con el dinero, capa por capa.",St("cv2",fontSize=12,textColor=ACCDK)),
+        Paragraph("El informe completo que te dice, desde donde estás hoy, cómo llegar a donde quieres.",St("cv2",fontSize=12,textColor=ACCDK)),
         Spacer(1,40*mm),
         Paragraph(f"Perfil  \u00b7  <b>{_edad_txt(datos)}</b>",St("cvn",fontSize=12)),
         Paragraph(cli["email"],small), Paragraph(cli["fecha"],small),
@@ -3443,20 +3454,20 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         _ml_p=_res["meses_libertad"]; _an_p=_res["anios_libertad"]; _mliq=_res["meses_liquido"]
         _niv=_res["nivel"]; _ilq=_res["iliquido"]
         if _niv=="libertad":
-            _h1=f"<b>Tu patrimonio cubre {_an_p:g} años de tu vida.</b>"
+            _h1=f"<b>Tu patrimonio cubre {('%g' % _an_p).replace('.', ',')} años de tu vida.</b>"
             _h2=("Has cruzado la línea que casi nadie cruza: si tus ingresos se cortaran hoy, tu patrimonio sostendría tu vida "
                  "durante décadas. Trabajar ha dejado de ser obligación para ser elección. Tu reto ya no es ganar más, sino que "
                  "ese capital rente y no pierda poder de compra contra la inflación.")
         elif _niv=="solido":
-            _h1=f"<b>Tu patrimonio compra {_ml_p:g} meses —cerca de {_an_p:g} años— de libertad.</b>"
+            _h1=f"<b>Tu patrimonio compra {('%g' % _ml_p).replace('.', ',')} meses —cerca de {('%g' % _an_p).replace('.', ',')} años— de libertad.</b>"
             _h2=("Tienes un respaldo que muy pocos tienen. La pregunta deja de ser «¿aguantaría un golpe?» —lo aguantas— y pasa a "
                  "ser «¿está trabajando mi capital o duerme?». Tu palanca ya no es el sueldo: es la eficiencia de tu patrimonio.")
         elif _niv=="construccion":
-            _h1=f"<b>Tu patrimonio cubre {_ml_p:g} meses de tu vida.</b>"
+            _h1=f"<b>Tu patrimonio cubre {('%g' % _ml_p).replace('.', ',')} meses de tu vida.</b>"
             _h2=("Estás construyendo respaldo real. El siguiente hito es claro: llegar a 24 meses cubiertos, el punto donde un "
                  "imprevisto deja de ser una amenaza y pasa a ser una incomodidad. A partir de ahí, el dinero empieza a trabajar para ti.")
         elif _niv=="ajustado":
-            _h1=f"<b>Tu patrimonio cubre {_ml_p:g} meses de tu vida.</b>"
+            _h1=f"<b>Tu patrimonio cubre {('%g' % _ml_p).replace('.', ',')} meses de tu vida.</b>"
             _h2=("Es una base, pero todavía fina: un shock serio —un paro, una avería grande, un mal año— te obligaría a decisiones "
                  "duras. La prioridad no es la rentabilidad todavía; es engrosar ese colchón hasta 6-12 meses. Eso es lo que compra calma.")
         else:
@@ -3471,7 +3482,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                          St("mlh2",fontSize=9.4,leading=13,textColor=GREY,spaceBefore=5))]
         if _ilq:
             _parr.append(Paragraph(f"<b>Matiz honesto:</b> buena parte de tu patrimonio no es caja inmediata. En líquido disponible "
-                                   f"tienes solo <b>{_mliq:g} meses</b>. Tu casa o tu negocio valen, pero no pagan el súper del mes que "
+                                   f"tienes solo <b>{('%g' % _mliq).replace('.', ',')} meses</b>. Tu casa o tu negocio valen, pero no pagan el súper del mes que "
                                    f"viene: conviene tener una parte realizable en días.",
                                    St("mlh3",fontSize=9.4,leading=13,textColor=colors.HexColor("#9A3B2E"),spaceBefore=5)))
         # --- Matiz colchón social (paro / cese de actividad): solo si el perfil tiene derecho ---
@@ -3503,9 +3514,9 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                                    "longevidad que casi nadie contempla, tú ya lo tienes resuelto.",
                                    St("mlon",fontSize=9.4,leading=13,textColor=colors.HexColor("#0F766E"),spaceBefore=5)))
         else:
-            _parr.append(Paragraph(("<b>¿Y si vives más de 100 años?</b> Hoy, sin ingresos, tu patrimonio cubre unos %g años de vida. "
+            _parr.append(Paragraph(("<b>¿Y si vives más de 100 años?</b> Hoy, sin ingresos, tu patrimonio cubre unos %s años de vida. "
                                     "Blindar la longevidad —que no se agote vivas lo que vivas— es justo para lo que sirve cruzar tu número "
-                                    "de libertad: a partir de ahí, la renta al 4%% cubre tu vida para siempre.") % _an_p,
+                                    "de libertad: a partir de ahí, la renta al 4%% cubre tu vida para siempre.") % (("%g" % _an_p).replace(".",",")),
                                     St("mlon",fontSize=9.4,leading=13,textColor=GREY,spaceBefore=5)))
         S+=[_box(_parr,"#FBF9EC","#C9962B",ancho=160*mm), Spacer(1,4*mm)]
     # === ACTO 1: Ratio de Esclavitud Temporal (dinamico y honesto, derivado del flujo real) ===
@@ -3529,7 +3540,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 _txt_e=(f"<b>Tu Ratio de Esclavitud Temporal es del {_escl*100:.0f}%.</b> Traducido a tiempo: de cada 12 meses "
                         f"que trabajas, <b>unos {_mi:.0f} se van enteros en pagar la vida que ya tienes</b> y apenas "
                         f"<b>{_ml:.0f} en construir la que quieres</b>. Y este es el dato que duele: al ritmo de hoy, "
-                        f"<b>comprar un solo mes de libertad te cuesta {_esf:g} meses de trabajo</b>. El problema no es "
+                        f"<b>comprar un solo mes de libertad te cuesta {('%g' % _esf).replace('.', ',')} meses de trabajo</b>. El problema no es "
                         f"cuánto ganas: es lo poco de tu esfuerzo que se queda contigo.")
             else:
                 _txt_e=("<b>Tu Ratio de Esclavitud Temporal roza el 100%.</b> Ahora mismo casi todo lo que trabajas se "
@@ -3667,9 +3678,14 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         rows.append([Paragraph(str(_i),small),Paragraph(f"<b>{_AREA.get(code,code)}</b>",small),
                      Paragraph(_acc,small),
                      Chip(f"{val:.0f}/100","#9A3B2E" if val>=75 else "#EA580C",w=46,h=13)])
-    pt=Table(rows,colWidths=[8*mm,40*mm,82*mm,30*mm]); pt.setStyle(TableStyle([
-        ("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
-        ("VALIGN",(0,0),(-1,-1),"MIDDLE"),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
+    if len(rows)>1:
+        pt=Table(rows,colWidths=[8*mm,40*mm,82*mm,30*mm]); pt.setStyle(TableStyle([
+            ("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
+            ("VALIGN",(0,0),(-1,-1),"MIDDLE"),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
+    else:
+        pt=Paragraph("<b>Sin focos críticos: mantén el rumbo.</b> Ninguna dimensión está en tensión alta. "
+                     "Tu trabajo no es contener fugas, sino afinar una maquinaria que ya funciona.",
+                     St("pa_ok",fontSize=10,leading=14,textColor=INK,leftIndent=4,backColor="#F1F6EF",borderPadding=8,spaceBefore=2))
     _pens=float(datos.get("pension_estimada") or 0); _gm_lib=float(datos.get("gasto_mensual") or 0)
     _num_aj=max(0.0,(_gm_lib-_pens))*12*25
     S+=[pt,Spacer(1,5*mm),Paragraph("Tus números de libertad",h_sub),
