@@ -852,6 +852,18 @@ def invitar_pareja(payload: InvitarParejaPayload):
         # No registramos la excepcion entera para no arriesgar fugas; mensaje neutro.
         return {"ok": False, "motivo": "envio_fallido"}
 
+def _tiers_html():
+    """Bloque con los 3 diagnosticos para incitar a elegir (inline, voz Adapta)."""
+    return (
+        "<div style=\"margin:24px 0 4px;border-top:1px solid #2a2a30;padding-top:20px\">"
+        "<div style=\"font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8b8b90;font-weight:700;margin-bottom:14px\">Elige c&oacute;mo mirarte</div>"
+        "<p style=\"font-size:14.5px;line-height:1.5;color:#c3c3bd;margin:0 0 10px\"><b style=\"color:#fff\">R&aacute;pido &middot; 19&nbsp;&euro;</b> &mdash; tu foto psicofinanciera y tu cifra de libertad.</p>"
+        "<p style=\"font-size:14.5px;line-height:1.5;color:#c3c3bd;margin:0 0 10px\"><b style=\"color:#fdd731\">Avanzado &middot; 39&nbsp;&euro;</b> &mdash; tu auditor&iacute;a completa: brecha, palancas, punto ciego y plan de 100 d&iacute;as. <span style=\"color:#8b8b90\">(el m&aacute;s elegido)</span></p>"
+        "<p style=\"font-size:14.5px;line-height:1.5;color:#c3c3bd;margin:0 0 4px\"><b style=\"color:#fff\">Pareja &middot; 54&nbsp;&euro;</b> &mdash; vuestro dinero cruzado: fricciones, reparto real y el gui&oacute;n para hablarlo.</p>"
+        "</div>"
+    )
+
+
 def _build_lead_email(arquetipo, nombre=""):
     """Construye el payload de Resend para el lead del test de arquetipo gratuito.
     Funcion pura (sin red). Voz Adapta, max 560px, estilos inline."""
@@ -870,9 +882,11 @@ def _build_lead_email(arquetipo, nombre=""):
         "evitas mirar. Tu arquetipo es ese patron invisible que se repite en cada decision &mdash; y conocerlo "
         "es el primer paso para cambiarlo.</p>"
         "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
-        "El test gratuito es solo el reflejo. El diagnostico completo te devuelve el mapa entero: tu brecha, "
-        "tus palancas y el camino concreto hacia tu libertad financiera.</p>"
-        "<div style=\"text-align:center;margin:28px 0 8px\">"
+        "El test gratuito es solo el reflejo. El diagnostico completo te devuelve el mapa entero &mdash; con TUS cifras.</p>"
+        + _tiers_html() +
+        "<p style=\"font-size:13px;line-height:1.55;color:#8b8b90;margin:16px 0 0\">"
+        "Empiezas viendo tu adelanto gratis, con tus cifras reales. Solo pagas si quieres el libro completo.</p>"
+        "<div style=\"text-align:center;margin:22px 0 8px\">"
         "<a href=\"https://diagnostico.adaptafamilyoffice.com/inicio.html\" "
         "style=\"display:inline-block;background:#fdd731;color:#101014;text-decoration:none;"
         "font-weight:700;font-size:16px;padding:14px 26px;border-radius:12px\">"
@@ -983,6 +997,8 @@ def _build_lead_followup(arquetipo, nombre, paso):
             "&mdash; y empiezas viendo tu adelanto gratis, con tus cifras. Solo pagas si quieres el libro entero.</p>"
             "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
             "Hoy te toca a ti: dar el primer paso, o seguir huyendo.</p>") % saludo
+    if paso != 2:
+        cuerpo = cuerpo + _tiers_html()
     return {"from": RESEND_FROM, "to": None, "subject": asunto, "html": _lead_wrap(cuerpo)}
 
 
