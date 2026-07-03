@@ -49,7 +49,10 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
 .qnum{color:var(--amarillo);font-weight:600;font-size:12px;letter-spacing:1.5px;margin-bottom:12px;}
 .qtext{font-size:23px;font-weight:600;line-height:1.3;margin-bottom:26px;}
 .opt{background:var(--panel);border:1.5px solid var(--linea);color:var(--blanco);font-family:inherit;font-size:15.5px;font-weight:400;text-align:left;width:100%;padding:18px 20px;border-radius:14px;cursor:pointer;margin-bottom:12px;transition:all .15s;line-height:1.35;}
-.opt:hover{border-color:var(--amarillo);background:#15150f;transform:translateX(3px);}
+@media(hover:hover){.opt:hover{border-color:var(--amarillo);background:#15150f;transform:translateX(3px);}}
+.opt:active{border-color:var(--amarillo);background:#15150f;}
+.backbtn{background:none;border:none;color:#8b8b90;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;padding:4px 0 8px;display:inline-flex;align-items:center;gap:6px}
+.backbtn:hover{color:var(--amarillo)}
 /* RESULT */
 #result{display:none;}
 .reveal{color:var(--suave);font-size:13px;font-weight:300;margin-bottom:16px;}
@@ -109,6 +112,7 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
   <!-- QUIZ -->
   <section id="quiz">
     <div class="progress"><i id="bar"></i></div>
+    <button id="backBtn" class="backbtn" onclick="atras()" style="display:none">← Atrás</button>
     <div class="qnum" id="qnum"></div>
     <div class="qtext" id="qtext"></div>
     <div id="opts"></div>
@@ -175,19 +179,24 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
     <div class="cta" id="ctaBox" style="display:none">
       <h3 id="ctaH">Esto es el <b>5%</b> de lo que ITAP ve de ti</h3>
       <p id="ctaP">Tu arquetipo es solo la superficie. El informe completo te dice, desde donde estás hoy, cómo llegar a donde quieres: tus números, tus puntos ciegos y tu plan de acción. Desde 19&nbsp;€.</p>
-      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 14px;font-size:13px;color:#B9B9BD">
-        <span><b style="color:#fff">Rápido</b> 19€</span><span>·</span><span><b style="color:#FDD731">Avanzado</b> 39€</span><span>·</span><span><b style="color:#fff">Pareja</b> 54€</span>
+      <div style="color:#B9B9BD;font-size:13.5px;line-height:1.45;margin:0 0 10px">Elige por dónde empezar tu diagnóstico completo:</div>
+      <div class="tier3">
+        <a class="tierbtn" href="https://diagnostico.adaptafamilyoffice.com/empezar2.html?tier=1"><b>Rápido</b><span>19&nbsp;€</span></a>
+        <a class="tierbtn feat" href="https://diagnostico.adaptafamilyoffice.com/empezar2.html?tier=2"><i>★ el más elegido</i><b>Avanzado</b><span>39&nbsp;€</span></a>
+        <a class="tierbtn" href="https://diagnostico.adaptafamilyoffice.com/empezar2.html?tier=3"><b>Pareja</b><span>54&nbsp;€</span></a>
       </div>
-      <a class="btn block" href="./inicio.html" id="ctaBtn">Quiero mi diagnóstico completo →</a>
+      <a class="btn block" href="./inicio.html" id="ctaBtn">Ver qué incluye cada uno →</a>
     </div>
 
     <div id="leadBox" style="margin-top:16px;border:1.5px solid var(--linea);background:var(--panel);border-radius:14px;padding:18px 18px 16px">
-      <div style="color:#fff;font-size:16px;font-weight:700;line-height:1.35">Esto es solo tu nombre. 👇</div>
-      <div style="color:#B9B9BD;font-size:14px;line-height:1.5;margin-top:6px">Desbloquea <b style="color:#fff">qué dice de tu comportamiento</b> — cómo decides, tu fuerza y tu punto ciego — más un <b style="color:#fff">mini-plan</b>. Te lo enviamos también al correo.</div>
-      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
-        <input type="email" id="leadEmail" placeholder="tu@email.com" autocomplete="email"
-               style="flex:1 1 180px;min-width:0;padding:13px 14px;border-radius:11px;border:1.5px solid var(--linea);background:#020203;color:#fff;font-family:inherit;font-size:15px;outline:none">
-        <button class="btn" id="leadBtn" style="flex:0 0 auto;padding:13px 20px" onclick="enviarLead()">Desbloquear mi lectura →</button>
+      <div style="color:#fff;font-size:17px;font-weight:700;line-height:1.35">Desbloquea tu lectura completa 👇</div>
+      <div style="color:#B9B9BD;font-size:14px;line-height:1.5;margin-top:6px">Déjanos tu <b style="color:#fff">nombre y tu correo</b> y te abrimos <b style="color:#fff">cómo decides con el dinero</b>, tu fuerza y tu punto ciego — más un <b style="color:#fff">mini-plan</b>. Gratis, y también te lo enviamos por email.</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
+        <input type="text" id="leadName" placeholder="Tu nombre" autocomplete="given-name"
+               style="width:100%;padding:14px;border-radius:11px;border:1.5px solid var(--linea);background:#020203;color:#fff;font-family:inherit;font-size:15px;outline:none">
+        <input type="email" id="leadEmail" placeholder="Tu correo" autocomplete="email"
+               style="width:100%;padding:14px;border-radius:11px;border:1.5px solid var(--linea);background:#020203;color:#fff;font-family:inherit;font-size:15px;outline:none">
+        <button class="btn block" id="leadBtn" style="margin-top:2px" onclick="enviarLead()">Ver mi lectura completa →</button>
       </div>
       <div id="leadMsg" style="display:none;color:#FDD731;font-size:14px;font-weight:600;margin-top:10px"></div>
     </div>
@@ -261,18 +270,20 @@ const META={
  ALIT:{n:"El Visionario",l:"Inspiro y construyo el mañana.",c:"#5B21B6",luz:"Inspiras a otros a soñar en grande.",s:"Sueños sin números que los sostengan."}
 };
 const POLO={S:"Seguridad",A:"Audacia",P:"Presente",L:"Legado",M:"Método",I:"Instinto",O:"Solo",T:"Tribu"};
-let i=0, counts={S:0,A:0,P:0,L:0,M:0,I:0,O:0,T:0}, current="";
+let i=0, counts={S:0,A:0,P:0,L:0,M:0,I:0,O:0,T:0}, current="", answers=[];
 const $=id=>document.getElementById(id);
-function start(){$("hero").style.display="none";$("quiz").style.display="block";i=0;counts={S:0,A:0,P:0,L:0,M:0,I:0,O:0,T:0};render();window.scrollTo(0,0);}
+function start(){$("hero").style.display="none";$("quiz").style.display="block";i=0;answers=[];counts={S:0,A:0,P:0,L:0,M:0,I:0,O:0,T:0};render();window.scrollTo(0,0);}
 function render(){
   const Q=ARQ[i];
   $("bar").style.width=((i)/ARQ.length*100)+"%";
   $("qnum").textContent="PREGUNTA "+(i+1)+" DE "+ARQ.length;
+  if($("backBtn")) $("backBtn").style.display=i>0?"inline-flex":"none";
   $("qtext").textContent=Q.q;
   const c=$("opts");c.innerHTML="";
   Q.o.forEach(op=>{const b=document.createElement("button");b.className="opt";b.textContent=op.t;b.onclick=()=>choose(op.a);c.appendChild(b);});
 }
-function choose(a){counts[a]++;i++;if(i<ARQ.length){render();window.scrollTo(0,0);}else finish();}
+function choose(a){if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();answers[i]=a;counts[a]++;i++;if(i<ARQ.length){render();window.scrollTo(0,0);}else finish();}
+function atras(){if(i>0){i--;if(answers[i]&&counts[answers[i]]>0)counts[answers[i]]--;answers.length=i;render();window.scrollTo(0,0);}}
 function finish(){
   /* Cada eje: mayoría de sus 2 polos; empate -> polo por defecto (S,L,M,T) */
   const _ax=[["S","A","S"],["P","L","L"],["M","I","M"],["O","T","T"]];
@@ -317,6 +328,7 @@ var leadArquetipo="";
 function enviarLead(){
   const inp=$("leadEmail"); if(!inp) return;
   const email=(inp.value||"").trim();
+  const nombre=($("leadName")&&$("leadName").value||"").trim();
   if(!email||email.indexOf("@")<1||email.indexOf(".")<0){
     inp.style.borderColor="#FDD731"; inp.focus(); return;
   }
@@ -324,7 +336,7 @@ function enviarLead(){
   try{
     fetch("https://diagnostico-financiero-app.onrender.com/api/lead",{
       method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({email:email,arquetipo:leadArquetipo})
+      body:JSON.stringify({email:email,nombre:nombre,arquetipo:leadArquetipo})
     }).catch(function(){});
   }catch(e){}
   if(box){
