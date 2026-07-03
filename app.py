@@ -169,6 +169,7 @@ class LeadPayload(BaseModel):
     email: str = ""
     arquetipo: str = ""
     nombre: str = ""
+    consent: bool = False
 
 class TallyPayload(BaseModel):
     arquetipo: str = ""
@@ -936,12 +937,14 @@ def lead(payload: LeadPayload):
         return {"ok": False, "reason": "email_invalido"}
     arquetipo = (payload.arquetipo or "").strip()
     nombre = (payload.nombre or "").strip()
+    consent = 1 if getattr(payload, "consent", False) else 0
+    ahora_iso = datetime.datetime.utcnow().isoformat()
     # 2) Guardar el lead (failsafe: nunca rompe)
     try:
         with db() as c:
             _ensure_leads_table(c)
-            c.execute("INSERT INTO leads (email, arquetipo, nombre, creado, paso, paso_fecha) VALUES (?,?,?,?,?,?)",
-                      (email, arquetipo, nombre, datetime.datetime.utcnow().isoformat(), 1, datetime.datetime.utcnow().isoformat()))
+            c.execute("INSERT INTO leads (email, arquetipo, nombre, creado, paso, paso_fecha, consent, consent_fecha) VALUES (?,?,?,?,?,?,?,?)",
+                      (email, arquetipo, nombre, ahora_iso, 1, ahora_iso, consent, ahora_iso if consent else None))
     except Exception as e:
         print("[lead] no se pudo guardar el lead:", repr(e))
     # 3) Enviar email con su arquetipo (failsafe)
@@ -971,7 +974,8 @@ def _ensure_leads_table(c):
     """Crea la tabla de leads y anade columnas de seguimiento si faltan (failsafe)."""
     c.execute("CREATE TABLE IF NOT EXISTS leads (email TEXT, arquetipo TEXT, nombre TEXT, creado TEXT)")
     cols = [r["name"] for r in c.execute("PRAGMA table_info(leads)")]
-    for col, ddl in [("paso", "INTEGER"), ("paso_fecha", "TEXT"), ("oculto", "INTEGER")]:
+    for col, ddl in [("paso", "INTEGER"), ("paso_fecha", "TEXT"), ("oculto", "INTEGER"),
+                     ("consent", "INTEGER"), ("consent_fecha", "TEXT")]:
         if col not in cols:
             c.execute("ALTER TABLE leads ADD COLUMN %s %s" % (col, ddl))
 

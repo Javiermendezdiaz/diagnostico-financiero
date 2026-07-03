@@ -53,6 +53,15 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
 .opt:active{border-color:var(--amarillo);background:#15150f;}
 .backbtn{background:none;border:none;color:#8b8b90;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;padding:4px 0 8px;display:inline-flex;align-items:center;gap:6px}
 .backbtn:hover{color:var(--amarillo)}
+.tier3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:6px 0 16px}
+.tierbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:15px 4px 13px;border:1.5px solid var(--linea);border-radius:14px;background:#0c0c11;color:#fff;text-decoration:none;position:relative;transition:transform .15s,box-shadow .15s}
+.tierbtn .tn{font-size:12px;font-weight:600;color:#cfd0d6;text-transform:uppercase;letter-spacing:.6px}
+.tierbtn .tp{font-size:24px;font-weight:800;color:#fff;line-height:1}
+.tierbtn .tp small{font-size:13px;font-weight:600;margin-left:1px}
+.tierbtn .badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:800;letter-spacing:.3px;background:var(--amarillo);color:#000;border-radius:8px;padding:2px 8px;text-transform:uppercase}
+.tierbtn.feat{border-color:var(--amarillo);background:#15130a;box-shadow:0 0 0 3px rgba(253,215,49,.16),0 12px 34px -10px rgba(253,215,49,.45)}
+.tierbtn.feat .tp{color:var(--amarillo)}
+@media(hover:hover){.tierbtn:hover{transform:translateY(-2px)}}
 /* RESULT */
 #result{display:none;}
 .reveal{color:var(--suave);font-size:13px;font-weight:300;margin-bottom:16px;}
@@ -183,9 +192,9 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
       <p id="ctaP">Tu arquetipo es solo la superficie. El informe completo te dice, desde donde estás hoy, cómo llegar a donde quieres: tus números, tus puntos ciegos y tu plan de acción. Desde 19&nbsp;€.</p>
       <div style="color:#B9B9BD;font-size:13.5px;line-height:1.45;margin:0 0 10px">Elige por dónde empezar tu diagnóstico completo:</div>
       <div class="tier3">
-        <a class="tierbtn" href="https://diagnostico.adaptafamilyoffice.com/empezar2.html?tier=1"><b>Rápido</b><span>19&nbsp;€</span></a>
-        <a class="tierbtn feat" href="https://diagnostico.adaptafamilyoffice.com/empezar2.html?tier=2"><i>★ el más elegido</i><b>Avanzado</b><span>39&nbsp;€</span></a>
-        <a class="tierbtn" href="https://diagnostico.adaptafamilyoffice.com/empezar2.html?tier=3"><b>Pareja</b><span>54&nbsp;€</span></a>
+        <a class="tierbtn" href="https://diagnostico.adaptafamilyoffice.com/empezar2.html?tier=1"><span class="tn">Rápido</span><span class="tp">19<small>€</small></span></a>
+        <a class="tierbtn feat" href="https://diagnostico.adaptafamilyoffice.com/empezar2.html?tier=2"><span class="badge">★ el más elegido</span><span class="tn">Avanzado</span><span class="tp">39<small>€</small></span></a>
+        <a class="tierbtn" href="https://diagnostico.adaptafamilyoffice.com/empezar2.html?tier=3"><span class="tn">Pareja</span><span class="tp">54<small>€</small></span></a>
       </div>
       <a class="btn block" href="./inicio.html" id="ctaBtn">Ver qué incluye cada uno →</a>
     </div>
@@ -198,6 +207,10 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
                style="width:100%;padding:14px;border-radius:11px;border:1.5px solid var(--linea);background:#020203;color:#fff;font-family:inherit;font-size:15px;outline:none">
         <input type="email" id="leadEmail" placeholder="Tu correo" autocomplete="email"
                style="width:100%;padding:14px;border-radius:11px;border:1.5px solid var(--linea);background:#020203;color:#fff;font-family:inherit;font-size:15px;outline:none">
+        <label id="leadConsentLbl" style="display:flex;gap:9px;align-items:flex-start;margin-top:2px;font-size:12.5px;color:#9aa0ab;line-height:1.45;cursor:pointer">
+          <input type="checkbox" id="leadConsent" style="margin-top:2px;flex:none;width:17px;height:17px;accent-color:#FDD731">
+          <span>Acepto recibir mi lectura y comunicaciones de Adapta Family Office por email. Puedo darme de baja cuando quiera. <a href="privacidad.html" target="_blank" style="color:#FDD731;text-decoration:none">Política de privacidad</a>.</span>
+        </label>
         <button class="btn block" id="leadBtn" style="margin-top:2px" onclick="enviarLead()">Ver mi lectura completa →</button>
       </div>
       <div id="leadMsg" style="display:none;color:#FDD731;font-size:14px;font-weight:600;margin-top:10px"></div>
@@ -347,11 +360,13 @@ function enviarLead(){
   if(!email||email.indexOf("@")<1||email.indexOf(".")<0){
     inp.style.borderColor="#FDD731"; inp.focus(); return;
   }
+  const cons=$("leadConsent");
+  if(cons&&!cons.checked){ var lbl=$("leadConsentLbl"); if(lbl)lbl.style.color="#FDD731"; cons.focus(); return; }
   const box=$("leadBox"), msg=$("leadMsg");
   try{
     fetch("https://diagnostico-financiero-app.onrender.com/api/lead",{
       method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({email:email,nombre:nombre,arquetipo:leadArquetipo})
+      body:JSON.stringify({email:email,nombre:nombre,arquetipo:leadArquetipo,consent:true})
     }).catch(function(){});
   }catch(e){}
   if(box){
