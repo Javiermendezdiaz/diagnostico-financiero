@@ -150,6 +150,10 @@ class LeadPayload(BaseModel):
     arquetipo: str = ""
     nombre: str = ""
 
+class TallyPayload(BaseModel):
+    arquetipo: str = ""
+    codigo: str = ""
+
 def adaptar_item(it):
     base = {"id": it["id"], "pregunta": it["texto"], "bloque": it.get("faceta", "")}
     if it["tipo"] == "escala":
@@ -952,6 +956,11 @@ def _ensure_leads_table(c):
             c.execute("ALTER TABLE leads ADD COLUMN %s %s" % (col, ddl))
 
 
+def _ensure_tally_table(c):
+    """Conteo anonimo de arquetipos (sin datos personales): solo nombre + codigo + total."""
+    c.execute("CREATE TABLE IF NOT EXISTS arq_tally (nombre TEXT PRIMARY KEY, codigo TEXT, n INTEGER DEFAULT 0)")
+
+
 def _lead_wrap(cuerpo_html):
     return ("<div style=\"font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;"
             "background:#101014;color:#e9e9e6;border-radius:16px;padding:32px 28px\">"
@@ -1018,6 +1027,42 @@ def leads_list(key: str = ""):
     except Exception as e:
         print("[leads] error listando:", repr(e))
     return {"total": len(filas), "leads": filas}
+
+
+@app.post("/api/arq-tally")
+def arq_tally(payload: TallyPayload):
+    """Incrementa el contador anonimo de un arquetipo al terminar el test. Sin datos personales. Failsafe."""
+    nombre = (payload.arquetipo or "").strip()
+    codigo = (payload.codigo or "").strip()
+    if not nombre or len(nombre) > 40:
+        return {"ok": False}
+    try:
+        with db() as c:
+            _ensure_tally_table(c)
+            c.execute("INSERT INTO arq_tally (nombre, codigo, n) VALUES (?,?,1) "
+                      "ON CONFLICT(nombre) DO UPDATE SET n=n+1, codigo=excluded.codigo", (nombre, codigo))
+    except Exception as e:
+        print("[tally] no se pudo contar:", repr(e))
+    return {"ok": True}
+
+
+@app.get("/api/arq-stats")
+def arq_stats():
+    """Distribucion publica y anonima de los 16 arquetipos (para el mapa compartible). Sin auth ni datos personales."""
+    items = []
+    total = 0
+    try:
+        with db() as c:
+            _ensure_tally_table(c)
+            for r in c.execute("SELECT nombre, codigo, n FROM arq_tally"):
+                items.append({"nombre": r["nombre"], "codigo": r["codigo"], "n": r["n"] or 0})
+        total = sum(x["n"] for x in items)
+        for x in items:
+            x["pct"] = round(100.0 * x["n"] / total, 1) if total else 0.0
+        items.sort(key=lambda x: -x["n"])
+    except Exception as e:
+        print("[stats] error:", repr(e))
+    return {"total": total, "items": items}
 
 
 @app.get("/api/cron/nurture")

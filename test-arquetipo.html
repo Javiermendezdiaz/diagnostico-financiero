@@ -160,6 +160,8 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
       </div>
     </div>
 
+    <div id="mapLine" style="text-align:center;color:#B9B9BD;font-size:13.5px;line-height:1.55;margin:16px 0 2px"></div>
+
     <div id="shareBlock" style="display:none">
     <div class="share-title">Comparte tu arquetipo · reta a alguien</div>
     <button class="btn block" style="margin:0 0 14px" onclick="reto()">⚔️ Retar por WhatsApp →</button>
@@ -304,6 +306,19 @@ function finish(){
   const txt="Soy "+m.n+" 💰 ¿Qué dice tu dinero de ti? Descúbrelo en 60 s:";
   $("shWa").href="https://wa.me/?text="+encodeURIComponent(txt+" "+url);
   $("shLi").href="https://www.linkedin.com/sharing/share-offsite/?url="+encodeURIComponent(url);
+  /* Conteo anonimo (sin datos personales) + "eres 1 de X" + enlace al mapa */
+  try{
+    var API="https://diagnostico-financiero-app.onrender.com";
+    fetch(API+"/api/arq-tally",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({arquetipo:m.n,codigo:current})})
+    .then(function(){return fetch(API+"/api/arq-stats");})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      if(!j||!j.total)return; var n=1,it=j.items||[];
+      for(var k=0;k<it.length;k++){ if(it[k].nombre===m.n){ n=it[k].n; break; } }
+      var el=$("mapLine"); if(el) el.innerHTML="Eres <b style='color:#FDD731'>1 de "+n+"</b> "+m.n+" &middot; ya hemos radiografiado a <b style='color:#fff'>"+j.total+"</b> personas.<br><a href='arquetipos.html' style='color:#FDD731;font-weight:600;text-decoration:none'>Ver el mapa de los 16 arquetipos &rarr;</a>";
+    }).catch(function(){});
+  }catch(e){}
   if($("lockedRead")) $("lockedRead").style.display="none";
   if($("shareBlock")) $("shareBlock").style.display="block";  // compartir SIEMPRE visible (difusion)
   if($("ctaBox")) $("ctaBox").style.display="none";
