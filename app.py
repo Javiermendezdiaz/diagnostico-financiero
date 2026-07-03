@@ -67,7 +67,27 @@ def init_db():
                          ("es_inic","INTEGER"),("consent_pago_fecha","TEXT")]:
             if col not in cols:
                 c.execute("ALTER TABLE sesiones ADD COLUMN %s %s" % (col, ddl))
+
+def _seed_tally_from_leads():
+    """Siembra UNA sola vez el contador de arquetipos con el historico de leads que dejaron correo.
+    Recupera a todos los que hicieron el test y dejaron email antes de existir el contador. Failsafe e idempotente."""
+    try:
+        with db() as c:
+            c.execute("CREATE TABLE IF NOT EXISTS arq_tally (nombre TEXT PRIMARY KEY, codigo TEXT, n INTEGER DEFAULT 0)")
+            c.execute("CREATE TABLE IF NOT EXISTS leads (email TEXT, arquetipo TEXT, nombre TEXT, creado TEXT)")
+            if c.execute("SELECT 1 FROM arq_tally WHERE nombre='__seeded__'").fetchone():
+                return  # ya sembrado
+            cols = [r["name"] for r in c.execute("PRAGMA table_info(leads)")]
+            ocultos = " AND (oculto IS NULL OR oculto=0)" if "oculto" in cols else ""
+            for r in c.execute("SELECT arquetipo, COUNT(*) AS n FROM leads WHERE arquetipo IS NOT NULL AND TRIM(arquetipo)<>''" + ocultos + " GROUP BY arquetipo"):
+                c.execute("INSERT INTO arq_tally (nombre, codigo, n) VALUES (?,?,?) "
+                          "ON CONFLICT(nombre) DO UPDATE SET n=n+excluded.n", (r["arquetipo"], "", r["n"]))
+            c.execute("INSERT OR IGNORE INTO arq_tally (nombre, codigo, n) VALUES ('__seeded__','',0)")
+    except Exception as e:
+        print("[seed] fallo sembrando tally desde leads:", repr(e))
+
 init_db()
+_seed_tally_from_leads()
 
 import threading, gc
 _GEN_LOCK = threading.Lock()   # una sola generacion de PDF a la vez (la de pareja es pesada en RAM)
@@ -1055,6 +1075,8 @@ def arq_stats():
         with db() as c:
             _ensure_tally_table(c)
             for r in c.execute("SELECT nombre, codigo, n FROM arq_tally"):
+                if not r["nombre"] or r["nombre"].startswith("__"):
+                    continue  # excluir marcadores internos
                 items.append({"nombre": r["nombre"], "codigo": r["codigo"], "n": r["n"] or 0})
         total = sum(x["n"] for x in items)
         for x in items:
