@@ -909,6 +909,8 @@ ARQ_DESC = {
  "El Visionario": "Inspiras: haces que otros sue\u00f1en en grande y te sigan hacia el ma\u00f1ana que imaginas. Es un don escaso \u2014 y tu \u00fanico punto ciego es que un sue\u00f1o sin n\u00fameros que lo sostengan se queda, precisamente, en sue\u00f1o.",
 }
 
+_BAJA_BASE = os.environ.get("PUBLIC_API_URL", "https://diagnostico-financiero-app.onrender.com").rstrip("/")
+
 def _from_email(from_str):
     """Extrae la direccion 'x@dominio' de un remitente tipo 'Nombre <x@dominio>'."""
     import re as _re
@@ -918,9 +920,9 @@ def _from_email(from_str):
     s = (from_str or "").strip()
     return s if "@" in s else "itap@adaptafamilyoffice.com"
 
-def _build_lead_email(arquetipo, nombre=""):
+def _build_lead_email(arquetipo, nombre="", unsub=""):
     """Construye el payload de Resend para el lead del test de arquetipo gratuito.
-    Incluye el retrato propio del arquetipo, las dos muestras y el pie legal (baja LSSI)."""
+    Incluye el retrato propio del arquetipo, las dos muestras y el pie legal (baja LSSI en un clic)."""
     arq = (arquetipo or "").strip() or "tu arquetipo"
     saludo = ("Hola %s," % nombre.strip().split()[0]) if (nombre or "").strip() else "Hola,"
     desc = ARQ_DESC.get(arq, "")
@@ -930,6 +932,21 @@ def _build_lead_email(arquetipo, nombre=""):
         "<p style=\"font-size:15px;line-height:1.65;color:#e9e9e6;margin:0\">%s</p></div>" % desc
     ) if desc else ""
     fe = _from_email(RESEND_FROM)
+    baja_url = ("%s/api/baja?t=%s" % (_BAJA_BASE, unsub)) if unsub else ""
+    if baja_url:
+        baja_foot = (
+            "<p style=\"font-size:11.5px;color:#6b6b66;margin-top:24px;border-top:1px solid #2a2a30;padding-top:14px;line-height:1.65\">"
+            "Adapta Family Office &middot; Diagn&oacute;stico psicofinanciero confidencial.<br>"
+            "Recibes este correo porque hiciste el test del arquetipo del dinero y aceptaste recibir comunicaciones de Adapta. "
+            "Si no quieres recibir m&aacute;s, <a href=\"%s\" style=\"color:#8b8b90;text-decoration:underline\">date de baja aqu&iacute;</a> &mdash; baja inmediata.</p>" % baja_url)
+        hdrs = {"List-Unsubscribe": "<%s>" % baja_url, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"}
+    else:
+        baja_foot = (
+            "<p style=\"font-size:11.5px;color:#6b6b66;margin-top:24px;border-top:1px solid #2a2a30;padding-top:14px;line-height:1.65\">"
+            "Adapta Family Office &middot; Diagn&oacute;stico psicofinanciero confidencial.<br>"
+            "Recibes este correo porque hiciste el test del arquetipo del dinero y aceptaste recibir comunicaciones de Adapta. "
+            "Si no quieres recibir m&aacute;s, responde <b>BAJA</b> a este correo.</p>")
+        hdrs = {"List-Unsubscribe": "<mailto:%s?subject=BAJA>" % fe}
     html = (
         "<div style=\"font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;"
         "background:#101014;color:#e9e9e6;border-radius:16px;padding:32px 28px\">"
@@ -959,16 +976,13 @@ def _build_lead_email(arquetipo, nombre=""):
         "Quiero mi diagn&oacute;stico completo &rarr;</a></div>"
         "<p style=\"font-size:13px;line-height:1.55;color:#8b8b90;margin:12px 0 0\">"
         "Empiezas viendo tu adelanto gratis, con tus cifras reales. Solo pagas si quieres el libro completo.</p>"
-        "<p style=\"font-size:11.5px;color:#6b6b66;margin-top:24px;border-top:1px solid #2a2a30;padding-top:14px;line-height:1.65\">"
-        "Adapta Family Office &middot; Diagn&oacute;stico psicofinanciero confidencial.<br>"
-        "Recibes este correo porque hiciste el test del arquetipo del dinero y aceptaste recibir comunicaciones de Adapta. "
-        "Si no quieres recibir m&aacute;s, responde <b>BAJA</b> a este correo y te damos de baja al momento.</p>"
+        + baja_foot +
         "</div>"
     ) % (saludo, arq)
     return {"from": RESEND_FROM, "to": None, "reply_to": fe,
             "subject": "%s \u2014 tu arquetipo del dinero \u00b7 Adapta" % arq,
             "html": html,
-            "headers": {"List-Unsubscribe": "<mailto:%s?subject=BAJA>" % fe}}
+            "headers": hdrs}
 
 @app.post("/api/lead")
 def lead(payload: LeadPayload):
@@ -985,19 +999,20 @@ def lead(payload: LeadPayload):
     arquetipo = (payload.arquetipo or "").strip()
     nombre = (payload.nombre or "").strip()
     consent = 1 if getattr(payload, "consent", False) else 0
+    unsub_token = uuid.uuid4().hex
     ahora_iso = datetime.datetime.utcnow().isoformat()
     # 2) Guardar el lead (failsafe: nunca rompe)
     try:
         with db() as c:
             _ensure_leads_table(c)
-            c.execute("INSERT INTO leads (email, arquetipo, nombre, creado, paso, paso_fecha, consent, consent_fecha) VALUES (?,?,?,?,?,?,?,?)",
-                      (email, arquetipo, nombre, ahora_iso, 1, ahora_iso, consent, ahora_iso if consent else None))
+            c.execute("INSERT INTO leads (email, arquetipo, nombre, creado, paso, paso_fecha, consent, consent_fecha, unsub_token) VALUES (?,?,?,?,?,?,?,?,?)",
+                      (email, arquetipo, nombre, ahora_iso, 1, ahora_iso, consent, ahora_iso if consent else None, unsub_token))
     except Exception as e:
         print("[lead] no se pudo guardar el lead:", repr(e))
     # 3) Enviar email con su arquetipo (failsafe)
     if RESEND_API_KEY:
         try:
-            msg = _build_lead_email(arquetipo, nombre)
+            msg = _build_lead_email(arquetipo, nombre, unsub_token)
             msg["to"] = [email]
             status, _body = _resend_post(msg)
             if not (200 <= status < 300):
@@ -1017,12 +1032,45 @@ def lead(payload: LeadPayload):
     # 4) Siempre devolvemos un objeto controlado
     return {"ok": True}
 
+
+@app.get("/api/baja", response_class=HTMLResponse)
+@app.post("/api/baja", response_class=HTMLResponse)
+def baja(t: str = ""):
+    """Baja en un clic (LSSI/RGPD). Marca el lead como baja por su token opaco. Failsafe:
+    responde siempre 200 con pagina de confirmacion, tanto al clic (GET) como al one-click (POST)."""
+    if t:
+        try:
+            with db() as c:
+                _ensure_leads_table(c)
+                c.execute("UPDATE leads SET baja=1, baja_fecha=? WHERE unsub_token=?",
+                          (datetime.datetime.utcnow().isoformat(), t))
+        except Exception as e:
+            print("[baja] error:", repr(e))
+    pagina = (
+        "<!doctype html><html lang=\"es\"><head><meta charset=\"utf-8\">"
+        "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
+        "<title>Baja confirmada &middot; Adapta</title></head>"
+        "<body style=\"margin:0;background:#06070d;color:#f4f4f5;font-family:Arial,Helvetica,sans-serif;"
+        "display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center\">"
+        "<div style=\"max-width:440px;padding:36px 26px\">"
+        "<div style=\"font-weight:800;font-size:22px;letter-spacing:.5px\">ADAPTA "
+        "<span style=\"color:#FDD731;font-size:12px\">family office</span></div>"
+        "<h1 style=\"font-size:22px;margin:26px 0 10px\">Te has dado de baja</h1>"
+        "<p style=\"color:#94a3b8;font-size:15px;line-height:1.65\">No volver&aacute;s a recibir nuestras "
+        "comunicaciones. Respetamos tu decisi&oacute;n; puedes pedir la supresi&oacute;n de tus datos cuando quieras.</p>"
+        "<p style=\"color:#6b6b66;font-size:12px;margin-top:22px\">Si fue un error, escribe a %s.</p>"
+        "</div></body></html>" % _from_email(RESEND_FROM)
+    )
+    return HTMLResponse(content=pagina, status_code=200)
+
+
 def _ensure_leads_table(c):
     """Crea la tabla de leads y anade columnas de seguimiento si faltan (failsafe)."""
     c.execute("CREATE TABLE IF NOT EXISTS leads (email TEXT, arquetipo TEXT, nombre TEXT, creado TEXT)")
     cols = [r["name"] for r in c.execute("PRAGMA table_info(leads)")]
     for col, ddl in [("paso", "INTEGER"), ("paso_fecha", "TEXT"), ("oculto", "INTEGER"),
-                     ("consent", "INTEGER"), ("consent_fecha", "TEXT")]:
+                     ("consent", "INTEGER"), ("consent_fecha", "TEXT"),
+                     ("baja", "INTEGER"), ("baja_fecha", "TEXT"), ("unsub_token", "TEXT")]:
         if col not in cols:
             c.execute("ALTER TABLE leads ADD COLUMN %s %s" % (col, ddl))
 
@@ -1032,7 +1080,9 @@ def _ensure_tally_table(c):
     c.execute("CREATE TABLE IF NOT EXISTS arq_tally (nombre TEXT PRIMARY KEY, codigo TEXT, n INTEGER DEFAULT 0)")
 
 
-def _lead_wrap(cuerpo_html):
+def _lead_wrap(cuerpo_html, unsub=""):
+    baja_url = ("%s/api/baja?t=%s" % (_BAJA_BASE, unsub)) if unsub else ""
+    baja_linea = ("<br>Si no quieres recibir m&aacute;s, <a href=\"%s\" style=\"color:#6b6b66;text-decoration:underline\">date de baja aqu&iacute;</a>." % baja_url) if baja_url else ""
     return ("<div style=\"font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;"
             "background:#101014;color:#e9e9e6;border-radius:16px;padding:32px 28px\">"
             "<div style=\"font-weight:800;font-size:20px;letter-spacing:.5px\">ADAPTA "
@@ -1043,12 +1093,12 @@ def _lead_wrap(cuerpo_html):
             "style=\"display:inline-block;background:#fdd731;color:#101014;text-decoration:none;"
             "font-weight:700;font-size:16px;padding:14px 26px;border-radius:12px\">"
             "Quiero mi diagnostico completo &rarr;</a></div>"
-            "<p style=\"font-size:11.5px;color:#6b6b66;margin-top:24px;border-top:1px solid #2a2a30;padding-top:14px\">"
+            "<p style=\"font-size:11.5px;color:#6b6b66;margin-top:24px;border-top:1px solid #2a2a30;padding-top:14px;line-height:1.6\">"
             "Adapta Family Office &middot; Diagnostico psicofinanciero confidencial. "
-            "Recibes esto porque hiciste el test del arquetipo del dinero.</p></div>")
+            "Recibes esto porque hiciste el test del arquetipo del dinero." + baja_linea + "</p></div>")
 
 
-def _build_lead_followup(arquetipo, nombre, paso):
+def _build_lead_followup(arquetipo, nombre, paso, unsub=""):
     """Correo de seguimiento (nurturing). paso=2 (dia 2) o paso=3 (dia 4). Funcion pura."""
     arq = (arquetipo or "").strip() or "tu arquetipo"
     saludo = ("Hola %s," % nombre.strip().split()[0]) if (nombre or "").strip() else "Hola,"
@@ -1080,7 +1130,11 @@ def _build_lead_followup(arquetipo, nombre, paso):
             "Hoy te toca a ti: dar el primer paso, o seguir huyendo.</p>") % saludo
     if paso != 2:
         cuerpo = cuerpo + _tiers_html()
-    return {"from": RESEND_FROM, "to": None, "subject": asunto, "html": _lead_wrap(cuerpo)}
+    fe = _from_email(RESEND_FROM)
+    hdrs = ({"List-Unsubscribe": "<%s/api/baja?t=%s>" % (_BAJA_BASE, unsub), "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"}
+            if unsub else {"List-Unsubscribe": "<mailto:%s?subject=BAJA>" % fe})
+    return {"from": RESEND_FROM, "to": None, "reply_to": fe, "subject": asunto,
+            "html": _lead_wrap(cuerpo, unsub), "headers": hdrs}
 
 
 @app.get("/api/leads")
@@ -1152,7 +1206,7 @@ def cron_nurture(key: str = ""):
     try:
         with db() as c:
             _ensure_leads_table(c)
-            for r in c.execute("SELECT rowid, email, arquetipo, nombre, creado, paso FROM leads"):
+            for r in c.execute("SELECT rowid, email, arquetipo, nombre, creado, paso, unsub_token FROM leads WHERE (baja IS NULL OR baja<>1) AND (oculto IS NULL OR oculto=0)"):
                 try:
                     creado = datetime.datetime.fromisoformat(r["creado"])
                 except Exception:
@@ -1160,15 +1214,15 @@ def cron_nurture(key: str = ""):
                 dias = (ahora - creado).total_seconds() / 86400.0
                 paso = r["paso"] or 1
                 if paso < 2 and dias >= 2:
-                    pendientes.append((r["rowid"], r["email"], r["arquetipo"], r["nombre"], 2))
+                    pendientes.append((r["rowid"], r["email"], r["arquetipo"], r["nombre"], 2, r["unsub_token"]))
                 elif paso < 3 and dias >= 4:
-                    pendientes.append((r["rowid"], r["email"], r["arquetipo"], r["nombre"], 3))
+                    pendientes.append((r["rowid"], r["email"], r["arquetipo"], r["nombre"], 3, r["unsub_token"]))
     except Exception as e:
         print("[nurture] error leyendo leads:", repr(e))
         return {"ok": False, "reason": "db"}
-    for rowid, email, arquetipo, nombre, paso in pendientes:
+    for rowid, email, arquetipo, nombre, paso, unsub in pendientes:
         try:
-            msg = _build_lead_followup(arquetipo, nombre, paso)
+            msg = _build_lead_followup(arquetipo, nombre, paso, unsub)
             msg["to"] = [email]
             status, _b = _resend_post(msg)
             if 200 <= status < 300:
