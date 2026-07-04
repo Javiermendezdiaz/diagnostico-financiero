@@ -889,39 +889,86 @@ def _tiers_html():
     )
 
 
+# Retrato propio de cada uno de los 16 arquetipos (voz Adapta, 2\u00aa persona, fiel a luz/sombra del motor).
+ARQ_DESC = {
+ "El Centinela": "Para ti, tranquilidad es tenerlo todo bajo control: cuentas claras, cero sorpresas, cada euro en su sitio. Esa vigilancia te da paz \u2014 pero a veces tu dinero se queda quieto, esperando un permiso para crecer que no te acabas de dar.",
+ "El Guardi\u00e1n": "Tu dinero no es del todo tuyo: es la red que sostiene a los tuyos. Planificas para que a ellos nunca les falte \u2014 y ah\u00ed est\u00e1 tu grandeza y tambi\u00e9n tu peso, porque cargas t\u00fa solo con una tensi\u00f3n que casi nunca compartes.",
+ "El Prudente": "Tienes un instinto afinado para lo seguro: hueles el riesgo antes de que aparezca y te apartas. Casi siempre aciertas decidiendo con el est\u00f3mago \u2014 aunque a veces te frena mirar de m\u00e1s y calcular de menos.",
+ "El Anfitri\u00f3n": "El dinero, para ti, es para vivirlo y compartirlo: una buena mesa, los tuyos alrededor, el presente disfrutado sin culpa. Sabes gozar la vida como pocos \u2014 pero ese hoy tan lleno a veces deja el ma\u00f1ana con poco colch\u00f3n.",
+ "El Estratega": "Construyes como quien levanta una casa piedra a piedra: despacio, con estructura, sin atajos. Tu paciencia es tu superpoder \u2014 pero ese control tan fino a veces se vuelve rigidez, y no todo lo que crece se deja planificar al mil\u00edmetro.",
+ "El Patriarca": "Piensas en generaciones, no en meses: tu dinero es un legado que debe llegar blindado a quienes vienen detr\u00e1s. Esa visi\u00f3n te honra \u2014 pero el mismo control que protege a los tuyos puede, sin querer, atarles.",
+ "El Previsor": "Ahorras con una disciplina que casi nadie tiene: siempre hay un \u00abpor si acaso\u00bb guardado antes que un capricho. Tu futuro est\u00e1 a salvo \u2014 pero a veces te privas de un presente que tambi\u00e9n merec\u00edas vivir.",
+ "El Protector": "Tu futuro y el de los tuyos son la misma cosa: previsor, generoso, siempre pensando en que ellos est\u00e9n bien ma\u00f1ana. Es admirable \u2014 pero de tanto mirar por los dem\u00e1s, a veces el que se queda sin cuidar eres t\u00fa.",
+ "El Cazador": "Ves la oportunidad y act\u00faas: arriesgas, s\u00ed, pero con cabeza fr\u00eda y los n\u00fameros delante. Esa sangre fr\u00eda es rara y valiosa \u2014 el filo est\u00e1 en que la emoci\u00f3n de arriesgar, a veces, pide m\u00e1s de la cuenta.",
+ "El Emprendedor": "Tienes energ\u00eda y gente, y con eso mueves proyectos que otros ni empiezan. Construyes en presente, rodeado de tu equipo \u2014 y tu \u00fanico punto ciego es que, por crecer r\u00e1pido, a veces quemas la caja antes de tiempo.",
+ "El Aventurero": "No te paraliza el miedo: ves algo, te lanzas y ya ver\u00e1s. Esa valent\u00eda te ha llevado donde otros no se atreven \u2014 pero lanzarse sin red, tarde o temprano, se paga; y eso lo sabes mejor que nadie.",
+ "El Magn\u00e9tico": "Tienes un im\u00e1n: arrastras a la gente y vives la vida en grande, ahora, sin frenos. Ese carisma abre puertas \u2014 pero sostener el \u00aben grande\u00bb a base de apariencia y deuda cansa m\u00e1s de lo que luce.",
+ "El Arquitecto": "Conviertes recursos en m\u00e1s recursos: visi\u00f3n de largo plazo y ejecuci\u00f3n fr\u00eda, las dos cosas a la vez. Eres una m\u00e1quina de construir \u2014 con un riesgo: que el plan se acabe comiendo la vida que ibas a disfrutar.",
+ "El Magnate": "Piensas en grande y a largo: construir algo que dure, con los tuyos dentro. Tienes madera de l\u00edder patrimonial \u2014 y tu filo m\u00e1s afilado es no dejar que el dinero acabe pesando m\u00e1s que aquello por lo que lo construyes.",
+ "El Pionero": "Ves lo que otros a\u00fan no ven, y vas. Tu intuici\u00f3n abre caminos y te adelanta al resto \u2014 el reto es que las apuestas grandes tambi\u00e9n necesitan una red debajo, no solo visi\u00f3n por delante.",
+ "El Visionario": "Inspiras: haces que otros sue\u00f1en en grande y te sigan hacia el ma\u00f1ana que imaginas. Es un don escaso \u2014 y tu \u00fanico punto ciego es que un sue\u00f1o sin n\u00fameros que lo sostengan se queda, precisamente, en sue\u00f1o.",
+}
+
+def _from_email(from_str):
+    """Extrae la direccion 'x@dominio' de un remitente tipo 'Nombre <x@dominio>'."""
+    import re as _re
+    m = _re.search(r"<([^>]+)>", from_str or "")
+    if m:
+        return m.group(1).strip()
+    s = (from_str or "").strip()
+    return s if "@" in s else "itap@adaptafamilyoffice.com"
+
 def _build_lead_email(arquetipo, nombre=""):
     """Construye el payload de Resend para el lead del test de arquetipo gratuito.
-    Funcion pura (sin red). Voz Adapta, max 560px, estilos inline."""
+    Incluye el retrato propio del arquetipo, las dos muestras y el pie legal (baja LSSI)."""
     arq = (arquetipo or "").strip() or "tu arquetipo"
     saludo = ("Hola %s," % nombre.strip().split()[0]) if (nombre or "").strip() else "Hola,"
+    desc = ARQ_DESC.get(arq, "")
+    retrato = (
+        "<div style=\"margin:16px 0 4px;padding:16px 18px;background:#16161c;"
+        "border-left:3px solid #fdd731;border-radius:10px\">"
+        "<p style=\"font-size:15px;line-height:1.65;color:#e9e9e6;margin:0\">%s</p></div>" % desc
+    ) if desc else ""
+    fe = _from_email(RESEND_FROM)
     html = (
         "<div style=\"font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;"
         "background:#101014;color:#e9e9e6;border-radius:16px;padding:32px 28px\">"
         "<div style=\"font-weight:800;font-size:20px;letter-spacing:.5px\">ADAPTA "
         "<span style=\"color:#fdd731;font-size:12px;font-weight:600\">family office</span></div>"
         "<h1 style=\"font-size:22px;line-height:1.3;margin:24px 0 8px\">%s</h1>"
-        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd;margin:0 0 18px\">"
-        "Tu arquetipo del dinero es <b style=\"color:#fdd731\">%s</b>.</p>"
-        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
-        "Lo que tu dinero dice de ti no son tus cifras: es la manera en que decides, ahorras, gastas y "
-        "evitas mirar. Tu arquetipo es ese patron invisible que se repite en cada decision &mdash; y conocerlo "
-        "es el primer paso para cambiarlo.</p>"
-        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
-        "El test gratuito es solo el reflejo. El informe completo te dice, desde donde estas hoy, "
-        "como llegar a donde quieres &mdash; con TUS cifras: tus numeros, tu punto ciego y tu plan.</p>"
+        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd;margin:0 0 4px\">"
+        "Tu arquetipo del dinero es <b style=\"color:#fdd731\">%s</b>. As&iacute; te lee tu forma de decidir:</p>"
+        + retrato +
+        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd;margin:16px 0 0\">"
+        "Esto es solo el reflejo. El informe completo te dice, desde d&oacute;nde est&aacute;s hoy, "
+        "c&oacute;mo llegar a donde quieres &mdash; con TUS cifras: tus n&uacute;meros, tu punto ciego y tu plan.</p>"
         + _tiers_html() +
-        "<p style=\"font-size:13px;line-height:1.55;color:#8b8b90;margin:16px 0 0\">"
-        "Empiezas viendo tu adelanto gratis, con tus cifras reales. Solo pagas si quieres el libro completo.</p>"
-        "<div style=\"text-align:center;margin:22px 0 8px\">"
+        "<div style=\"margin:22px 0 4px;border-top:1px solid #2a2a30;padding-top:18px\">"
+        "<div style=\"font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8b8b90;font-weight:700;margin-bottom:12px\">Mira lo que te llevas</div>"
+        "<p style=\"font-size:14px;line-height:1.55;color:#c3c3bd;margin:0 0 12px\">"
+        "Te dejamos dos libros de ejemplo (perfil ficticio) para que veas exactamente lo que recibir&iacute;as:</p>"
+        "<p style=\"margin:0 0 9px\"><a href=\"https://diagnostico.adaptafamilyoffice.com/muestra-avanzado.pdf\" "
+        "style=\"color:#fdd731;font-weight:700;text-decoration:none\">&#8595;&nbsp; Ver el informe Avanzado de ejemplo (PDF)</a></p>"
+        "<p style=\"margin:0\"><a href=\"https://diagnostico.adaptafamilyoffice.com/muestra-pareja.pdf\" "
+        "style=\"color:#fdd731;font-weight:700;text-decoration:none\">&#8595;&nbsp; Ver el libro de Pareja de ejemplo (PDF)</a></p>"
+        "</div>"
+        "<div style=\"text-align:center;margin:24px 0 8px\">"
         "<a href=\"https://diagnostico.adaptafamilyoffice.com/inicio.html\" "
         "style=\"display:inline-block;background:#fdd731;color:#101014;text-decoration:none;"
         "font-weight:700;font-size:16px;padding:14px 26px;border-radius:12px\">"
-        "Quiero mi diagnostico completo &rarr;</a></div>"
-        "<p style=\"font-size:11.5px;color:#6b6b66;margin-top:24px;border-top:1px solid #2a2a30;padding-top:14px\">"
-        "Adapta Family Office &middot; Diagnostico psicofinanciero confidencial.</p>"
+        "Quiero mi diagn&oacute;stico completo &rarr;</a></div>"
+        "<p style=\"font-size:13px;line-height:1.55;color:#8b8b90;margin:12px 0 0\">"
+        "Empiezas viendo tu adelanto gratis, con tus cifras reales. Solo pagas si quieres el libro completo.</p>"
+        "<p style=\"font-size:11.5px;color:#6b6b66;margin-top:24px;border-top:1px solid #2a2a30;padding-top:14px;line-height:1.65\">"
+        "Adapta Family Office &middot; Diagn&oacute;stico psicofinanciero confidencial.<br>"
+        "Recibes este correo porque hiciste el test del arquetipo del dinero y aceptaste recibir comunicaciones de Adapta. "
+        "Si no quieres recibir m&aacute;s, responde <b>BAJA</b> a este correo y te damos de baja al momento.</p>"
         "</div>"
     ) % (saludo, arq)
-    return {"from": RESEND_FROM, "to": None, "subject": "Tu arquetipo del dinero \u2014 Adapta Family Office", "html": html}
+    return {"from": RESEND_FROM, "to": None, "reply_to": fe,
+            "subject": "%s \u2014 tu arquetipo del dinero \u00b7 Adapta" % arq,
+            "html": html,
+            "headers": {"List-Unsubscribe": "<mailto:%s?subject=BAJA>" % fe}}
 
 @app.post("/api/lead")
 def lead(payload: LeadPayload):
