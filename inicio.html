@@ -24,6 +24,10 @@ a{color:inherit;text-decoration:none}
 .logo{font-weight:800;letter-spacing:1px;font-size:20px}.logo b{color:var(--am)}
 .logo small{font-size:9px;letter-spacing:2px;color:var(--gr);text-transform:uppercase;margin-left:8px;font-weight:600}
 .status{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--gr);font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.head-right{display:flex;align-items:center;gap:16px}
+.btn-head{background:var(--am);color:#06070d;font-weight:700;font-size:13px;padding:9px 16px;border-radius:10px;white-space:nowrap;transition:background .2s,transform .2s}
+.btn-head:hover{background:#ffe25a;transform:translateY(-1px)}
+@media(max-width:620px){.head-right .status{display:none}.btn-head{font-size:12px;padding:8px 13px}}
 .dot{height:8px;width:8px;border-radius:50%;background:var(--em);box-shadow:0 0 8px var(--em);transition:.3s}
 .dot.calc{background:var(--am);box-shadow:0 0 8px var(--am)}
 #statusTxt.calc{color:var(--am)}
@@ -170,7 +174,10 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 
 <header class="head"><div class="wrap">
   <div class="logo"><b>ADAPTA</b><small>Family Office</small></div>
-  <div class="status"><span id="statusTxt">Análisis riguroso · 15 min</span><span class="dot" id="statusDot"></span></div>
+  <div class="head-right">
+    <div class="status"><span id="statusTxt">Análisis riguroso · 15 min</span><span class="dot" id="statusDot"></span></div>
+    <a class="btn-head" href="#planes">Ver los 3 planes →</a>
+  </div>
 </div></header>
 
 <style>
