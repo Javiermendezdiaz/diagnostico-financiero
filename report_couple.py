@@ -2143,14 +2143,14 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                 Paragraph("Vuestros resultados",h_sub),
                 Table([[Paragraph(f"<font color='{A_COL}'>●</font> {nA}: <b>{rb._sal100(a)}</b>/100",small),
                         Paragraph(f"<font color='{B_COL}'>●</font> {nB}: <b>{rb._sal100(b)}</b>/100",small)],
-                       [Bar2(a,b,w=150*mm),""]],
+                       [Bar2(rb._sal100(a),rb._sal100(b),w=150*mm),""]],
                       colWidths=[80*mm,80*mm],style=[("SPAN",(0,1),(1,1)),("LEFTPADDING",(0,0),(-1,-1),0),("TOPPADDING",(0,1),(0,1),4)]),
                 Spacer(1,2*mm),
                 Paragraph("Faceta por faceta",h_sub)]
         facs=CAPAS[code]["facetas"]
         for f in pA[code]["facetas"]:
             fa=pA[code]["facetas"].get(f,0); fb=pB[code]["facetas"].get(f,0)
-            bloque.append(Table([[Paragraph("<b>%s</b>"%facs.get(f,f),small),Bar2(fa,fb,w=92),
+            bloque.append(Table([[Paragraph("<b>%s</b>"%facs.get(f,f),small),Bar2(100-fa,100-fb,w=92),
                                   Paragraph(f"<font color='{A_COL}'>{100-fa:.0f}</font> / <font color='{B_COL}'>{100-fb:.0f}</font>",small)]],
                                  colWidths=[70*mm,40*mm,46*mm],
                                  style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),
