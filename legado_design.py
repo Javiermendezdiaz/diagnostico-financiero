@@ -406,9 +406,10 @@ def coste_ego(out, gasto_mes, anos, capital, n_anos=25, accent=GOLD):
     ax.text(0.10,0.40,_spaced("DE LIBERTAD, ADELANTADOS",1),ha="left",va="center",color=MUTE,fontproperties=P(10),transform=ax.transAxes)
     import textwrap
     msg=("Gastas %s €/mes en sostener una imagen. Invertido al 7%% hasta tu jubilación (unos %d años), ese mismo "
-         "dinero sumaría unos %s y adelantaría tu libertad %s años. Ese coche, esa marca, esa mesa del mejor "
+         "dinero sumaría unos %s y adelantaría tu libertad %s. Ese coche, esa marca, esa mesa del mejor "
          "restaurante: su precio real no es lo que pagaste, son los años de tu vida que cuestan.") % (
-         "{:,.0f}".format(gasto_mes).replace(",","."), int(n_anos), "{:,.0f} €".format(capital).replace(",","."), txt)
+         "{:,.0f}".format(gasto_mes).replace(",","."), int(n_anos), "{:,.0f} €".format(capital).replace(",","."),
+         (txt+" año" if txt in ("1","1,0") else txt+" años"))
     yy=0.30
     for ln in textwrap.wrap(msg,74):
         ax.text(0.10,yy,ln,ha="left",va="top",color=MUTE,fontproperties=P(10.5),transform=ax.transAxes); yy-=0.034
@@ -465,7 +466,8 @@ def acelerador_10x10(out, cilindros, anos_delta, enemy_nombre, enemy_motivo, acc
     else:
         ax.text(0.5,0.30,"Resultado: tu libertad llega",ha="center",va="center",color=MUTE,fontproperties=P(12),transform=ax.transAxes)
         txt=("%.0f"%anos_delta) if anos_delta==int(anos_delta) else ("%.1f"%anos_delta).replace(".",",")
-        ax.text(0.5,0.205,txt+" años antes",ha="center",va="center",color=accent,fontproperties=L(46),transform=ax.transAxes)
+        _uni="año antes" if txt in ("1","1,0") else "años antes"
+        ax.text(0.5,0.205,txt+" "+_uni,ha="center",va="center",color=accent,fontproperties=L(46),transform=ax.transAxes)
     import textwrap
     cap="Tu cilindro más difícil será %s: %s. Ahí es donde se gana o se pierde la fórmula."%(enemy_nombre,enemy_motivo)
     yy=0.115
