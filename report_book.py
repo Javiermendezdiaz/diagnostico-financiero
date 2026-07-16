@@ -608,9 +608,20 @@ try:
             n=len(self._saved)
             for st in self._saved:
                 self.__dict__.update(st)
+                for _apg,_anm in _ANCHORS:
+                    if _apg==self._pageNumber:
+                        try: self.bookmarkPage(_anm)
+                        except Exception: pass
                 self.saveState(); self.setFont(FR,7.5); self.setFillColor(GREY)
                 if self._pageNumber>1:
                     self.drawRightString(A4[0]-22*mm,12*mm,"%02d / %02d"%(self._pageNumber,n))
+                    # #7 · encabezado con la seccion activa
+                    _sec="DIAGNÓSTICO PATRIMONIAL"
+                    for _pg,_lb in _SECFLOW:
+                        if _pg<=self._pageNumber: _sec=_lb
+                    self.setFont(FR,7); self.setFillColor(colors.HexColor("#E9E4D6"))
+                    self.drawRightString(A4[0]-22*mm,A4[1]-7.1*mm,_sec)
+                    self.setFont(FR,7.5); self.setFillColor(GREY)
                 self.restoreState()
                 _RLCanvas.showPage(self)
             _RLCanvas.save(self)
@@ -672,6 +683,21 @@ class FullBleedImage(_Flowable):
             pass
 
 _REPORT_FECHA = ""
+_SECFLOW = []  # #7/#8 · (pagina, etiqueta_seccion) registrado por anclas Anchor
+_ANCHORS = []  # #8 · (pagina, nombre_destino) para fijar bookmarks en la pasada final
+class Anchor(_Flowable):
+    """Ancla invisible: crea destino navegable (#8) y registra la seccion activa (#7)."""
+    def __init__(self, name, header=None):
+        _Flowable.__init__(self); self.name=name; self.header=header
+    def wrap(self, aw, ah): return (0,0)
+    def draw(self):
+        try:
+            _pg=self.canv.getPageNumber()
+            _ANCHORS.append((_pg, self.name))
+            if self.header is not None:
+                _SECFLOW.append((_pg, self.header))
+        except Exception:
+            pass
 
 def deco(cv,doc):
     cv.saveState()
@@ -684,7 +710,7 @@ def deco(cv,doc):
         cv.setFillColor(AMARILLO); cv.setFont(FB,9.5); cv.drawString(22*mm,A4[1]-7.4*mm,"ADAPTA")
         cv.setFillColor(colors.HexColor("#E9E4D6")); cv.setFont(FR,7)
         cv.drawString(40*mm,A4[1]-7.1*mm,"FAMILY OFFICE")
-        cv.drawRightString(A4[0]-22*mm,A4[1]-7.1*mm,"DIAGNÓSTICO PATRIMONIAL")
+        # (el encabezado derecho por seccion lo dibuja NumberedCanvas · #7)
     # Pie: nota confidencial (el numero de pagina lo pone NumberedCanvas)
     cv.setStrokeColor(LINE); cv.setLineWidth(0.6); cv.line(22*mm,16*mm,A4[0]-22*mm,16*mm)
     cv.setFillColor(GREY); cv.setFont(FR,7)
@@ -3142,6 +3168,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     global _REPORT_FECHA
     try: _REPORT_FECHA = (cli.get('fecha') or '') if cli else ''
     except Exception: _REPORT_FECHA = ''
+    global _SECFLOW, _ANCHORS
+    _SECFLOW = []; _ANCHORS = []
     salud=round(statistics.mean([v["score"] for v in p.values()]),1)
     fi=fi_metrics(datos); radar_png(p,"_radar.png")
     _cohorte=cohorte_txt(cli,datos)
@@ -3152,6 +3180,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         _pct_frase="una lectura objetiva de tu relaci\u00f3n con el dinero a trav\u00e9s de 12 dimensiones psicofinancieras"
         _pct_nota=""
     bi,bl=banda(CAPAS["C1"],salud); S=[]
+    S+=[Anchor("sec_apertura")]
     coh=coherencia(salud,fi,datos)
     arq_code = arq_override if arq_override is not None else arquetipo(resp)[0]
     # cover + apertura cinematográfica (Legado: navy + azul eléctrico, datos reales)
@@ -3221,16 +3250,16 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     except Exception:
         pass
     # === Indice: el mapa de los 5 actos ===
-    _ix=[("APERTURA","Portada · carta de bienvenida"),
-         ("ACTO 1 · DIAGNÓSTICO","Tu foto de hoy: radar, las 12 capas y tu síntesis financiera"),
-         ("ACTO 2 · LA BRECHA","Vida ideal vs actual · palancas · el coste de no hacer nada"),
-         ("ACTO 3 · EL PLAN","Tu Constitución financiera: hoja de ruta a 72 h / 30 / 90 días"),
-         ("ACTO 4 · ADAPTA","El siguiente paso: ejecución con tu family office"),
-         ("ANEXOS","Glosario · tus respuestas · metodología")]
+    _ix=[("APERTURA","Portada · carta de bienvenida","sec_apertura"),
+         ("ACTO 1 · DIAGNÓSTICO","Tu foto de hoy: radar, las 12 capas y tu síntesis financiera","sec_acto1"),
+         ("ACTO 2 · LA BRECHA","Vida ideal vs actual · palancas · el coste de no hacer nada","sec_acto2"),
+         ("ACTO 3 · EL PLAN","Tu Constitución financiera: hoja de ruta a 72 h / 30 / 90 días","sec_acto3"),
+         ("ACTO 4 · ADAPTA","El siguiente paso: ejecución con tu family office","sec_acto4"),
+         ("ANEXOS","Glosario · tus respuestas · metodología","sec_anexos")]
     S+=[Paragraph("El mapa de tu libro",h_sec),
         Paragraph("Seis tramos, un solo recorrido: del diagnóstico a la acción. Léelo en orden.",body),Spacer(1,5*mm)]
-    for _t,_d in _ix:
-        S.append(Table([[Paragraph("<b>%s</b>"%_t,St("ixt",fontSize=11,leading=14,textColor=ACCDK,fontName=FB)),
+    for _t,_d,_anc in _ix:
+        S.append(Table([[Paragraph("<a href=\"#%s\"><font color=\"#1A1A17\"><b>%s</b></font></a>"%(_anc,_t),St("ixt",fontSize=11,leading=14,textColor=ACCDK,fontName=FB)),
                          Paragraph(_d,St("ixd",fontSize=9.6,leading=13,textColor=GREY))]],
                  colWidths=[54*mm,106*mm],
                  style=[("LINEBELOW",(0,0),(-1,-1),0.5,LINE),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
@@ -3250,7 +3279,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     if depth!="esencial":
         try:
             portadilla("_pa_t2_1.png", "Acto 1", 'TU FOTO\nDE HOY', 'El diagnóstico completo: radar, las 12 capas y tu cuadro financiero.')
-            S+=[PageBreak(), FullBleedImage("_pa_t2_1.png")]
+            S+=[PageBreak(), Anchor("sec_acto1","ACTO I · DIAGNÓSTICO"), FullBleedImage("_pa_t2_1.png")]
         except Exception:
             pass
     S+=[Paragraph("El mapa completo",h_sec)]
@@ -3616,7 +3645,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     if depth!="esencial":
         try:
             portadilla("_pa_t2_2.png", "Acto 2", 'LA BRECHA', 'Tu vida ideal frente a la real, tus palancas, y el coste de no hacer nada.')
-            S+=[PageBreak(), FullBleedImage("_pa_t2_2.png")]
+            S+=[PageBreak(), Anchor("sec_acto2","ACTO II · LA BRECHA"), FullBleedImage("_pa_t2_2.png")]
         except Exception:
             pass
     # === ACTO 2: la brecha y las palancas (vida ideal vs actual + coste de no hacer nada) ===
@@ -3676,7 +3705,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     if depth!="esencial":
         try:
             portadilla("_pa_t2_3.png", "Acto 3", 'TU PLAN', 'De la foto a los hechos: tu constitución financiera y hoja de ruta.')
-            S+=[PageBreak(), FullBleedImage("_pa_t2_3.png")]
+            S+=[PageBreak(), Anchor("sec_acto3","ACTO III · EL PLAN"), FullBleedImage("_pa_t2_3.png")]
         except Exception:
             pass
     S+=[Paragraph("Tu plan de acción",h_sec),
@@ -3950,7 +3979,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     if depth!="esencial":
         try:
             portadilla("_pa_t2_4.png", "Acto 4", 'EL SIGUIENTE\nPASO', 'Ejecutar el plan, contigo, con tu family office.')
-            S+=[PageBreak(), FullBleedImage("_pa_t2_4.png")]
+            S+=[PageBreak(), Anchor("sec_acto4","ACTO IV · ADAPTA"), FullBleedImage("_pa_t2_4.png")]
         except Exception:
             pass
     S+=_secsafe(seccion_adapta,p,datos)
@@ -4005,7 +4034,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     S+=_secsafe(seccion_dictamen_empresa,resp,datos,extras)
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
-    S+=[PageBreak(), Paragraph("Anexo \u2014 Tus respuestas",h_sec),
+    S+=[PageBreak(), Anchor("sec_anexos","ANEXOS"), Paragraph("Anexo \u2014 Tus respuestas",h_sec),
         Paragraph("Para total transparencia: estas son las preguntas que respondiste y lo que elegiste. "
                   "Tu diagn\u00f3stico se basa exactamente en esto, ni m\u00e1s ni menos.",body)]
     for capa in INST["capas"]:

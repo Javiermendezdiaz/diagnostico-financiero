@@ -150,7 +150,7 @@ def acelerador(seq, tmp, datos, extras, p):
     inv=((extras or {}).get("perfil_in") or {}).get("invierte","") or ""
     r0=1.5 if ("nada" in inv.lower() or inv=="") else (5.5 if "importante" in inv.lower() else 4.0)
     nuevo=aho+0.10*ing+0.10*gas
-    y0=_years_to(num,pat,aho,r0); y10=_years_to(num,pat,nuevo,10.0)
+    y0=_years_to(num,pat,aho,r0/100.0); y10=_years_to(num,pat,nuevo,0.10)  # #16 · tasas reales (% -> fracción)
     _inalc=(y0>=80)
     if _inalc and y10>=80: return   # ni con plan llega: no mostramos un payoff enganoso
     delta=max(0,y0-y10)
