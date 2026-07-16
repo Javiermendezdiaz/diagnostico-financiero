@@ -671,6 +671,8 @@ class FullBleedImage(_Flowable):
         except Exception:
             pass
 
+_REPORT_FECHA = ""
+
 def deco(cv,doc):
     cv.saveState()
     # Fondo crema v2 (banca privada Adapta)
@@ -686,7 +688,7 @@ def deco(cv,doc):
     # Pie: nota confidencial (el numero de pagina lo pone NumberedCanvas)
     cv.setStrokeColor(LINE); cv.setLineWidth(0.6); cv.line(22*mm,16*mm,A4[0]-22*mm,16*mm)
     cv.setFillColor(GREY); cv.setFont(FR,7)
-    cv.drawString(22*mm,12*mm,"DOCUMENTO CONFIDENCIAL · USO PRIVADO")
+    cv.drawString(22*mm,12*mm,"DOCUMENTO CONFIDENCIAL · USO PRIVADO · NO ES ASESORAMIENTO FINANCIERO")
     cv.restoreState()
 
 def faceta_table(code, pc):
@@ -1228,7 +1230,7 @@ def panel_capas(path, p, titulo="TUS 12 DIMENSIONES",
     from matplotlib.patches import Rectangle
     BG="#0E1018"; CARD="#161A24"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"; TRACK="#2A3140"
     SHORT=_SHORT12
-    codes=[c for c in CAPAS if c in p]
+    codes=sorted([c for c in CAPAS if c in p], key=lambda c: p[c]["score"], reverse=True)  # #3 · de peor a mejor
     fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
     ax=fig.add_axes([0,0,1,1]); ax.set_xlim(0,100); ax.set_ylim(0,141.6); ax.axis("off")
     ax.add_patch(Rectangle((0,0),100,141.6,color=BG,zorder=0))
@@ -2540,6 +2542,23 @@ def seccion_coste_inaccion(extras):
          Paragraph("Un diagnóstico sin acción es solo información cara. Esto es lo que te cuesta, en concreto, cada mes que el cuadro sigue igual:",body)]
     for it in items:
         out.append(Paragraph("<font color='#9A3B2E'>&#9656;</font>  "+it,St("ci",fontSize=10.5,leading=15,leftIndent=6,spaceAfter=7)))
+    # #13 · el coste acumulado en euros grandes (5 y 10 años) — solo si hay brecha real
+    try:
+        _ba=float((br or {}).get("brecha_anual") or 0)
+        if _ba>0:
+            _c5=_ba*5; _c10=_ba*10
+            _cel=lambda tit,val: [Paragraph(tit,St("cin_t",fontSize=8.5,leading=11,textColor=colors.HexColor("#9A3B2E"),fontName=FB)),
+                                  Paragraph("<font size=20 color='#9A3B2E'><b>%s</b></font>"%_eur(val),St("cin_v",fontSize=20,leading=23,spaceBefore=1))]
+            _tab=Table([[_cel("EN 5 AÑOS",_c5),_cel("EN 10 AÑOS",_c10)]],colWidths=[80*mm,80*mm],
+                       style=[("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),8),("BOTTOMPADDING",(0,0),(-1,-1),8),
+                              ("LEFTPADDING",(0,0),(-1,-1),12),("BACKGROUND",(0,0),(-1,-1),colors.HexColor("#FBEDEC")),
+                              ("BOX",(0,0),(-1,-1),0.6,colors.HexColor("#9A3B2E")),("LINEAFTER",(0,0),(0,0),0.5,colors.HexColor("#E3B3AC"))])
+            out+=[Spacer(1,3*mm),
+                  Paragraph("Y esto es lo que suma esa distancia si el cuadro sigue exactamente igual:",St("cin_i",fontSize=10,leading=14,spaceAfter=3)),
+                  _tab,
+                  Paragraph("Cifra acumulada sobre tu brecha anual actual, sin capitalizar. Es el precio de aplazarlo, no una estimación de mercado.",small)]
+    except Exception:
+        pass
     out.append(Paragraph("Cada una de estas cifras es reversible — y ninguna depende del mercado ni de la suerte, sino "
                "de ti. No se trata de hacerlo todo de golpe: se trata de hacer <b>UNA</b> cosa —la primera de tu plan— "
                "antes de que termine el día. Porque quien lee esto y mañana sigue exactamente igual no ha pagado por un "
@@ -2743,7 +2762,7 @@ def seccion_one_pager(salud, fi, datos, extras=None):
         # Número de libertad + progreso
         try:
             nlib=float(fi[0]) if fi and fi[0] else 0
-            if nlib>0: cells.append(_kpi_celda("NÚMERO DE LIBERTAD",_eur(nlib),"#1A1A17","Tu capital objetivo (gasto × 25)"))
+            if nlib>0: cells.append(_kpi_celda("NÚMERO DE LIBERTAD",_eur(nlib),"#1A1A17","Con tu gasto de hoy (× 25)"))
         except Exception: pass
         try:
             prog=float(fi[1]) if fi and fi[1] is not None else None
@@ -2783,6 +2802,7 @@ def seccion_one_pager(salud, fi, datos, extras=None):
                        ("LINEBELOW",(0,0),(-1,-1),0.4,LINE)]))
         out+=[Spacer(1,3*mm),
               Paragraph("Cada una de estas cifras nace de tus propias respuestas. Ninguna está inventada: son tu retrato exacto a día de hoy.",small),
+              Paragraph("<b>Válido a %s.</b> Tu situación evoluciona: recomendamos revisar este diagnóstico dentro de 12 meses para medir tu avance."%(_REPORT_FECHA or (datos or {}).get("fecha","hoy")),St("vig",fontSize=8.5,leading=12,textColor=colors.HexColor("#6B7280"),spaceBefore=4)),
               PageBreak()]
         return out
     except Exception:
@@ -3119,6 +3139,9 @@ def seccion_coste_inflacion(datos):
 
 def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=None,arq_override=None):
     p,tr,salud=perfil(resp); p=_realidad(p,datos)
+    global _REPORT_FECHA
+    try: _REPORT_FECHA = (cli.get('fecha') or '') if cli else ''
+    except Exception: _REPORT_FECHA = ''
     salud=round(statistics.mean([v["score"] for v in p.values()]),1)
     fi=fi_metrics(datos); radar_png(p,"_radar.png")
     _cohorte=cohorte_txt(cli,datos)
