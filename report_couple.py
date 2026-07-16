@@ -967,7 +967,7 @@ def seccion_one_pager(nA, nB, dA, dB, compat, saludA, saludB):
                        ("TOPPADDING",(0,0),(-1,-1),7),("BOTTOMPADDING",(0,0),(-1,-1),7),
                        ("LINEBELOW",(0,0),(-1,-1),0.4,LINE)]))
         out+=[Spacer(1,3*mm),
-              Paragraph("Estas cifras son conjuntas y nacen de vuestras propias respuestas. Donde de verdad diferís es en cómo las vive cada uno por dentro — eso lo recorre el libro.",small),
+              Paragraph("Estas cifras son conjuntas y nacen de vuestras propias respuestas. El resto del libro entra en el porqué de cada una.",small),
               PageBreak()]
         return out
     except Exception:

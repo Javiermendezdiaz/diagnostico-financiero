@@ -1090,7 +1090,10 @@ def cashflow_waterfall(datos, path):
     ax.set_xticks(range(4)); ax.set_xticklabels(labels,size=9,color="#2C313A")
     ax.annotate(_eur(ing),(0,ing),ha="center",va="bottom",size=8.5,color="#0F766E",weight="bold")
     ax.annotate(_eur(gas),(1,ing-gas/2),ha="center",va="center",size=8.5,color="white",weight="bold")
-    ax.annotate(_eur(aho),(2,ing-gas-aho/2),ha="center",va="center",size=8.5,color="white",weight="bold")
+    if aho < ing*0.09:
+        ax.annotate(_eur(aho),(2,ing-gas+ing*0.015),ha="center",va="bottom",size=8.5,color="#1D6F42",weight="bold")
+    else:
+        ax.annotate(_eur(aho),(2,ing-gas-aho/2),ha="center",va="center",size=8.5,color="white",weight="bold")
     ax.annotate(_eur(abs(libre)),(3,abs(libre)),ha="center",va="bottom",size=8.5,
                 color="#2C313A" if libre>=0 else "#9A3B2E",weight="bold")
     ax.set_ylim(0,ing*1.15); ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
