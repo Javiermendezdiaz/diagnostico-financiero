@@ -3258,8 +3258,10 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
          ("ANEXOS","Glosario · tus respuestas · metodología","sec_anexos")]
     S+=[Paragraph("El mapa de tu libro",h_sec),
         Paragraph("Seis tramos, un solo recorrido: del diagnóstico a la acción. Léelo en orden.",body),Spacer(1,5*mm)]
+    _clickable = (depth != "esencial")  # #8 · en T1 no hay p\u00e1ginas de acto: enlaces solo cuando el destino existe
     for _t,_d,_anc in _ix:
-        S.append(Table([[Paragraph("<a href=\"#%s\"><font color=\"#1A1A17\"><b>%s</b></font></a>"%(_anc,_t),St("ixt",fontSize=11,leading=14,textColor=ACCDK,fontName=FB)),
+        _ttl = ("<a href=\"#%s\"><font color=\"#1A1A17\"><b>%s</b></font></a>"%(_anc,_t)) if _clickable else ("<b>%s</b>"%_t)
+        S.append(Table([[Paragraph(_ttl,St("ixt",fontSize=11,leading=14,textColor=ACCDK,fontName=FB)),
                          Paragraph(_d,St("ixd",fontSize=9.6,leading=13,textColor=GREY))]],
                  colWidths=[54*mm,106*mm],
                  style=[("LINEBELOW",(0,0),(-1,-1),0.5,LINE),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
