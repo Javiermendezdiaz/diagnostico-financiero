@@ -1951,7 +1951,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         Spacer(1,38*mm),
         Paragraph(f"Escrito para  <b>{cliA['nombre']}</b>  &amp;  <b>{cliB['nombre']}</b>",St("cn",fontSize=12)),
         Paragraph(cliA["fecha"],small),
-        Spacer(1,3*mm), Paragraph("Edición de Pareja · Tier 3",St("ct",fontSize=9.5,textColor=colors.HexColor(A_COL),fontName="Helvetica-Bold")),
+        Spacer(1,3*mm), Paragraph("Edición de Pareja",St("ct",fontSize=9.5,textColor=colors.HexColor(A_COL),fontName="Helvetica-Bold")),
         Spacer(1,16*mm),
         Paragraph(f"DOCUMENTO CONFIDENCIAL · REF {rb.report_id(cliA['nombre']+cliB['nombre'],cliA['fecha'])} · USO PRIVADO",
                   St("cr",fontSize=7.5,textColor=GREY,fontName="Helvetica")),
@@ -2097,11 +2097,12 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     rows=[[Paragraph("<b>Capa</b>",small),Paragraph(f"<b>{nA}</b>",small),Paragraph(f"<b>{nB}</b>",small),
            Paragraph("<b>Distancia</b>",small),Paragraph("<b>Zona</b>",small)]]
     for c in CAPAS:
-        a,b=pA[c]["score"],pB[c]["score"]; g=abs(a-b)
+        a,b=pA[c]["score"],pB[c]["score"]
+        da,db=rb._sal100(a),rb._sal100(b); g=abs(da-db)   # distancia coherente
         zona = "Conflicto" if g>=30 else ("A revisar" if g>=18 else "Alineados")
         zc = "#B91C1C" if g>=30 else ("#EA580C" if g>=18 else "#15803D")
-        rows.append([Paragraph(f"{c} · {CAPAS[c]['nombre']}",small),Paragraph(f"{rb._sal100(a)}",small),
-                     Paragraph(f"{rb._sal100(b)}",small),Paragraph(f"{g:.0f}",small),
+        rows.append([Paragraph(f"{c} · {CAPAS[c]['nombre']}",small),Paragraph(f"{da}",small),
+                     Paragraph(f"{db}",small),Paragraph(f"{g:.0f}",small),
                      rb.Chip(zona,zc,w=64,h=13)])
     S+=[tbl(rows,[78*mm,15*mm,15*mm,20*mm,32*mm]),PageBreak()]
     S+=rb._secsafe(seccion_dafo_pareja,pA,pB,nA,nB)
