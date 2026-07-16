@@ -3388,12 +3388,20 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         else:
             cab+=[Paragraph("Desglose por faceta",h_sub)]
             facs=CAPAS[code]["facetas"]
-            for f,sc in pc["facetas"].items():
-                cab.append(Table([[Paragraph(f"<b>{facs.get(f,f)}</b>",small),Bar(sc,w=46*mm),
-                                    Paragraph(f"<font color='{_sevcol(sc)}'><b>{_sal100(sc)}</b> \u00b7 {faceta_lectura(sc)}</font>",small)]],
-                                 colWidths=[66*mm,48*mm,42*mm],
-                                 style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),
-                                        ("LEFTPADDING",(1,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
+            # #4/#5 · rejilla de 2 columnas: mismo contenido, mitad de alto -> el cap\u00edtulo cabe en una p\u00e1gina
+            def _fcell(f,sc):
+                return Table([[Paragraph(f"<b>{facs.get(f,f)}</b>",small),Bar(sc,w=20*mm),
+                               Paragraph(f"<font color='{_sevcol(sc)}'><b>{_sal100(sc)}</b></font>",small)]],
+                             colWidths=[36*mm,22*mm,12*mm],
+                             style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),
+                                    ("LEFTPADDING",(1,0),(-1,-1),4),("TOPPADDING",(0,0),(-1,-1),1),("BOTTOMPADDING",(0,0),(-1,-1),1)])
+            _fitems=list(pc["facetas"].items())
+            for _i in range(0,len(_fitems),2):
+                _pair=_fitems[_i:_i+2]
+                _rc=[_fcell(_pair[0][0],_pair[0][1]), (_fcell(_pair[1][0],_pair[1][1]) if len(_pair)>1 else Spacer(1,1))]
+                cab.append(Table([_rc],colWidths=[78*mm,78*mm],
+                                 style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0),
+                                        ("RIGHTPADDING",(0,0),(-1,-1),0),("TOPPADDING",(0,0),(-1,-1),1),("BOTTOMPADDING",(0,0),(-1,-1),3)]))
             cab+=[Spacer(1,2*mm),
                   Paragraph(segundo_parrafo(pc["bi"],code),body),
                   Paragraph("El riesgo si no act\u00faas",h_sub),
@@ -3404,13 +3412,14 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   Paragraph("Tres pasos, en orden. Empieza por el primero y no pases al siguiente hasta tenerlo en marcha:",small)]
             for a in ACCIONES[code]:
                 cab.append(Paragraph(f"<font face='Helvetica'>[   ]</font>  {a}",St("pa",fontSize=10,leading=14,textColor=INK,leftIndent=6,spaceAfter=4)))
-            cab+=[Spacer(1,2*mm),
-                  Paragraph(f"\u201c{PRINCIPIO[code]}\u201d",St("pr",fontSize=10.5,leading=14,textColor=ACCDK,
+            # #4/#5 · la cola (cita + Para reflexionar) se mantiene junta para no dejar un encabezado hu\u00e9rfano
+            _tail=[Paragraph(f"\u201c{PRINCIPIO[code]}\u201d",St("pr",fontSize=10.5,leading=14,textColor=ACCDK,
                             fontName="Helvetica-Oblique",backColor=LIGHT,borderPadding=8,spaceBefore=2)),
-                  Spacer(1,2*mm),
-                  Paragraph("Para reflexionar",h_sub),
-                  Paragraph(REFLEX[code],St("rf",fontSize=10,leading=14,textColor=INK,fontName="Helvetica-Oblique"))]
-            S.extend(cab); S.append(PageBreak())
+                   Spacer(1,2*mm),
+                   Paragraph("Para reflexionar",h_sub),
+                   Paragraph(REFLEX[code],St("rf",fontSize=10,leading=14,textColor=INK,fontName="Helvetica-Oblique"))]
+            cab.append(Spacer(1,2*mm))
+            S.extend(cab); S.append(KeepTogether(_tail)); S.append(PageBreak())
     # transversales
     if depth!="esencial": S+=[Paragraph("Lo que cruza todas las capas",h_sec),
         Paragraph("Hay tres corrientes que no viven en un solo capítulo: recorren todo tu perfil. Verlas juntas "
