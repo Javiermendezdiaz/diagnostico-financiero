@@ -1,5 +1,17 @@
 <!DOCTYPE html>
 <html lang="es"><head>
+<style id="adapta-fonts">
+@font-face{font-family:'Poppins';font-weight:300;font-style:normal;font-display:swap;src:url('fonts/Poppins-Light.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:400;font-style:normal;font-display:swap;src:url('fonts/Poppins-Regular.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:500;font-style:normal;font-display:swap;src:url('fonts/Poppins-Medium.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:600;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:700;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:800;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:400;font-style:normal;font-display:swap;src:url('fonts/Lora-Regular.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:600;font-style:normal;font-display:swap;src:url('fonts/Lora-SemiBold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:700;font-style:normal;font-display:swap;src:url('fonts/Lora-Bold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:400;font-style:italic;font-display:swap;src:url('fonts/Lora-Italic.ttf') format('truetype')}
+</style>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Diagnóstico Psicofinanciero · Adapta Family Office</title>
 <style>
@@ -316,7 +328,11 @@ a{color:var(--am)}
       <input type="checkbox" id="consentPago" style="margin-top:2px;accent-color:var(--am);width:15px;height:15px;flex:0 0 auto">
       <span>Solicito la <b style="color:var(--tx)">entrega inmediata</b> de mi diagnóstico y acepto que, al recibirlo al instante, <b style="color:var(--tx)">renuncio al derecho de desistimiento</b> de 14 días sobre contenido digital. Una vez entregado, no procede devolución.</span>
     </label>
-    <button class="btn" id="payBtn" style="max-width:380px" onclick="pagar()">Desbloquear mi diagnóstico</button>
+    <label for="consentTerminos" style="display:flex;gap:9px;align-items:flex-start;text-align:left;max-width:380px;margin:0 auto 12px;font-size:11px;color:var(--gr);line-height:1.5;cursor:pointer">
+      <input type="checkbox" id="consentTerminos" style="margin-top:2px;accent-color:var(--am);width:15px;height:15px;flex:0 0 auto">
+      <span>He le&iacute;do y acepto los <a href="https://www.adaptafamilyoffice.com/terminos" target="_blank" rel="noopener" style="color:var(--am)">T&eacute;rminos generales de contrataci&oacute;n</a>.</span>
+    </label>
+    <button class="btn" id="payBtn" style="max-width:380px" onclick="pagar()">Comprar y pagar</button>
     <p style="color:var(--gr);font-size:11.5px;margin-top:10px">Pago seguro vía Stripe · Descarga inmediata en PDF · Pago único, sin suscripción</p>
   </div>
 
@@ -1247,7 +1263,7 @@ async function finalizar(){
     if(t.foco_tit){ document.getElementById('tFoco').textContent=t.foco_tit; if(t.iri!=null) document.getElementById('tIriTag').textContent='· Ratio de Vida '+t.iri+'/100'; document.getElementById('tFocoBox').style.display='block'; }
     if(t.esclavitud!=null||t.margen!=null||t.cifra_libertad||t.foco_tit){ document.getElementById('teaserBox').style.display='block'; }
     const tier=st.tier||2;
-    document.getElementById('payBtn').textContent=(st.esCoupleInic?'Desbloquear nuestro Libro de Pareja · ':'Desbloquear mi diagnóstico · ')+(PRECIO_TIER[tier]||39)+' €';
+    document.getElementById('payBtn').textContent='Comprar y pagar · '+(PRECIO_TIER[tier]||39)+' €';
     var _pcn=document.getElementById('payCoupleNote'); if(_pcn) _pcn.style.display=st.esCoupleInic?'block':'none';
     document.getElementById('payBox').style.display='block';
   }catch(e){console.error(e);show('s-done');document.getElementById('doneSub').style.display='none';document.getElementById('doneTxt').textContent='Hubo un problema al procesar. Reintenta.';}
@@ -1298,6 +1314,8 @@ async function enviarInvitacionEmail(){
 async function pagar(){
   const _cb=document.getElementById('consentPago');
   if(_cb && !_cb.checked){ document.getElementById('doneTxt').textContent='Para continuar, marca la casilla de entrega inmediata.'; try{_cb.focus();}catch(e){} return; }
+  const _ct=document.getElementById('consentTerminos');
+  if(_ct && !_ct.checked){ document.getElementById('doneTxt').textContent='Para continuar, acepta los Términos generales de contratación.'; try{_ct.focus();}catch(e){} return; }
   const sid=CURSID||(st&&st.sid); if(!sid){document.getElementById('doneTxt').textContent='Sesión no encontrada. Vuelve a empezar.';return;}
   const b=document.getElementById('payBtn'); const o=b.textContent; b.disabled=true; b.textContent='Conectando con el pago…';
   try{
@@ -1435,8 +1453,15 @@ function show(id){ if(_cyc){_cyc();_cyc=null;} document.querySelectorAll('.step'
   } else if(paid==='0'){
     document.getElementById('doneHead').textContent='Tu diagnóstico te espera';
     document.getElementById('doneTxt').textContent='El pago no se completó. Puedes desbloquearlo cuando quieras.';
-    document.getElementById('payBtn').textContent='Desbloquear mi diagnóstico';
+    document.getElementById('payBtn').textContent='Comprar y pagar';
     document.getElementById('payBox').style.display='block';
   }
 })();
-</script></body></html>
+</script><footer style="text-align:center;padding:26px 18px;border-top:1px solid var(--bd);color:var(--gr);font-size:12px;line-height:1.95;max-width:640px;margin:26px auto 0">
+  <a href="https://www.adaptafamilyoffice.com/aviso-legal" target="_blank" rel="noopener" style="color:var(--gr);margin:0 6px;text-decoration:none">Aviso legal</a> ·
+  <a href="privacidad.html" target="_blank" rel="noopener" style="color:var(--gr);margin:0 6px;text-decoration:none">Privacidad</a> ·
+  <a href="https://www.adaptafamilyoffice.com/cookies" target="_blank" rel="noopener" style="color:var(--gr);margin:0 6px;text-decoration:none">Cookies</a> ·
+  <a href="https://www.adaptafamilyoffice.com/terminos" target="_blank" rel="noopener" style="color:var(--gr);margin:0 6px;text-decoration:none">T&eacute;rminos de contrataci&oacute;n</a>
+  <br><span style="color:#555">&copy; 2026 Adapta Family Office S.L. · CIF B09854092 · P&ordm; Castellana 40, 28046 Madrid</span>
+</footer>
+</body></html>
