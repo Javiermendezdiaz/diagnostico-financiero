@@ -149,6 +149,7 @@ body{font-family:'Poppins',sans-serif;background:var(--ng);color:var(--tx);-webk
       <p id="ctaP">El diagnóstico completo pone tus cifras exactas: cuánto se te escapa al año, tu número de libertad y el plan de 100 días para subir esta nota.</p>
       <div class="price" id="ctaPrice"></div>
       <a class="btn block" id="ctaBtn" href="empezar2.html?tier=2">Ver mi diagnóstico completo →</a>
+      <a id="ctaAlt" href="empezar2.html?tier=2" style="display:none;margin-top:16px;color:var(--gr);font-size:13px;text-decoration:none;border-bottom:1px solid var(--linea);padding-bottom:2px">Prefiero solo el mío · Avanzado 39&nbsp;€ →</a>
     </div>
 
     <div class="share-title">Comparte tu nota · reta a alguien</div>
@@ -298,11 +299,13 @@ function finish(){
     $("ctaBtn").href="empezar2.html?tier=3";
     $("ctaBtn").textContent="Ver nuestro diagnóstico en pareja →";
     $("ctaPrice").innerHTML='Diagnóstico en Pareja · <b>54&nbsp;€</b>';
-    $("ctaP").textContent="El diagnóstico en pareja pone vuestras cifras exactas y, sobre todo, dónde no estáis de acuerdo sin saberlo. Con vuestro plan de 100 días.";
+    $("ctaAlt").style.display="inline-block";
+    $("ctaP").textContent="El diagnóstico en pareja pone vuestras cifras exactas y, sobre todo, dónde no estáis de acuerdo sin saberlo. Con vuestro plan de 100 días. Si lo prefieres, también puedes hacerlo solo tú.";
   }else{
     $("ctaBtn").href="empezar2.html?tier=2";
     $("ctaBtn").textContent="Ver mi diagnóstico completo →";
     $("ctaPrice").innerHTML='Diagnóstico Avanzado · <b>39&nbsp;€</b>';
+    $("ctaAlt").style.display="none";
   }
 
   /* compartir */
