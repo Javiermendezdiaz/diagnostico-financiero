@@ -213,21 +213,38 @@ def _fv(P, A, r, n):
 # Bengen (1994) fijo el 4% (25x) para 30 anos y solo con datos de EE.UU. Los estudios
 # posteriores con datos globales (Pfau 2010; Cederburg et al. 2025; Morningstar 2026)
 # rebajan la tasa segura cuanto mas largo es el horizonte. Rango de trabajo: 25x-33x.
-_TRAMOS_MULTIPLO = ((30, 25.0), (35, 27.0), (40, 29.0), (45, 31.0))
-MULTIPLO_MIN, MULTIPLO_MAX = 25.0, 33.0
-EDAD_PLAN_FIN = 95  # horizonte de planificacion (longevidad prudente)
+# CALIBRACION PARA UN INVERSOR ESPANOL CON CARTERA GLOBAL.
+# No usamos el 4% de Bengen (1994): sale solo de la bolsa de EE.UU. del siglo XX
+# (sesgo de supervivencia). Para carteras globales, Pfau (2010, 20 paises) situa el
+# maximo seguro a 30 anos en el 3,5%. A mayor horizonte, menor tasa: el propio Bengen
+# admite que el 4% falla ~15% a 40 anos y ~30% a 50 anos.
+# Nota Espana: con activos ESPANOLES el 4% habria agotado la cartera en mas de la
+# mitad de los escenarios historicos -> la cartera global no es estilo, es necesidad.
+TASA_DUR_MIN = 3.50   # % anual a 30 anos de retiro  (Pfau, cartera global)
+TASA_DUR_MAX = 3.00   # % anual a 50 anos de retiro
+DUR_MIN, DUR_MAX = 30.0, 50.0
+# Extremos publicados, solo para mostrar la incertidumbre real del sector:
+TASA_OPTIMISTA = 4.70   # Bengen 2025, cartera muy diversificada
+TASA_EXIGENTE = 2.26    # Cederburg et al. 2025, 38 paises, 5% de ruina
+EDAD_PLAN_FIN = 95      # longevidad prudente (pareja)
 
 
-def _multiplo_libertad(dur_retiro):
-    """Multiplo del gasto anual segun los anos que la cartera debe aguantar."""
+def _tasa_retirada(dur_retiro):
+    """Tasa de retirada segura (%) segun los anos que la cartera debe aguantar."""
     try:
         d = float(dur_retiro)
     except Exception:
-        return MULTIPLO_MIN
-    for lim, mult in _TRAMOS_MULTIPLO:
-        if d <= lim:
-            return mult
-    return MULTIPLO_MAX
+        return TASA_DUR_MIN
+    if d <= DUR_MIN:
+        return TASA_DUR_MIN
+    if d >= DUR_MAX:
+        return TASA_DUR_MAX
+    return TASA_DUR_MIN + (d - DUR_MIN) * (TASA_DUR_MAX - TASA_DUR_MIN) / (DUR_MAX - DUR_MIN)
+
+
+def _multiplo_libertad(dur_retiro):
+    """Multiplo del gasto anual = 100 / tasa de retirada."""
+    return round(100.0 / _tasa_retirada(dur_retiro), 1)
 
 
 def analizar_expectativas(gasto_objetivo, pension, capital, ahorro_mensual, horizonte,
@@ -252,11 +269,11 @@ def analizar_expectativas(gasto_objetivo, pension, capital, ahorro_mensual, hori
         out = {"numero_libertad": round(N), "gasto_propio": round(gp),
                "pct_cubierto": pct, "brecha_renta": round(falta),
                "multiplo": round(mult, 1),
-               "tasa_retirada_pct": round(100.0 / mult, 2),
+               "tasa_retirada_pct": round(_tasa_retirada(dur_retiro), 2),
                "edad_parada": int(round(edad_parada)),
                "dur_retiro_anios": int(round(dur_retiro)),
-               "rango_libertad": {"min": round(gp * 12 * MULTIPLO_MIN),
-                                  "max": round(gp * 12 * MULTIPLO_MAX)}}
+               "rango_libertad": {"min": round(gp * 12 * 100.0 / TASA_OPTIMISTA),
+                                  "max": round(gp * 12 * 100.0 / TASA_EXIGENTE)}}
         if go <= pen:
             out["pension_cubre"] = True
             return out

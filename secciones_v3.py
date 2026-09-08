@@ -72,19 +72,28 @@ def seccion_numero_caminos(exp):
     S.append(Paragraph("El capital que necesitas para vivir de rentas, <b>neto de tu pensión</b>. Lo tienes cubierto al <b>%s%%</b>%s." % (
         exp.get("pct_cubierto",0), (" · te falta %s €"%_eur(exp.get("brecha_renta"))) if exp.get("brecha_renta",0)>0 else ""), BODY))
     if exp.get("tasa_retirada_pct"):
+        _com = lambda v: str(v).replace(".", ",")
         S.append(Paragraph(
-            "Calculado con una tasa de retirada del <b>%s%%</b> (%sx tu gasto anual), que es la que corresponde a un "
-            "retiro de <b>%s a\u00f1os</b> si dejas de depender del sueldo a los <b>%s</b>. No aplicamos el 4%% de manual: "
-            "cuanto m\u00e1s largo es el horizonte, m\u00e1s baja tiene que ser la tasa para no quedarte sin dinero." % (
-                str(exp.get("tasa_retirada_pct")).replace(".", ","), str(exp.get("multiplo")).replace(".0", ""),
+            "Calculado con una tasa de retirada del <b>%s%%</b> (%sx tu gasto anual), la que corresponde a un retiro de "
+            "<b>%s a\u00f1os</b> si dejas de depender del sueldo a los <b>%s</b>. <b>No usamos el 4%% de manual</b>: ese dato "
+            "sale solo de la bolsa de EE.UU. del siglo XX. Para una cartera global \u2014la que te corresponde invirtiendo "
+            "desde Espa\u00f1a\u2014 la evidencia de 20 pa\u00edses sit\u00faa el m\u00e1ximo seguro en el 3,5%%, y baja hacia el 3%% si "
+            "tu retiro llega a durar 50 a\u00f1os." % (
+                _com(exp.get("tasa_retirada_pct")), _com(exp.get("multiplo")),
                 exp.get("dur_retiro_anios"), exp.get("edad_parada")), BODY))
         rg = exp.get("rango_libertad") or {}
         if rg.get("min") and rg.get("max"):
             S.append(Paragraph(
-                "Horquilla de referencia: entre <b>%s \u20ac</b> (25x) y <b>%s \u20ac</b> (33x). Existe porque los estudios no "
-                "coinciden: Bengen con datos de EE.UU. es m\u00e1s optimista; los estudios con datos de 38 pa\u00edses, m\u00e1s "
-                "prudentes. Te damos el punto que corresponde a tu caso, no el m\u00e1s c\u00f3modo." % (
+                "Para que veas la incertidumbre real que hay detr\u00e1s: con el criterio m\u00e1s optimista publicado (4,7%%, "
+                "Bengen 2025) tu n\u00famero ser\u00eda <b>%s \u20ac</b>; con el m\u00e1s exigente (2,26%%, estudio de 38 pa\u00edses) "
+                "ser\u00edan <b>%s \u20ac</b>. No elegimos el m\u00e1s c\u00f3modo ni el m\u00e1s alarmista." % (
                     _eur(rg["min"]), _eur(rg["max"])), SM))
+        _es = [Paragraph("Un apunte espa\u00f1ol", ParagraphStyle("esp", fontName="Helvetica-Bold", fontSize=9,
+                                                              textColor=GOLD, spaceAfter=3)),
+               Paragraph("Con activos <b>espa\u00f1oles</b>, retirar el 4% habr\u00eda agotado la cartera en <b>m\u00e1s de la mitad "
+                         "de los escenarios hist\u00f3ricos</b>. Diversificar fuera de Espa\u00f1a no es una preferencia de estilo: "
+                         "es lo que hace que tu n\u00famero sea alcanzable.", SM)]
+        S += [Spacer(1, 4), _box(_es)]
         S.append(Spacer(1, 4))
     if exp.get("pension_cubre"):
         S.append(Paragraph("<b>Tu pensión ya cubre la vida que quieres.</b> El trabajo no es llegar: es proteger y optimizar.", BODY))
@@ -98,7 +107,7 @@ def seccion_numero_caminos(exp):
         S.append(via("Camino 1 · Ahorra más", ("Ya ahorras suficiente" if cm.get("ahorro_extra",0)<=0 else "+%s €/mes"%_eur(cm["ahorro_extra"])), "Sobre lo que ya ahorras, para llegar en tu plazo."))
         S.append(Spacer(1,5))
         rn=cm.get("rentabilidad_necesaria")
-        S.append(via("Camino 2 · Haz rentar mejor", ("No basta con rentabilidad" if rn is None else "%s%% anual"%rn), "Manteniendo tu ahorro actual."))
+        S.append(via("Camino 2 · Haz rentar mejor", ("No basta con rentabilidad" if rn is None else "%s%% anual"%str(rn).replace(".", ",")), "Manteniendo tu ahorro actual."))
         S.append(Spacer(1,5))
         S.append(via("Camino 3 · Ajusta el objetivo", "%s €/mes"%_eur(cm.get("objetivo_alcanzable")), "La vida que SÍ es sostenible con lo que haces hoy."))
         S.append(Spacer(1,5))
@@ -181,8 +190,8 @@ def seccion_riesgo_secuencia(exp):
     inner = [Paragraph("Qu\u00e9 significa para ti", ParagraphStyle("rs", fontName="Helvetica-Bold", fontSize=9,
                                                                 textColor=GOLD, spaceAfter=3)),
              Paragraph("Los a\u00f1os cr\u00edticos son los primeros de tu retiro, no los \u00faltimos. Por eso conviene llegar "
-                       "con <b>dos o tres a\u00f1os de gasto</b> fuera de bolsa, no llegar al 100%% en renta variable, y "
-                       "poder <b>recortar el gasto un 10%%</b> el a\u00f1o que el mercado caiga fuerte. Quien puede hacer "
+                       "con <b>dos o tres a\u00f1os de gasto</b> fuera de bolsa, no llegar al 100% en renta variable, y "
+                       "poder <b>recortar el gasto un 10%</b> el a\u00f1o que el mercado caiga fuerte. Quien puede hacer "
                        "eso no necesita acertar con la tasa exacta.", SM)]
     S += [Spacer(1, 4), _box(inner)]
     return [KeepTogether(S), Spacer(1, 10*mm)]
@@ -197,18 +206,24 @@ def seccion_como_sacas(exp):
          Paragraph("Tu gasto es <b>neto</b>, pero lo que sale de la cartera es <b>bruto</b>. Y en Espa\u00f1a la forma de "
                    "cobrarlo cambia mucho el capital que necesitas, porque la base sobre la que tributas no es la "
                    "misma:", BODY)]
-    filas = [[Paragraph("<b>V\u00eda</b>", SM), Paragraph("<b>Hacienda ve</b>", SM), Paragraph("<b>Capital necesario*</b>", SM)],
+    filas = [[Paragraph("<b>V\u00eda</b>", SM), Paragraph("<b>Hacienda ve</b>", SM), Paragraph("<b>Impuestos al a\u00f1o*</b>", SM)],
              [Paragraph("Dividendos", SM), Paragraph("El <b>100%</b> de lo que cobras", SM),
-              Paragraph('<font color="#9A3B2E"><b>~1.260.000 \u20ac</b></font>', SM)],
+              Paragraph('<font color="#9A3B2E"><b>7.823 \u20ac</b></font>', SM)],
              [Paragraph("Venta de participaciones", SM), Paragraph("<b>Solo la plusval\u00eda</b>", SM),
-              Paragraph('<font color="#1D6F42"><b>~835.000 \u20ac</b></font>', SM)]]
+              Paragraph('<font color="#1D6F42"><b>3.385 \u20ac</b></font>', SM)]]
     t = Table(filas, colWidths=[52*mm, 62*mm, 42*mm])
     t.setStyle(TableStyle([("LINEBELOW", (0, 0), (-1, -1), 0.4, LINEA),
                            ("TOPPADDING", (0, 0), (-1, -1), 5),
                            ("BOTTOMPADDING", (0, 0), (-1, -1), 5)]))
     S += [Spacer(1, 4), t, Spacer(1, 4)]
-    S.append(Paragraph("*Ejemplo ilustrativo para 30.000 \u20ac netos al a\u00f1o. M\u00e1s de <b>400.000 \u20ac de diferencia</b> "
-                       "por el simple hecho de c\u00f3mo cobras el dinero, con la misma vida y el mismo gasto.", SM))
+    S.append(Paragraph("*Ejemplo ilustrativo para vivir con 30.000 \u20ac <b>netos</b> al a\u00f1o (escala del ahorro vigente, "
+                       "suponiendo que la mitad de lo vendido es plusval\u00eda). Misma vida y mismo gasto: "
+                       "<b>4.437 \u20ac m\u00e1s de impuestos cada a\u00f1o</b> por cobrarlo v\u00eda dividendos. En 30 a\u00f1os son "
+                       "<b>m\u00e1s de 133.000 \u20ac</b>, sin contar lo que ese dinero habr\u00eda rentado mientras tanto.", SM))
+    S.append(Spacer(1, 3))
+    S.append(Paragraph("Y hay una segunda atadura: con dividendos vives de lo que el mercado decida pagar (hoy el "
+                       "S&amp;P 500 reparte en torno al 1% y un \u00edndice global algo menos del 2%), mientras que vendiendo "
+                       "participaciones decides t\u00fa cu\u00e1nto retiras cada a\u00f1o.", SM))
     inner = [Paragraph("La ventaja espa\u00f1ola que casi nadie usa", ParagraphStyle("cs", fontName="Helvetica-Bold",
                                                                                 fontSize=9, textColor=GOLD, spaceAfter=3)),
              Paragraph("Los fondos de inversi\u00f3n permiten <b>traspasar sin tributar</b> (art. 94 de la Ley del IRPF): "
