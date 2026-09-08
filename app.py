@@ -957,8 +957,9 @@ def _build_lead_email(arquetipo, nombre="", unsub=""):
         "Tu arquetipo del dinero es <b style=\"color:#fdd731\">%s</b>. As&iacute; te lee tu forma de decidir:</p>"
         + retrato +
         "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd;margin:16px 0 0\">"
-        "Esto es solo el reflejo. El informe completo te dice, desde d&oacute;nde est&aacute;s hoy, "
-        "c&oacute;mo llegar a donde quieres &mdash; con TUS cifras: tus n&uacute;meros, tu punto ciego y tu plan.</p>"
+        "Esto es solo tu arquetipo &mdash; un reflejo r&aacute;pido. El <b style=\"color:#fff\">diagn&oacute;stico completo</b> es "
+        "<b style=\"color:#fff\">otro test distinto</b>, de unos 15 minutos, que se adapta a tus respuestas y te devuelve, con TUS "
+        "cifras: tus n&uacute;meros, tu punto ciego y tu <b style=\"color:#fff\">plan de acci&oacute;n</b>.</p>"
         + _tiers_html() +
         "<div style=\"margin:22px 0 4px;border-top:1px solid #2a2a30;padding-top:18px\">"
         "<div style=\"font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8b8b90;font-weight:700;margin-bottom:12px\">Mira lo que te llevas</div>"
