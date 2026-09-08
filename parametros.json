@@ -1,0 +1,41 @@
+{
+  "_doc": "Parametros economicos y fiscales del diagnostico Adapta. Editar AQUI, nunca en el codigo. La fecha de vigencia se imprime en el informe.",
+  "vigencia": "septiembre de 2026",
+  "vigencia_iso": "2026-09",
+
+  "retiro": {
+    "_doc": "Tasa de retirada segura segun los anos que la cartera debe aguantar. Calibrado para inversor espanol con CARTERA GLOBAL (no el 4% de Bengen, que es solo EE.UU. del siglo XX).",
+    "tasa_dur_min": 3.50,
+    "tasa_dur_max": 3.00,
+    "dur_min": 30,
+    "dur_max": 50,
+    "edad_jubilacion": 67,
+    "edad_plan_fin": 95,
+    "fuente_tasa": "Pfau (2010, 20 paises): cartera global agregada 3,5%. Bengen (1994/2025) EE.UU. Morningstar 2026: 3,9%."
+  },
+
+  "extremos_publicados": {
+    "_doc": "Solo para mostrar al cliente la incertidumbre real del sector. No se usan para calcular su numero.",
+    "tasa_optimista": 4.70,
+    "tasa_optimista_fuente": "Bengen 2025, cartera muy diversificada",
+    "tasa_exigente": 2.26,
+    "tasa_exigente_fuente": "Cederburg et al. 2025, 38 paises, 5% de probabilidad de ruina"
+  },
+
+  "fiscal_espana": {
+    "_doc": "Escala del ahorro (IRPF) y factores brutos/netos derivados. Recalcular si cambian los tramos.",
+    "tramos_ahorro": [[6000, 19], [50000, 21], [200000, 23], [300000, 27], [null, 30]],
+    "factor_neto_dividendos": 0.793,
+    "factor_neto_venta_fondo": 0.899,
+    "ejemplo_neto_anual": 30000,
+    "ejemplo_impuestos_dividendos": 7823,
+    "ejemplo_impuestos_venta_fondo": 3385,
+    "ejemplo_diferencia_anual": 4437,
+    "traspaso_sin_peaje": "art. 94 Ley del IRPF (fondos de inversion espanoles; los ETF no lo permiten)"
+  },
+
+  "edad_retiro_ideal_map": {
+    "_doc": "SD-29: tramos ordinales -> edad objetivo representativa.",
+    "0": 53, "1": 57, "2": 62, "3": 67, "4": 67
+  }
+}

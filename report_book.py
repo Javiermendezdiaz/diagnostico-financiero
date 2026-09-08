@@ -1956,9 +1956,138 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
     out+=[Spacer(1,2*mm),
           via("\u2605 CAMINO 4 \u00b7 El plan que recomendamos", rec,
               "La mezcla realista \u2014 ni n\u00fameros m\u00e1gicos ni renuncias dram\u00e1ticas. Es lo que dise\u00f1ar\u00edamos contigo.","#9A3412","#FBF4E4")]
+    # === ESCENARIOS: como se mueve TU numero con lo que si controlas ===
+    _esc = exp.get("escenarios") or []
+    if len(_esc) > 1:
+        out += [Spacer(1, 5*mm), Paragraph("C\u00f3mo se mueve tu n\u00famero", h_sub)]
+        out.append(Paragraph("Tu cifra no est\u00e1 grabada en piedra: depende de decisiones que est\u00e1n en tu mano. "
+                             "Esto es lo que pasar\u00eda si tocas cada palanca.", body))
+        _fil = [[Paragraph("<b>Si\u2026</b>", St("esh", fontSize=9.5)),
+                 Paragraph("<b>Tu n\u00famero</b>", St("esh2", fontSize=9.5)),
+                 Paragraph("<b>Diferencia</b>", St("esh3", fontSize=9.5)),
+                 Paragraph("<b>A\u00f1os para llegar</b>", St("esh4", fontSize=9.5))]]
+        for _e in _esc:
+            _d = _e.get("delta", 0)
+            _dt = ("\u2014" if not _d else
+                   ('<font color="#1D6F42"><b>%s</b></font>' % _eur(_d) if _d < 0 else "+%s" % _eur(_d)))
+            _an = _e.get("anios")
+            _fil.append([Paragraph(_e.get("escenario", ""),
+                                   St("esc1", fontSize=9.5)),
+                         Paragraph("<b>%s</b>" % _eur(_e.get("numero", 0)), St("esc2", fontSize=9.5)),
+                         Paragraph(_dt, St("esc3", fontSize=9.5)),
+                         Paragraph(("%s a\u00f1os" % _an) if _an is not None else "no llega", St("esc4", fontSize=9.5))])
+        _t = Table(_fil, colWidths=[62*mm, 34*mm, 32*mm, 32*mm])
+        _t.setStyle(TableStyle([("LINEBELOW", (0,0), (-1,-1), 0.4, colors.HexColor("#E5E0D5")),
+                                ("BACKGROUND", (0,1), (-1,1), colors.HexColor("#FBF4E4")),
+                                ("TOPPADDING", (0,0), (-1,-1), 5),
+                                ("BOTTOMPADDING", (0,0), (-1,-1), 5)]))
+        out += [Spacer(1, 2*mm), _t, Spacer(1, 3*mm)]
+        out.append(Paragraph("F\u00edjate en algo: recortar el gasto baja el n\u00famero <b>mucho m\u00e1s</b> que ahorrar m\u00e1s, "
+                             "porque reduce el capital que necesitas <b>para siempre</b>. Ahorrar m\u00e1s no cambia la meta: "
+                             "te acerca antes a ella.", body))
+    _vg = exp.get("vigencia_parametros")
+    if _vg:
+        out.append(Paragraph("Par\u00e1metros econ\u00f3micos y fiscales vigentes a <b>%s</b>. Revisamos y actualizamos estas "
+                             "referencias peri\u00f3dicamente." % _vg, St("c4v", fontSize=8.5, leading=11,
+                             textColor=colors.HexColor("#6B7280"))))
     out+=[PageBreak()]
     return out
 
+
+
+def _opt_idx(resp, campo, ident):
+    """Indice de opcion elegido para un campo del instrumento. None si no resoluble."""
+    try:
+        for sec in (INST.values() if isinstance(INST, dict) else []):
+            if not isinstance(sec, list):
+                continue
+            for it in sec:
+                if isinstance(it, dict) and (it.get("campo") == campo or it.get("id") == ident):
+                    idx = (resp or {}).get(it.get("id"))
+                    if isinstance(idx, list):
+                        idx = idx[0] if idx else None
+                    if isinstance(idx, bool) or not isinstance(idx, int):
+                        return None
+                    return idx
+    except Exception:
+        return None
+    return None
+
+
+# Estado civil (SD-3) x estructura del dinero (SD-16): el punto ciego mas caro en Espana.
+_EC = {0: "sin pareja", 1: "casado/a", 2: "pareja de hecho o estable sin casar",
+       3: "separado/a o divorciado/a", 4: "viudo/a"}
+_ED = {0: "todo en com\u00fan", 1: "mixto", 2: "independiente",
+       3: "lo gestiona uno de los dos", 4: "en transici\u00f3n"}
+
+
+def seccion_estructura_sucesion(datos, resp):
+    """Lo que tu situacion de pareja y tu forma de organizar el dinero implican
+    legalmente. Usa SD-3 y SD-16, que hasta ahora se preguntaban y no se usaban."""
+    ec = _opt_idx(resp, "estado_civil", "SD-3")
+    ed = _opt_idx(resp, "estructura_dinero", "SD-16")
+    if ec is None:
+        return []
+    out = [PageBreak(), Paragraph("Tu estructura: qui\u00e9n es due\u00f1o de qu\u00e9", h_sec)]
+    out.append(Paragraph("Casi ning\u00fan diagn\u00f3stico mira esto, y es donde m\u00e1s dinero se pierde en Espa\u00f1a: no en la "
+                         "rentabilidad, sino en <b>c\u00f3mo est\u00e1 titulado y qu\u00e9 pasa el d\u00eda que uno falta</b>.", body))
+    _sit = _EC.get(ec, "")
+    _est = _ED.get(ed) if ed is not None else None
+    out.append(Paragraph("Tu situaci\u00f3n declarada: <b>%s</b>%s." % (
+        _sit, (" \u00b7 organizaci\u00f3n del dinero: <b>%s</b>" % _est) if _est else ""), body))
+
+    alertas = []
+    if ec == 2:  # pareja de hecho -> el gran punto ciego
+        alertas.append(("La alerta principal",
+            "En Espa\u00f1a, una pareja no casada <b>no hereda por ley</b> salvo que exista testamento (y seg\u00fan la "
+            "comunidad aut\u00f3noma), y el acceso a la <b>pensi\u00f3n de viudedad</b> exige requisitos estrictos de "
+            "inscripci\u00f3n y convivencia acreditada. Es decir: pod\u00e9is llevar una vida en com\u00fan y que, el d\u00eda que "
+            "uno falte, el otro se quede <b>sin nada de forma autom\u00e1tica</b>. Verificar testamento e inscripci\u00f3n "
+            "es, con diferencia, la acci\u00f3n de mayor impacto de tu diagn\u00f3stico.", "#9A3B2E"))
+    elif ec == 1:  # casado
+        alertas.append(("Tu r\u00e9gimen manda m\u00e1s que tus cuentas",
+            "Estar casado/a activa un <b>r\u00e9gimen econ\u00f3mico</b> (gananciales por defecto en gran parte de Espa\u00f1a, "
+            "separaci\u00f3n de bienes en otras y si se pact\u00f3 en capitulaciones). Ese r\u00e9gimen decide de qui\u00e9n es lo "
+            "que gener\u00e1is, <b>aunque las cuentas est\u00e9n separadas</b>. Mucha gente no sabe cu\u00e1l tiene: es lo "
+            "primero que conviene confirmar.", "#B45309"))
+    elif ec == 3:  # separado/divorciado
+        alertas.append(("Revisa a qui\u00e9n has nombrado",
+            "Tras una separaci\u00f3n, lo que casi siempre se olvida son los <b>beneficiarios</b> de seguros de vida y "
+            "planes de pensiones: en muchos casos sigue figurando la expareja, y ah\u00ed manda el documento, no la "
+            "intenci\u00f3n. Revisar beneficiarios y testamento cuesta una tarde y evita un problema irreversible.", "#B45309"))
+    elif ec == 4:  # viudo/a
+        alertas.append(("Consolidar lo que qued\u00f3 a medias",
+            "Tras un fallecimiento suelen quedar cabos: titularidades compartidas sin regularizar, beneficiarios "
+            "sin actualizar y una previsi\u00f3n pensada para dos. Merece una revisi\u00f3n ordenada de titularidad y "
+            "beneficiarios.", "#B45309"))
+    else:  # sin pareja
+        alertas.append(("Sin testamento decide la ley, no t\u00fa",
+            "Sin pareja ni descendientes, la ley reparte por un orden que quiz\u00e1 no sea el tuyo. Si tienes a alguien "
+            "concreto en mente \u2014o una causa\u2014, sin testamento no ocurrir\u00e1.", "#B45309"))
+
+    if ed == 3:  # lo gestiona uno
+        alertas.append(("Riesgo de dependencia",
+            "Que lo gestione uno solo es c\u00f3modo hasta que deja de serlo. Si esa persona falta o enferma, la otra "
+            "hereda un patrimonio que <b>no sabe reconstruir</b>: d\u00f3nde est\u00e1 cada cosa, qu\u00e9 se paga y a qui\u00e9n. "
+            "Un inventario compartido y actualizado una vez al a\u00f1o resuelve el 90% de este riesgo.", "#9A3B2E"))
+    elif ed == 2:  # independiente
+        alertas.append(("Independiente no es lo mismo que protegido",
+            "Llevar cuentas separadas ordena el d\u00eda a d\u00eda, pero no dice nada de la <b>titularidad legal</b> ni de "
+            "qu\u00e9 pasa ante un imprevisto. Conviene que lo separado sea una decisi\u00f3n consciente y no una inercia.", "#B45309"))
+    elif ed == 4:  # en transicion
+        alertas.append(("Estructura en transici\u00f3n",
+            "Los cambios de estructura son justo el momento en que se cuelan los errores de titularidad. Cierra el "
+            "modelo y despu\u00e9s ordena beneficiarios y testamento en el mismo movimiento.", "#B45309"))
+
+    for tit, txt, col in alertas:
+        out.append(_box([Paragraph("<b>%s.</b> %s" % (tit, txt), St("esu", fontSize=10.5, leading=15))],
+                        "#FBF6E6", col, ancho=160*mm))
+        out.append(Spacer(1, 2*mm))
+    out.append(Paragraph("Marco educativo y orientativo. No constituye asesoramiento jur\u00eddico ni fiscal: la aplicaci\u00f3n "
+                         "depende de tu comunidad aut\u00f3noma y de tu caso concreto. Conviene contrastarlo con un profesional "
+                         "antes de firmar nada.", St("esd", fontSize=8.5, leading=11,
+                         textColor=colors.HexColor("#6B7280"))))
+    return out
 
 
 def seccion_rentabilidad_alquiler(datos, extras=None):
@@ -3555,6 +3684,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     # === ACTO 1 (cierre): sintesis financiera (FODA + flujo + proyeccion) ANTES de planificar ===
     S+=_secsafe(cuadro_financiero,p,datos,fi)
     S+=_secsafe(seccion_cuatro_caminos,datos,fi,extras)
+    S+=_secsafe(seccion_estructura_sucesion,datos,p)
     S+=_secsafe(seccion_rentabilidad_alquiler,datos)
     S+=_secsafe(seccion_familia,datos)
     # === ACTO 1: Meses de Libertad Financiera — la cifra objetiva que de verdad te mide ===

@@ -114,8 +114,24 @@ def chk_builds():
         import traceback; traceback.print_exc()
         FAILS.append("build T3: %s" % e)
 
+def chk_numeros():
+    """Red de seguridad de las CIFRAS: que el PDF compile no significa que el
+    numero sea correcto. Esto verifica los resultados del motor."""
+    print("== 4) cifras del motor (casos de oro + invariantes) ==")
+    try:
+        import test_numeros
+    except Exception as e:
+        FAILS.append("test_numeros no importable: %s" % e); return
+    try:
+        rc = test_numeros.main()
+    except Exception as e:
+        FAILS.append("test_numeros ha reventado: %s" % e); return
+    if rc != 0:
+        FAILS.append("cifras del motor: %d comprobacion(es) fallida(s)" % len(test_numeros.FALLOS))
+
+
 if __name__ == "__main__":
-    chk_html(); chk_pyflakes(); chk_linter(); chk_builds()
+    chk_html(); chk_pyflakes(); chk_linter(); chk_numeros(); chk_builds()
     print("\n==================== RESULTADO ====================")
     if FAILS:
         print("ROJO -- %d problema(s), NO desplegar:" % len(FAILS))

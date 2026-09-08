@@ -220,14 +220,41 @@ def _fv(P, A, r, n):
 # admite que el 4% falla ~15% a 40 anos y ~30% a 50 anos.
 # Nota Espana: con activos ESPANOLES el 4% habria agotado la cartera en mas de la
 # mitad de los escenarios historicos -> la cartera global no es estilo, es necesidad.
-TASA_DUR_MIN = 3.50   # % anual a 30 anos de retiro  (Pfau, cartera global)
-TASA_DUR_MAX = 3.00   # % anual a 50 anos de retiro
-DUR_MIN, DUR_MAX = 30.0, 50.0
-# Extremos publicados, solo para mostrar la incertidumbre real del sector:
-TASA_OPTIMISTA = 4.70   # Bengen 2025, cartera muy diversificada
-TASA_EXIGENTE = 2.26    # Cederburg et al. 2025, 38 paises, 5% de ruina
-EDAD_PLAN_FIN = 95      # longevidad prudente (pareja)
-EDAD_JUBILACION = 67    # edad ordinaria de jubilacion (referencia 2027)
+def _cargar_parametros():
+    """Parametros economicos desde parametros.json (editable sin tocar codigo).
+    Si el fichero falta o esta corrupto, se usan los valores por defecto."""
+    import json, os
+    d = {}
+    try:
+        _p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "parametros.json")
+        with open(_p, encoding="utf-8") as fh:
+            d = json.load(fh) or {}
+    except Exception:
+        d = {}
+    r = d.get("retiro") or {}
+    e = d.get("extremos_publicados") or {}
+    return {
+        "vigencia": d.get("vigencia") or "",
+        "tasa_dur_min": float(r.get("tasa_dur_min", 3.50)),
+        "tasa_dur_max": float(r.get("tasa_dur_max", 3.00)),
+        "dur_min": float(r.get("dur_min", 30)),
+        "dur_max": float(r.get("dur_max", 50)),
+        "edad_jubilacion": float(r.get("edad_jubilacion", 67)),
+        "edad_plan_fin": float(r.get("edad_plan_fin", 95)),
+        "tasa_optimista": float(e.get("tasa_optimista", 4.70)),
+        "tasa_exigente": float(e.get("tasa_exigente", 2.26)),
+    }
+
+
+PARAMS = _cargar_parametros()
+VIGENCIA = PARAMS["vigencia"]
+TASA_DUR_MIN = PARAMS["tasa_dur_min"]
+TASA_DUR_MAX = PARAMS["tasa_dur_max"]
+DUR_MIN, DUR_MAX = PARAMS["dur_min"], PARAMS["dur_max"]
+TASA_OPTIMISTA = PARAMS["tasa_optimista"]
+TASA_EXIGENTE = PARAMS["tasa_exigente"]
+EDAD_PLAN_FIN = PARAMS["edad_plan_fin"]
+EDAD_JUBILACION = PARAMS["edad_jubilacion"]
 
 
 def _tasa_retirada(dur_retiro):
@@ -248,6 +275,36 @@ def _multiplo_libertad(dur_retiro):
     return round(100.0 / _tasa_retirada(dur_retiro), 1)
 
 
+def _capital_necesario(go, pen, edad_parada):
+    """Capital necesario al dejar de depender del sueldo a 'edad_parada'.
+    Devuelve (N, capital_del_puente). Contempla que la pension publica no llega
+    hasta la edad ordinaria: hasta entonces la cartera cubre el gasto COMPLETO."""
+    gp = max(0.0, go - pen)
+    if gp <= 0:
+        return 0.0, 0.0
+    dur = max(20.0, EDAD_PLAN_FIN - edad_parada)
+    mult = _multiplo_libertad(dur)
+    puente = max(0.0, EDAD_JUBILACION - edad_parada)
+    if puente <= 0:
+        return gp * 12 * mult, 0.0
+    mult_post = _multiplo_libertad(EDAD_PLAN_FIN - EDAD_JUBILACION)
+    rd = _tasa_retirada(dur) / 100.0
+    af = puente if rd <= 0 else (1 - (1 + rd) ** -puente) / rd
+    cap_puente = go * 12 * af
+    cap_post = (gp * 12 * mult_post) / ((1 + rd) ** puente)
+    return cap_puente + cap_post, cap_puente
+
+
+def _anios_hasta(objetivo, capital, ahorro, r_mes):
+    """Anos necesarios para alcanzar 'objetivo' al ritmo actual. None si no llega."""
+    if capital >= objetivo:
+        return 0
+    for mm in range(1, 12 * 80 + 1):
+        if _fv(capital, ahorro, r_mes, mm) >= objetivo:
+            return round(mm / 12.0)
+    return None
+
+
 def analizar_expectativas(gasto_objetivo, pension, capital, ahorro_mensual, horizonte,
                           rent_real_pct, rent_esperada_pct=None, herencia_importe=0,
                           edad=None):
@@ -265,16 +322,7 @@ def analizar_expectativas(gasto_objetivo, pension, capital, ahorro_mensual, hori
         # PUENTE: la pension publica no se cobra hasta la edad ordinaria. Si para antes,
         # durante esos anos la cartera tiene que cubrir el gasto COMPLETO, no solo la brecha.
         puente = max(0.0, EDAD_JUBILACION - edad_parada)
-        if puente <= 0:
-            N = gp * 12 * mult
-            cap_puente = 0.0
-        else:
-            mult_post = _multiplo_libertad(EDAD_PLAN_FIN - EDAD_JUBILACION)
-            rd = _tasa_retirada(dur_retiro) / 100.0   # descuento prudente = tasa segura
-            af = puente if rd <= 0 else (1 - (1 + rd) ** -puente) / rd
-            cap_puente = go * 12 * af                       # gasto COMPLETO durante el puente
-            cap_post = (gp * 12 * mult_post) / ((1 + rd) ** puente)  # brecha desde los 67, descontada
-            N = cap_puente + cap_post
+        N, cap_puente = _capital_necesario(go, pen, edad_parada)
         # la herencia esperada reduce el capital que tienes que generar
         cap_efectivo = cap + _f(herencia_importe)
         falta = max(0.0, N - cap_efectivo)
@@ -285,6 +333,7 @@ def analizar_expectativas(gasto_objetivo, pension, capital, ahorro_mensual, hori
                "tasa_retirada_pct": round(_tasa_retirada(dur_retiro), 2),
                "edad_parada": int(round(edad_parada)),
                "dur_retiro_anios": int(round(dur_retiro)),
+               "vigencia_parametros": VIGENCIA,
                "puente_anios": int(round(puente)),
                "puente_capital": round(cap_puente),
                "rango_libertad": {"min": round(gp * 12 * 100.0 / TASA_OPTIMISTA),
@@ -301,6 +350,22 @@ def analizar_expectativas(gasto_objetivo, pension, capital, ahorro_mensual, hori
         else:
             nreal = 0
         out["anios_reales"] = nreal
+        # --- ESCENARIOS: como se mueve el numero con lo que el cliente controla ---
+        try:
+            esc = []
+            def _add(lbl, g2, ep2, aho2):
+                n2, _ = _capital_necesario(g2, pen, ep2)
+                esc.append({"escenario": lbl, "numero": round(n2),
+                            "anios": _anios_hasta(n2, cap_efectivo, aho2, rr),
+                            "delta": round(n2 - N)})
+            _add("Tu plan de hoy", go, edad_parada, aho)
+            _add("Paras 2 a\u00f1os m\u00e1s tarde", go, edad_parada + 2, aho)
+            _add("Recortas el gasto un 10%", go * 0.90, edad_parada, aho)
+            _add("Ahorras 200 \u20ac m\u00e1s al mes", go, edad_parada, aho + 200)
+            _add("Las tres cosas a la vez", go * 0.90, edad_parada + 2, aho + 200)
+            out["escenarios"] = esc
+        except Exception:
+            pass
         if rent_esperada_pct is not None:
             out["expectativa_magica"] = (_f(rent_esperada_pct) - _f(rent_real_pct) >= 3)
         # 4 caminos (si hay horizonte)
