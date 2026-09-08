@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<style id="adapta-fonts">
+@font-face{font-family:'Poppins';font-weight:300;font-style:normal;font-display:swap;src:url('fonts/Poppins-Light.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:400;font-style:normal;font-display:swap;src:url('fonts/Poppins-Regular.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:500;font-style:normal;font-display:swap;src:url('fonts/Poppins-Medium.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:600;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:700;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:800;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:400;font-style:normal;font-display:swap;src:url('fonts/Lora-Regular.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:600;font-style:normal;font-display:swap;src:url('fonts/Lora-SemiBold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:700;font-style:normal;font-display:swap;src:url('fonts/Lora-Bold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:400;font-style:italic;font-display:swap;src:url('fonts/Lora-Italic.ttf') format('truetype')}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Índice de Salud Financiera · Adapta Family Office</title>
+<meta name="description" content="¿Qué nota tiene tu salud financiera? Descúbrelo en 2 minutos, gratis y sin registro. Índice de Salud Financiera de Adapta Family Office.">
+<meta property="og:title" content="¿Qué nota tiene tu salud financiera?">
+<meta property="og:description" content="Descubre tu Índice de Salud Financiera en 2 minutos. Gratis, sin registro.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://diagnostico.adaptafamilyoffice.com/indice.html">
+<meta property="og:site_name" content="Adapta Family Office">
+<meta name="theme-color" content="#020203">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{--am:#FDD731;--ng:#020203;--panel:#0E0E10;--tx:#FFFFFF;--gr:#B9B9BD;--linea:#26262B;--em:#10b981;--ro:#f43f5e;--amb:#F0A84B}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:var(--ng);color:var(--tx);-webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden}
+.serif{font-family:'Lora',Georgia,serif}
+.wrap{max-width:640px;margin:0 auto;padding:26px 22px 60px;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:42px}
+.logo{font-weight:800;color:var(--am);font-size:19px;letter-spacing:.5px}
+.logo span{color:#8b8b90;font-weight:500;font-size:11px;letter-spacing:1px}
+.eyebrow{color:var(--am);font-weight:600;font-size:11px;letter-spacing:2.5px;text-transform:uppercase}
+.btn{background:var(--am);color:var(--ng);border:none;font-family:inherit;font-weight:700;font-size:16px;padding:16px 30px;border-radius:40px;cursor:pointer;transition:transform .15s,box-shadow .15s;display:inline-flex;align-items:center;justify-content:center;gap:10px;text-decoration:none}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(253,215,49,.25)}
+.btn.block{display:flex;width:100%}
+.btn.ghost{background:transparent;color:var(--tx);border:1.5px solid var(--linea)}
+.btn.ghost:hover{border-color:var(--am);box-shadow:none}
+/* HERO */
+#hero h1{font-weight:700;font-size:38px;line-height:1.12;letter-spacing:-.5px;margin:16px 0 14px}
+#hero h1 b{color:var(--am);font-weight:800}
+#hero p{color:var(--gr);font-size:16px;font-weight:300;max-width:460px;margin-bottom:30px}
+.meta-line{display:flex;gap:20px;color:var(--gr);font-size:12.5px;margin-bottom:34px;flex-wrap:wrap}
+.meta-line span{display:flex;align-items:center;gap:7px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--am);display:inline-block}
+/* QUIZ */
+#quiz{display:none}
+.progress{height:4px;background:var(--linea);border-radius:4px;overflow:hidden;margin-bottom:28px}
+.progress>i{display:block;height:100%;background:var(--am);width:0;transition:width .35s ease}
+.qnum{color:var(--am);font-weight:600;font-size:12px;letter-spacing:1.5px;margin-bottom:12px}
+.qtext{font-size:23px;font-weight:600;line-height:1.3;margin-bottom:24px}
+.opt{background:var(--panel);border:1.5px solid var(--linea);color:var(--tx);font-family:inherit;font-size:15.5px;text-align:left;width:100%;padding:18px 20px;border-radius:14px;cursor:pointer;margin-bottom:12px;transition:all .15s;line-height:1.35}
+@media(hover:hover){.opt:hover{border-color:var(--am);background:#15150f;transform:translateX(3px)}}
+.opt:active{border-color:var(--am);background:#15150f}
+.backbtn{background:none;border:none;color:#8b8b90;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;padding:4px 0 10px}
+.backbtn:hover{color:var(--am)}
+/* RESULT */
+#result{display:none}
+.reveal{color:var(--gr);font-size:13px;font-weight:300;margin-bottom:14px}
+#scoreCard{background:linear-gradient(160deg,#0E0E10 0%,#050505 100%);border:1px solid #2A2A14;border-radius:22px;padding:34px 28px;position:relative;overflow:hidden;text-align:center}
+#scoreCard::before{content:"";position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(253,215,49,.14),transparent 70%)}
+.sc-lab{position:relative;color:var(--gr);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:600}
+.sc-num{position:relative;font-family:'Lora',serif;font-weight:700;font-size:96px;line-height:1;margin:6px 0 2px;letter-spacing:-2px}
+.sc-num small{font-size:28px;color:var(--gr);font-weight:400;letter-spacing:0}
+.sc-tag{position:relative;display:inline-block;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;border-radius:30px;padding:6px 16px;margin-top:6px}
+.sc-sub{position:relative;color:var(--gr);font-size:14px;font-weight:300;margin-top:16px;line-height:1.55}
+.pill-rows{margin-top:26px;text-align:left}
+.pill-row{margin-bottom:14px}
+.pill-row .l{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.pill-row .l b{font-weight:600}
+.pill-row .l span{color:var(--gr);font-variant-numeric:tabular-nums}
+.bar-bg{height:8px;background:#0a0a0c;border:1px solid var(--linea);border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.22,1,.36,1)}
+.weak{margin-top:22px;border:1px solid #33330f;background:linear-gradient(160deg,#15150c,#0b0b07);border-radius:14px;padding:18px}
+.weak .k{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--am);font-weight:700}
+.weak h4{font-size:20px;font-weight:700;margin:6px 0 4px}
+.weak p{color:var(--gr);font-size:13.5px;font-weight:300;line-height:1.5}
+/* CTA */
+.cta{margin-top:26px;background:linear-gradient(160deg,#15150c,#0b0b07);border:1px solid #33330f;border-radius:18px;padding:26px 22px;text-align:center}
+.cta h3{font-size:21px;font-weight:700;margin-bottom:10px;line-height:1.25}
+.cta h3 b{color:var(--am)}
+.cta p{color:var(--gr);font-size:14px;font-weight:300;margin-bottom:18px;line-height:1.55}
+.price{display:inline-flex;align-items:baseline;gap:4px;font-weight:800;font-size:15px;color:var(--am);margin-bottom:14px}
+.price s{color:#6a6a70;font-weight:500;font-size:13px}
+/* SHARE */
+.share-title{font-weight:600;font-size:15px;margin:30px 0 14px;text-align:center;color:var(--gr)}
+.share-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.share{display:flex;align-items:center;justify-content:center;gap:9px;padding:14px;border-radius:12px;border:1.5px solid var(--linea);background:var(--panel);color:var(--tx);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;transition:all .15s}
+.share:hover{border-color:var(--am)}
+.share svg{width:18px;height:18px}
+.legal{margin-top:32px;text-align:center;color:#48484E;font-size:11px;line-height:1.6;font-weight:300}
+.legal a{color:#6A6A70}
+@media(max-width:480px){#hero h1{font-size:31px}.sc-num{font-size:78px}.share-row{grid-template-columns:1fr}.wrap{padding:22px 18px 50px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="logo">ADAPTA <span>family office</span></div>
+    <span class="eyebrow">Gratis · 2 min</span>
+  </div>
+
+  <!-- HERO -->
+  <section id="hero">
+    <span class="eyebrow">Índice de Salud Financiera</span>
+    <h1>¿Qué nota tiene <b>tu salud financiera</b>?</h1>
+    <p>No es cuánto ganas. Es lo bien montada que está tu economía. Descubre tu nota sobre 100 y en qué punto estás más flojo.</p>
+    <div class="meta-line">
+      <span><i class="dot"></i> 10 preguntas</span>
+      <span><i class="dot"></i> 2 minutos</span>
+      <span><i class="dot"></i> Sin registro</span>
+    </div>
+    <button class="btn" onclick="start()">Calcular mi nota →</button>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz">
+    <div class="progress"><i id="bar"></i></div>
+    <button id="backBtn" class="backbtn" onclick="atras()" style="display:none">← Atrás</button>
+    <div class="qnum" id="qnum"></div>
+    <div class="qtext" id="qtext"></div>
+    <div id="opts"></div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result">
+    <p class="reveal">Tu Índice de Salud Financiera:</p>
+
+    <div id="scoreCard">
+      <div class="sc-lab">Índice de Salud Financiera</div>
+      <div class="sc-num" id="scNum">0<small>/100</small></div>
+      <div class="sc-tag" id="scTag">—</div>
+      <div class="sc-sub" id="scSub"></div>
+    </div>
+
+    <div class="pill-rows" id="pillRows"></div>
+
+    <div class="weak">
+      <div class="k">Tu punto más débil</div>
+      <h4 id="weakName">—</h4>
+      <p id="weakTxt">Aquí es donde tu economía pierde más fuerza hoy.</p>
+    </div>
+
+    <div class="cta">
+      <h3 id="ctaH">Tu nota dice <b>dónde estás</b>. No dice <b>cuánto te está costando</b>.</h3>
+      <p id="ctaP">El diagnóstico completo pone tus cifras exactas: cuánto se te escapa al año, tu número de libertad y el plan de 100 días para subir esta nota.</p>
+      <div class="price" id="ctaPrice"></div>
+      <a class="btn block" id="ctaBtn" href="empezar2.html?tier=2">Ver mi diagnóstico completo →</a>
+    </div>
+
+    <div class="share-title">Comparte tu nota · reta a alguien</div>
+    <button class="btn block" style="margin:0 0 12px" onclick="reto()">⚔️ Retar por WhatsApp →</button>
+    <div class="share-row">
+      <a class="share" id="shWa" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20z"/></svg> WhatsApp</a>
+      <a class="share" id="shLi" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM9 17H6.5v-7H9v7zM7.7 8.7a1.4 1.4 0 1 1 0-2.9 1.4 1.4 0 0 1 0 2.9zM18 17h-2.5v-3.6c0-.9 0-2-1.3-2s-1.4.9-1.4 1.9V17H10v-7h2.4v1h.1a2.6 2.6 0 0 1 2.4-1.3c2.5 0 3 1.7 3 3.8V17z"/></svg> LinkedIn</a>
+    </div>
+    <div class="share-row">
+      <button class="share" onclick="copyLink()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg> <span id="copyTxt">Copiar enlace</span></button>
+      <button class="share" onclick="downloadCard()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg> Descargar tarjeta</button>
+    </div>
+
+    <button class="btn ghost block" style="margin-top:14px" onclick="restart()">Repetir el test</button>
+
+    <!-- tarjeta para compartir (oculta, se renderiza a imagen) -->
+    <div id="shareCard" style="position:absolute;left:-9999px;top:0;width:360px;height:640px;background:#020203;box-sizing:border-box;padding:46px 34px;font-family:Poppins,Arial,sans-serif;display:flex;flex-direction:column;justify-content:space-between">
+      <div style="position:absolute;top:-70px;right:-70px;width:230px;height:230px;background:radial-gradient(circle,rgba(253,215,49,.13),transparent 68%)"></div>
+      <div style="position:relative;font-weight:800;color:#FDD731;font-size:19px">ADAPTA <span style="color:#8b8b90;font-weight:500;font-size:12px">family office</span></div>
+      <div style="position:relative;text-align:center">
+        <div style="color:#8b8b90;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;font-weight:600">Índice de Salud Financiera</div>
+        <div id="shNum" style="color:#fff;font-family:Lora,serif;font-weight:700;font-size:110px;line-height:1;margin:10px 0 0">0</div>
+        <div style="color:#8b8b90;font-size:20px;margin-top:-4px">sobre 100</div>
+        <div id="shTag" style="display:inline-block;color:#FDD731;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-top:16px;border:1px solid #33330f;border-radius:30px;padding:6px 16px"></div>
+      </div>
+      <div style="position:relative;border-top:1px solid #26262B;padding-top:16px;text-align:center">
+        <div style="color:#fff;font-size:19px;font-weight:700;line-height:1.25">¿Y tú? ¿Qué nota sacas?</div>
+        <div style="color:#FDD731;font-size:14px;font-weight:600;margin-top:6px">diagnostico.adaptafamilyoffice.com</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="legal">
+    Adapta Family Office S.L. · Orientativo y educativo, no constituye asesoramiento financiero.<br>
+    <a href="./privacidad.html">Política de privacidad</a>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+
+/* ===== Índice de Salud Financiera =====
+   9 preguntas puntuadas (0-3) agrupadas en 3 pilares + 1 de segmentación.
+   Puntuación honesta: solo mide lo que la persona declara. */
+const Q=[
+ {p:"seguridad",q:"Si mañana dejaras de ingresar, ¿cuánto aguantarías con lo que tienes ahorrado?",
+  o:[["Menos de un mes",0],["Entre 1 y 3 meses",1],["Entre 3 y 6 meses",2],["Más de 6 meses",3]]},
+ {p:"habito",q:"De lo que entra cada mes, ¿cuánto consigues apartar?",
+  o:[["Nada, o casi nada",0],["Menos del 10%",1],["Entre el 10% y el 20%",2],["Más del 20%",3]]},
+ {p:"habito",q:"Sin contar la hipoteca, ¿cuánto de tu ingreso mensual se va en pagar deudas?",
+  o:[["Nada, no tengo deudas",3],["Menos del 10%",2],["Entre el 10% y el 25%",1],["Más del 25%",0]]},
+ {p:"futuro",q:"¿Qué parte de tus ingresos se va en vivienda (alquiler o hipoteca)?",
+  o:[["Menos del 25%",3],["Entre el 25% y el 35%",2],["Entre el 35% y el 45%",1],["Más del 45%",0]]},
+ {p:"habito",q:"¿Sabes cuánto gastas realmente cada mes?",
+  o:[["Al detalle, lo tengo controlado",3],["Aproximadamente",2],["Tengo una idea vaga",1],["Sinceramente, ni idea",0]]},
+ {p:"seguridad",q:"Te llega un imprevisto de 1.500 € este mes. ¿Qué pasa?",
+  o:[["Lo pago sin despeinarme",3],["Lo pago, pero me descuadra el mes",2],["Tendría que pedirlo o aplazarlo",1],["No podría afrontarlo",0]]},
+ {p:"seguridad",q:"Si mañana faltara tu principal fuente de ingresos, tu familia…",
+  o:[["Está cubierta: hay seguro y colchón",3],["Aguantaría una temporada",2],["Lo pasaría mal en pocas semanas",1],["Nunca me lo he planteado",0]]},
+ {p:"futuro",q:"¿Tienes dinero trabajando para ti (invertido, plan de pensiones…)?",
+  o:[["Sí, con una estrategia clara",3],["Sí, algo, sin mucho criterio",2],["Todo parado en la cuenta",1],["No me sobra nada para eso",0]]},
+ {p:"futuro",q:"¿Tienes claro a dónde quieres llegar en 5-10 años, con números?",
+  o:[["Sí, con cifras concretas",3],["Tengo una idea aproximada",2],["Muy vagamente",1],["No lo he pensado nunca",0]]}
+];
+/* pregunta de segmentación (no puntúa) */
+const SEG={q:"Última: las decisiones de dinero en tu casa…",
+  o:[["Las tomamos en pareja",  "pareja"],
+     ["Las hablamos, pero acabamos discutiendo","pareja"],
+     ["Las lleva uno de los dos","pareja"],
+     ["Decido yo, vivo sin pareja","solo"]]};
+
+const PILAR={seguridad:"Seguridad",habito:"Hábito",futuro:"Futuro"};
+const PILAR_TXT={
+ seguridad:"Tu red de emergencia es lo que más flojea: si algo se tuerce, no hay colchón detrás.",
+ habito:"Tu día a día es lo que más flojea: lo que entra y sale cada mes no está jugando a tu favor.",
+ futuro:"Tu futuro es lo que más flojea: hoy aguantas, pero nada está construyendo lo que viene."
+};
+let i=0, ans=[], segVal="solo", score=0, weakKey="seguridad";
+
+function start(){$("hero").style.display="none";$("quiz").style.display="block";i=0;ans=[];render();scrollTo(0,0);}
+function total(){return Q.length+1;}
+function render(){
+  const isSeg = i===Q.length;
+  const item = isSeg?SEG:Q[i];
+  $("bar").style.width=(i/total()*100)+"%";
+  $("qnum").textContent="PREGUNTA "+(i+1)+" DE "+total();
+  $("backBtn").style.display=i>0?"inline-flex":"none";
+  $("qtext").textContent=item.q;
+  const c=$("opts");c.innerHTML="";
+  item.o.forEach(op=>{
+    const b=document.createElement("button");
+    b.className="opt";b.textContent=op[0];
+    b.onclick=()=>choose(op[1],isSeg);
+    c.appendChild(b);
+  });
+}
+function choose(v,isSeg){
+  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+  if(isSeg){ segVal=v; finish(); return; }
+  ans[i]=v; i++; render(); scrollTo(0,0);
+}
+function atras(){ if(i>0){ i--; ans.length=i; render(); scrollTo(0,0); } }
+
+function finish(){
+  /* puntuación */
+  const sum={seguridad:0,habito:0,futuro:0}, max={seguridad:0,habito:0,futuro:0};
+  Q.forEach((q,k)=>{ sum[q.p]+=(ans[k]||0); max[q.p]+=3; });
+  const t=sum.seguridad+sum.habito+sum.futuro, tmax=max.seguridad+max.habito+max.futuro;
+  score=Math.round(t/tmax*100);
+
+  /* pilar más débil (en % sobre su propio máximo) */
+  let worst=null,worstPct=101;
+  Object.keys(sum).forEach(k=>{ const pct=sum[k]/max[k]*100; if(pct<worstPct){worstPct=pct;worst=k;} });
+  weakKey=worst;
+
+  /* etiqueta */
+  let tag,color,sub;
+  if(score<40){ tag="Frágil"; color="var(--ro)";
+    sub="Tu economía aguanta el día a día, pero no aguantaría un imprevisto serio."; }
+  else if(score<60){ tag="Ajustada"; color="var(--amb)";
+    sub="Vas tirando, pero hay grietas que hoy no ves y que te están costando dinero."; }
+  else if(score<80){ tag="Sólida"; color="var(--am)";
+    sub="Buena base. Lo que te separa del siguiente nivel ya no es ganar más, es ordenar mejor."; }
+  else { tag="Blindada"; color="var(--em)";
+    sub="Estás en el grupo pequeño que lo tiene bien montado. El margen está en optimizar."; }
+
+  $("scNum").innerHTML=score+'<small>/100</small>';
+  $("scNum").style.color=color;
+  $("scTag").textContent=tag;
+  $("scTag").style.cssText="background:rgba(253,215,49,.1);color:"+color+";border:1px solid "+color;
+  $("scSub").textContent=sub;
+
+  /* barras por pilar (sin consejo: solo posición) */
+  const rows=Object.keys(sum).map(k=>{
+    const pct=Math.round(sum[k]/max[k]*100);
+    const col = pct<40?"var(--ro)":(pct<70?"var(--amb)":"var(--am)");
+    return '<div class="pill-row"><div class="l"><b>'+PILAR[k]+'</b><span>'+pct+'/100</span></div>'+
+           '<div class="bar-bg"><div class="bar-fill" style="width:'+pct+'%;background:'+col+'"></div></div></div>';
+  }).join("");
+  $("pillRows").innerHTML=rows;
+
+  $("weakName").textContent=PILAR[weakKey];
+  $("weakTxt").textContent=PILAR_TXT[weakKey];
+
+  /* recomendación comercial según convivencia */
+  if(segVal==="pareja"){
+    $("ctaBtn").href="empezar2.html?tier=3";
+    $("ctaBtn").textContent="Ver nuestro diagnóstico en pareja →";
+    $("ctaPrice").innerHTML='Diagnóstico en Pareja · <b>54&nbsp;€</b>';
+    $("ctaP").textContent="El diagnóstico en pareja pone vuestras cifras exactas y, sobre todo, dónde no estáis de acuerdo sin saberlo. Con vuestro plan de 100 días.";
+  }else{
+    $("ctaBtn").href="empezar2.html?tier=2";
+    $("ctaBtn").textContent="Ver mi diagnóstico completo →";
+    $("ctaPrice").innerHTML='Diagnóstico Avanzado · <b>39&nbsp;€</b>';
+  }
+
+  /* compartir */
+  $("shNum").textContent=score;
+  $("shTag").textContent=tag;
+  const url="https://diagnostico.adaptafamilyoffice.com/indice.html";
+  const txt="He sacado "+score+"/100 en el Índice de Salud Financiera 💰 ¿Cuál es el tuyo?";
+  $("shWa").href="https://wa.me/?text="+encodeURIComponent(txt+" "+url);
+  $("shLi").href="https://www.linkedin.com/sharing/share-offsite/?url="+encodeURIComponent(url);
+
+  $("quiz").style.display="none";$("result").style.display="block";scrollTo(0,0);
+}
+function restart(){$("result").style.display="none";$("hero").style.display="block";scrollTo(0,0);}
+function reto(){
+  const url="https://diagnostico.adaptafamilyoffice.com/indice.html";
+  const txt="⚔️ Te reto: yo he sacado "+score+"/100 en el Índice de Salud Financiera. ¿Te atreves a ver tu nota? Son 2 minutos.";
+  window.open("https://wa.me/?text="+encodeURIComponent(txt+" "+url),"_blank","noopener");
+}
+function copyLink(){
+  const url="https://diagnostico.adaptafamilyoffice.com/indice.html";
+  navigator.clipboard.writeText(url).then(()=>{
+    $("copyTxt").textContent="¡Copiado!";setTimeout(()=>$("copyTxt").textContent="Copiar enlace",1800);
+  });
+}
+function downloadCard(){
+  html2canvas($("shareCard"),{backgroundColor:"#020203",scale:3,width:360,height:640}).then(c=>{
+    const a=document.createElement("a");a.download="mi-indice-salud-financiera.png";a.href=c.toDataURL("image/png");a.click();
+  });
+}
+</script>
+</body>
+</html>
