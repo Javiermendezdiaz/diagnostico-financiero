@@ -326,6 +326,75 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 })();
 </script>
 
+<!-- MICRO-TEST · Aha! inmediato, honesto (nivel de exposición desde tus propias respuestas) -->
+<style>
+#mt{max-width:640px;margin:44px auto 0;padding:0 22px}
+#mt .mt-card{border:1px solid var(--bd);border-radius:18px;background:linear-gradient(180deg,var(--pa),transparent);padding:26px 22px}
+#mt .mt-q{margin:0 0 16px}
+#mt .mt-q>p{font-size:15px;color:var(--tx);font-weight:600;margin:0 0 9px;line-height:1.35}
+#mt .mt-opts{display:flex;flex-wrap:wrap;gap:8px}
+#mt .mt-o{flex:1;min-width:120px;border:1.5px solid var(--bd);background:#020203;color:var(--gr);border-radius:11px;padding:11px 12px;font-family:inherit;font-size:13px;cursor:pointer;transition:.14s;text-align:center;line-height:1.3}
+#mt .mt-o:hover{border-color:#3a3d48;color:var(--tx)}
+#mt .mt-o.sel{border-color:var(--am);color:#06070d;background:var(--am);font-weight:700}
+#mt .mt-res{display:none;margin-top:6px;border-radius:14px;padding:20px;text-align:center}
+#mt .mt-res .mt-lvl{font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:6px}
+#mt .mt-res .mt-big{font-size:clamp(30px,6vw,44px);font-weight:800;line-height:1.05;margin-bottom:10px}
+#mt .mt-res p{font-size:14px;line-height:1.55;margin:0 auto 16px;max-width:460px}
+</style>
+<section id="mt">
+  <div style="text-align:center;margin-bottom:16px"><span class="kick" style="color:var(--am)">30 segundos · sin registro</span><h2 class="serif" style="font-size:clamp(22px,3.4vw,32px);margin:6px 0 0">Mide ahora tu exposición. Aquí mismo.</h2></div>
+  <div class="mt-card">
+    <div id="mtQs">
+      <div class="mt-q" data-q="0"><p>1 · Si mañana te quedaras sin ingresos, ¿cuántos meses aguantarías tu nivel de vida?</p><div class="mt-opts"><button class="mt-o" data-v="2">Menos de 3</button><button class="mt-o" data-v="1">Entre 3 y 6</button><button class="mt-o" data-v="0">Más de un año</button></div></div>
+      <div class="mt-q" data-q="1"><p>2 · En tu casa o pareja, ¿el esfuerzo con el dinero está repartido con justicia?</p><div class="mt-opts"><button class="mt-o" data-v="0">Sí</button><button class="mt-o" data-v="2">No</button><button class="mt-o" data-v="2">Lo evitamos</button></div></div>
+      <div class="mt-q" data-q="2"><p>3 · Tu dinero parado en el banco, ¿trabaja o pierde valor?</p><div class="mt-opts"><button class="mt-o" data-v="2">Pierde por inflación</button><button class="mt-o" data-v="1">No lo sé</button><button class="mt-o" data-v="0">Trabaja</button></div></div>
+    </div>
+    <div class="mt-res" id="mtRes">
+      <div class="mt-lvl" id="mtLvl"></div>
+      <div class="mt-big" id="mtBig"></div>
+      <p id="mtTxt"></p>
+      <a class="btn btn-am" id="mtCta" href="test-arquetipo.html" style="display:inline-block">Descubre por qué · gratis, 60 s →</a>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  var ans={},total=3,root=document.getElementById('mt');if(!root)return;
+  root.querySelectorAll('.mt-q').forEach(function(q){
+    q.querySelectorAll('.mt-o').forEach(function(b){
+      b.onclick=function(){
+        q.querySelectorAll('.mt-o').forEach(function(x){x.classList.remove('sel');});
+        b.classList.add('sel'); ans[q.getAttribute('data-q')]=+b.getAttribute('data-v');
+        if(Object.keys(ans).length===total) render();
+      };
+    });
+  });
+  function render(){
+    var sc=ans[0]+ans[1]+ans[2];
+    var lvl,col,big,txt;
+    var senales=(ans[0]>=2?1:0)+(ans[1]>=2?1:0)+(ans[2]>=2?1:0);
+    if(sc>=4){lvl='Exposición ALTA';col='var(--ro)';big=senales+' de 3 señales de alarma';}
+    else if(sc>=2){lvl='Exposición MEDIA';col='var(--am)';big=senales+' de 3 señales de alarma';}
+    else{lvl='Exposición BAJA';col='var(--em)';big='Vas por buen camino';}
+    var frases=[];
+    if(ans[0]>=2)frases.push('un imprevisto te dejar\u00eda contra las cuerdas');
+    if(ans[1]>=2)frases.push('el dinero es un tema sin resolver en tu relaci\u00f3n');
+    if(ans[2]>=2)frases.push('tu dinero pierde valor mientras esperas');
+    if(frases.length===0)frases.push('tienes bases s\u00f3lidas, pero siempre hay una palanca que no ves');
+    txt='Por tus respuestas, '+frases.join('; ')+'. Esto es solo la superficie \u2014 hay una cifra exacta detr\u00e1s.';
+    document.getElementById('mtLvl').textContent=lvl;
+    document.getElementById('mtLvl').style.color=col;
+    document.getElementById('mtBig').textContent=big;
+    document.getElementById('mtBig').style.color=col;
+    document.getElementById('mtTxt').textContent=txt;
+    var r=document.getElementById('mtRes'); r.style.borderColor=col; r.style.background='rgba(255,255,255,.02)'; r.style.border='1px solid '+col;
+    document.getElementById('mtQs').style.display='none';
+    r.style.display='block';
+    try{r.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}
+  }
+})();
+</script>
+
 <!-- DOLOR · lo que no ves te cuesta -->
 <section class="wrap" style="max-width:920px;margin:50px auto 0;padding:0 22px;text-align:center">
   <span class="kick" style="color:var(--ro)">La verdad incómoda</span>
@@ -387,7 +456,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
     <div class="plan-grid">
       <div class="plan">
         <div class="pn">Rápido</div>
-        <div class="pw">Para ti. Una foto rápida y honesta.</div>
+        <div class="pw"><b style="color:var(--tx)">El espejo:</b> sabe exactamente dónde pierdes dinero hoy.</div>
         <div class="anchor"><s>150&nbsp;€</s><span class="lbl">en consultoría</span></div>
         <div class="pp serif">19<small> €</small></div>
         <ul>
@@ -401,7 +470,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
       <div class="plan feat">
         <div class="badge">El más elegido</div>
         <div class="pn">Avanzado</div>
-        <div class="pw">Para ti, a fondo: patrimonio, deudas o una empresa.</div>
+        <div class="pw"><b style="color:var(--tx)">Tu hoja de ruta:</b> el plan de 100 días para taparlo, a fondo.</div>
         <div class="anchor"><s>450&nbsp;€</s><span class="lbl">auditoría completa</span></div>
         <div class="pp serif">39<small> €</small></div>
         <ul>
@@ -416,7 +485,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
       <div class="plan feat" style="border-color:rgba(244,63,94,.55);box-shadow:0 0 0 1px rgba(244,63,94,.22),0 18px 50px -20px rgba(244,63,94,.4)">
         <div class="badge" style="background:rgba(244,63,94,.16);color:var(--ro);border-color:rgba(244,63,94,.4)">★ El más revelador</div>
         <div class="pn">Pareja</div>
-        <div class="pw">Donde el dinero deja de ser cifras y se vuelve relación.</div>
+        <div class="pw"><b style="color:var(--tx)">Paz financiera en pareja:</b> fin a las discusiones de dinero, con datos imparciales.</div>
         <div class="anchor"><s>600&nbsp;€</s><span class="lbl">auditoría de pareja</span></div>
         <div class="pp serif">54<small> €</small></div>
         <ul>
