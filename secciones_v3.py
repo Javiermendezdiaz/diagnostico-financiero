@@ -71,6 +71,21 @@ def seccion_numero_caminos(exp):
     S.append(Paragraph('<font size=30 color="#1A1A17"><b>%s €</b></font>'%_eur(exp["numero_libertad"]), BODY))
     S.append(Paragraph("El capital que necesitas para vivir de rentas, <b>neto de tu pensión</b>. Lo tienes cubierto al <b>%s%%</b>%s." % (
         exp.get("pct_cubierto",0), (" · te falta %s €"%_eur(exp.get("brecha_renta"))) if exp.get("brecha_renta",0)>0 else ""), BODY))
+    if exp.get("tasa_retirada_pct"):
+        S.append(Paragraph(
+            "Calculado con una tasa de retirada del <b>%s%%</b> (%sx tu gasto anual), que es la que corresponde a un "
+            "retiro de <b>%s a\u00f1os</b> si dejas de depender del sueldo a los <b>%s</b>. No aplicamos el 4%% de manual: "
+            "cuanto m\u00e1s largo es el horizonte, m\u00e1s baja tiene que ser la tasa para no quedarte sin dinero." % (
+                str(exp.get("tasa_retirada_pct")).replace(".", ","), str(exp.get("multiplo")).replace(".0", ""),
+                exp.get("dur_retiro_anios"), exp.get("edad_parada")), BODY))
+        rg = exp.get("rango_libertad") or {}
+        if rg.get("min") and rg.get("max"):
+            S.append(Paragraph(
+                "Horquilla de referencia: entre <b>%s \u20ac</b> (25x) y <b>%s \u20ac</b> (33x). Existe porque los estudios no "
+                "coinciden: Bengen con datos de EE.UU. es m\u00e1s optimista; los estudios con datos de 38 pa\u00edses, m\u00e1s "
+                "prudentes. Te damos el punto que corresponde a tu caso, no el m\u00e1s c\u00f3modo." % (
+                    _eur(rg["min"]), _eur(rg["max"])), SM))
+        S.append(Spacer(1, 4))
     if exp.get("pension_cubre"):
         S.append(Paragraph("<b>Tu pensión ya cubre la vida que quieres.</b> El trabajo no es llegar: es proteger y optimizar.", BODY))
         return [KeepTogether(S), Spacer(1,10*mm)]
@@ -139,6 +154,74 @@ def seccion_perfil(perfil_riesgo, rv_sugerido=None):
     return [_eyebrow("Cuánto riesgo te conviene"), _box(inner), Spacer(1,10*mm)]
 
 
+# ---------- 3b. El orden importa mas que la media (riesgo de secuencia) ----------
+def seccion_riesgo_secuencia(exp):
+    if not exp or not exp.get("numero_libertad"):
+        return []
+    S = [_eyebrow("Lo que no ves al mirar la rentabilidad media"),
+         Paragraph("El orden importa m\u00e1s que la media", H),
+         Paragraph("Dos personas se retiran con el mismo capital, gastan lo mismo y obtienen "
+                   "<b>exactamente la misma rentabilidad media</b> durante 30 a\u00f1os. La \u00fanica diferencia es "
+                   "el <b>orden</b> en que llegan los a\u00f1os buenos y los malos.", BODY)]
+    filas = [[Paragraph("<b>Mismo capital, mismo gasto, misma media</b>", SM),
+              Paragraph("<b>Resultado</b>", SM)],
+             [Paragraph("Las ca\u00eddas le llegan <b>al principio</b>", SM),
+              Paragraph('<font color="#9A3B2E"><b>Sin dinero en el a\u00f1o 21</b></font>', SM)],
+             [Paragraph("Las ca\u00eddas le llegan <b>al final</b>", SM),
+              Paragraph('<font color="#1D6F42"><b>Termina con m\u00e1s del triple</b></font>', SM)]]
+    t = Table(filas, colWidths=[100*mm, 56*mm])
+    t.setStyle(TableStyle([("LINEBELOW", (0, 0), (-1, -1), 0.4, LINEA),
+                           ("TOPPADDING", (0, 0), (-1, -1), 5),
+                           ("BOTTOMPADDING", (0, 0), (-1, -1), 5)]))
+    S += [Spacer(1, 4), t, Spacer(1, 6)]
+    S.append(Paragraph("Se llama <b>riesgo de secuencia</b>. Mientras acumulas, una ca\u00edda es una oportunidad: "
+                       "compras m\u00e1s barato. Cuando ya vives de la cartera, esa misma ca\u00edda es una herida que no "
+                       "cicatriza, porque vendes participaciones baratas para pagar la compra del mes y esas "
+                       "participaciones ya no est\u00e1n cuando el mercado se recupera.", BODY))
+    inner = [Paragraph("Qu\u00e9 significa para ti", ParagraphStyle("rs", fontName="Helvetica-Bold", fontSize=9,
+                                                                textColor=GOLD, spaceAfter=3)),
+             Paragraph("Los a\u00f1os cr\u00edticos son los primeros de tu retiro, no los \u00faltimos. Por eso conviene llegar "
+                       "con <b>dos o tres a\u00f1os de gasto</b> fuera de bolsa, no llegar al 100%% en renta variable, y "
+                       "poder <b>recortar el gasto un 10%%</b> el a\u00f1o que el mercado caiga fuerte. Quien puede hacer "
+                       "eso no necesita acertar con la tasa exacta.", SM)]
+    S += [Spacer(1, 4), _box(inner)]
+    return [KeepTogether(S), Spacer(1, 10*mm)]
+
+
+# ---------- 3c. Como sacas el dinero cambia tu numero ----------
+def seccion_como_sacas(exp):
+    if not exp or not exp.get("numero_libertad"):
+        return []
+    S = [_eyebrow("El coste que casi nadie calcula"),
+         Paragraph("C\u00f3mo sacas el dinero cambia tu n\u00famero", H),
+         Paragraph("Tu gasto es <b>neto</b>, pero lo que sale de la cartera es <b>bruto</b>. Y en Espa\u00f1a la forma de "
+                   "cobrarlo cambia mucho el capital que necesitas, porque la base sobre la que tributas no es la "
+                   "misma:", BODY)]
+    filas = [[Paragraph("<b>V\u00eda</b>", SM), Paragraph("<b>Hacienda ve</b>", SM), Paragraph("<b>Capital necesario*</b>", SM)],
+             [Paragraph("Dividendos", SM), Paragraph("El <b>100%</b> de lo que cobras", SM),
+              Paragraph('<font color="#9A3B2E"><b>~1.260.000 \u20ac</b></font>', SM)],
+             [Paragraph("Venta de participaciones", SM), Paragraph("<b>Solo la plusval\u00eda</b>", SM),
+              Paragraph('<font color="#1D6F42"><b>~835.000 \u20ac</b></font>', SM)]]
+    t = Table(filas, colWidths=[52*mm, 62*mm, 42*mm])
+    t.setStyle(TableStyle([("LINEBELOW", (0, 0), (-1, -1), 0.4, LINEA),
+                           ("TOPPADDING", (0, 0), (-1, -1), 5),
+                           ("BOTTOMPADDING", (0, 0), (-1, -1), 5)]))
+    S += [Spacer(1, 4), t, Spacer(1, 4)]
+    S.append(Paragraph("*Ejemplo ilustrativo para 30.000 \u20ac netos al a\u00f1o. M\u00e1s de <b>400.000 \u20ac de diferencia</b> "
+                       "por el simple hecho de c\u00f3mo cobras el dinero, con la misma vida y el mismo gasto.", SM))
+    inner = [Paragraph("La ventaja espa\u00f1ola que casi nadie usa", ParagraphStyle("cs", fontName="Helvetica-Bold",
+                                                                                fontSize=9, textColor=GOLD, spaceAfter=3)),
+             Paragraph("Los fondos de inversi\u00f3n permiten <b>traspasar sin tributar</b> (art. 94 de la Ley del IRPF): "
+                       "puedes mover el capital de un fondo a otro durante d\u00e9cadas sin pasar por Hacienda hasta el "
+                       "reembolso final. Los ETF no tienen esa ventaja. En la fase de acumulaci\u00f3n, esa diferencia "
+                       "compuesta pesa m\u00e1s que casi cualquier decisi\u00f3n de mercado.", SM)]
+    S += [Spacer(1, 4), _box(inner)]
+    S.append(Spacer(1, 4))
+    S.append(Paragraph("Marco educativo. Los tipos y supuestos son los vigentes al elaborar este informe y pueden "
+                       "cambiar; no constituye asesoramiento fiscal ni recomendaci\u00f3n de inversi\u00f3n.", SM))
+    return [KeepTogether(S), Spacer(1, 10*mm)]
+
+
 def secciones_financieras_v3(res):
     """res = dict del endpoint /api/diag-v3 (ingresos, gastos, deuda, cartera, patrimonio, familia, expectativas, agregado).
     Devuelve la lista de flowables de las 7 secciones (las que tengan datos)."""
@@ -146,6 +229,8 @@ def secciones_financieras_v3(res):
     out += seccion_precio_hora(res.get("ingresos",{}))
     out += seccion_fuga(res.get("gastos",{}))
     out += seccion_numero_caminos(res.get("expectativas",{}))
+    out += seccion_riesgo_secuencia(res.get("expectativas",{}))
+    out += seccion_como_sacas(res.get("expectativas",{}))
     out += seccion_patrimonio(res.get("patrimonio",{}))
     out += seccion_esfuerzo(res.get("deuda",{}))
     out += seccion_familia(res.get("familia",{}))

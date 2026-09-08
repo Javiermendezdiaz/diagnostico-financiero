@@ -1875,7 +1875,8 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
     horizonte=max(1, 67-edad) if 0<edad<67 else 15
     rent_real=5.0
     try:
-        exp=mfv3.analizar_expectativas(gasto, pension, capital, ahorro, horizonte, rent_real)
+        exp=mfv3.analizar_expectativas(gasto, pension, capital, ahorro, horizonte, rent_real,
+                                       edad=(edad if 0 < edad < 100 else None))
     except Exception:
         return []
     if not exp or not exp.get("numero_libertad"):

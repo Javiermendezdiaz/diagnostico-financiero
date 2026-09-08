@@ -209,20 +209,54 @@ def _fv(P, A, r, n):
     return P * g + A * (g - 1) / r
 
 
+# Multiplo de libertad segun la DURACION del retiro (no una constante).
+# Bengen (1994) fijo el 4% (25x) para 30 anos y solo con datos de EE.UU. Los estudios
+# posteriores con datos globales (Pfau 2010; Cederburg et al. 2025; Morningstar 2026)
+# rebajan la tasa segura cuanto mas largo es el horizonte. Rango de trabajo: 25x-33x.
+_TRAMOS_MULTIPLO = ((30, 25.0), (35, 27.0), (40, 29.0), (45, 31.0))
+MULTIPLO_MIN, MULTIPLO_MAX = 25.0, 33.0
+EDAD_PLAN_FIN = 95  # horizonte de planificacion (longevidad prudente)
+
+
+def _multiplo_libertad(dur_retiro):
+    """Multiplo del gasto anual segun los anos que la cartera debe aguantar."""
+    try:
+        d = float(dur_retiro)
+    except Exception:
+        return MULTIPLO_MIN
+    for lim, mult in _TRAMOS_MULTIPLO:
+        if d <= lim:
+            return mult
+    return MULTIPLO_MAX
+
+
 def analizar_expectativas(gasto_objetivo, pension, capital, ahorro_mensual, horizonte,
-                          rent_real_pct, rent_esperada_pct=None, herencia_importe=0):
+                          rent_real_pct, rent_esperada_pct=None, herencia_importe=0,
+                          edad=None):
     try:
         go, pen, cap = _f(gasto_objetivo), _f(pension), _f(capital)
         aho, hor = _f(ahorro_mensual), _f(horizonte)
         rr = _f(rent_real_pct) / 100.0 / 12.0
         gp = max(0.0, go - pen)
-        N = gp * 12 * 25
+        # Duracion del retiro = desde que para hasta los 95.
+        # Sin edad -> 67 por defecto -> 28 anos -> 25x (identico al comportamiento previo).
+        ed = _f(edad) if edad not in (None, "") else 0.0
+        edad_parada = (ed + hor) if ed > 0 else 67.0
+        dur_retiro = max(20.0, EDAD_PLAN_FIN - edad_parada)
+        mult = _multiplo_libertad(dur_retiro)
+        N = gp * 12 * mult
         # la herencia esperada reduce el capital que tienes que generar
         cap_efectivo = cap + _f(herencia_importe)
         falta = max(0.0, N - cap_efectivo)
         pct = min(100, round(100 * cap_efectivo / N)) if N > 0 else 100
         out = {"numero_libertad": round(N), "gasto_propio": round(gp),
-               "pct_cubierto": pct, "brecha_renta": round(falta)}
+               "pct_cubierto": pct, "brecha_renta": round(falta),
+               "multiplo": round(mult, 1),
+               "tasa_retirada_pct": round(100.0 / mult, 2),
+               "edad_parada": int(round(edad_parada)),
+               "dur_retiro_anios": int(round(dur_retiro)),
+               "rango_libertad": {"min": round(gp * 12 * MULTIPLO_MIN),
+                                  "max": round(gp * 12 * MULTIPLO_MAX)}}
         if go <= pen:
             out["pension_cubre"] = True
             return out
@@ -255,9 +289,9 @@ def analizar_expectativas(gasto_objetivo, pension, capital, ahorro_mensual, hori
                         lo = mid
                 r_need = round(hi * 100, 1)
             obj_cap = _fv(cap_efectivo, aho, rr, Hm)
-            obj_vida = round(obj_cap / 25 / 12 + pen)
+            obj_vida = round(obj_cap / mult / 12 + pen)
             obj_mid = min(go, round((go + obj_vida) / 2))
-            N_mid = max(0.0, (obj_mid - pen)) * 12 * 25
+            N_mid = max(0.0, (obj_mid - pen)) * 12 * mult
             base_mid = cap_efectivo * g
             a_plan = 0.0 if base_mid >= N_mid else ((N_mid - base_mid) / Hm if rr <= 0 else (N_mid - base_mid) * rr / (g - 1))
             out["caminos"] = {
