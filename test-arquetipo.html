@@ -113,14 +113,14 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
 <div class="wrap">
   <div class="topbar">
     <div style="font-weight:800;color:#FDD731;font-size:19px;letter-spacing:.5px">ADAPTA <span style="color:#8b8b90;font-weight:500;font-size:11px;letter-spacing:1px">family office</span></div>
-    <span class="eyebrow">Test gratuito</span>
+    <span class="eyebrow">Paso 1 de tu diagnóstico</span>
   </div>
 
   <!-- HERO -->
   <section id="hero">
     <span class="eyebrow">Adapta Family Office</span>
     <h1>¿Cuál es tu <b>arquetipo del dinero</b>?</h1>
-    <p>Tu forma de relacionarte con el dinero dice más de ti que tu cuenta corriente. Descúbrela en 12 preguntas rápidas.</p>
+    <p>Tu forma de relacionarte con el dinero dice más de ti que tu cuenta corriente. Descúbrela en 12 preguntas rápidas. <b style="color:#fff">Es el primer paso — luego viene tu diagnóstico completo.</b></p>
     <div class="meta-line">
       <span><i class="dot"></i> 60 segundos</span>
       <span><i class="dot"></i> 12 preguntas</span>
@@ -201,19 +201,19 @@ body{font-family:'Poppins',sans-serif;background:var(--negro);color:var(--blanco
     </div>
     <div class="cta" id="ctaBox" style="display:none">
       <h3 id="ctaH">El diagnóstico de verdad es <b>otra cosa</b></h3>
-      <p id="ctaP">Lo que acabas de hacer es tu <b>arquetipo</b>: un aperitivo de 1 minuto. El <b>diagnóstico completo</b> es <b>otro test distinto</b>, de unos 15 minutos, con preguntas que se adaptan a ti — y te devuelve tus números, tus puntos ciegos y tu <b>plan de acción</b>. Desde 19&nbsp;€.</p>
+      <p id="ctaP">Lo que acabas de hacer es tu <b>arquetipo</b>: un aperitivo de 1 minuto. El <b>diagnóstico completo</b> es <b>otro proceso distinto</b>, de unos 15 minutos, con preguntas que se adaptan a ti — y te devuelve tus números, tus puntos ciegos y tu <b>plan de acción</b>. Desde 19&nbsp;€.</p>
       <div style="color:#B9B9BD;font-size:13.5px;line-height:1.45;margin:0 0 10px">Es un cuestionario <b style="color:#fff">distinto y más profundo</b>. Elige por dónde empezar:</div>
       <div class="tier3">
         <a class="tierbtn" href="https://diagnostico.adaptafamilyoffice.com/empezar2.html?tier=1"><span class="tn">Rápido</span><span class="tp">19<small>€</small></span></a>
         <a class="tierbtn feat" href="https://diagnostico.adaptafamilyoffice.com/empezar2.html?tier=2"><span class="badge">★ el más elegido</span><span class="tn">Avanzado</span><span class="tp">39<small>€</small></span></a>
         <a class="tierbtn" href="https://diagnostico.adaptafamilyoffice.com/empezar2.html?tier=3"><span class="tn">Pareja</span><span class="tp">54<small>€</small></span></a>
       </div>
-      <a class="btn block" href="./inicio.html" id="ctaBtn">Ver qué incluye cada uno →</a>
+      <a class="btn block" href="https://diagnostico.adaptafamilyoffice.com/empezar2.html?tier=2" id="ctaBtn">Empezar mi diagnóstico →</a>
     </div>
 
     <div id="leadBox" style="margin-top:16px;border:1.5px solid var(--linea);background:var(--panel);border-radius:14px;padding:18px 18px 16px">
       <div style="color:#fff;font-size:17px;font-weight:700;line-height:1.35">Recibe tu lectura de arquetipo completa 👇</div>
-      <div style="color:#B9B9BD;font-size:14px;line-height:1.5;margin-top:6px">Déjanos tu <b style="color:#fff">nombre y tu correo</b> y te ampliamos <b style="color:#fff">tu arquetipo</b>: cómo decides con el dinero, tu fuerza y tu punto ciego. Gratis, te llega por email. <b style="color:#fff">Esto NO es el diagnóstico completo</b> — eso es otra cosa (justo abajo 👇).</div>
+      <div style="color:#B9B9BD;font-size:14px;line-height:1.5;margin-top:6px">Déjanos tu <b style="color:#fff">nombre y tu correo</b> y te ampliamos <b style="color:#fff">tu arquetipo</b>: cómo decides con el dinero, tu fuerza y tu punto ciego. Gratis, te llega por email. <b style="color:#fff">Esto NO es el diagnóstico completo</b> — eso es otra cosa (lo tienes justo arriba 👆).</div>
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
         <input type="text" id="leadName" placeholder="Tu nombre" autocomplete="given-name"
                style="width:100%;padding:14px;border-radius:11px;border:1.5px solid var(--linea);background:#020203;color:#fff;font-family:inherit;font-size:15px;outline:none">
@@ -324,8 +324,8 @@ function finish(){
   $("rLuz").textContent=m.luz; $("rSombra").textContent=m.s;
   const card=$("card"); if(card){ card.style.borderColor=m.c; }
   const cb=$("cardBar"); if(cb){ cb.style.background=m.c; }
-  if($("ctaH")) $("ctaH").textContent="Y ese punto ciego tiene un precio. El tuyo.";
-  if($("ctaP")) $("ctaP").innerHTML=m.s+" Eso es lo que este test ve de ti. Lo que <b>NO</b> te ha dicho es tu <b>número exacto</b>: cuánto te cuesta al año, dónde estás expuesto y el plan para darle la vuelta. Eso es el <b>diagnóstico completo</b> — otro test de 15 min. <b>Desde 19&nbsp;€.</b>";
+  if($("ctaH")) $("ctaH").textContent="Esto era solo el aperitivo. Tu diagnóstico de verdad empieza aquí.";
+  if($("ctaP")) $("ctaP").innerHTML=m.s+" Eso es lo que este test ve de ti. Lo que <b>NO</b> te ha dicho es tu <b>número exacto</b>: cuánto te cuesta al año, dónde estás expuesto y el plan para darle la vuelta. Eso es el <b>diagnóstico completo</b> — otro proceso de 15 min. <b>Desde 19&nbsp;€.</b>";
   if($("stName")){ $("stName").textContent=m.n; $("stLema").textContent="«"+m.l+"»"; if($("stLuz"))$("stLuz").innerHTML="<b style='color:#fff'>Lo que aporto:</b> "+m.luz; $("stDesc").textContent=traits.join("  ·  "); }
   const url=location.origin+location.pathname;
   const txt="Soy "+m.n+" 💰 ¿Qué dice tu dinero de ti? Descúbrelo en 60 s:";
@@ -346,7 +346,7 @@ function finish(){
   }catch(e){}
   if($("lockedRead")) $("lockedRead").style.display="none";
   if($("shareBlock")) $("shareBlock").style.display="block";  // compartir SIEMPRE visible (difusion)
-  if($("ctaBox")) $("ctaBox").style.display="none";
+  if($("ctaBox")){ $("ctaBox").style.display=""; var _sb=$("shareBlock"); if(_sb&&_sb.parentNode){ _sb.parentNode.insertBefore($("ctaBox"),_sb); } }
   if($("leadBox")) $("leadBox").style.display="block";
   $("quiz").style.display="none";$("result").style.display="block";window.scrollTo(0,0);
 }
