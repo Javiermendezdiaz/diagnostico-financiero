@@ -400,6 +400,7 @@ async function verificarInvitacion(){
 function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 try{ verificarInvitacion(); }catch(e){}
 const _qt=new URLSearchParams(location.search).get('tier'); if((_qt==='1'||_qt==='2'||_qt==='3')&&document.getElementById('tier')) document.getElementById('tier').value=_qt; try{descTier();}catch(e){}
+try{const _cd=new URLSearchParams(location.search).get('codigo'); if(_cd) sessionStorage.setItem('adaptaCod',_cd);}catch(e){}
 let INST=null, st={email:"",nombre:"",tier:2,sid:null,perfil:{},resp:{},datos:{},abiertas:{},
    cola:[], i:0, tens:[], reportUrl:null, abierta:new Set(), insertados:new Set(), inyectados:0, motorLog:[], _prog:0, _lastIdx:null, avisoEstres:false};
 
@@ -1319,7 +1320,8 @@ async function pagar(){
   const sid=CURSID||(st&&st.sid); if(!sid){document.getElementById('doneTxt').textContent='Sesión no encontrada. Vuelve a empezar.';return;}
   const b=document.getElementById('payBtn'); const o=b.textContent; b.disabled=true; b.textContent='Conectando con el pago…';
   try{
-    const r=await fetch(API+'/api/checkout/'+sid+'?consent=1',{method:'POST'});
+    const _cod=(function(){try{return new URLSearchParams(location.search).get('codigo')||sessionStorage.getItem('adaptaCod')||'';}catch(e){return '';}})();
+    const r=await fetch(API+'/api/checkout/'+sid+'?consent=1'+(_cod?('&codigo='+encodeURIComponent(_cod)):''),{method:'POST'});
     const d=await r.json();
     if(d.url){ location.href=d.url; return; }
     if(d.ya_pagado){ descargarSid(sid); return; }

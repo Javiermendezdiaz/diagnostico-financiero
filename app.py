@@ -1254,7 +1254,7 @@ def leads_hide(key: str = "", like: str = ""):
 
 
 @app.post("/api/checkout/{session_id}")
-def checkout(session_id: str, consent: int = 0):
+def checkout(session_id: str, consent: int = 0, codigo: str = ""):
     """Crea una sesion de Stripe Checkout para esta sesion concreta y devuelve la URL de pago.
     Inyecta client_reference_id=session_id (lo que el webhook usa para marcar pagado) y habilita
     el campo de codigo promocional (cupon ADAPTA100). Degrada con elegancia si falta la clave."""
@@ -1311,17 +1311,30 @@ def checkout(session_id: str, consent: int = 0):
                                         "product_data": {"name": nombre_prod,
                                                          "description": "Diagnostico psicofinanciero personalizado (PDF)."}},
                          "quantity": 1}
-        cs = stripe.checkout.Session.create(
+        _discount = None
+        _cod = (codigo or "").strip()
+        if _cod:
+            try:
+                _pcs = stripe.PromotionCode.list(code=_cod, active=True, limit=1).data
+                if _pcs:
+                    _discount = [{"promotion_code": _pcs[0].id}]
+            except Exception:
+                _discount = None
+        _kwargs = dict(
             mode="payment",
             line_items=[line_item],
             client_reference_id=session_id,
             customer_email=(row["email"] or None),
-            allow_promotion_codes=True,
             success_url=success_url,
             cancel_url=cancel_url,
             metadata={"session_id": session_id, "tier": str(tier)},
         )
-        return {"url": cs.url, "_prod": nombre_prod, "_li": ("price" if "price" in line_item else "inline")}
+        if _discount:
+            _kwargs["discounts"] = _discount
+        else:
+            _kwargs["allow_promotion_codes"] = True
+        cs = stripe.checkout.Session.create(**_kwargs)
+        return {"url": cs.url, "_prod": nombre_prod, "_li": ("price" if "price" in line_item else "inline"), "_cod": bool(_discount)}
     except Exception as e:
         raise HTTPException(502, "No se pudo crear el pago: %s" % e)
 

@@ -51,6 +51,25 @@ def _mkresp(iv2, seed, pat):
             r[it["id"]] = 0 if pat == "min" else (n - 1 if pat == "max" else random.randint(0, n - 1))
     return r
 
+
+def chk_html():
+    """Anti-truncado: cada .html clave debe estar completo (cierra </html> y balancea <script>)."""
+    print("== 0) HTML completo (anti-truncado) ==")
+    import glob
+    fallos=0
+    for f in sorted(glob.glob("*.html")):
+        try:
+            t=open(f,encoding="utf-8",errors="replace").read()
+        except Exception as e:
+            FAILS.append("html no legible %s: %s"%(f,e)); fallos+=1; continue
+        low=t.lower()
+        if "<html" in low and "</html>" not in low:
+            FAILS.append("HTML truncado (sin </html>): %s"%f); print("  X %s sin </html>"%f); fallos+=1
+        so=low.count("<script"); sc=low.count("</script>")
+        if so!=sc:
+            FAILS.append("HTML <script> descuadrado en %s (%d abren, %d cierran)"%(f,so,sc)); print("  X %s script %d/%d"%(f,so,sc)); fallos+=1
+    if fallos==0: print("  OK (todos los .html cierran bien)")
+
 def chk_builds():
     print("== 3) smoke build T1/T2/T3 ==")
     import report_book as rb, report_couple as rc, score_v2 as sv
@@ -96,7 +115,7 @@ def chk_builds():
         FAILS.append("build T3: %s" % e)
 
 if __name__ == "__main__":
-    chk_pyflakes(); chk_linter(); chk_builds()
+    chk_html(); chk_pyflakes(); chk_linter(); chk_builds()
     print("\n==================== RESULTADO ====================")
     if FAILS:
         print("ROJO -- %d problema(s), NO desplegar:" % len(FAILS))
