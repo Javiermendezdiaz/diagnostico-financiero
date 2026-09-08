@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<style id="adapta-fonts">
+@font-face{font-family:'Poppins';font-weight:300;font-style:normal;font-display:swap;src:url('fonts/Poppins-Light.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:400;font-style:normal;font-display:swap;src:url('fonts/Poppins-Regular.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:500;font-style:normal;font-display:swap;src:url('fonts/Poppins-Medium.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:600;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:700;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:800;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:400;font-style:normal;font-display:swap;src:url('fonts/Lora-Regular.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:600;font-style:normal;font-display:swap;src:url('fonts/Lora-SemiBold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:700;font-style:normal;font-display:swap;src:url('fonts/Lora-Bold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:400;font-style:italic;font-display:swap;src:url('fonts/Lora-Italic.ttf') format('truetype')}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADAPTA · ¿Cuánto te está costando tu forma de gestionar el dinero?</title>
+<meta name="description" content="Descúbrelo en 60 segundos. Tu principal fuga patrimonial, tu Número de Libertad y tu punto ciego financiero. Gratis, sin registro. Adapta Family Office.">
+<meta property="og:title" content="¿Cuánto te está costando tu forma de gestionar el dinero?">
+<meta property="og:description" content="Tu Número de Libertad, tu punto ciego y la decisión de mayor impacto sobre tu patrimonio. En 60 segundos, gratis. Adapta Family Office.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#06070d">
+<style>
+:root{--am:#FDD731;--ng:#06070d;--pa:#0d0f1a;--bd:#23252e;--tx:#f4f4f5;--gr:#94a3b8;--em:#10b981;--ro:#f43f5e}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--ng);color:var(--tx);font-family:'Poppins',system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.serif{font-family:'Lora',Georgia,serif}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+.narrow{max-width:760px}
+.kick{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--am);font-weight:700;margin-bottom:16px}
+.eyebrow{font-size:10.5px;letter-spacing:3px;text-transform:uppercase;color:var(--gr);font-weight:700}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:16px 30px;border-radius:12px;font-weight:700;font-size:14px;letter-spacing:.3px;cursor:pointer;border:none;font-family:inherit;transition:.2s}
+.btn-am{background:var(--am);color:#000}.btn-am:hover{background:#ffe25a;transform:translateY(-1px)}
+.btn-gh{background:transparent;color:var(--gr);border:1px solid var(--bd)}.btn-gh:hover{color:var(--tx);border-color:#3a3d48}
+.reass{color:var(--gr);font-size:12.5px;margin-top:18px;letter-spacing:.3px}
+.reass b{color:var(--tx);font-weight:600}
+section{position:relative}
+/* header */
+.head{position:sticky;top:0;z-index:30;background:rgba(6,7,13,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd)}
+.head .wrap{height:64px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-weight:800;letter-spacing:1px;font-size:20px}.logo b{color:var(--am)}
+.logo small{font-size:9px;letter-spacing:2px;color:var(--gr);text-transform:uppercase;margin-left:8px;font-weight:600}
+.btn-head{background:var(--am);color:#06070d;font-weight:700;font-size:13px;padding:9px 16px;border-radius:10px;white-space:nowrap;transition:.2s}
+.btn-head:hover{background:#ffe25a;transform:translateY(-1px)}
+@media(max-width:560px){.btn-head{font-size:12px;padding:8px 13px}.logo small{display:none}}
+/* hero */
+.hero{text-align:center;padding:88px 0 72px;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% -10%,rgba(253,215,49,.13),transparent 60%);pointer-events:none}
+.hero .wrap{position:relative;z-index:1}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.hero>.wrap>*{animation:rise .7s both}
+.hero h1{animation-delay:.05s}.hero .promise{animation-delay:.18s}.hero .cta-row{animation-delay:.32s}.hero .reass{animation-delay:.44s}.hero .tail{animation-delay:.56s}
+h1.hero-t{font-size:clamp(30px,5.4vw,56px);line-height:1.1;font-weight:700;letter-spacing:-.6px;max-width:15ch;margin:0 auto}
+h1.hero-t .hl{color:var(--am);font-style:italic;font-family:'Lora',serif;font-weight:600}
+.promise{margin:26px auto 0;max-width:600px;color:var(--gr);font-size:16px;font-weight:300;line-height:1.6}
+.cta-row{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:34px}
+.tail{margin:34px auto 0;max-width:520px;font-family:'Lora',serif;font-style:italic;font-size:17px;color:var(--tx)}
+.tail b{color:var(--am);font-style:normal;font-weight:600}
+/* result / demo dashboard */
+.band{padding:78px 0;border-top:1px solid var(--bd)}
+.band.pa{background:linear-gradient(180deg,var(--pa),transparent)}
+.sec-h{text-align:center;max-width:720px;margin:0 auto}
+.sec-h h2{font-size:clamp(24px,3.8vw,38px);font-weight:600;line-height:1.16;margin-top:10px}
+.sec-h h2 .serif{font-style:italic}
+.sec-h p{color:var(--gr);font-weight:300;font-size:15px;line-height:1.65;margin:16px auto 0;max-width:600px}
+.demo{display:grid;grid-template-columns:1fr;gap:16px;max-width:920px;margin:44px auto 0}
+@media(min-width:820px){.demo{grid-template-columns:repeat(3,1fr)}}
+.dcard{background:var(--pa);border:1px solid var(--bd);border-radius:18px;padding:30px 26px;text-align:center;position:relative;overflow:hidden}
+.dcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--am),transparent)}
+.dcard .dl{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gr);font-weight:700}
+.dcard .dn{font-family:'Lora',serif;font-size:clamp(48px,7vw,68px);font-weight:700;line-height:1;margin:14px 0 6px;color:var(--tx);font-variant-numeric:tabular-nums}
+.dcard .dn small{font-size:22px;color:var(--gr);font-weight:400}
+.dcard .dn.ro{color:var(--ro)}
+.dcard .dd{font-size:13px;color:var(--gr);font-weight:300}
+.dcard .dtag{display:inline-block;margin-top:12px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--am);font-weight:700;background:rgba(253,215,49,.1);border:1px solid rgba(253,215,49,.3);border-radius:999px;padding:3px 10px}
+.demo-note{text-align:center;color:var(--gr);font-size:12px;margin-top:22px;letter-spacing:.4px}
+/* curiosity */
+.curio{text-align:center;max-width:640px;margin:0 auto}
+.curio .big{font-family:'Lora',serif;font-size:clamp(26px,4.2vw,40px);font-weight:600;line-height:1.2}
+.curio .stk{margin:24px 0;display:flex;flex-direction:column;gap:6px;font-size:18px;color:var(--gr);font-weight:300}
+.curio .stk b{color:var(--tx);font-weight:600}
+.curio .punch{font-size:19px;color:var(--am);font-weight:600;margin-top:6px}
+/* steps */
+.steps{display:grid;grid-template-columns:1fr;gap:14px;max-width:860px;margin:44px auto 0}
+@media(min-width:720px){.steps{grid-template-columns:repeat(2,1fr)}}
+.step{display:flex;gap:16px;align-items:flex-start;background:var(--pa);border:1px solid var(--bd);border-radius:14px;padding:22px}
+.step .num{font-family:'Lora',serif;font-size:30px;font-weight:700;color:var(--am);line-height:1;flex:none;width:34px}
+.step h4{font-size:15.5px;font-weight:600;margin-bottom:5px}
+.step p{font-size:13px;color:var(--gr);font-weight:300;line-height:1.55}
+/* blindspot grid */
+.bs-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:720px;margin:30px auto 0}
+.bs{font-size:13px;font-weight:500;color:var(--tx);background:var(--pa);border:1px solid var(--bd);border-radius:999px;padding:9px 18px}
+/* libertad calc */
+.lib{max-width:560px;margin:40px auto 0;background:var(--pa);border:1px solid var(--bd);border-radius:18px;padding:30px 28px}
+.lib .fld{margin-bottom:18px}
+.lib label{display:flex;justify-content:space-between;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--gr);font-weight:600;margin-bottom:9px}
+.lib label .v{color:var(--tx);font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:#1b1d27;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--am);cursor:pointer;box-shadow:0 0 10px rgba(253,215,49,.5);transition:.15s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.lib .out{text-align:center;border-top:1px solid var(--bd);margin-top:22px;padding-top:22px}
+.lib .out .l{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gr);font-weight:700}
+.lib .out .n{font-family:'Lora',serif;font-size:clamp(40px,6vw,58px);font-weight:700;color:var(--am);line-height:1;margin-top:8px}
+/* pareja */
+.pj-table{max-width:560px;margin:30px auto 0;border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+.pj-table table{width:100%;border-collapse:collapse}
+.pj-table th,.pj-table td{padding:14px 16px;font-size:14px;text-align:right;border-bottom:1px solid var(--bd)}
+.pj-table th:first-child,.pj-table td:first-child{text-align:left;color:var(--gr);font-weight:400}
+.pj-table thead th{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--am);font-weight:700}
+.pj-table tr:last-child td{border-bottom:none;font-weight:700}
+.pj-table .hot{color:var(--ro)}
+.pj-punch{text-align:center;font-family:'Lora',serif;font-style:italic;font-size:19px;color:var(--tx);max-width:520px;margin:24px auto 0}
+/* authority */
+.auth-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:11px;margin:8px auto 0;max-width:760px}
+.chip{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--tx);background:var(--pa);border:1px solid var(--bd);border-radius:999px;padding:9px 16px;font-weight:500}
+.chip b{color:var(--am);font-weight:700}
+.method{max-width:640px;margin:40px auto 0;background:var(--pa);border:1px solid var(--bd);border-radius:16px;padding:28px}
+.method h3{font-size:16px;font-weight:600;margin-bottom:10px}
+.method p{font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.7;margin-bottom:10px}
+.method p:last-child{margin-bottom:0}.method strong{color:var(--tx);font-weight:600}
+/* faq */
+.faq{max-width:720px;margin:40px auto 0}
+.faq details{border:1px solid var(--bd);border-radius:12px;background:var(--pa);margin-bottom:10px;overflow:hidden}
+.faq summary{cursor:pointer;list-style:none;padding:18px 20px;font-size:14.5px;font-weight:600;display:flex;justify-content:space-between;gap:12px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'+';color:var(--am);font-weight:700;font-size:18px;line-height:1}
+.faq details[open] summary::after{content:'−'}
+.faq details p{padding:0 20px 20px;font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.65}
+/* final */
+.final{text-align:center;padding:96px 0}
+.final h2{font-family:'Lora',serif;font-size:clamp(28px,4.6vw,46px);font-weight:700;line-height:1.14;max-width:16ch;margin:0 auto}
+.final h2 .hl{color:var(--am)}
+.final p{color:var(--gr);font-weight:300;font-size:16px;margin:20px auto 0;max-width:520px}
+/* footer */
+.foot{border-top:1px solid var(--bd);padding:48px 22px;text-align:center;color:var(--gr)}
+.foot .big{font-family:'Lora',serif;font-size:22px;color:var(--tx);font-weight:600}
+.foot>div:nth-child(2){font-size:13px;margin-top:6px}
+.foot .disc{font-size:11px;color:#6b7280;max-width:720px;margin:22px auto 0;line-height:1.6;font-weight:300}
+/* sticky */
+#stickyCta{position:fixed;right:22px;bottom:22px;z-index:60;background:var(--am);color:#000;font-weight:700;font-size:13px;padding:13px 22px;border-radius:999px;box-shadow:0 12px 34px -8px rgba(253,215,49,.55);opacity:0;pointer-events:none;transition:opacity .3s,transform .2s}
+</style>
+</head>
+<body>
+
+<header class="head"><div class="wrap">
+  <div class="logo"><b>ADAPTA</b><small>Family Office</small></div>
+  <a class="btn-head" href="test-arquetipo.html">Mi diagnóstico gratis →</a>
+</div></header>
+
+<!-- 01 · HERO -->
+<section class="hero">
+  <div class="wrap">
+    <p class="kick">Diagnóstico psicofinanciero</p>
+    <h1 class="hero-t serif" style="font-family:'Poppins'">¿Cuánto te está costando <span class="hl">tu forma de gestionar el dinero?</span></h1>
+    <p class="promise">Descúbrelo en 60 segundos. Identifica tu principal fuga patrimonial, mide tu margen de libertad y descubre qué decisión tendría más impacto en tu patrimonio.</p>
+    <div class="cta-row">
+      <a class="btn btn-am" href="test-arquetipo.html">Descubrir mi situación →</a>
+      <a class="btn btn-gh" href="#como">Ver cómo funciona ↓</a>
+    </div>
+    <p class="reass">Gratis · 60 segundos · Sin registro · Sin tarjeta</p>
+    <p class="tail">Tu resultado no será un consejo genérico. <b>Será tuyo.</b></p>
+  </div>
+</section>
+
+<!-- 02 · RESULTADO (demo alto) -->
+<section class="band pa">
+  <div class="wrap">
+    <div class="sec-h">
+      <p class="eyebrow">Lo que verás</p>
+      <h2>En 60 segundos descubrirás <span class="serif">tres cosas</span> sobre ti</h2>
+    </div>
+    <div class="demo">
+      <div class="dcard">
+        <div class="dl">Tu salud financiera</div>
+        <div class="dn"><span class="ct" data-to="72">0</span><small>/100</small></div>
+        <div class="dd">Una foto honesta de dónde estás hoy, en 12 áreas.</div>
+      </div>
+      <div class="dcard">
+        <div class="dl">Tu Número de Libertad</div>
+        <div class="dn"><span class="ct" data-to="31">0</span> <small>meses</small></div>
+        <div class="dd">Cuánto tiempo podrías vivir sin depender del sueldo.</div>
+      </div>
+      <div class="dcard">
+        <div class="dl">Tu principal punto ciego</div>
+        <div class="dn" style="font-size:clamp(22px,3.4vw,30px);line-height:1.15;margin-top:22px">Liquidez<br>improductiva</div>
+        <div class="dtag">detectado</div>
+      </div>
+    </div>
+    <p class="demo-note">Así se verá tu diagnóstico. Cifras de ejemplo — el tuyo se calcula con tus datos.</p>
+  </div>
+</section>
+
+<!-- 03 · CURIOSIDAD -->
+<section class="band">
+  <div class="wrap">
+    <div class="curio">
+      <p class="big serif">El problema no suele ser lo que crees.</p>
+      <div class="stk">
+        <span>Puedes ganar <b>más</b>.</span>
+        <span>Ahorrar <b>más</b>.</span>
+        <span>Invertir <b>más</b>.</span>
+      </div>
+      <p style="color:var(--gr);font-weight:300;font-size:16px">Y aun así estar perdiendo años de libertad sin verlo.</p>
+      <p class="punch">El diagnóstico encuentra dónde.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 04 · CÓMO FUNCIONA -->
+<section class="band pa" id="como">
+  <div class="wrap">
+    <div class="sec-h">
+      <p class="eyebrow">Cómo funciona</p>
+      <h2>Unos minutos para saber <span class="serif">dónde estás</span></h2>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="num">1</span><div><h4>Respondes unas preguntas</h4><p>Sobre tus números y tu forma de decidir con el dinero. Sin tecnicismos.</p></div></div>
+      <div class="step"><span class="num">2</span><div><h4>Analizamos tu situación</h4><p>Cruzamos tus respuestas y tus cifras con nuestro modelo de análisis patrimonial y de comportamiento.</p></div></div>
+      <div class="step"><span class="num">3</span><div><h4>Te enseñamos tus puntos ciegos</h4><p>Tu salud financiera, tu Número de Libertad y la fuga que más te está costando.</p></div></div>
+      <div class="step"><span class="num">4</span><div><h4>Tú decides si profundizar</h4><p>Ves una parte de tu resultado gratis. Solo si quieres el análisis completo, das el siguiente paso.</p></div></div>
+    </div>
+    <div style="text-align:center;margin-top:36px"><a class="btn btn-am" href="test-arquetipo.html">Empezar mi diagnóstico gratis →</a></div>
+  </div>
+</section>
+
+<!-- 05 · DEMO / EJEMPLO -->
+<section class="band">
+  <div class="wrap">
+    <div class="sec-h">
+      <p class="eyebrow">Antes de decidir nada</p>
+      <h2>Mira <span class="serif">exactamente</span> lo que recibirás</h2>
+      <p>No compras a ciegas. Primero descubres tu situación; después decides si quieres el diagnóstico completo. Este es un informe real de ejemplo — el tuyo llevará tus cifras y tu plan.</p>
+    </div>
+    <div style="text-align:center;margin-top:34px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center">
+      <a class="btn btn-am" href="muestra-avanzado.pdf" download>⬇ Ver informe de ejemplo</a>
+      <a class="btn btn-gh" href="muestra-pareja.pdf" download>⬇ Ejemplo del informe en pareja</a>
+    </div>
+  </div>
+</section>
+
+<!-- 06 · PUNTO CIEGO -->
+<section class="band pa">
+  <div class="wrap">
+    <div class="sec-h">
+      <p class="eyebrow">La idea central</p>
+      <h2>Todos tenemos un <span class="serif">punto ciego financiero</span></h2>
+      <p>Nadie quiere comprar un PDF. Todos queremos saber qué estamos haciendo mal sin darnos cuenta. Tu punto ciego puede estar en cualquiera de estas áreas:</p>
+    </div>
+    <div class="bs-grid">
+      <span class="bs">Gasto</span><span class="bs">Deuda</span><span class="bs">Liquidez</span>
+      <span class="bs">Inversión</span><span class="bs">Fiscalidad</span><span class="bs">Vivienda</span>
+      <span class="bs">Pareja</span><span class="bs">Comportamiento</span>
+    </div>
+    <p style="text-align:center;font-family:'Lora',serif;font-style:italic;font-size:20px;margin-top:30px">Tu diagnóstico encuentra <span style="color:var(--am);font-style:normal;font-weight:600">cuál es el tuyo.</span></p>
+  </div>
+</section>
+
+<!-- 07 · NÚMERO DE LIBERTAD -->
+<section class="band">
+  <div class="wrap">
+    <div class="sec-h">
+      <p class="eyebrow">El producto</p>
+      <h2>¿Cuántos meses de libertad <span class="serif">has comprado ya?</span></h2>
+      <p>Tu patrimonio no se mide solo en euros. Se mide en cuánto tiempo puedes vivir sin depender de tu próximo sueldo. Muévelo y míralo:</p>
+    </div>
+    <div class="lib">
+      <div class="fld">
+        <label>Patrimonio líquido <span class="v" id="lv-pat">80.000 €</span></label>
+        <input type="range" id="r-pat" min="0" max="500000" step="5000" value="80000">
+      </div>
+      <div class="fld">
+        <label>Gastos al mes <span class="v" id="lv-gas">3.000 €</span></label>
+        <input type="range" id="r-gas" min="800" max="10000" step="100" value="3000">
+      </div>
+      <div class="out">
+        <div class="l">Tu libertad actual</div>
+        <div class="n"><span id="lib-out">26,7</span> meses</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:32px"><a class="btn btn-am" href="test-arquetipo.html">Calcular mi Número de Libertad real →</a></div>
+  </div>
+</section>
+
+<!-- 08 · PAREJA -->
+<section class="band pa">
+  <div class="wrap">
+    <div class="sec-h">
+      <p class="eyebrow">En pareja</p>
+      <h2>50/50 no siempre significa <span class="serif">justo</span></h2>
+      <p>El problema no es cuánto aporta cada uno. Es cuánto le cuesta a cada uno. Un reparto igual en euros puede ser profundamente desigual en esfuerzo.</p>
+    </div>
+    <div class="pj-table">
+      <table>
+        <thead><tr><th></th><th>Persona A</th><th>Persona B</th></tr></thead>
+        <tbody>
+          <tr><td>Ingresos</td><td>5.000 €</td><td>2.500 €</td></tr>
+          <tr><td>Aporte al común</td><td>1.500 €</td><td>1.500 €</td></tr>
+          <tr><td>% de esfuerzo real</td><td>30 %</td><td class="hot">60 %</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="pj-punch">Matemáticamente igual. Económicamente injusto. El diagnóstico en pareja lo pone sobre la mesa, con datos imparciales.</p>
+    <div style="text-align:center;margin-top:30px"><a class="btn btn-am" href="test-arquetipo.html">Analizar nuestra situación →</a></div>
+  </div>
+</section>
+
+<!-- 09 · AUTORIDAD + CREDIBILIDAD -->
+<section class="band">
+  <div class="wrap">
+    <div class="sec-h">
+      <p class="eyebrow">Quién está detrás</p>
+      <h2>No es un test de internet</h2>
+      <p>Es el diagnóstico de entrada de Adapta Family Office: 25 años de experiencia en patrimonio, con el rigor de un family office puesto al servicio de tu situación real.</p>
+    </div>
+    <div class="auth-chips">
+      <span class="chip"><b>★ 5,0</b> en Google</span>
+      <span class="chip"><b>+100</b> informes realizados</span>
+      <span class="chip"><b>Autor</b> de 2 libros</span>
+      <span class="chip">El rigor de un <b>family office</b></span>
+    </div>
+    <div class="method">
+      <h3>¿De dónde sale tu resultado?</h3>
+      <p>Combinamos <strong>tus respuestas, tus cifras y nuestro modelo de análisis</strong> para detectar patrones financieros y de comportamiento que normalmente pasan desapercibidos.</p>
+      <p>No hacemos predicciones mágicas ni sabemos nada que tú no nos cuentes. Te mostramos <strong>los supuestos y cómo llegamos a cada conclusión</strong>, para que puedas juzgarlo por ti mismo.</p>
+    </div>
+    <!-- TODO Javier: aquí van testimonios REALES (frase + contexto) cuando los tengas. No añado ninguno inventado. -->
+  </div>
+</section>
+
+<!-- 10 · FAQ -->
+<section class="band pa">
+  <div class="wrap">
+    <div class="sec-h">
+      <p class="eyebrow">Dudas rápidas</p>
+      <h2>Antes de empezar</h2>
+    </div>
+    <div class="faq">
+      <details><summary>¿De verdad es gratis?</summary><p>Sí. La primera fase —tu arquetipo, tu nivel de exposición y una parte de tu resultado— es gratuita, sin registro y sin tarjeta. Solo si quieres el diagnóstico completo das el siguiente paso.</p></details>
+      <details><summary>¿Cuánto tiempo me lleva?</summary><p>El vistazo inicial, unos 60 segundos. El cuestionario completo, en torno a 10 minutos. Puedes parar y retomar.</p></details>
+      <details><summary>¿Qué necesito tener a mano?</summary><p>Nada especial para empezar. Para el diagnóstico completo ayuda tener tus cifras aproximadas de ingresos, gastos y patrimonio; cuanto más reales, más útil es el resultado.</p></details>
+      <details><summary>¿Esto es asesoramiento financiero?</summary><p>No. Es un marco educativo y orientativo que te ayuda a ver tu situación con claridad. No constituye asesoramiento financiero, fiscal, jurídico ni de inversión personalizado.</p></details>
+      <details><summary>¿Qué pasa con mis datos?</summary><p>Tu diagnóstico se elabora con los datos que tú aportas. No los necesitamos para nada ajeno a construir tu informe.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- 11 · FINAL CTA -->
+<section class="final">
+  <div class="wrap">
+    <h2 class="serif">Tu patrimonio ya está tomando decisiones. <span class="hl">La pregunta es si las estás tomando tú.</span></h2>
+    <p>Descúbrelo en 60 segundos. Gratis, sin registro.</p>
+    <div class="cta-row"><a class="btn btn-am" href="test-arquetipo.html">Descubrir mi diagnóstico gratis →</a></div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="big">Adapta Family Office</div>
+  <div>Ingeniería del comportamiento financiero · patrimonio con propósito</div>
+  <p class="disc">Marco educativo. Los ejemplos y simuladores de esta página son ilustrativos y no constituyen asesoramiento financiero, fiscal, jurídico ni de inversión. Las proyecciones usan supuestos generales y no son previsiones garantizadas. Tu diagnóstico se elabora con los datos reales que aportes en el cuestionario.</p>
+</footer>
+
+<a id="stickyCta" href="test-arquetipo.html">Mi diagnóstico gratis →</a>
+
+<script>
+// count-up de las cifras demo (se dispara al entrar en pantalla)
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function run(el){
+    var to=parseFloat(el.getAttribute('data-to'));
+    if(reduce){el.textContent=to;return;}
+    var start=null,dur=1100;
+    function step(t){if(!start)start=t;var p=Math.min((t-start)/dur,1);var e=1-Math.pow(1-p,3);el.textContent=Math.round(to*e);if(p<1)requestAnimationFrame(step);else el.textContent=to;}
+    requestAnimationFrame(step);
+  }
+  var seen=new WeakSet();
+  var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting&&!seen.has(x.target)){seen.add(x.target);run(x.target);}});},{threshold:.5});
+  document.querySelectorAll('.ct').forEach(function(el){io.observe(el);});
+})();
+// calculadora Número de Libertad
+(function(){
+  var pat=document.getElementById('r-pat'),gas=document.getElementById('r-gas');
+  var lvp=document.getElementById('lv-pat'),lvg=document.getElementById('lv-gas'),out=document.getElementById('lib-out');
+  var eur=function(n){return Math.round(n).toLocaleString('es-ES')+' €';};
+  function calc(){
+    var p=+pat.value,g=+gas.value;
+    lvp.textContent=eur(p);lvg.textContent=eur(g);
+    var m=g>0?p/g:0;
+    out.textContent=m.toLocaleString('es-ES',{minimumFractionDigits:1,maximumFractionDigits:1});
+  }
+  if(pat&&gas){pat.addEventListener('input',calc);gas.addEventListener('input',calc);calc();}
+})();
+// sticky CTA tras el hero
+(function(){
+  var s=document.getElementById('stickyCta');if(!s)return;
+  addEventListener('scroll',function(){
+    if(scrollY>640){s.style.opacity='1';s.style.pointerEvents='auto';}
+    else{s.style.opacity='0';s.style.pointerEvents='none';}
+  },{passive:true});
+})();
+</script>
+</body>
+</html>
