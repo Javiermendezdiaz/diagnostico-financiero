@@ -780,12 +780,31 @@ def seccion_adapta(p, datos=None):
           _box([Paragraph("Esto puedes hacerlo t\u00fa solo",St("hsolo_h",fontSize=10.5,leading=14,textColor=colors.HexColor("#1D6F42"),fontName=FB)),
                 Paragraph(_solo,St("hsolo",fontSize=10,leading=14,spaceBefore=2))],
                "#EEF7F0","#1D6F42",ancho=160*mm)]
+    # === TRIPWIRE: cr\u00e9dito del importe pagado + coste de oportunidad REAL (solo si hay liquidez ociosa) ===
+    try:
+        _liq_par=float(_d.get("colchon_liquido") or 0); _gm=float(_d.get("gasto_mensual") or 0)
+    except Exception:
+        _liq_par=0.0; _gm=0.0
+    _dorm=max(0.0,_liq_par-6.0*_gm)   # exceso sobre un colch\u00f3n prudente de 6 meses = liquidez realmente parada
+    _coste_dorm=_dorm*0.04            # al 4%, el mismo criterio de renta que usa el resto de este informe
     out+=[Spacer(1,4*mm),
           Paragraph("Por d\u00f3nde empezamos",h_sub),
           Spacer(1,2.5*mm),
           Paragraph("Tienes el mapa. El siguiente paso es una <b>sesi\u00f3n estrat\u00e9gica</b> para pasar del diagn\u00f3stico a la ejecuci\u00f3n: "
                     "te escuchamos primero, te proponemos despu\u00e9s. Sin compromiso y sin llamadas de presi\u00f3n \u2014 como debe ser.",
                     St("cta",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=0)),
+          Spacer(1,2*mm)]
+    if _dorm>=10000 and _coste_dorm>=400:
+        out+=[Paragraph("Un dato para esa conversaci\u00f3n: tienes en torno a <b>%s</b> de liquidez por encima de un colch\u00f3n prudente de seis meses. "
+                        "Al 4%% \u2014el mismo criterio de renta que usa este informe\u2014 son cerca de <b>%s al a\u00f1o</b> que hoy no trabajan para ti. "
+                        "No es una promesa de rentabilidad: es el orden de magnitud de lo que est\u00e1 en juego por dejarlo parado."
+                        % (_eur(_dorm),_eur(_coste_dorm)),
+                        St("twire",fontSize=9.8,leading=14,textColor=INK,spaceBefore=1,spaceAfter=3))]
+    out+=[_box([Paragraph("Tu diagn\u00f3stico, a cuenta de la sesi\u00f3n",St("tw_h",fontSize=10.5,leading=14,textColor=ACCDK,fontName=FB)),
+                Paragraph("Si reservas una <b>sesi\u00f3n estrat\u00e9gica de 30 minutos</b> con Adapta, te <b>descontamos el importe \u00edntegro de este diagn\u00f3stico</b> "
+                          "del coste de la sesi\u00f3n. Lo que pagaste por verte con claridad se convierte en el primer paso para actuar.",
+                          St("tw_b",fontSize=10,leading=14,spaceBefore=2))],
+               "#FBF9EC","#C9962B",ancho=160*mm),
           Spacer(1,2*mm),
           Paragraph("<b>Reserva tu conversaci\u00f3n:</b> <a href='https://www.adaptafamilyoffice.com/informe'><font color='#0284C7'>adaptafamilyoffice.com</font></a>  &#183;  "
                     "<b>WhatsApp:</b> <a href='https://wa.me/34683343531'><font color='#0284C7'>+34 683 34 35 31</font></a>  &#183;  info@adaptafamilyoffice.com",

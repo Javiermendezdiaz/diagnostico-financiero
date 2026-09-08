@@ -186,7 +186,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 <header class="head"><div class="wrap">
   <div class="logo"><b>ADAPTA</b><small>Family Office</small></div>
   <div class="head-right">
-    <div class="status"><span id="statusTxt">Análisis riguroso · 15 min</span><span class="dot" id="statusDot"></span></div>
+    <div class="status"><span id="statusTxt">Empieza gratis · 60 s</span><span class="dot" id="statusDot"></span></div>
     <a class="btn-head" href="#planes">Ver los 3 planes →</a>
   </div>
 </div></header>
@@ -244,51 +244,58 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 @media(max-width:820px){.chip-g{display:none}}
 @media(max-width:600px){.stage{width:min(262px,70%)}}
 @media(prefers-reduced-motion:reduce){.book,.shine,.hero::before,.rdata,.chip-g{animation:none}.chip-g,.rdata{opacity:1}}
+.dash{position:absolute;inset:0;background:linear-gradient(160deg,#141620,#0a0b12);border:1px solid #2b2e3b;border-radius:16px;box-shadow:0 50px 96px -34px rgba(0,0,0,.92),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden;display:flex;flex-direction:column;padding:18px 17px 15px}
+.dash::before{content:'';position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,#ffe25a,var(--am) 45%,#b9971d)}
+.dash-top{display:flex;align-items:center;justify-content:space-between;font-size:8px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gr);font-weight:700}
+.dash-tag{background:rgba(253,215,49,.14);color:var(--am);border:1px solid rgba(253,215,49,.4);border-radius:999px;padding:2px 8px;font-size:8px;letter-spacing:1px;font-weight:700}
+.dash-score{display:flex;align-items:center;gap:13px;margin-top:15px}
+.gauge{width:60px;height:60px;flex:none}
+.dash-score b{font-size:30px;color:var(--tx);font-weight:800;line-height:1}
+.dash-score small{display:block;font-size:9px;color:var(--gr);margin-top:3px;letter-spacing:.4px}
+.dash-rows{margin-top:16px;display:flex;flex-direction:column;gap:9px}
+.arow{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.028);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:8px 10px}
+.adot{width:8px;height:8px;border-radius:50%;flex:none}
+.adot.ro{background:var(--ro);animation:apulse 1.9s ease-in-out infinite}
+.adot.am{background:var(--am)}
+@keyframes apulse{0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,.5)}50%{box-shadow:0 0 0 5px rgba(244,63,94,0)}}
+.arow .al{flex:1;min-width:0}
+.arow .al b{display:block;font-size:10.5px;color:var(--tx);font-weight:700;line-height:1.12}
+.arow .al small{font-size:8.5px;color:var(--gr)}
+.aval{font-size:11px;font-weight:800;color:var(--tx);white-space:nowrap}
+.aval.ro{color:var(--ro)}.aval.am{color:var(--am)}
+.dash-foot{margin-top:auto;padding-top:12px;border-top:1px solid #22242f;display:flex;justify-content:space-between;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--gr)}
+.btn-pulse{animation:btnPulse 2.4s ease-in-out infinite}
+@keyframes btnPulse{0%,100%{box-shadow:0 0 0 0 rgba(253,215,49,0)}50%{box-shadow:0 0 0 8px rgba(253,215,49,.11),0 10px 30px -8px rgba(253,215,49,.5)}}
+@media(prefers-reduced-motion:reduce){.btn-pulse,.adot.ro{animation:none}}
 </style>
 <section class="hero" id="heroSec"><div class="hero-bg"></div><div class="wrap">
   <div class="hero-grid">
     <div class="hero-copy">
       <span class="trust-pill"><b>★ 5,0</b> · Posiblemente el mejor diagnóstico que te harán jamás</span>
-      <h1 class="hero-t serif">Tu dinero ya sabe la verdad sobre ti.<br><span class="hl">¿Te atreves a mirarla?</span></h1>
-      <p class="promise">El informe que te dice, desde dónde estás hoy, cómo llegar a donde quieres.</p>
+      <h1 class="hero-t serif">Ganas más que nunca<br><span class="hl">y no sabes dónde se va.</span></h1>
+      <p class="promise">Tu dinero ya sabe por qué. El test te muestra las fugas exactas de tu patrimonio y a qué edad dejarías de depender del sueldo.</p>
       <div class="cta-row" style="margin-top:28px">
-        <a class="btn btn-am" href="test-arquetipo.html">Descubre tu arquetipo · gratis, 60 s →</a>
-        <a class="btn btn-gh" href="#planes">Ver los diagnósticos · desde 19 € →</a>
+        <a class="btn btn-am btn-pulse" href="test-arquetipo.html">Descubre tu arquetipo · gratis, 60 s →</a>
       </div>
-      <p class="reass">Sin tarjeta · sin registro · <b>resultado al instante</b> · pagas solo si quieres el libro completo</p>
+      <p class="reass"><b>Fase 1 · 60 s, gratis:</b> tu arquetipo y tu nivel de exposición. &nbsp;·&nbsp; <b>Fase 2 · ~10 min:</b> el diagnóstico completo con tu número exacto. Sin tarjeta, sin registro.</p>
     </div>
     <div class="hero-vis">
       <div class="stage">
-        <div class="chip-g cg1"><span class="cgd" style="background:#10b981"></span><div><b>IRI <span class="ct" data-to="74">0</span></b><small>Salud financiera</small></div></div>
-        <div class="chip-g cg2"><span class="cgd" style="background:var(--am)"></span><div><b><span class="ct" data-to="1.24" data-dec="2">0</span> M€</b><small>Nº de libertad</small></div></div>
         <div class="floor"></div>
         <div class="book-tilt" id="bookTilt">
-          <div class="book">
-            <div class="stack"></div>
-            <div class="badge">68 páginas</div>
-            <div class="mk">
-              <span class="mk-spine"></span>
-              <span class="shine"></span>
-              <div class="mk-top"><span>ADAPTA <b>·</b> Family Office</span><span>2026</span></div>
-              <div class="mk-kick">Diagnóstico psicofinanciero</div>
-              <div class="mk-title">El Estratega</div>
-              <div class="mk-rule"></div>
-              <div class="mk-name">Preparado para Marta Solís</div>
-              <svg class="mk-radar" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                <g fill="none" stroke="#2a2d3a" stroke-width="1">
-                  <polygon points="60,14 99.8,37 99.8,83 60,106 20.2,83 20.2,37"/>
-                  <polygon points="60,29.3 86.6,44.7 86.6,75.3 60,90.7 33.4,75.3 33.4,44.7"/>
-                  <polygon points="60,44.7 73.3,52.35 73.3,67.65 60,75.3 46.7,67.65 46.7,52.35"/>
-                </g>
-                <g stroke="#2a2d3a" stroke-width="1">
-                  <line x1="60" y1="60" x2="60" y2="14"/><line x1="60" y1="60" x2="99.8" y2="37"/>
-                  <line x1="60" y1="60" x2="99.8" y2="83"/><line x1="60" y1="60" x2="60" y2="106"/>
-                  <line x1="60" y1="60" x2="20.2" y2="83"/><line x1="60" y1="60" x2="20.2" y2="37"/>
-                </g>
-                <polygon class="rdata" points="60,23.2 83.9,46.2 95.9,80.7 60,83 32.1,76.1 26.1,40.5" fill="rgba(253,215,49,.22)" stroke="#FDD731" stroke-width="1.5"/>
-              </svg>
-              <div class="mk-foot"><span>12 áreas</span><span><b>Plan 100 días</b></span></div>
+          <div class="badge">68 páginas</div>
+          <div class="dash">
+            <div class="dash-top"><span>Diagnóstico psicofinanciero</span><span class="dash-tag">Ejemplo</span></div>
+            <div class="dash-score">
+              <svg class="gauge" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="#2a2d3a" stroke-width="3"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--am)" stroke-width="3" stroke-linecap="round" stroke-dasharray="59 98" transform="rotate(-90 18 18)"/></svg>
+              <div><b class="ct" data-to="61">0</b><small>Índice de salud (0–100)</small></div>
             </div>
+            <div class="dash-rows">
+              <div class="arow"><span class="adot ro"></span><div class="al"><b>Fuga de patrimonio</b><small>gasto de estatus sin control</small></div><span class="aval ro">Alta</span></div>
+              <div class="arow"><span class="adot am"></span><div class="al"><b>Nº de libertad</b><small>a tu ritmo actual</small></div><span class="aval"><span class="ct" data-to="1.24" data-dec="2">0</span> M€</span></div>
+              <div class="arow"><span class="adot am"></span><div class="al"><b>Sincronía en pareja</b><small>áreas donde discrepáis</small></div><span class="aval am">A revisar</span></div>
+            </div>
+            <div class="dash-foot"><span>12 áreas · plan 100 días</span><span>ejemplo ilustrativo</span></div>
           </div>
         </div>
       </div>
@@ -404,7 +411,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
     <div class="cf"><b>Hay una cifra que te frena.</b><p>Un punto ciego &mdash;gasto, deuda o riesgo&mdash; que te cuesta a&ntilde;os de tu vida cada a&ntilde;o. Y ni siquiera lo est&aacute;s mirando.</p></div>
     <div class="cf"><b>El &laquo;ya lo mirar&eacute;&raquo; tiene precio.</b><p>Cada mes que sigues igual, la vida que dijiste querer se aleja un poco m&aacute;s. Nadie te ha puesto el n&uacute;mero delante. Hasta ahora.</p></div>
   </div>
-  <p style="color:var(--gr);font-size:15.5px;line-height:1.6;margin:26px auto 0;max-width:600px">En 15 minutos, este diagn&oacute;stico te pone <b style="color:var(--tx)">tu n&uacute;mero exacto</b> delante &mdash; d&oacute;nde est&aacute;s expuesto, cu&aacute;nto te cuesta y el plan para darle la vuelta.</p>
+  <p style="color:var(--gr);font-size:15.5px;line-height:1.6;margin:26px auto 0;max-width:600px">El diagn&oacute;stico completo te pone <b style="color:var(--tx)">tu n&uacute;mero exacto</b> delante &mdash; d&oacute;nde est&aacute;s expuesto, cu&aacute;nto te cuesta y el plan para darle la vuelta. Empiezas gratis, en 60&nbsp;segundos.</p>
   <div style="margin-top:22px"><a class="btn btn-am" href="test-arquetipo.html">Empieza gratis &middot; 60 s &rarr;</a></div>
 </section>
 
@@ -794,7 +801,7 @@ const eur=n=>Math.round(n).toLocaleString('es-ES')+' €';
 let _st=null;
 function recalc(){
   $('statusDot').classList.add('calc'); $('statusTxt').classList.add('calc'); $('statusTxt').textContent='Recalculando…';
-  clearTimeout(_st); _st=setTimeout(()=>{ $('statusDot').classList.remove('calc'); $('statusTxt').classList.remove('calc'); $('statusTxt').textContent='Análisis riguroso · 15 min'; },550);
+  clearTimeout(_st); _st=setTimeout(()=>{ $('statusDot').classList.remove('calc'); $('statusTxt').classList.remove('calc'); $('statusTxt').textContent='Empieza gratis · 60 s'; },550);
 }
 
 /* ---- SIM 1: Regla 10% ---- */
