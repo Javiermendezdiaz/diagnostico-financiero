@@ -1891,18 +1891,27 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
         out.append(Paragraph("Este es el capital que necesitas para vivir de %s sin depender de un sueldo, ya <b>neto de "
                              "tu pensi\u00f3n p\u00fablica</b> (la mayor\u00eda de los test la ignoran; nosotros la descontamos)."%_vida,body))
     else:
-        out.append(Paragraph("Este es el capital que, invertido, cubre tu vida para siempre (<b>%s\u00d7</b> tu gasto anual)."%str(exp.get("multiplo","28,6")).replace(".",","),body))
+        out.append(Paragraph("Este es el capital que, invertido, cubre tu vida para siempre (<b>%s\u00d7</b> tu gasto anual)."%str(exp.get("multiplo_efectivo") or exp.get("multiplo","28,6")).replace(".",","),body))
     out.append(Paragraph('<font size=30 color="#17181C"><b>%s</b></font>'%_eur(N),St("c4n",fontSize=30,leading=34,spaceBefore=2,spaceAfter=2)))
     out.append(Paragraph("Hoy lo tienes cubierto al <b>%s%%</b>%s."%(pct, (" \u00b7 te falta <b>%s</b>"%_eur(falta)) if falta and falta>0 else ""),body))
     _tasa=exp.get("tasa_retirada_pct"); _mult=exp.get("multiplo")
     if _tasa:
         _c=lambda v: str(v).replace(".",",")
-        out.append(Paragraph("Calculado con una tasa de retirada del <b>%s%%</b> (%s\u00d7 tu gasto anual), la que corresponde "
-                             "a un retiro de <b>%s a\u00f1os</b> si dejas de depender del sueldo a los <b>%s</b>. "
-                             "<b>No usamos el 4%% de manual</b>: ese dato sale solo de la bolsa de EE.UU. del siglo XX. Para una "
-                             "cartera global \u2014la que te corresponde invirtiendo desde Espa\u00f1a\u2014 la evidencia de 20 pa\u00edses "
-                             "sit\u00faa el m\u00e1ximo seguro en el 3,5%%."%(_c(_tasa), _c(_mult),
-                             exp.get("dur_retiro_anios"), exp.get("edad_parada")), body))
+        _mef = exp.get("multiplo_efectivo") or _mult
+        if (exp.get("puente_anios") or 0) > 0:
+            out.append(Paragraph("Calculado con una tasa de retirada del <b>%s%%</b> para la renta que necesitar\u00e1s "
+                                 "<b>desde los 67</b>, m\u00e1s el capital que cubre los <b>%s a\u00f1os</b> en los que a\u00fan no "
+                                 "cobrar\u00e1s pensi\u00f3n. En conjunto equivale a <b>%s\u00d7 tu gasto anual</b>. "
+                                 "<b>No usamos el 4%% de manual</b>: ese dato sale solo de la bolsa de EE.UU. del siglo XX; para "
+                                 "una cartera global la evidencia de 20 pa\u00edses sit\u00faa el m\u00e1ximo seguro en el 3,5%%."%(
+                                 _c(_tasa), exp.get("puente_anios"), _c(_mef)), body))
+        else:
+            out.append(Paragraph("Calculado con una tasa de retirada del <b>%s%%</b> (%s\u00d7 tu gasto anual), la que corresponde "
+                                 "a un retiro de <b>%s a\u00f1os</b> si dejas de depender del sueldo a los <b>%s</b>. "
+                                 "<b>No usamos el 4%% de manual</b>: ese dato sale solo de la bolsa de EE.UU. del siglo XX. Para una "
+                                 "cartera global \u2014la que te corresponde invirtiendo desde Espa\u00f1a\u2014 la evidencia de 20 pa\u00edses "
+                                 "sit\u00faa el m\u00e1ximo seguro en el 3,5%%."%(_c(_tasa), _c(_mult),
+                                 exp.get("dur_retiro_anios"), exp.get("edad_parada")), body))
     _pu=exp.get("puente_anios") or 0
     if _pu>0:
         out.append(_box([Paragraph("<b>Tu puente hasta la pensi\u00f3n.</b> Quieres dejar de depender del sueldo a los "

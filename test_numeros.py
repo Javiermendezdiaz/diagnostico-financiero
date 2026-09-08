@@ -136,6 +136,18 @@ def invariantes():
         _chk("I6. puente coherente (para a los %s)" % r["edad_parada"],
              r["puente_anios"] > 0, debe)
 
+    # I8. COHERENCIA DEL TEXTO: el multiplo que se imprime debe reproducir el numero.
+    # (Fallo real detectado: con puente, el multiplo declarado no cuadraba con la cifra
+    #  y un cliente que multiplicara encontraba 155.000 EUR de desfase.)
+    descuadres = []
+    for edad in (30, 35, 40, 45, 52, 60):
+        r = _exp(3000, 1100, 50000, 300, 15, edad=edad)
+        gp_anual = r.get("gasto_propio", 0) * 12
+        mef = r.get("multiplo_efectivo") or 0
+        if gp_anual and abs(gp_anual * mef - r["numero_libertad"]) > gp_anual * 0.05:
+            descuadres.append((edad, gp_anual * mef, r["numero_libertad"]))
+    _chk("I8. el multiplo impreso reproduce el numero", descuadres, [])
+
     # I7. Los parametros se cargan y quedan a la vista para el informe
     _chk("I7. vigencia de parametros presente",
          bool(_exp(3000, 1100, 50000, 300, 15, edad=52).get("vigencia_parametros")), True)

@@ -330,6 +330,7 @@ def analizar_expectativas(gasto_objetivo, pension, capital, ahorro_mensual, hori
         out = {"numero_libertad": round(N), "gasto_propio": round(gp),
                "pct_cubierto": pct, "brecha_renta": round(falta),
                "multiplo": round(mult, 1),
+               "multiplo_efectivo": (round(N / (gp * 12), 1) if gp > 0 else 0),
                "tasa_retirada_pct": round(_tasa_retirada(dur_retiro), 2),
                "edad_parada": int(round(edad_parada)),
                "dur_retiro_anios": int(round(dur_retiro)),
