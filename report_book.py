@@ -1872,7 +1872,10 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
     ahorro=float(d.get("ahorro_mensual") or 0)
     try: edad=int(float(d.get("edad") or 0))
     except Exception: edad=0
-    horizonte=max(1, 67-edad) if 0<edad<67 else 15
+    try: _er=int(float(d.get("edad_retiro_ideal"))) if d.get("edad_retiro_ideal") not in (None,"") else None
+    except Exception: _er=None
+    if _er and 0<edad<_er: horizonte=max(1, _er-edad)
+    else: horizonte=max(1, 67-edad) if 0<edad<67 else 15
     rent_real=5.0
     try:
         exp=mfv3.analizar_expectativas(gasto, pension, capital, ahorro, horizonte, rent_real,
@@ -1888,17 +1891,37 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
         out.append(Paragraph("Este es el capital que necesitas para vivir de %s sin depender de un sueldo, ya <b>neto de "
                              "tu pensi\u00f3n p\u00fablica</b> (la mayor\u00eda de los test la ignoran; nosotros la descontamos)."%_vida,body))
     else:
-        out.append(Paragraph("Este es el capital que, invertido, cubre tu vida para siempre (regla 25\u00d7).",body))
+        out.append(Paragraph("Este es el capital que, invertido, cubre tu vida para siempre (<b>%s\u00d7</b> tu gasto anual)."%str(exp.get("multiplo","28,6")).replace(".",","),body))
     out.append(Paragraph('<font size=30 color="#17181C"><b>%s</b></font>'%_eur(N),St("c4n",fontSize=30,leading=34,spaceBefore=2,spaceAfter=2)))
     out.append(Paragraph("Hoy lo tienes cubierto al <b>%s%%</b>%s."%(pct, (" \u00b7 te falta <b>%s</b>"%_eur(falta)) if falta and falta>0 else ""),body))
+    _tasa=exp.get("tasa_retirada_pct"); _mult=exp.get("multiplo")
+    if _tasa:
+        _c=lambda v: str(v).replace(".",",")
+        out.append(Paragraph("Calculado con una tasa de retirada del <b>%s%%</b> (%s\u00d7 tu gasto anual), la que corresponde "
+                             "a un retiro de <b>%s a\u00f1os</b> si dejas de depender del sueldo a los <b>%s</b>. "
+                             "<b>No usamos el 4%% de manual</b>: ese dato sale solo de la bolsa de EE.UU. del siglo XX. Para una "
+                             "cartera global \u2014la que te corresponde invirtiendo desde Espa\u00f1a\u2014 la evidencia de 20 pa\u00edses "
+                             "sit\u00faa el m\u00e1ximo seguro en el 3,5%%."%(_c(_tasa), _c(_mult),
+                             exp.get("dur_retiro_anios"), exp.get("edad_parada")), body))
+    _pu=exp.get("puente_anios") or 0
+    if _pu>0:
+        out.append(_box([Paragraph("<b>Tu puente hasta la pensi\u00f3n.</b> Quieres dejar de depender del sueldo a los "
+                  "<b>%s</b>, pero la pensi\u00f3n p\u00fablica no llega hasta los <b>67</b>. Durante esos <b>%s a\u00f1os</b> tu cartera "
+                  "tiene que cubrir el gasto <b>completo</b>, no solo la parte que la pensi\u00f3n no cubre: son <b>%s</b> "
+                  "adicionales que ya van incluidos en tu n\u00famero. Casi ninguna calculadora lo tiene en cuenta, y es la "
+                  "diferencia entre un plan que aguanta y uno que se rompe a mitad de camino."%(
+                  exp.get("edad_parada"), _pu, _eur(exp.get("puente_capital",0))),
+                  St("c4p",fontSize=10,leading=14))],"#F3F7F4","#1D6F42",ancho=160*mm))
     # MATIZ FISCAL ESPANA: la regla del 4% es BRUTA (origen USA). En Espana las rentas del
     # ahorro tributan ~21%, asi que vivir de rentas NETAS exige ~30% mas capital. Diferenciador.
     try:
-        _Nf=round(float(N)/0.79)
-        out.append(_box([Paragraph("<b>Matiz fiscal (Espa\u00f1a).</b> Esta cifra sigue la regla del 4%% \u2014de origen "
-                  "estadounidense y por tanto <b>bruta</b>\u2014. En Espa\u00f1a las rentas del ahorro tributan al ~21%%, "
-                  "as\u00ed que para vivir de rentas <b>netas</b> de esa vida necesitar\u00edas del orden de <b>%s</b>. "
-                  "La mayor\u00eda de las calculadoras copian la regla americana y lo ignoran; nosotros te lo decimos."%_eur(_Nf),
+        _Ndiv=round(float(N)/0.793); _Nfon=round(float(N)/0.899)
+        out.append(_box([Paragraph("<b>Matiz fiscal (Espa\u00f1a).</b> Tu n\u00famero cubre el gasto que quieres tener, pero lo que "
+                  "sacas de la cartera es <b>bruto</b> y en Espa\u00f1a tributa. Y aqu\u00ed importa mucho <b>c\u00f3mo</b> lo sacas: "
+                  "si vives de <b>dividendos</b>, Hacienda ve el 100%% de lo que cobras y necesitar\u00edas del orden de "
+                  "<b>%s</b>; si <b>vendes participaciones</b> de un fondo, solo tributa la plusval\u00eda y bajas a "
+                  "<b>%s</b>. Adem\u00e1s, los fondos espa\u00f1oles permiten <b>traspasar sin tributar</b> (art. 94 LIRPF). "
+                  "La mayor\u00eda de las calculadoras lo ignoran; nosotros te lo decimos."%(_eur(_Ndiv), _eur(_Nfon)),
                   St("c4f",fontSize=10,leading=14))],"#FBF6E6","#C9962B",ancho=160*mm))
     except Exception:
         pass
@@ -4139,12 +4162,44 @@ def _cargar_v2():
                     _fd[_k]=_FAC_FIX.get(_fd[_k],_fd[_k])
     return _INST_V2
 
+# SD-29 (edad_retiro_ideal): tramos ordinales -> edad objetivo representativa.
+# El cliente responde a que edad quiere dejar de depender del sueldo; hasta ahora
+# el libro individual lo ignoraba y asumia 67 para todos.
+_EDAD_RETIRO_MAP = {0: 53, 1: 57, 2: 62, 3: 67, 4: 67}
+
+
+def _edad_retiro_ideal(resp):
+    """Edad objetivo declarada por el cliente (SD-29). None si no es resoluble."""
+    try:
+        for sec in (INST.values() if isinstance(INST, dict) else []):
+            if not isinstance(sec, list):
+                continue
+            for it in sec:
+                if isinstance(it, dict) and (it.get("campo") == "edad_retiro_ideal" or it.get("id") == "SD-29"):
+                    idx = (resp or {}).get(it.get("id"))
+                    if isinstance(idx, list):
+                        idx = idx[0] if idx else None
+                    if isinstance(idx, bool) or not isinstance(idx, int):
+                        return None
+                    return _EDAD_RETIRO_MAP.get(idx)
+    except Exception:
+        return None
+    return None
+
+
 def build_book_v2(resp, datos, cli, outpath, perfil_in=None, depth="completo", baremo=None, sintesis=None, extras=None, arq_override=None):
     """Genera el libro usando el instrumento v2 (12 capas adaptativas) + secciones brecha/palancas."""
     global INST, CAPAS
     inst_v2=_cargar_v2()
     _bak_inst, _bak_capas = INST, CAPAS
     INST=inst_v2; CAPAS={c["code"]:c for c in inst_v2["capas"]}
+    try:
+        if isinstance(datos, dict) and not datos.get("edad_retiro_ideal"):
+            _er = _edad_retiro_ideal(resp)
+            if _er:
+                datos["edad_retiro_ideal"] = _er
+    except Exception:
+        pass
     try:
         if arq_override is None and perfil_in:
             try:

@@ -227,6 +227,7 @@ DUR_MIN, DUR_MAX = 30.0, 50.0
 TASA_OPTIMISTA = 4.70   # Bengen 2025, cartera muy diversificada
 TASA_EXIGENTE = 2.26    # Cederburg et al. 2025, 38 paises, 5% de ruina
 EDAD_PLAN_FIN = 95      # longevidad prudente (pareja)
+EDAD_JUBILACION = 67    # edad ordinaria de jubilacion (referencia 2027)
 
 
 def _tasa_retirada(dur_retiro):
@@ -258,10 +259,22 @@ def analizar_expectativas(gasto_objetivo, pension, capital, ahorro_mensual, hori
         # Duracion del retiro = desde que para hasta los 95.
         # Sin edad -> 67 por defecto -> 28 anos -> 25x (identico al comportamiento previo).
         ed = _f(edad) if edad not in (None, "") else 0.0
-        edad_parada = (ed + hor) if ed > 0 else 67.0
+        edad_parada = (ed + hor) if ed > 0 else EDAD_JUBILACION
         dur_retiro = max(20.0, EDAD_PLAN_FIN - edad_parada)
         mult = _multiplo_libertad(dur_retiro)
-        N = gp * 12 * mult
+        # PUENTE: la pension publica no se cobra hasta la edad ordinaria. Si para antes,
+        # durante esos anos la cartera tiene que cubrir el gasto COMPLETO, no solo la brecha.
+        puente = max(0.0, EDAD_JUBILACION - edad_parada)
+        if puente <= 0:
+            N = gp * 12 * mult
+            cap_puente = 0.0
+        else:
+            mult_post = _multiplo_libertad(EDAD_PLAN_FIN - EDAD_JUBILACION)
+            rd = _tasa_retirada(dur_retiro) / 100.0   # descuento prudente = tasa segura
+            af = puente if rd <= 0 else (1 - (1 + rd) ** -puente) / rd
+            cap_puente = go * 12 * af                       # gasto COMPLETO durante el puente
+            cap_post = (gp * 12 * mult_post) / ((1 + rd) ** puente)  # brecha desde los 67, descontada
+            N = cap_puente + cap_post
         # la herencia esperada reduce el capital que tienes que generar
         cap_efectivo = cap + _f(herencia_importe)
         falta = max(0.0, N - cap_efectivo)
@@ -272,6 +285,8 @@ def analizar_expectativas(gasto_objetivo, pension, capital, ahorro_mensual, hori
                "tasa_retirada_pct": round(_tasa_retirada(dur_retiro), 2),
                "edad_parada": int(round(edad_parada)),
                "dur_retiro_anios": int(round(dur_retiro)),
+               "puente_anios": int(round(puente)),
+               "puente_capital": round(cap_puente),
                "rango_libertad": {"min": round(gp * 12 * 100.0 / TASA_OPTIMISTA),
                                   "max": round(gp * 12 * 100.0 / TASA_EXIGENTE)}}
         if go <= pen:
