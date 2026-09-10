@@ -414,11 +414,38 @@ function saveProgreso(){
       _prog:st._prog,_lastIdx:st._lastIdx,tens:st.tens,avisoEstres:st.avisoEstres,ts:Date.now()}));
   }catch(e){}
 }
+// Devuelve el progreso guardado en ESTE navegador. Dos casos distintos:
+//   · a medias   -> se puede reanudar el cuestionario
+//   · TERMINADO  -> ya lo completo pero no llego a pagar; hay que devolverle su
+//                   pantalla de oferta, no obligarle a repetirlo todo.
+// El segundo caso faltaba: quien terminaba y cerraba la pestana sin pagar perdia
+// el acceso a su propio diagnostico, aunque sus respuestas seguian guardadas aqui
+// y en el servidor. La unica opcion visible era empezar de cero.
 function hayProgreso(){ try{ const s=JSON.parse(localStorage.getItem(LS_KEY)||'null');
-  return (s && s.cola && s.i>0 && s.i<s.cola.length) ? s : null; }catch(e){ return null; } }
+  if(!s || !s.cola || !s.sid) return null;
+  if(s.i>0 && s.i<s.cola.length) return s;
+  if(s.i>=s.cola.length){ s._terminado=true; return s; }
+  return null; }catch(e){ return null; } }
 function limpiarProgreso(){ try{ localStorage.removeItem(LS_KEY); }catch(e){} }
+/* Diagnostico TERMINADO sin pagar: le devolvemos su pantalla de oferta con su
+   sesion intacta. No tiene que repetir nada. */
+function recuperarDiagnostico(){
+  const s=hayProgreso(); if(!s || !s.sid) return;
+  CURSID=s.sid;
+  st.sid=s.sid; st.email=s.email||''; st.nombre=s.nombre||''; st.tier=s.tier||2;
+  show('s-done');
+  try{ const sub=document.getElementById('doneSub'); if(sub) sub.style.display='none'; }catch(e){}
+  try{ const tb=document.getElementById('teaserBox'); if(tb) tb.style.display='none'; }catch(e){}
+  try{
+    const h=document.getElementById('doneHead'); if(h) h.textContent='Tu diagnóstico está listo';
+    const t=document.getElementById('doneTxt');
+    if(t) t.textContent='Recuperamos el que completaste en este navegador. No hace falta repetirlo.';
+  }catch(e){}
+}
 async function reanudar(){
-  const s=hayProgreso(); if(!s) return; show('s-load');
+  const s=hayProgreso(); if(!s) return;
+  if(s._terminado){ return recuperarDiagnostico(); }
+  show('s-load');
   try{
     INST=await (await fetch('itap_v2.json?v='+Date.now())).json();
     try{ const _qq=await (await fetch(API+'/api/questions/'+s.tier)).json(); INST._abiertas=_qq.abiertas||[]; }catch(e){ INST._abiertas=[]; }
@@ -431,13 +458,21 @@ async function reanudar(){
 }
 function ofrecerReanudar(){
   const s=hayProgreso(); if(!s) return; const cont=document.getElementById('s-reg'); if(!cont) return;
-  const pct=Math.round((s.i/s.cola.length)*100);
   const box=document.createElement('div');
   box.style.cssText='background:rgba(253,215,49,.08);border:1px solid var(--am);border-radius:14px;padding:16px 18px;margin:0 0 22px;text-align:left';
-  box.innerHTML='<div style="font-weight:600;color:var(--tx);margin-bottom:4px">Tienes un diagnóstico a medias ('+pct+'%)</div>'+
-    '<div style="font-size:13px;color:var(--gr);margin-bottom:12px">Lo guardamos en este navegador. Puedes continuar donde lo dejaste.</div>'+
-    '<button class="btn btn-am" style="padding:10px 18px;font-size:14px" onclick="reanudar()">Reanudar mi test →</button>'+
-    '<button style="margin-left:10px;background:none;border:none;color:var(--gr);font-size:12.5px;cursor:pointer;text-decoration:underline" onclick="limpiarProgreso();this.closest(\'div\').remove()">Empezar de nuevo</button>';
+  if(s._terminado){
+    /* Ya lo completo: lo que necesita es volver a SU informe, no empezar otro. */
+    box.innerHTML='<div style="font-weight:600;color:var(--tx);margin-bottom:4px">Ya completaste tu diagnóstico</div>'+
+      '<div style="font-size:13px;color:var(--gr);margin-bottom:12px">Lo tenemos guardado. Recupéralo aquí: no hace falta que lo repitas.</div>'+
+      '<button class="btn btn-am" style="padding:10px 18px;font-size:14px" onclick="recuperarDiagnostico()">Recuperar mi diagnóstico →</button>'+
+      '<button style="margin-left:10px;background:none;border:none;color:var(--gr);font-size:12.5px;cursor:pointer;text-decoration:underline" onclick="if(confirm(\'Se borrará el diagnóstico que ya completaste. ¿Seguro?\')){limpiarProgreso();this.closest(\'div\').remove();}">Empezar uno nuevo</button>';
+  }else{
+    const pct=Math.round((s.i/s.cola.length)*100);
+    box.innerHTML='<div style="font-weight:600;color:var(--tx);margin-bottom:4px">Tienes un diagnóstico a medias ('+pct+'%)</div>'+
+      '<div style="font-size:13px;color:var(--gr);margin-bottom:12px">Lo guardamos en este navegador. Puedes continuar donde lo dejaste.</div>'+
+      '<button class="btn btn-am" style="padding:10px 18px;font-size:14px" onclick="reanudar()">Reanudar mi test →</button>'+
+      '<button style="margin-left:10px;background:none;border:none;color:var(--gr);font-size:12.5px;cursor:pointer;text-decoration:underline" onclick="limpiarProgreso();this.closest(\'div\').remove()">Empezar de nuevo</button>';
+  }
   cont.insertBefore(box, cont.firstChild);
 }
 
