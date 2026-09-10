@@ -1236,8 +1236,13 @@ def cierre_cta(path, titulo, subtitulo, puntos, contacto):
     ax.text(8,8,"25 años cuidando patrimonios familiares · sin productos propios · sin conflictos de interés",color=MUT,fontsize=8,va="center",zorder=4)
     fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
 
-def portadilla(path, acto, titulo, subtitulo):
-    """Divisor de acto a sangre: número filigrana, kicker dorado, titulo grande, subtitulo."""
+def portadilla(path, acto, titulo, subtitulo, dato=None, dato_lbl="", dato_col=None):
+    """Divisor de acto a sangre: número filigrana, kicker dorado, titulo grande, subtitulo.
+
+    `dato` es LA cifra de ese acto, en cuerpo enorme sobre la regla inferior. Sin ella
+    el divisor es decoracion bonita; con ella cada acto empieza diciendo algo. Es la
+    diferencia entre un informe que explica y uno que decide. Opcional y failsafe.
+    """
     import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle
     BG="#0E1018"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"; FAINT="#171C28"
@@ -1251,6 +1256,14 @@ def portadilla(path, acto, titulo, subtitulo):
     ax.text(12.5,80,(acto or "").upper(),color=GOLD,fontsize=14,fontweight="bold",va="center",zorder=4)
     ax.text(12.5,70,titulo,color=TX,fontsize=31,fontweight="bold",va="top",zorder=4,linespacing=1.05)
     ax.text(12.5,52,subtitulo,color=MUT,fontsize=12,va="top",zorder=4,linespacing=1.3)
+    if dato:
+        # Zona inferior: regla fina, rotulo pequeno en versalitas, cifra enorme.
+        ax.add_patch(Rectangle((8,32),84,0.22,color="#2A3242",zorder=3))
+        if dato_lbl:
+            ax.text(8,28.5,dato_lbl.upper(),color=MUT,fontsize=9.5,fontweight="bold",
+                    va="center",zorder=4)
+        ax.text(8,19,str(dato),color=(dato_col or GOLD),fontsize=46,fontweight="bold",
+                va="center",zorder=4)
     ax.text(8,9,"ADAPTA FAMILY OFFICE",color=GOLD,fontsize=8.2,fontweight="bold",va="center",zorder=4)
     fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
 
@@ -3600,7 +3613,16 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     # resumen + radar
     if depth!="esencial":
         try:
-            portadilla("_pa_t2_1.png", "Acto 1", 'TU FOTO\nDE HOY', 'El diagnóstico completo: radar, las 12 capas y tu cuadro financiero.')
+            # ACTO 1 -> la nota. Es el veredicto del diagnostico en un numero.
+            _d1=_dl1=None; _c1=None
+            try:
+                _n1=_sal100(salud)
+                _d1="%d/100"%_n1; _dl1="Tu salud psicofinanciera hoy"
+                _c1="#5FB98E" if _n1>=60 else ("#E8C861" if _n1>=40 else "#D9755B")
+            except Exception:
+                pass
+            portadilla("_pa_t2_1.png", "Acto 1", 'TU FOTO\nDE HOY', 'El diagnóstico completo: radar, las 12 capas y tu cuadro financiero.',
+                       dato=_d1, dato_lbl=(_dl1 or ""), dato_col=_c1)
             S+=[PageBreak(), Anchor("sec_acto1","ACTO I · DIAGNÓSTICO"), FullBleedImage("_pa_t2_1.png")]
         except Exception:
             pass
@@ -3967,7 +3989,18 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         Spacer(1,9*mm)]
     if depth!="esencial":
         try:
-            portadilla("_pa_t2_2.png", "Acto 2", 'LA BRECHA', 'Tu vida ideal frente a la real, tus palancas, y el coste de no hacer nada.')
+            # ACTO 2 -> el dinero que se escapa cada ano. La cifra que duele.
+            _d2=_dl2=None; _c2=None
+            try:
+                _ba=float(((extras or {}).get("brecha") or {}).get("brecha_anual") or 0)
+                if _ba>0:
+                    _d2=_eur(_ba); _dl2="Lo que te separa cada año de la vida que quieres"; _c2="#D9755B"
+                elif fi and fi[0]:
+                    _d2=_eur(fi[0]); _dl2="Tu Número de Libertad"
+            except Exception:
+                pass
+            portadilla("_pa_t2_2.png", "Acto 2", 'LA BRECHA', 'Tu vida ideal frente a la real, tus palancas, y el coste de no hacer nada.',
+                       dato=_d2, dato_lbl=(_dl2 or ""), dato_col=_c2)
             S+=[PageBreak(), Anchor("sec_acto2","ACTO II · LA BRECHA"), FullBleedImage("_pa_t2_2.png")]
         except Exception:
             pass
@@ -4027,7 +4060,24 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     # === ACTO 3: el plan ===
     if depth!="esencial":
         try:
-            portadilla("_pa_t2_3.png", "Acto 3", 'TU PLAN', 'De la foto a los hechos: tu constitución financiera y hoja de ruta.')
+            # ACTO 3 -> el horizonte. Cuanto queda si no cambias nada.
+            _d3=_dl3=None
+            try:
+                _an=fi[3] if fi else None
+                if _an is None:
+                    _d3="Más de 100 años"; _dl3="A tu ritmo actual, así de lejos queda"
+                else:
+                    # Sin decimales: "31,4 años" no se dice, y en una cifra a 46 puntos
+                    # el decimal solo resta contundencia. Por debajo de 2 anos, en meses.
+                    _an=float(_an)
+                    if _an < 2:
+                        _d3="%d meses"%max(1,round(_an*12)); _dl3="A tu ritmo actual, esto tardarías en llegar"
+                    else:
+                        _d3="%d años"%round(_an); _dl3="A tu ritmo actual, esto tardarías en llegar"
+            except Exception:
+                pass
+            portadilla("_pa_t2_3.png", "Acto 3", 'TU PLAN', 'De la foto a los hechos: tu constitución financiera y hoja de ruta.',
+                       dato=_d3, dato_lbl=(_dl3 or ""))
             S+=[PageBreak(), Anchor("sec_acto3","ACTO III · EL PLAN"), FullBleedImage("_pa_t2_3.png")]
         except Exception:
             pass
@@ -4301,7 +4351,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 "#FBF9EC","#C9962B",ancho=160*mm), Spacer(1,4*mm)]
     if depth!="esencial":
         try:
-            portadilla("_pa_t2_4.png", "Acto 4", 'EL SIGUIENTE\nPASO', 'Ejecutar el plan, contigo, con tu family office.')
+            portadilla("_pa_t2_4.png", "Acto 4", 'EL SIGUIENTE\nPASO', 'Ejecutar el plan, contigo, con tu family office.',
+                       dato="Ejecutar", dato_lbl="Tienes el diagnóstico. Falta lo difícil")
             S+=[PageBreak(), Anchor("sec_acto4","ACTO IV · ADAPTA"), FullBleedImage("_pa_t2_4.png")]
         except Exception:
             pass

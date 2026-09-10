@@ -368,18 +368,26 @@ def escudo(out, escenarios, accent=BLUE):
     _vbar(ax,0.085,0.88,"Tu escudo financiero",accent,sz=22)
     ax.text(0.107,0.825,_spaced("TRES GOLPES QUE LA VIDA PUEDE DAR, Y CÓMO RESISTES",0).replace("  "," "),
             ha="left",va="center",color=MUTE,fontproperties=P(8.5),transform=ax.transAxes)
-    def col(s): return "#3FB984" if s>=0.6 else ("#E3B341" if s>=0.34 else "#C0473B")
-    cx=0.27; top=0.70; w=0.17
+    # Paleta APAGADA a proposito. Con los colores saturados anteriores, un cliente con
+    # las tres bandas en verde veia un unico bloque verde chillon del tamano de media
+    # pagina: parecia un marcador de posicion, no un grafico. Tonos profundos + una
+    # ligera degradacion de opacidad hacen que las tres bandas se lean como TRES
+    # aunque compartan color.
+    def col(s): return "#2E7D5B" if s>=0.6 else ("#A8801F" if s>=0.34 else "#8E3A30")
+    ALFA=(0.96,0.80,0.64)
+    cx=0.27; top=0.70; w=0.155
     # bandas del escudo (de arriba a abajo): 2 trapecios + triángulo punta
     bands=[(top,top-0.13),(top-0.13,top-0.26)]
     tip_y=top-0.26
     for i,(y0,y1) in enumerate(bands):
         s=escenarios[i][2]; c=col(s)
         ax.add_patch(plt.Polygon([(cx-w,y0),(cx+w,y0),(cx+w,y1),(cx-w,y1)],closed=True,
-                     facecolor=c,edgecolor="#0A1220",lw=1.2,transform=ax.transAxes,zorder=4))
+                     facecolor=c,alpha=ALFA[i],edgecolor="#0A1220",lw=2.0,
+                     transform=ax.transAxes,zorder=4))
     s3=escenarios[2][2]; c3=col(s3)
     ax.add_patch(plt.Polygon([(cx-w,tip_y),(cx+w,tip_y),(cx,tip_y-0.16)],closed=True,
-                 facecolor=c3,edgecolor="#0A1220",lw=1.2,transform=ax.transAxes,zorder=4))
+                 facecolor=c3,alpha=ALFA[2],edgecolor="#0A1220",lw=2.0,
+                 transform=ax.transAxes,zorder=4))
     # contorno escudo
     ax.add_patch(plt.Polygon([(cx-w,top),(cx+w,top),(cx+w,tip_y),(cx,tip_y-0.16),(cx-w,tip_y)],
                  closed=True,fill=False,edgecolor=GOLD,lw=1.6,transform=ax.transAxes,zorder=6))
@@ -540,15 +548,26 @@ def barrera_100k(out, p0, aho_m, r, valle_caption, accent=GOLD):
     _bg(axm,(0.84,0.20),tint="#13202A")
     _vbar(axm,0.085,0.90,"El nacimiento de tu empleado invisible",accent,sz=18)
     axm.text(0.107,0.85,_spaced("LA BARRERA DE LOS 100.000 €",1),ha="left",va="center",color=MUTE,fontproperties=P(9),transform=axm.transAxes)
-    axm.text(0.107,0.806,"Azul: lo que aportas tú. Oro: lo que tu dinero genera solo, por interés compuesto al ~%d%%. Donde se cruzan, tu dinero trabaja más que tú."%round(r),ha="left",va="center",color=FAINT,fontproperties=P(8),transform=axm.transAxes)
+    # Se parte en DOS lineas: en una sola se salia del papel y quedaba cortada a media
+    # palabra en el borde derecho ("...trabaja mas que t"). Un texto cortado por el
+    # margen destruye mas credibilidad que cualquier problema de color.
+    for _i,_ln in enumerate(["Azul: lo que aportas tú. Oro: lo que tu dinero genera solo, por interés compuesto al ~%d%%."%round(r),
+                             "Donde se cruzan, tu dinero trabaja más que tú."]):
+        axm.text(0.107,0.812-_i*0.022,_ln,ha="left",va="center",color=FAINT,
+                 fontproperties=P(8),transform=axm.transAxes)
     # eje del gráfico
-    ax=fig.add_axes([0.11,0.30,0.80,0.45]); ax.set_facecolor("none")
+    # Sube el suelo del grafico: con bottom=0.30 la etiqueta del eje "años" y la leyenda
+    # se montaban encima del titular de abajo. Mismo techo (0.75), mas aire debajo.
+    ax=fig.add_axes([0.11,0.325,0.80,0.425]); ax.set_facecolor("none")
     yrs=_np.arange(YRS+1)
     ax.fill_between(yrs,0,aport,color="#2E6BFF",alpha=0.45,zorder=3,label="Tu esfuerzo (lo que aportas)")
     ax.fill_between(yrs,aport,total,color=accent,alpha=0.55,zorder=4,label="El esfuerzo de tu dinero (interés)")
     ax.plot(yrs,total,color="#FFFFFF",lw=1.4,zorder=5)
     ax.axhline(100000,color=accent,lw=1,ls=(0,(4,3)),zorder=6)
-    ax.text(YRS*0.02,104000,"100.000 €",color=accent,fontproperties=P(8.5))
+    # Separado del eje Y y con fondo propio: pegado al margen se montaba con las marcas
+    # del eje y se leia como un numero duplicado.
+    ax.text(YRS*0.07,104000,"100.000 €",color=accent,fontproperties=P(8.5),
+            bbox=dict(facecolor="#0B1520",edgecolor="none",pad=1.6,alpha=0.85),zorder=7)
     if y100 is not None:
         ax.scatter([y100],[total[y100]],s=42,color="#FFFFFF",zorder=8)
     for sp in ax.spines.values(): sp.set_color("#2A3A5C")
@@ -581,7 +600,7 @@ def barrera_100k(out, p0, aho_m, r, valle_caption, accent=GOLD):
         head="Contratas tu primer empleado invisible en %d años." % yr1
     else:
         head="Tu primer empleado invisible: tu próximo gran hito."
-    axm.text(0.11,0.224,head,ha="left",va="center",color=WHITE,fontproperties=L(20),transform=axm.transAxes)
+    axm.text(0.11,0.212,head,ha="left",va="center",color=WHITE,fontproperties=L(20),transform=axm.transAxes)
     sub=("Un «empleado invisible» es el capital que, él solo, te aporta cada año lo mismo que ahorras tú (~%s). "
          "El primero iguala tu esfuerzo; con tres, tu dinero rinde el triple que tú. Los 100.000 € de Munger son la "
          "barrera donde ese compuesto se vuelve imparable." % _aho_fmt)

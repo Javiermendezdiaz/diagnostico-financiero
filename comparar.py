@@ -15,6 +15,8 @@ import os
 FICHEROS = [
     "report_book.py",
     "report_couple.py",
+    "legado_design.py",
+    "legado_pages.py",
     "test_numeros.py",
     "qa_coherencia.py",
     "motor_financiero_v3.py",
