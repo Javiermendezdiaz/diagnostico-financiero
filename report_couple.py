@@ -936,7 +936,7 @@ def seccion_one_pager(nA, nB, dA, dB, compat, saludA, saludB):
         except Exception: pass
         try:
             nlib=float(fih[0]) if fih and fih[0] else 0
-            if nlib>0: cells.append(_kpi_celda_par("NÚMERO DE LIBERTAD",rb._eur(nlib),"#1A1A17","Vuestro capital objetivo (gasto × 25)"))
+            if nlib>0: cells.append(_kpi_celda_par("NÚMERO DE LIBERTAD",rb._eur(nlib),"#1A1A17","Neto de vuestras pensiones públicas"))
         except Exception: pass
         try:
             prog=float(fih[1]) if fih and fih[1] is not None else None
@@ -1138,8 +1138,8 @@ def seccion_timeline_friccion(divs, nA, nB):
 def seccion_glosario():
     """ÍTEM 2b — Glosario ejecutivo de pareja (cierre del libro): 8-12 términos clave, voz de pareja. Failsafe."""
     terminos=[
-        ("Número de Libertad","El capital que, invertido a una retirada prudente, cubriría vuestro gasto sin volver a depender del trabajo de ninguno. Se estima como vuestro gasto anual del hogar multiplicado por 25 (regla 25×)."),
-        ("Regla 25×","Atajo para fijar la meta común: ahorrad 25 veces vuestro gasto anual. Equivale a poder retirar ~4% al año del patrimonio invertido sin agotarlo."),
+        ("Número de Libertad","El capital que, invertido a una retirada prudente, cubriría vuestro gasto sin volver a depender del trabajo de ninguno. Se calcula sobre el gasto del hogar que vuestras pensiones públicas NO cubren, con la tasa de retirada que corresponde a vuestro horizonte."),
+        ("Tasa de retirada segura","El porcentaje que podéis sacar cada año de la cartera sin agotarla. No usamos el 4% clásico: sale solo de la bolsa de EE.UU. del siglo XX. Para una cartera global usamos entre 3,5% y 3,0% según el horizonte, lo que equivale a multiplicar vuestro gasto anual por entre 28,6 y 33,3."),
         ("Compatibilidad financiera","Cuánto de parecido vivís el dinero los dos. No es bueno ni malo en sí: las diferencias bien habladas suman; las calladas, erosionan."),
         ("Tasa de ahorro","Qué porción de lo que ingresa el hogar conseguís no gastar. La palanca que más controláis juntos."),
         ("DTI (deuda/ingreso)","Cuánto de vuestro ingreso mensual se va en cuotas de deuda. Por debajo del 20% es holgado; por encima del 35%, tensión."),
@@ -2010,7 +2010,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         Paragraph("Vuestros n\u00fameros del hogar",h_sub),
         Paragraph("Estas cifras son <b>conjuntas</b>: describen vuestra econom\u00eda como hogar, no a uno ni a otro por "
                   "separado. Donde de verdad difer\u00eds es en c\u00f3mo las vive cada uno por dentro.",small),
-        Table([["N\u00famero de libertad del hogar (regla 25\u00d7)",("%s \u20ac"%format(fi_h[0],",.0f")).replace(",",".")],
+        Table([["N\u00famero de libertad del hogar (neto de pensiones)",("%s \u20ac"%format(fi_h[0],",.0f")).replace(",",".")],
                ["Progreso hacia la libertad","%s %%"%fi_h[1]],
                ["Tasa de ahorro conjunta","%s %%"%fi_h[2]],
                ["A\u00f1os a la libertad","m\u00e1s de 100" if fi_h[3] is None else "%s a\u00f1os"%fi_h[3]]],

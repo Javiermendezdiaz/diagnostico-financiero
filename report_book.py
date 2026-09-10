@@ -160,12 +160,34 @@ def perfil(resp):
     trans={t:(round(statistics.mean(v),1) if v else None) for t,v in tr.items()}
     return out,trans,round(statistics.mean([v["score"] for v in out.values()]),1)
 def fi_metrics(d):
-    gasto=d.get("gasto_mensual") or 0; ingreso=d.get("ingreso_mensual") or 0
-    pat=d.get("patrimonio") or 0; aho=d.get("ahorro_mensual") or 0
-    # Capital INVERTIBLE = lo que genera renta del 4% (mercados + liquido). NO la vivienda ni el negocio iliquido.
+    """Metricas de libertad: (numero, pct_cubierto, tasa_ahorro, anios_para_llegar).
+
+    NUMERO CANONICO. Sale de motor_financiero_v3 — el MISMO que usa el resto del
+    libro. Hasta ahora esta funcion calculaba `gasto*12*25` por su cuenta e
+    IGNORABA la pension publica, de modo que el informe le ensenaba al cliente
+    dos cifras distintas en paginas distintas:
+
+        gasto 3.000 / pension 1.100 / 52 anos -> 900.000 aqui vs 652.080 en el motor
+        gasto 2.000 / sin pension  / 47 anos -> 600.000 aqui vs 686.400 en el motor
+
+    El desfase iba en las DOS direcciones, asi que ni siquiera era conservador.
+    Ahora hay una sola fuente de verdad; el x25 queda solo como red de seguridad
+    si el motor no puede resolver (datos incompletos).
+    """
+    gasto=float(d.get("gasto_mensual") or 0); ingreso=float(d.get("ingreso_mensual") or 0)
+    aho=float(d.get("ahorro_mensual") or 0)
+    # Capital INVERTIBLE = lo que genera la renta (mercados + liquido). NO la vivienda ni el negocio iliquido.
     invertible=max(0.0, float(d.get("inversiones_liquidas") or 0)+float(d.get("colchon_liquido") or 0))
-    fi=gasto*12*25; pct=round(100*invertible/fi,1) if fi else 0.0
     tasa=round(100*aho/ingreso,1) if ingreso else 0.0
+    fi=None
+    try:
+        import seccion_apertura as _ap        # import tardio: evita el ciclo de importacion
+        _exp=_ap.datos_expectativas(d)
+        if _exp and _exp.get("numero_libertad"): fi=float(_exp["numero_libertad"])
+    except Exception:
+        fi=None
+    if not fi: fi=gasto*12*25                 # failsafe: comportamiento anterior
+    pct=round(100*invertible/fi,1) if fi else 0.0
     r,pv,m,n=0.05/12,invertible,aho,0
     while pv<fi and n<1200: pv=pv*(1+r)+m; n+=1
     return fi,pct,tasa,(round(n/12,1) if n<1200 else None)
@@ -186,7 +208,7 @@ QMIDE={
  "C12":"si canalizas tu ahorro hacia la inversión —la única palanca que hace crecer tu patrimonio de forma exponencial— o lo dejas parado perdiendo valor contra la inflación."}
 PASO={
  "C1":"dedica diez minutos a nombrar qué emoción exacta aparece cuando piensas en dinero.",
- "C2":"calcula y anota tu número: gasto anual × 25. Tenerlo a la vista cambia las decisiones.",
+ "C2":"anota tu Número de Libertad —lo tienes calculado en este informe— donde lo veas cada día. Tenerlo a la vista cambia las decisiones.",
  "C3":"fija un objetivo de colchón en meses y automatiza una transferencia hacia él.",
  "C4":"revisa tus tres mayores gastos nuevos del último año y pregúntate si aún merecen la pena.",
  "C5":"escribe qué pasaría con tu dinero si faltaras mañana; las lagunas son tu checklist.",
@@ -1333,7 +1355,15 @@ def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
         series=[("Si sigues igual",e1,BLUE,"-"),("Si ahorras 5 puntos más",e3,GREEN,"--")]
         lo,hi=e1[-1],e3[-1]
     brecha=hi-lo
-    objetivo=gas*12*25 if gas>0 else None   # regla del 4%: patrimonio que cubre tu vida
+    # META = el NUMERO CANONICO (motor, neto de pension). Antes se dibujaba aqui un
+    # gas*12*25 propio, asi que la linea de meta del grafico -y la "edad de libertad"
+    # que sale de ella- no coincidian con el numero impreso en el resto del libro.
+    objetivo=None
+    try:
+        objetivo=fi_metrics(datos)[0] or None
+    except Exception:
+        objetivo=None
+    if not objetivo: objetivo=gas*12*25 if gas>0 else None   # failsafe
     edad_libre=None
     if objetivo:
         for i,v in enumerate(e3):
@@ -1854,6 +1884,84 @@ def seccion_conclusion(extras):
     return out
 
 
+def _riesgo_secuencia_libro():
+    """El orden de los anos importa mas que la media (sequence-of-returns risk).
+
+    Portado desde secciones_v3 al lenguaje visual del LIBRO: hasta ahora esto solo
+    llegaba al Anexo Financiero, que es un documento aparte. Es de las piezas que
+    mas separan este informe de una calculadora, y el cliente que paga no la veia.
+    """
+    filas=[[Paragraph("<b>Mismo capital, mismo gasto, misma rentabilidad media</b>",St("rs_h1",fontSize=9.5,leading=12)),
+            Paragraph("<b>Resultado</b>",St("rs_h2",fontSize=9.5,leading=12))],
+           [Paragraph("Las caídas le llegan <b>al principio</b>",St("rs_a",fontSize=9.5,leading=12)),
+            Paragraph('<font color="#9A3B2E"><b>Sin dinero en el año 21</b></font>',St("rs_b",fontSize=9.5,leading=12))],
+           [Paragraph("Las caídas le llegan <b>al final</b>",St("rs_c",fontSize=9.5,leading=12)),
+            Paragraph('<font color="#1D6F42"><b>Termina con más del triple</b></font>',St("rs_d",fontSize=9.5,leading=12))]]
+    t=Table(filas,colWidths=[104*mm,56*mm])
+    t.setStyle(TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,colors.HexColor("#E5E0D5")),
+                           ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)]))
+    return [Spacer(1,6*mm),
+            Paragraph("El orden importa más que la media",h_sub),
+            Paragraph("Dos personas se retiran con el mismo capital, gastan lo mismo y obtienen "
+                      "<b>exactamente la misma rentabilidad media</b> durante 30 años. La única "
+                      "diferencia es el <b>orden</b> en que llegan los años buenos y los malos.",body),
+            Spacer(1,2*mm), t, Spacer(1,3*mm),
+            Paragraph("Se llama <b>riesgo de secuencia</b>. Mientras acumulas, una caída es una "
+                      "oportunidad: compras más barato. Cuando ya vives de la cartera, esa misma "
+                      "caída es una herida que no cicatriza, porque vendes participaciones baratas "
+                      "para pagar la compra del mes y esas participaciones ya no están cuando el "
+                      "mercado se recupera.",body),
+            _box([Paragraph("QUÉ SIGNIFICA PARA TI",St("rs_e",fontSize=8.5,leading=11,
+                            textColor=colors.HexColor("#1D6F42"),fontName=FB)),
+                  Paragraph("Los años críticos son los <b>primeros</b> de tu retiro, no los últimos. "
+                            "Por eso conviene llegar con <b>dos o tres años de gasto fuera de bolsa</b>, "
+                            "no llegar al 100% en renta variable, y poder <b>recortar el gasto un 10%</b> "
+                            "el año que el mercado caiga fuerte. Quien puede hacer eso no necesita "
+                            "acertar con la tasa exacta.",St("rs_f",fontSize=10,leading=14,spaceBefore=3))],
+                 "#F3F7F4","#1D6F42",ancho=160*mm)]
+
+
+def _como_sacas_libro(N):
+    """Dividendos vs venta de participaciones: la misma renta, distinta factura fiscal.
+
+    Cifras de parametros.json (escala del ahorro vigente), no inventadas aqui.
+    """
+    try:
+        import json
+        _p=json.load(open("parametros.json",encoding="utf-8"))["fiscal_espana"]
+        neto=_p["ejemplo_neto_anual"]; i_div=_p["ejemplo_impuestos_dividendos"]
+        i_fon=_p["ejemplo_impuestos_venta_fondo"]; dif=_p["ejemplo_diferencia_anual"]
+    except Exception:
+        neto,i_div,i_fon,dif=30000,7823,3385,4437
+    filas=[[Paragraph("<b>Vía</b>",St("cs_h1",fontSize=9.5,leading=12)),
+            Paragraph("<b>Hacienda ve</b>",St("cs_h2",fontSize=9.5,leading=12)),
+            Paragraph("<b>Impuestos al año</b>",St("cs_h3",fontSize=9.5,leading=12))],
+           [Paragraph("Vives de <b>dividendos</b>",St("cs_a",fontSize=9.5,leading=12)),
+            Paragraph("el <b>100%</b> de lo que cobras",St("cs_b",fontSize=9.5,leading=12)),
+            Paragraph('<font color="#9A3B2E"><b>%s</b></font>'%_eur(i_div),St("cs_c",fontSize=9.5,leading=12))],
+           [Paragraph("<b>Vendes participaciones</b> de un fondo",St("cs_d",fontSize=9.5,leading=12)),
+            Paragraph("solo la <b>plusvalía</b>",St("cs_e",fontSize=9.5,leading=12)),
+            Paragraph('<font color="#1D6F42"><b>%s</b></font>'%_eur(i_fon),St("cs_f",fontSize=9.5,leading=12))]]
+    t=Table(filas,colWidths=[74*mm,50*mm,36*mm])
+    t.setStyle(TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,colors.HexColor("#E5E0D5")),
+                           ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)]))
+    return [Spacer(1,6*mm),
+            Paragraph("Cómo sacas el dinero cambia tu número",h_sub),
+            Paragraph("Tu gasto es <b>neto</b>, pero lo que sale de la cartera es <b>bruto</b>. "
+                      "Para tener los mismos <b>%s netos al año</b>, esto es lo que pagarías según "
+                      "cómo lo cobres:"%_eur(neto),body),
+            Spacer(1,2*mm), t, Spacer(1,3*mm),
+            _box([Paragraph("<b>%s al año</b> de diferencia por la misma renta. En treinta años son "
+                            "del orden de <b>%s</b> — y no depende del mercado ni de acertar con "
+                            "ninguna previsión: depende solo de <b>cómo</b> está estructurada tu "
+                            "cartera. Además, los fondos españoles permiten <b>traspasar sin "
+                            "tributar</b> (art. 94 LIRPF), algo que los ETF no permiten."
+                            %(_eur(dif),_eur(dif*30)),St("cs_g",fontSize=10.5,leading=15))],
+                 "#FBF6E6","#C9962B",ancho=160*mm),
+            Paragraph("Cifras calculadas sobre la escala del ahorro del IRPF vigente. Es un ejemplo "
+                      "de estructura, no una recomendación de producto.",small)]
+
+
 def seccion_cuatro_caminos(datos, fi, extras=None):
     """Las 4 vias para llegar al número de libertad (neto de pension): ahorrar mas,
     rentar mejor, ajustar el objetivo, o el plan recomendado. Brutalmente accionable.
@@ -1994,6 +2102,15 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
         out.append(Paragraph("F\u00edjate en algo: recortar el gasto baja el n\u00famero <b>mucho m\u00e1s</b> que ahorrar m\u00e1s, "
                              "porque reduce el capital que necesitas <b>para siempre</b>. Ahorrar m\u00e1s no cambia la meta: "
                              "te acerca antes a ella.", body))
+    # === LAS DOS PIEZAS QUE SOLO LLEGABAN AL ANEXO ===
+    # Riesgo de secuencia y fiscalidad de la retirada: dos de los mayores
+    # diferenciadores frente a cualquier calculadora, y el cliente que paga el
+    # libro no las veia porque vivian en un documento aparte.
+    try:
+        out += _riesgo_secuencia_libro()
+        out += _como_sacas_libro(N)
+    except Exception as _e2:
+        import sys; sys.stderr.write("[anexo->libro] omitido: %s\n" % _e2)
     _vg = exp.get("vigencia_parametros")
     if _vg:
         out.append(Paragraph("Par\u00e1metros econ\u00f3micos y fiscales vigentes a <b>%s</b>. Revisamos y actualizamos estas "
@@ -2461,7 +2578,7 @@ def glosario(p, datos, fi):
     g=[]
     # Nucleo siempre presente
     g.append(("Número de libertad financiera",
-        "El patrimonio que, invertido, cubre tus gastos para siempre (regla práctica: gasto anual × 25).",
+        "El patrimonio que, invertido, cubre tus gastos para siempre — ya descontada tu pensión pública.",
         (f"El tuyo ronda los {_eur(fi[0])}; hoy lo tienes cubierto en torno a un {fi[1]:.0f}%." if fi[1]<100 else f"El tuyo ronda los {_eur(fi[0])}, y hoy ya lo superas (cobertura ~{fi[1]:.0f}%): por patrimonio, estás en libertad financiera."),
         "Es tu meta-marco: cada decisión acerca o aleja esa cifra. Tenerla puesta cambia cómo priorizas."))
     g.append(("Tasa de ahorro",
@@ -2588,7 +2705,7 @@ def seccion_extras(extras, datos=None):
         _na=(f" Para tu vida actual: {_eur(br['numero_actual'])}." if br.get("numero_actual") else "")
         out+=[Spacer(1,3*mm),
               _box([Paragraph(linea,St("brx",fontSize=10.5,leading=15)),
-                    Paragraph(f"Tu número de libertad para <b>esa</b> vida (regla 25×): <b>{_eur(br['numero_ideal'])}</b>{_tt(br['numero_ideal'],datos,' — <b>≈%s</b>')}.{_na}",
+                    Paragraph(f"Tu número de libertad para <b>esa</b> vida: <b>{_eur(br['numero_ideal'])}</b>{_tt(br['numero_ideal'],datos,' — <b>≈%s</b>')}.{_na}",
                               St("brx2",fontSize=9.6,leading=14,textColor=GREY,spaceBefore=4))],
                    "#FBF4E4","#B45309",ancho=160*mm)]
         mapr={"en rumbo":"Y tú mismo lo lees así: <b>en rumbo</b>. Las matemáticas te acompañan; el trabajo es no desviarte.",
@@ -2883,7 +3000,7 @@ def seccion_como_medimos(extras):
         ("Escenario", "planificamos sobre <b>la vida que quieres</b> (%s), no sobre tu gasto de hoy." % _ci),
         ("Unidad", "todas las cifras en <b>euros de hoy</b>; si alguna es a futuro, se etiqueta."),
         ("Colchón objetivo", "<b>6 meses</b> de gasto. Una sola definición en todo el documento."),
-        ("Regla de libertad", "<b>4% = regla 25×</b> (son lo mismo), ajustada por la fiscalidad española."),
+        ("Regla de libertad", "Tasa de retirada del <b>3,0%–3,5%</b> según tu horizonte (no el 4% de manual), neta de tu pensión y ajustada por la fiscalidad española."),
         ("Valor de tu hora", "una sola base de cálculo, coherente en todas las páginas."),
     ]
     filas=[Paragraph("<b>%s:</b> %s"%(k,v),St("cm%d"%i,fontSize=10,leading=14,spaceBefore=2)) for i,(k,v) in enumerate(reglas)]
@@ -2914,8 +3031,13 @@ def seccion_paradoja(extras):
     return out
 
 
-def seccion_resumen_ejecutivo(extras, datos):
-    """Resumen ejecutivo de 1 pagina tras la portada: cifras clave + foco + primer paso + puente Adapta."""
+def seccion_resumen_ejecutivo(extras, datos, breve=False):
+    """Resumen ejecutivo de 1 pagina: cifras clave + foco + primer paso + puente Adapta.
+
+    breve=True cuando la APERTURA ya mostro el foco, el primer paso y el puente a
+    Adapta: entonces esta seccion se queda solo con lo que aporta de nuevo (Ratio
+    de Vida y meses de libertad) en vez de repetir tres bloques identicos.
+    """
     if not extras: return []
     rv=extras.get("ratio_vida"); nudo=extras.get("nudo"); res=extras.get("resiliencia"); acc=extras.get("accion_unica")
     out=[PageBreak(), Paragraph("Tu diagnóstico en una página", h_sec),
@@ -2934,6 +3056,9 @@ def seccion_resumen_ejecutivo(extras, datos):
     if cells:
         w=160.0/len(cells)
         out+=[Table([cells],colWidths=[w*mm]*len(cells),style=[("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),0),("TOPPADDING",(0,0),(-1,-1),2)]),Spacer(1,5*mm)]
+    if breve:
+        out+=[PageBreak()]
+        return out
     if nudo and nudo.get("principal"):
         pr=nudo["principal"]
         out+=[_box([Paragraph("<font color='#9A3B2E'><b>TU FOCO PRINCIPAL</b></font>  "+pr["tit"]+".",St("ref",fontSize=11,leading=16,textColor=INK))],"#FBF4E4","#9A3B2E",ancho=160*mm),Spacer(1,3*mm)]
@@ -2969,7 +3094,7 @@ def seccion_one_pager(salud, fi, datos, extras=None):
         # Número de libertad + progreso
         try:
             nlib=float(fi[0]) if fi and fi[0] else 0
-            if nlib>0: cells.append(_kpi_celda("NÚMERO DE LIBERTAD",_eur(nlib),"#1A1A17","Con tu gasto de hoy (× 25)"))
+            if nlib>0: cells.append(_kpi_celda("NÚMERO DE LIBERTAD",_eur(nlib),"#1A1A17","Neto de tu pensión pública"))
         except Exception: pass
         try:
             prog=float(fi[1]) if fi and fi[1] is not None else None
@@ -3018,8 +3143,8 @@ def seccion_one_pager(salud, fi, datos, extras=None):
 def seccion_glosario():
     """Glosario ejecutivo breve (al final del libro): 8-12 términos clave en lista sobria. Failsafe."""
     terminos=[
-        ("Número de Libertad","El capital que, invertido a una retirada prudente, cubriría tu gasto sin volver a depender de tu trabajo. Se estima como tu gasto anual multiplicado por 25 (regla 25×)."),
-        ("Regla 25×","Atajo para fijar tu meta: ahorra 25 veces tu gasto anual. Equivale a poder retirar ~4% al año de tu patrimonio invertido sin agotarlo."),
+        ("Número de Libertad","El capital que, invertido a una retirada prudente, cubriría tu gasto sin volver a depender de tu trabajo. Se calcula sobre el gasto que tu pensión pública NO cubre, con la tasa de retirada que corresponde a tu horizonte."),
+        ("Tasa de retirada segura","El porcentaje que puedes sacar cada año de tu cartera sin agotarla. No usamos el 4% clásico: sale solo de la bolsa de EE.UU. del siglo XX. Para una cartera global usamos entre 3,5% (retiro a los 67) y 3,0% (retiros muy largos), lo que equivale a multiplicar tu gasto anual por entre 28,6 y 33,3."),
         ("Tasa de ahorro","Qué porción de lo que ingresas consigues no gastar. Es la palanca que más controlas: sube tu ahorro y tu número se acerca."),
         ("DTI (deuda/ingreso)","Cuánto de tu ingreso mensual se va en cuotas de deuda. Por debajo del 20% es holgado; por encima del 35%, tensión."),
         ("Colchón de resistencia","Los meses que podrías sostener tu vida con tu liquidez si dejaras de ingresar. Tu primer escudo ante un imprevisto."),
@@ -3388,8 +3513,22 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         Paragraph(f"DOCUMENTO CONFIDENCIAL · REF {report_id(cli.get('email') or 'ITAP',cli['fecha'])} · USO PRIVADO",
                   St("cvr",fontSize=7.5,textColor=GREY,fontName="Helvetica")),
         PageBreak()]
-    # === ONE-PAGER EJECUTIVO (justo tras la portada): KPIs ya calculados, en grande ===
-    S+=_secsafe(seccion_one_pager, salud, fi, datos, extras)
+    # === APERTURA EJECUTIVA (lo primero tras la portada): el dinero delante ===
+    # 4 paginas: la cifra / el cuadro semaforo / las 3 palancas / el foco y el cierre.
+    # No calcula nada nuevo: saca al principio cifras que ya estaban enterradas al final.
+    _ap_ok=False
+    try:
+        import seccion_apertura as _apert
+        _ap=_secsafe(_apert.apertura, salud, fi, datos, extras, p)
+        if _ap: S+=_ap; _ap_ok=True
+    except Exception as _ea:
+        import sys; sys.stderr.write("[apertura] no cargada: %s\n"%_ea)
+    # === ONE-PAGER EJECUTIVO: solo si la apertura no salio. ===
+    # Los dos hacen lo mismo (KPIs en grande tras la portada). Encadenarlos era
+    # repetirle al cliente las mismas cifras dos paginas seguidas: justo lo que
+    # hace que un informe se lea como relleno y no como decision.
+    if not _ap_ok:
+        S+=_secsafe(seccion_one_pager, salud, fi, datos, extras)
     # carta de apertura
     S+=[Paragraph("Antes de empezar",h_sec),
         _box([Paragraph("<font color='#234E70'><b>&#9656;  Eres de los primeros — y lo afinamos contigo</b></font>",St("fbk1",fontSize=11,leading=15,fontName=FB)),
@@ -3449,7 +3588,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                         ("LINEBEFORE",(0,0),(0,-1),2.6,AMARILLO),("LEFTPADDING",(0,0),(0,-1),10),
                         ("TOPPADDING",(0,0),(-1,-1),9),("BOTTOMPADDING",(0,0),(-1,-1),9)]))
     S+=[PageBreak()]
-    if extras: S+=_secsafe(seccion_resumen_ejecutivo,extras,datos)
+    if extras: S+=_secsafe(seccion_resumen_ejecutivo,extras,datos,_ap_ok)
     if extras: S+=_secsafe(seccion_como_medimos,extras)
     if extras: S+=_secsafe(seccion_paradoja,extras)
     S+=_secsafe(seccion_incapacidad,datos)
@@ -3937,7 +4076,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     _pens=float(datos.get("pension_estimada") or 0); _gm_lib=float(datos.get("gasto_mensual") or 0)
     _num_aj=max(0.0,(_gm_lib-_pens))*12*25
     S+=[pt,Spacer(1,5*mm),Paragraph("Tus números de libertad",h_sub),
-        Table([["Número de libertad financiera (regla 25×)",f"{fi[0]:,.0f} €".replace(",",".")],
+        Table([["Número de libertad financiera (neto de pensión)",f"{fi[0]:,.0f} €".replace(",",".")],
                ["En tiempo de tu trabajo actual",(_en_tiempo(fi[0],datos) or "—")],
                ["Progreso hacia la libertad",f"{fi[1]} %"],
                ["Tasa de ahorro actual",f"{fi[2]} %"],
@@ -3997,7 +4136,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         S+=[Paragraph("<b>Patrimonio no es lo mismo que renta — y ahí está tu mayor oportunidad:</b> tu patrimonio total ronda los %s, pero hoy solo unos %s están invertidos o líquidos generando renta (la cobertura del %s%% de arriba). El resto vive en ladrillo o en tu negocio: es patrimonio, pero no dinero que puedas gastar cada mes." % (_eur(_pat_lib),_eur(_inv_lib),("%.0f"%fi[1])),St("plib2",fontSize=9.3,leading=13,textColor=INK,spaceBefore=5)),
             Paragraph("<b>Y si lo movilizaras:</b> si convirtieras en líquido y pusieras a rentar ese patrimonio ilíquido —rentabilizando lo que está parado y, llegado el momento de simplificar, vendiendo o reduciendo la vivienda que ya no necesites—, tu cobertura pasaría del <b>%s%%</b> de hoy al <b>%s%%</b>%s. Convertir patrimonio dormido en renta es, justamente, donde más mueve la aguja un family office: no se trata solo de ganar más, sino de poner a trabajar lo que ya tienes." % (("%.0f"%fi[1]),("%.0f"%_cob_pot),_libre_txt),St("plib3",fontSize=9.3,leading=13,textColor=INK,spaceBefore=4))]
     if _pens>0 and _gm_lib>0:
-        S+=[Paragraph("<b>Ajustado por tu pensión:</b> si cobrarás ~<b>%s</b>/mes de pensión pública, esa renta ya cubrirá parte de tu vida al jubilarte. El capital PROPIO que necesitarías para el resto baja de %s a <b>%s</b>. (El número 25× de arriba asume que te financias el 100%%; este lo ajusta a tu pensión.)" % (_eur(_pens),_eur(fi[0]),_eur(_num_aj)),St("plib",fontSize=9.3,leading=13,textColor=INK,spaceBefore=5))]
+        S+=[Paragraph("<b>Tu pensión ya está descontada.</b> Cobrarás en torno a <b>%s</b>/mes de pensión pública, y esa renta cubrirá parte de tu vida al jubilarte. El Número de Libertad de arriba <b>ya lo tiene en cuenta</b>: mide solo el capital que necesitas para lo que la pensión <i>no</i> cubre. Casi ninguna calculadora lo hace, y por eso casi todas te dan una cifra muy superior a la que de verdad necesitas." % _eur(_pens),St("plib",fontSize=9.3,leading=13,textColor=INK,spaceBefore=5))]
     # Alerta de jubilacion: a este ritmo, ¿llegaras a tu libertad antes de los 67?
     try:
         _edad_j=int(float(datos.get("edad") or 0)); _y0_j=fi[3]; _JUB=67

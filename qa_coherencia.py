@@ -61,8 +61,15 @@ def revisar_coherencia(datos, extras):
             "brecha.numero_ideal": _g(extras, "brecha", "numero_ideal"),
             "brecha.numero_actual": _g(extras, "brecha", "numero_actual"),
         }
-        if gasto_m and gasto_m > 0:
-            gasto_anual = gasto_m * 12.0
+        # Contraste sobre el gasto que la PENSION NO CUBRE: desde que el numero de
+        # libertad es neto de pension, medirlo contra el gasto total daba falsos
+        # positivos (pension alta -> numero legitimamente pequeno).
+        _pens_m = _f(datos.get("pension_estimada")) or 0.0
+        _gasto_ref = max(0.0, (gasto_m or 0.0) - _pens_m)
+        if gasto_m and gasto_m > 0 and _gasto_ref < gasto_m * 0.20:
+            _gasto_ref = 0.0        # la pension cubre casi todo: la regla no aplica
+        if _gasto_ref > 0:
+            gasto_anual = _gasto_ref * 12.0
             for nombre, val in candidatos.items():
                 v = _f(val)
                 if v is None or v <= 0:

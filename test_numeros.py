@@ -152,6 +152,34 @@ def invariantes():
     _chk("I7. vigencia de parametros presente",
          bool(_exp(3000, 1100, 50000, 300, 15, edad=52).get("vigencia_parametros")), True)
 
+    # I9. UN SOLO NUMERO EN TODO EL INFORME.
+    # (Fallo real: fi_metrics calculaba gasto*12*25 e ignoraba la pension, mientras
+    #  el motor calculaba 28,6x-33,3x neto de pension. El mismo cliente veia 900.000 EUR
+    #  en la pagina 2 y 652.080 EUR en la pagina 40. El desfase llegaba a 248.000 EUR
+    #  y cambiaba de signo segun el perfil, asi que ni siquiera era conservador.)
+    try:
+        import report_book as rb
+        import seccion_apertura as ap
+        perfiles = [
+            {"gasto_mensual": 3000, "pension_estimada": 1100, "inversiones_liquidas": 50000,
+             "colchon_liquido": 0, "ahorro_mensual": 300, "ingreso_mensual": 3300, "edad": 52},
+            {"gasto_mensual": 2000, "pension_estimada": 0, "inversiones_liquidas": 20000,
+             "colchon_liquido": 0, "ahorro_mensual": 200, "ingreso_mensual": 2200, "edad": 47},
+            {"gasto_mensual": 3000, "pension_estimada": 1100, "inversiones_liquidas": 50000,
+             "colchon_liquido": 0, "ahorro_mensual": 300, "ingreso_mensual": 3300, "edad": 30},
+            {"gasto_mensual": 4500, "pension_estimada": 1800, "inversiones_liquidas": 120000,
+             "colchon_liquido": 15000, "ahorro_mensual": 900, "ingreso_mensual": 5400, "edad": 41},
+        ]
+        desfases = []
+        for d in perfiles:
+            n_informe = rb.fi_metrics(d)[0]
+            n_motor = (ap.datos_expectativas(d) or {}).get("numero_libertad")
+            if n_motor and abs(n_informe - n_motor) > 1:
+                desfases.append((d["edad"], round(n_informe), round(n_motor)))
+        _chk("I9. fi_metrics y el motor dan EL MISMO numero", desfases, [])
+    except Exception as e:
+        _chk("I9. fi_metrics y el motor dan EL MISMO numero", "excepcion: %s" % e, [])
+
 
 def main():
     print("=" * 62)
