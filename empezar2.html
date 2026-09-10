@@ -1317,21 +1317,59 @@ async function enviarInvitacionEmail(){
     if(btn){ btn.disabled=false; if(btn.textContent==='Enviando…') btn.textContent=o; }
   }
 }
+/* Aviso visible + resaltado. Antes un fallo aqui dejaba el boton inerte sin que
+   el usuario viera nada: parecia que "no hacia nada". */
+function _payMsg(txt,color){
+  const e=document.getElementById('doneTxt'); if(!e) return;
+  e.textContent=txt; e.style.color=color||'#F0A84B'; e.style.fontWeight='600'; e.style.fontSize='14px';
+  try{ e.scrollIntoView({block:'center',behavior:'smooth'}); }catch(_){}
+}
+function _payResalta(el){
+  if(!el) return;
+  const lab=el.closest('label')||el.parentElement;
+  if(lab){ lab.style.background='rgba(244,63,94,.10)'; lab.style.border='1px solid #f43f5e';
+           lab.style.borderRadius='10px'; lab.style.padding='10px'; }
+  try{ el.focus(); (lab||el).scrollIntoView({block:'center',behavior:'smooth'}); }catch(_){}
+}
 async function pagar(){
   const _cb=document.getElementById('consentPago');
-  if(_cb && !_cb.checked){ document.getElementById('doneTxt').textContent='Para continuar, marca la casilla de entrega inmediata.'; try{_cb.focus();}catch(e){} return; }
+  if(_cb && !_cb.checked){ _payMsg('Te falta marcar la casilla de entrega inmediata (te la he resaltado).'); _payResalta(_cb); return; }
   const _ct=document.getElementById('consentTerminos');
-  if(_ct && !_ct.checked){ document.getElementById('doneTxt').textContent='Para continuar, acepta los Términos generales de contratación.'; try{_ct.focus();}catch(e){} return; }
-  const sid=CURSID||(st&&st.sid); if(!sid){document.getElementById('doneTxt').textContent='Sesión no encontrada. Vuelve a empezar.';return;}
+  if(_ct && !_ct.checked){ _payMsg('Te falta aceptar los Términos generales de contratación (te los he resaltado).'); _payResalta(_ct); return; }
+  const sid=CURSID||(st&&st.sid);
+  if(!sid){ _payMsg('No encontramos tu sesión. Vuelve a abrir el enlace del diagnóstico o escríbenos y lo resolvemos sin que repitas nada.','#f43f5e'); return; }
   const b=document.getElementById('payBtn'); const o=b.textContent; b.disabled=true; b.textContent='Conectando con el pago…';
+  _payMsg('Conectando con la pasarela de pago…','#B9B9BD');
+  const _cod=(function(){try{return new URLSearchParams(location.search).get('codigo')||sessionStorage.getItem('adaptaCod')||'';}catch(e){return '';}})();
+  const _url=API+'/api/checkout/'+sid+'?consent=1'+(_cod?('&codigo='+encodeURIComponent(_cod)):'');
+  async function _intento(ms){
+    const c=new AbortController(); const t=setTimeout(()=>c.abort(), ms);
+    try{ return await fetch(_url,{method:'POST',signal:c.signal}); } finally{ clearTimeout(t); }
+  }
+  function _fin(msg,col){ b.disabled=false; b.textContent=o; _payMsg(msg,col||'#f43f5e'); }
   try{
-    const _cod=(function(){try{return new URLSearchParams(location.search).get('codigo')||sessionStorage.getItem('adaptaCod')||'';}catch(e){return '';}})();
-    const r=await fetch(API+'/api/checkout/'+sid+'?consent=1'+(_cod?('&codigo='+encodeURIComponent(_cod)):''),{method:'POST'});
+    let r;
+    try{
+      r=await _intento(12000);
+    }catch(_e){
+      /* El servidor puede estar dormido (arranque en frio): reintento largo y honesto. */
+      b.textContent='Despertando el servidor…';
+      _payMsg('El servidor estaba en reposo. Esto puede tardar hasta un minuto la primera vez — no cierres la página.','#B9B9BD');
+      r=await _intento(70000);
+    }
+    if(r.status===409){ return _fin('Tu cuestionario no llegó a guardarse completo. Escríbenos y lo recuperamos: no tendrás que repetirlo.'); }
+    if(r.status===404){ return _fin('No encontramos tu sesión de diagnóstico. Escríbenos y te pasamos un enlace para retomarla.'); }
+    if(r.status===503){ return _fin('El cobro está temporalmente no disponible. Avísanos y lo dejamos resuelto enseguida.'); }
+    if(!r.ok){ return _fin('El servidor respondió con un error ('+r.status+'). Vuelve a intentarlo; si sigue igual, escríbenos.'); }
     const d=await r.json();
     if(d.url){ location.href=d.url; return; }
     if(d.ya_pagado){ descargarSid(sid); return; }
-    throw new Error('sin_url');
-  }catch(e){ b.disabled=false; b.textContent=o; document.getElementById('doneTxt').textContent='No se pudo iniciar el pago. Inténtalo de nuevo en un momento.'; }
+    return _fin('La pasarela no devolvió un enlace de pago. Escríbenos y lo resolvemos a mano.');
+  }catch(e){
+    const _to=(e&&(e.name==='AbortError'));
+    _fin(_to ? 'El servidor ha tardado demasiado en responder. Espera unos segundos y pulsa otra vez: suele funcionar al segundo intento.'
+             : 'No se pudo iniciar el pago. Revisa tu conexión y vuelve a intentarlo; si sigue igual, escríbenos y lo resolvemos a mano.');
+  }
 }
 let _cyc=null;
 function cycleMsgs(elId,msgs,intervalMs){
