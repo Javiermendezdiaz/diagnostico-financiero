@@ -1330,7 +1330,9 @@ def panel_capas(path, p, titulo="TUS 12 DIMENSIONES",
         ax.text(cxp, cyp+1.0, "%d"%nota, color=col, fontsize=18, fontweight="bold", ha="center", va="center", zorder=5)
         ax.text(cxp, cyp-5.0, SHORT.get(code,code), color=TX, fontsize=8.6, ha="center", va="center", zorder=5)
     ax.text(8,6.5,"ADAPTA FAMILY OFFICE",color=GOLD,fontsize=8.2,fontweight="bold",va="center",zorder=4)
-    ax.text(92,6.5,"0 = crítico   ·   100 = sólido",color=MUT,fontsize=8,ha="right",va="center",zorder=4)
+    # La leyenda sube: el numero de pagina de la plantilla se dibuja ENCIMA de las
+    # paginas a sangre, siempre abajo a la derecha, y se montaba justo aqui.
+    ax.text(92,12.5,"0 = crítico   ·   100 = sólido",color=MUT,fontsize=8,ha="right",va="center",zorder=4)
     fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
 
 def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",

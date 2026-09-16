@@ -22,6 +22,8 @@ FICHEROS = [
     "motor_financiero_v3.py",
     "parametros.json",
     "ci_check.py",
+    "empezar2.html",
+    "app.py",
 ]
 
 SALIDA = "COMPARACION.txt"
@@ -77,4 +79,19 @@ with open(SALIDA, "w", encoding="utf-8") as out:
         for l in dif:
             out.write(l + "\n")
 
-print("Escrito %s" % SALIDA)
+print("Escrito %s\n" % SALIDA)
+print("RESUMEN (lineas distintas respecto a GitHub):")
+for ruta in FICHEROS:
+    pub = version_publicada(ruta)
+    loc = version_local(ruta)
+    if loc is None:
+        estado = "no existe en tu ordenador"
+    elif pub is None:
+        estado = "NUEVO (no esta en GitHub)"
+    elif pub == loc:
+        estado = "identico"
+    else:
+        n = sum(1 for l in difflib.unified_diff(pub, loc, lineterm="", n=0)
+                if l[:1] in "+-" and l[:3] not in ("+++", "---"))
+        estado = "%d lineas distintas  <-- REVISAR" % n
+    print("  %-26s %s" % (ruta, estado))

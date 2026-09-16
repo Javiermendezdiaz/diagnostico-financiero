@@ -93,37 +93,72 @@ def datos_expectativas(datos):
 
 
 def tres_palancas(exp):
-    """Las 3 decisiones que MAS bajan el numero, ordenadas por euros.
+    """Hasta 3 decisiones DISTINTAS, sin repetir cifra.
 
-    Sale de `exp["escenarios"]`, que el motor ya calcula. Descarta el escenario
-    base (delta 0) y devuelve como mucho 3, de mayor a menor impacto.
+    Hay dos maneras de mejorar, y no son la misma:
+      · BAJAR la meta   -> recortar el gasto reduce el capital que necesitas.
+      · ACERCAR la fecha -> ahorrar mas o parar mas tarde no cambia la meta,
+                            pero llegas antes.
+
+    Antes se listaban los escenarios solo por delta, y salian dos con el MISMO
+    numero — porque "las tres cosas a la vez" incluye el recorte de gasto. El
+    lector veia dos decisiones diferentes con una cifra identica y parecia un
+    error de calculo. Ahora cada una se presenta por lo que de verdad mejora.
     """
     escenarios = (exp or {}).get("escenarios") or []
-    reales = []
-    for e in escenarios:
+    if len(escenarios) < 2:
+        return []
+    base = escenarios[0]
+    try:
+        base_num = round(float(base.get("numero") or 0))
+    except Exception:
+        return []
+    base_anios = base.get("anios")
+
+    bajan, acercan, vistos = [], [], set()
+    for e in escenarios[1:]:
         try:
-            delta = float(e.get("delta") or 0)
+            num = round(float(e.get("numero") or 0))
         except Exception:
             continue
-        if delta < 0:                      # solo lo que ACERCA la meta
-            reales.append((delta, e))
-    reales.sort(key=lambda x: x[0])        # mas negativo primero
-    return [e for _, e in reales[:3]]
+        anios = e.get("anios")
+        gana = (base_anios - anios) if (base_anios is not None and anios is not None) else None
+        if num < base_num - 1 and num not in vistos:
+            vistos.add(num)
+            e2 = dict(e); e2["_tipo"] = "baja"; e2["_gana"] = gana
+            bajan.append(e2)
+        elif gana is not None and gana >= 0.5:
+            e2 = dict(e); e2["_tipo"] = "acerca"; e2["_gana"] = gana
+            # Distingue "no baja la meta" (ahorrar mas) de "la baja lo mismo que
+            # otra decision ya listada" (el combinado incluye el recorte de gasto).
+            # Decir "no baja tu meta" cuando SI la baja es falso, y se nota.
+            e2["_baja_igual"] = (num < base_num - 1)
+            acercan.append(e2)
+
+    bajan.sort(key=lambda e: float(e.get("delta") or 0))
+    acercan.sort(key=lambda e: -(e.get("_gana") or 0))
+    return (bajan + acercan)[:3]
 
 
 def _estado(score):
-    """(etiqueta, color, simbolo) para el semaforo. Score alto = peor."""
+    """(etiqueta, color) para el semaforo. Score alto = peor.
+
+    Sin simbolos: la tipografia serif del informe no tiene ● ni ▲ y se comian
+    silenciosamente, dejando una sangria rara delante de cada estado. El color
+    mas la palabra ya comunican el nivel, y la palabra funciona tambien para
+    quien no distingue bien los colores.
+    """
     try:
         s = float(score)
     except Exception:
-        return ("—", "#6B7280", "–")
+        return ("—", "#6B7280")
     if s < 30:
-        return ("Sólido", VERDE, "●")
+        return ("Sólido", VERDE)
     if s < 51:
-        return ("Con margen", OCRE, "●")
+        return ("Con margen", OCRE)
     if s < 76:
-        return ("A vigilar", AMBAR, "▲")
-    return ("Crítico", ROJO, "▲")
+        return ("A vigilar", AMBAR)
+    return ("Crítico", ROJO)
 
 
 # ------------------------------------------------------------------ SECCION
@@ -174,8 +209,12 @@ def _apertura(salud, fi, datos, extras, p):
                                  textColor=(color or INK)))
 
     def regla(ancho=40):
-        return Table([[""]], colWidths=[ancho * mm],
-                     style=[("LINEBELOW", (0, 0), (-1, -1), 2.5, rb.AMARILLO)])
+        # hAlign LEFT explicito: ReportLab centra por defecto las tablas de una celda,
+        # y la regla salia centrada mientras el resto de la pagina va a la izquierda.
+        t = Table([[""]], colWidths=[ancho * mm],
+                  style=[("LINEBELOW", (0, 0), (-1, -1), 2.5, rb.AMARILLO)])
+        t.hAlign = "LEFT"
+        return t
 
     # =========================================================== PAGINA 1
     out.append(Paragraph("TU DIAGNÓSTICO EN CUATRO PÁGINAS",
@@ -274,12 +313,11 @@ def _apertura(salud, fi, datos, extras, p):
         # Orden: lo peor arriba. Un informe que decide no ordena por numero de capa.
         capas = sorted(p.items(), key=lambda kv: -(kv[1].get("score") or 0))
         for i, (code, v) in enumerate(capas, 1):
-            etq, col, sim = _estado(v.get("score"))
+            etq, col = _estado(v.get("score"))
             filas.append([
                 Paragraph(v.get("nombre", code),
                           St(_id("apsn"), fontSize=9.5, leading=12.5, textColor=INK)),
-                Paragraph('<font color="%s">%s</font>  <font color="%s"><b>%s</b></font>'
-                          % (col, sim, col, etq),
+                Paragraph('<font color="%s"><b>%s</b></font>' % (col, etq),
                           St(_id("apse"), fontSize=9.5, leading=12.5)),
                 Paragraph(v.get("peor") or "—",
                           St(_id("apsp"), fontSize=9, leading=12, textColor=GREY))])
@@ -287,15 +325,31 @@ def _apertura(salud, fi, datos, extras, p):
                 estilo.append(("BACKGROUND", (0, i), (-1, i), colors.HexColor("#FBEDEC")))
         criticas = sum(1 for _, v in capas if _estado(v.get("score"))[0] == "Crítico")
         solidas = sum(1 for _, v in capas if _estado(v.get("score"))[0] == "Sólido")
+        # Concordancia de numero y un cierre que DIGA algo distinto segun el cuadro.
+        # Antes salia "1 solidas" y una frase generica aunque no hubiera nada critico.
+        def _pl(n, sing, plur):
+            return "<b>%d</b> %s" % (n, sing if n == 1 else plur)
+        _peor = capas[0][1].get("nombre", "") if capas else ""
+        if criticas:
+            _cierre = ("%s y %s. Empieza por <b>%s</b>: es la que está "
+                       "tirando del resto hacia abajo."
+                       % (_pl(criticas, "dimensión en estado crítico", "dimensiones en estado crítico"),
+                          _pl(solidas, "sólida", "sólidas"), _peor))
+        elif solidas >= 6:
+            _cierre = ("Ninguna en estado crítico y %s. Tu cuadro es bueno: lo que toca "
+                       "no es apagar fuegos, es que <b>%s</b> deje de ser la más frágil."
+                       % (_pl(solidas, "sólida", "sólidas"), _peor))
+        else:
+            _cierre = ("Ninguna en estado crítico, pero %s. No hay urgencias; hay margen "
+                       "de mejora casi en todo. Empieza por <b>%s</b>, la primera de la lista."
+                       % (_pl(solidas, "sólida", "sólidas"), _peor))
         out += [Paragraph("Tu cuadro completo, de un vistazo", rb.h_sec),
                 texto("Doce dimensiones medidas. Ordenadas de la más frágil a la más sólida — "
                       "no por orden de capítulo."),
                 Spacer(1, 5 * mm),
                 Table(filas, colWidths=[62 * mm, 44 * mm, 54 * mm], style=estilo),
                 Spacer(1, 5 * mm),
-                texto("<b>%d</b> en estado crítico · <b>%d</b> sólidas. "
-                      "Las dos primeras filas son las que sostienen a todas las demás: "
-                      "por ahí se empieza." % (criticas, solidas), 10, GREY),
+                texto(_cierre, 10, GREY),
                 PageBreak()]
 
     # =========================================================== PAGINA 3
@@ -306,24 +360,48 @@ def _apertura(salud, fi, datos, extras, p):
                       "tres son las que más la acercan — ordenadas por euros, no por lo que "
                       "suena mejor."),
                 Spacer(1, 5 * mm)]
+        def _anios(n):
+            if n is None:
+                return None
+            n = float(n)
+            return ("%d" % round(n)) if abs(n - round(n)) < 0.1 else ("%.1f" % n).replace(".", ",")
+
         for i, e in enumerate(palancas, 1):
-            try:
-                delta = abs(float(e.get("delta") or 0))
-            except Exception:
-                delta = 0
             anios = e.get("anios")
+            gana = e.get("_gana")
+            if e.get("_tipo") == "acerca":
+                # No baja la meta: adelanta la fecha. Decirlo asi evita que dos
+                # decisiones parezcan la misma por compartir cifra.
+                cifra = ('<font size=22 color="%s"><b>%s años antes</b></font>'
+                         '<font size=10 color="#6B7280">  de llegar</font>'
+                         % (VERDE, _anios(gana)))
+                _antes = _anios((anios or 0) + (gana or 0))
+                if e.get("_baja_igual"):
+                    detalle = ("Deja tu meta en <b>%s</b>, igual que la decisión anterior, "
+                               "pero llegarías a ella en <b>%s años</b> en vez de %s."
+                               % (eur(e.get("numero", 0)), _anios(anios), _antes))
+                else:
+                    detalle = ("No baja tu meta —sigue en <b>%s</b>— pero llegarías a ella "
+                               "en <b>%s años</b> en vez de %s."
+                               % (eur(e.get("numero", 0)), _anios(anios), _antes))
+            else:
+                try:
+                    delta = abs(float(e.get("delta") or 0))
+                except Exception:
+                    delta = 0
+                cifra = ('<font size=22 color="%s"><b>−%s</b></font>'
+                         '<font size=10 color="#6B7280">  sobre tu número</font>'
+                         % (VERDE, eur(delta)))
+                detalle = ("Tu número pasaría a <b>%s</b>%s."
+                           % (eur(e.get("numero", 0)),
+                              (" · llegarías en <b>%s años</b>" % _anios(anios))
+                              if anios is not None
+                              else " · aun así no llegarías al ritmo de hoy"))
             out += [box([Paragraph("<font color='%s'><b>DECISIÓN %d</b></font>   %s"
                                    % (VERDE, i, e.get("escenario", "")),
                                    St(_id("apdt"), fontSize=10.5, leading=14, textColor=INK)),
-                         Paragraph('<font size=22 color="%s"><b>−%s</b></font>'
-                                   '<font size=10 color="#6B7280">  sobre tu número</font>'
-                                   % (VERDE, eur(delta)),
-                                   St(_id("apdc"), fontSize=22, leading=26, spaceBefore=3)),
-                         Paragraph("Tu número pasaría a <b>%s</b>%s."
-                                   % (eur(e.get("numero", 0)),
-                                      (" · llegarías en <b>%s años</b>" % anios)
-                                      if anios is not None
-                                      else " · aun así no llegarías al ritmo de hoy"),
+                         Paragraph(cifra, St(_id("apdc"), fontSize=22, leading=26, spaceBefore=3)),
+                         Paragraph(detalle,
                                    St(_id("apdd"), fontSize=9.5, leading=13, textColor=GREY))],
                         "#F3F7F4", VERDE, ancho=160 * mm),
                     Spacer(1, 3 * mm)]
