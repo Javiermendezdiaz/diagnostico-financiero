@@ -1446,6 +1446,374 @@ def seccion_asfixia_relativa(dAf, dBf, rA, rB, nA, nB):
             _callout(u"El coste oculto de la «equidad»", txt, A_COL, "#FBF6E0"),
             Spacer(1, 4*mm)]
 
+def _item_por_campo(campo, ident=None):
+    """Localiza un item del instrumento por su 'campo' (o por id). None si no existe."""
+    try:
+        for sec in (INST.values() if isinstance(INST, dict) else []):
+            if not isinstance(sec, list):
+                continue
+            for it in sec:
+                if isinstance(it, dict) and (it.get("campo") == campo or (ident and it.get("id") == ident)):
+                    return it
+    except Exception:
+        return None
+    return None
+
+
+def _idx_resp(resp, it):
+    """Indice (int) de la opcion elegida para ese item. None si no resoluble."""
+    if not it or not isinstance(resp, dict):
+        return None
+    idx = resp.get(it.get("id"))
+    if isinstance(idx, list):
+        idx = idx[0] if idx else None
+    if isinstance(idx, bool) or not isinstance(idx, int):
+        return None
+    return idx
+
+
+def seccion_reparto_justo(dAf, dBf, rA, rB, nA, nB):
+    """EL REPARTO JUSTO MEDIDO POR CUATRO VARAS.
+
+    Casi todo el mundo discute el reparto de gastos con una sola vara: la nomina.
+    Pero una pareja reparte cuatro cosas distintas, y cada una da un ganador
+    distinto:
+
+        1. INGRESO          - quien gana mas (flujo)
+        2. PATRIMONIO       - quien tiene mas (stock); una nomina alta no es riqueza
+        3. ESFUERZO         - que porcentaje del sueldo se lleva la cuota de cada uno
+        4. NO MONETARIA     - horas, cuidados, jornada reducida: no aparecen en ninguna nomina
+
+    Ademas cuantifica dos cosas que ninguna calculadora dice:
+      · El coste de oportunidad ACUMULADO de repartir al 50% con sueldos desiguales.
+      · Quien sube el nivel de vida: si el que mas gana eleva el liston y luego se
+        reparte a medias, el que menos gana vive mejor y ahorra peor.
+
+    Usa SOLO campos que el cuestionario ya recoge. Failsafe: cada bloque se omite
+    por separado si le faltan datos; si falta todo, devuelve [].
+    """
+    try:
+        return _reparto_justo(dAf, dBf, rA, rB, nA, nB)
+    except Exception as e:
+        import sys
+        sys.stderr.write("[reparto_justo] omitida: %s\n" % e)
+        return []
+
+
+def _reparto_justo(dAf, dBf, rA, rB, nA, nB):
+    def _f(d, k):
+        try:
+            v = (d or {}).get(k)
+            return float(v) if v not in (None, "") else 0.0
+        except Exception:
+            return 0.0
+
+    iA, iB = _f(dAf, "ingreso_mensual"), _f(dBf, "ingreso_mensual")
+    if iA <= 0 or iB <= 0:
+        return []
+
+    S = [Paragraph(u"El reparto justo, medido con cuatro varas", h_sec),
+         Paragraph(u"Casi todas las parejas discuten el reparto con una sola vara: la nómina. "
+                   u"Pero vosotros repartís cuatro cosas distintas, y cada una da un ganador "
+                   u"distinto. Esto es lo que dicen vuestros números.", body),
+         Spacer(1, 3*mm)]
+
+    # ---------------------------------------------------- las cuatro varas
+    filas = [[Paragraph(u"<b>Qué se mide</b>", small),
+              Paragraph(u"<b>%s</b>" % nA, small),
+              Paragraph(u"<b>%s</b>" % nB, small),
+              Paragraph(u"<b>Quién aporta más</b>", small)]]
+
+    def _fila(etiqueta, va, vb, fmt, mayor_es_mas=True):
+        if va is None or vb is None:
+            return
+        if va == vb:
+            quien = u"Iguales"
+        else:
+            gana = (va > vb) if mayor_es_mas else (va < vb)
+            quien = nA if gana else nB
+        filas.append([Paragraph(etiqueta, small), Paragraph(fmt(va), small),
+                      Paragraph(fmt(vb), small),
+                      Paragraph(u"<b>%s</b>" % quien, small)])
+
+    _eur = rb._eur
+    _fila(u"Ingreso mensual <font color='#8A8472'>(flujo)</font>", iA, iB, lambda v: _eur(v))
+
+    patA = _f(dAf, "patrimonio") or (_f(dAf, "inversiones_liquidas") + _f(dAf, "colchon_liquido"))
+    patB = _f(dBf, "patrimonio") or (_f(dBf, "inversiones_liquidas") + _f(dBf, "colchon_liquido"))
+    if patA > 0 or patB > 0:
+        _fila(u"Patrimonio <font color='#8A8472'>(stock)</font>", patA, patB, lambda v: _eur(v))
+
+    # Esfuerzo: que % del sueldo se lleva la cuota de cada uno con el reparto declarado.
+    bolsa = max(_f(dAf, "gastos_comunes"), _f(dBf, "gastos_comunes"))
+    esfA = esfB = None
+    if bolsa > 0:
+        cuota = bolsa / 2.0
+        esfA, esfB = 100.0 * cuota / iA, 100.0 * cuota / iB
+        # Aporta MAS quien soporta MAYOR esfuerzo relativo.
+        _fila(u"Esfuerzo sobre su sueldo <font color='#8A8472'>(al 50%)</font>",
+              esfA, esfB, lambda v: u"%.0f%%" % v)
+
+    # Contribucion no monetaria: menos horas pagadas + carga familiar declarada.
+    hA, hB = _f(dAf, "h_trabajo"), _f(dBf, "h_trabajo")
+    it_cf = _item_por_campo("carga_familiar")
+    cfA, cfB = _idx_resp(rA, it_cf), _idx_resp(rB, it_cf)
+    if (hA > 0 and hB > 0) or (cfA is not None and cfB is not None):
+        noA = (cfA or 0) * 10 + max(0.0, (hB - hA)) if (hA > 0 and hB > 0) else (cfA or 0) * 10
+        noB = (cfB or 0) * 10 + max(0.0, (hA - hB)) if (hA > 0 and hB > 0) else (cfB or 0) * 10
+        if noA or noB:
+            _fila(u"Carga no retribuida <font color='#8A8472'>(tiempo y cuidados)</font>",
+                  noA, noB, lambda v: (u"Alta" if v >= 20 else (u"Media" if v >= 8 else u"Baja")))
+
+    if len(filas) > 1:
+        t = Table(filas, colWidths=[62*mm, 32*mm, 32*mm, 34*mm])
+        t.setStyle(TableStyle([("LINEBELOW", (0, 0), (-1, -1), 0.4, LINE),
+                               ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                               ("TOPPADDING", (0, 0), (-1, -1), 6),
+                               ("BOTTOMPADDING", (0, 0), (-1, -1), 6)]))
+        S += [t, Spacer(1, 3*mm),
+              Paragraph(u"Si la columna de la derecha no dice siempre el mismo nombre, vuestro reparto "
+                        u"no puede decidirse con una sola de estas filas. Una nómina alta no es riqueza, "
+                        u"y el tiempo que no se factura también sostiene una casa.", small),
+              Spacer(1, 4*mm)]
+
+    # ------------------------------------------- el dinero que se juega de verdad
+    if bolsa > 0 and max(iA, iB) / min(iA, iB) >= 1.2:
+        total = iA + iB
+        cuota = bolsa / 2.0
+        propA, propB = bolsa * iA / total, bolsa * iB / total
+        # Diferencia mensual para el que sale perdiendo con el 50%.
+        dif = abs(cuota - propA)
+        if dif >= 20:
+            quien = nA if iA < iB else nB
+            a10 = dif * 12 * 10
+            # Con rentabilidad real del 5% anual, aportando esa diferencia cada mes.
+            r = 0.05 / 12.0
+            n = 120
+            cap10 = dif * (((1 + r) ** n - 1) / r) if r else dif * n
+            S += [_callout(u"Lo que está en juego, en euros",
+                           u"Con el reparto al 50%%, %s pone %s al mes en la bolsa común. "
+                           u"Con un reparto proporcional a los ingresos pondría %s. "
+                           u"La diferencia son <b>%s al mes</b> — %s al año. "
+                           u"En diez años, <b>%s</b> que dejan de ser suyos; invertidos al 5%% real, "
+                           u"<b>%s</b>. No es una discusión sobre facturas: es la distancia "
+                           u"patrimonial que se abre entre vosotros dos mientras vivís la misma vida."
+                           % (quien, _eur(cuota), _eur(min(propA, propB)), _eur(dif),
+                              _eur(dif * 12), _eur(a10), _eur(cap10)),
+                           A_COL, "#FBF6E0"),
+                  Spacer(1, 4*mm)]
+
+    # ------------------------------------------- quien sube el nivel de vida
+    idA, idB = _f(dAf, "coste_vida_ideal"), _f(dBf, "coste_vida_ideal")
+    gasto = max(_f(dAf, "gasto_mensual"), _f(dBf, "gasto_mensual"))
+    if idA > 0 and idB > 0 and abs(idA - idB) / max(idA, idB) >= 0.15:
+        sube = nA if idA > idB else nB
+        frena = nB if idA > idB else nA
+        alto, bajo = max(idA, idB), min(idA, idB)
+        nota = u""
+        if gasto > 0:
+            cerca_alto = abs(gasto - alto) <= abs(gasto - bajo)
+            nota = (u" Y vuestro gasto real (%s) está más cerca de la cifra de %s: el listón "
+                    u"lo marca quien quiere vivir mejor." % (_eur(gasto), sube if cerca_alto else frena))
+        _extra = u""
+        if bolsa > 0 and max(iA, iB) / min(iA, iB) >= 1.2 and ((iA > iB) == (idA > idB)):
+            _extra = (u" Y aquí aparece la paradoja: quien sube el nivel de vida es también quien más gana. "
+                      u"Si después se reparte a medias, <b>%s vive mejor de lo que elegiría… y ahorra peor</b>. "
+                      u"Vivir por encima de tu propio listón, pagándolo como si fuera tuyo, es la forma más "
+                      u"silenciosa de quedarse atrás." % frena)
+        S += [_callout(u"Quién decide cuánto se gasta",
+                       u"No solo importa cómo repartís el gasto: importa quién fija el nivel. "
+                       u"%s describe una vida ideal de %s al mes; %s, de %s.%s%s"
+                       % (sube, _eur(alto), frena, _eur(bajo), nota, _extra),
+                       B_COL, "#EEF2F6"),
+              Spacer(1, 4*mm)]
+
+    if len(S) <= 3:
+        return []
+    S.append(Paragraph(u"La peor política financiera de pareja no es el 50/50 ni el reparto proporcional: "
+                       u"es no tener ninguna y descubrirla a base de discusiones sueltas.", small))
+    return S
+
+
+def seccion_sistema_hogar(dAf, dBf, rA, rB, nA, nB):
+    """EL SISTEMA QUE OS RECOMENDAMOS: de diagnosticar a prescribir.
+
+    Tres piezas, en este orden:
+      1. QUE MODELO os toca (50/50, proporcional o caja comun) y POR QUE, segun
+         vuestra asimetria real, si hay hijos y si hay asimetria patrimonial.
+      2. LAS TRES CUENTAS con euros de verdad: proyecto comun / construccion de
+         patrimonio / autonomia personal. Un sistema no es un porcentaje: es
+         saber a que bolsa va cada euro que entra en casa.
+      3. LAS CINCO PREGUNTAS que hay que saber responder juntos. Convierte el
+         informe en una conversacion con fecha, que es donde esta el valor.
+
+    Failsafe por bloques. Si no hay ingresos, devuelve [].
+    """
+    try:
+        return _sistema_hogar(dAf, dBf, rA, rB, nA, nB)
+    except Exception as e:
+        import sys
+        sys.stderr.write("[sistema_hogar] omitida: %s\n" % e)
+        return []
+
+
+def _sistema_hogar(dAf, dBf, rA, rB, nA, nB):
+    def _f(d, k):
+        try:
+            v = (d or {}).get(k)
+            return float(v) if v not in (None, "") else 0.0
+        except Exception:
+            return 0.0
+
+    iA, iB = _f(dAf, "ingreso_mensual"), _f(dBf, "ingreso_mensual")
+    if iA <= 0 or iB <= 0:
+        return []
+    total = iA + iB
+    ratio = max(iA, iB) / min(iA, iB)
+    _eur = rb._eur
+
+    # ¿hay hijos o dependientes? (cualquiera de los dos lo declara)
+    it_dep = _item_por_campo("dependientes")
+    hijos = False
+    for r in (rA, rB):
+        idx = _idx_resp(r, it_dep)
+        if isinstance(idx, int) and idx > 0:
+            hijos = True
+    try:
+        if float(_f(dAf, "n_hijos")) > 0 or float(_f(dBf, "n_hijos")) > 0:
+            hijos = True
+    except Exception:
+        pass
+
+    patA = _f(dAf, "patrimonio") or (_f(dAf, "inversiones_liquidas") + _f(dAf, "colchon_liquido"))
+    patB = _f(dBf, "patrimonio") or (_f(dBf, "inversiones_liquidas") + _f(dBf, "colchon_liquido"))
+    asim_pat = (max(patA, patB) / max(1.0, min(patA, patB))) >= 3.0 if (patA > 0 and patB > 0) else False
+
+    # ---------------------------------------------------- 1. el modelo
+    if hijos and ratio >= 1.5:
+        modelo = u"Caja común, con asignación personal"
+        porque = (u"Tenéis hijos y una diferencia de ingresos de %.1f×. Cuando hay crianza de por medio, "
+                  u"separar «lo tuyo» de «lo mío» crea una contabilidad imposible: quien reduce jornada o "
+                  u"asume la logística aporta valor real que ninguna nómina recoge. Lo sensato es tratar "
+                  u"todos los ingresos como recursos del hogar y reservar a cada uno una cantidad fija "
+                  u"de libre disposición." % ratio)
+    elif ratio >= 1.5:
+        modelo = u"Reparto proporcional a los ingresos"
+        porque = (u"Uno de los dos gana %.1f× lo que gana el otro. Con un 50/50, la misma cuota supone "
+                  u"un esfuerzo muy distinto para cada uno, y esa diferencia se convierte con los años en "
+                  u"distancia patrimonial. Proporcional no significa que uno pague «de más»: significa que "
+                  u"los dos sientan el mismo peso." % ratio)
+    elif asim_pat:
+        modelo = u"50/50 en gastos, pero con acuerdo patrimonial explícito"
+        porque = (u"Vuestros sueldos son parecidos, así que el 50/50 funciona para el día a día. "
+                  u"Lo que no es simétrico es el patrimonio: uno de los dos parte con una base mucho mayor. "
+                  u"Eso no se arregla repartiendo facturas — se arregla dejando por escrito qué es privativo, "
+                  u"qué es común y qué pasa con lo que se construya de ahora en adelante.")
+    else:
+        modelo = u"50/50, y os sirve"
+        porque = (u"Vuestros ingresos son comparables (%.1f×), así que el reparto a medias distribuye "
+                  u"el esfuerzo de forma razonablemente pareja. El 50/50 es la solución correcta aquí. "
+                  u"Lo que conviene revisar no es el porcentaje, sino que siga siendo cierto cuando "
+                  u"cambien los sueldos." % ratio)
+
+    S = [Paragraph(u"El sistema que os recomendamos", h_sec),
+         Paragraph(u"Hasta aquí hemos medido. Esto es lo que haríamos nosotros con vuestros números.", body),
+         _callout(u"Vuestro modelo: " + modelo, porque, A_COL, "#FBF6E0"),
+         Spacer(1, 4*mm)]
+
+    # ---------------------------------------------------- 2. las tres cuentas
+    gasto_com = max(_f(dAf, "gastos_comunes"),
+                    _f(dAf, "gasto_mensual"), _f(dBf, "gasto_mensual"))
+    ahorro = _f(dAf, "ahorro_mensual") + _f(dBf, "ahorro_mensual")
+    libre = max(0.0, total - gasto_com - ahorro)
+    if gasto_com > 0:
+        def _c(rot, val, pct, desc, col):
+            return [Paragraph(u"<font color='%s'><b>%s</b></font>" % (col, rot),
+                              St("tc_%s" % rot[:6], fontSize=9.5, leading=12, fontName=rb.SB)),
+                    Paragraph(u"<b>%s</b>  <font color='#8A8472' size=8>· %s%% de lo que entra</font>"
+                              % (_eur(val), pct),
+                              St("tcv_%s" % rot[:6], fontSize=13, leading=17, spaceBefore=2)),
+                    Paragraph(desc, St("tcd_%s" % rot[:6], fontSize=8.5, leading=11.5, textColor=GREY))]
+        p1 = int(round(100.0 * gasto_com / total))
+        p2 = int(round(100.0 * ahorro / total))
+        p3 = max(0, 100 - p1 - p2)
+        # OJO: nada de ①②③ — la tipografia del informe no tiene esos glifos y salen
+        # como cuadraditos vacios. Numeral normal, que si existe en la fuente.
+        fila = [_c(u"1 · PROYECTO COMÚN", gasto_com, p1,
+                   u"Vivienda, comida, hijos, seguros, vacaciones, colchón de emergencia. "
+                   u"Lo que sostiene la vida compartida.", A_COL),
+                _c(u"2 · PATRIMONIO", ahorro, p2,
+                   u"Ahorro, inversión, jubilación, amortizar deuda. Lo que decide "
+                   u"dónde estaréis dentro de diez años.", "#1D6F42"),
+                _c(u"3 · AUTONOMÍA", libre, p3,
+                   u"De cada uno, sin justificar. Compartir un proyecto de vida no "
+                   u"debería significar pedir permiso para un café.", B_COL)]
+        t = Table([fila], colWidths=[53*mm, 53*mm, 54*mm])
+        t.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"),
+                               ("LEFTPADDING", (0, 0), (-1, -1), 4),
+                               ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                               ("TOPPADDING", (0, 0), (-1, -1), 8),
+                               ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                               ("LINEABOVE", (0, 0), (-1, 0), 0.5, LINE),
+                               ("LINEBELOW", (0, 0), (-1, -1), 0.5, LINE)]))
+        S += [Paragraph(u"Vuestras tres cuentas, con euros de verdad", h_sub),
+              Paragraph(u"Un sistema no es un porcentaje: es saber a qué bolsa va cada euro que entra "
+                        u"en casa. Estas son las vuestras, sobre los <b>%s</b> que ingresáis al mes "
+                        u"entre los dos." % _eur(total), body),
+              Spacer(1, 2*mm), t, Spacer(1, 3*mm)]
+        if p2 < 10:
+            S.append(Paragraph(u"<b>Atención a la segunda columna.</b> Menos del 10% de lo que entra "
+                               u"se está convirtiendo en patrimonio. Vuestro sistema sostiene muy bien "
+                               u"el presente y muy poco el futuro.", small))
+        elif p3 < 5:
+            S.append(Paragraph(u"<b>Atención a la tercera columna.</b> Queda muy poco margen personal. "
+                               u"Los sistemas sin autonomía funcionan en la hoja de cálculo y se rompen "
+                               u"en la conversación.", small))
+        S.append(Spacer(1, 4*mm))
+
+    # ---------------------------------------------------- 3. las cinco preguntas
+    preguntas = [
+        (u"¿Qué nivel de vida queremos mantener?",
+         u"No el que tenéis: el que elegiríais los dos."),
+        (u"¿Cuánto queremos ahorrar cada mes?",
+         u"Antes de repartir gastos. El ahorro no es lo que sobra."),
+        (u"¿Qué objetivos financiamos juntos?",
+         u"Vivienda, hijos, un negocio, dejar de trabajar antes."),
+        (u"¿Qué gastos son realmente comunes?",
+         u"La ropa de uno, el coche del otro, los regalos a su familia."),
+        (u"¿Cuánta autonomía queremos conservar?",
+         u"Qué cantidad puede gastar cada uno sin dar explicaciones."),
+    ]
+    filas = []
+    for i, (q, ayuda) in enumerate(preguntas, 1):
+        filas.append([Paragraph(u"<font color='%s'><b>%d</b></font>" % (A_COL, i),
+                                St("q5n%d" % i, fontSize=15, leading=18, fontName=rb.SB)),
+                      [Paragraph(u"<b>%s</b>" % q, St("q5t%d" % i, fontSize=10.5, leading=14)),
+                       Paragraph(ayuda, St("q5a%d" % i, fontSize=8.5, leading=11.5, textColor=GREY))],
+                      Paragraph(u"", small)])
+    t5 = Table(filas, colWidths=[12*mm, 118*mm, 30*mm])
+    t5.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"),
+                            ("LINEBELOW", (0, 0), (-1, -1), 0.4, LINE),
+                            ("TOPPADDING", (0, 0), (-1, -1), 8),
+                            ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                            ("BOX", (2, 0), (2, -1), 0.6, LINE)]))
+    # KeepTogether: un cuestionario para rellenar a mano partido entre dos paginas
+    # no se rellena. O caben las cinco juntas, o pasan enteras a la siguiente.
+    S += [KeepTogether([
+              Paragraph(u"Las cinco preguntas", h_sub),
+              Paragraph(u"Antes de discutir porcentajes, sentaos a responder estas cinco. Juntos, en voz alta, "
+                        u"y escribiendo la respuesta en la columna de la derecha. La mayoría de las peleas por "
+                        u"dinero no son por dinero: son por una de estas cinco preguntas que nunca se contestó.",
+                        body),
+              Spacer(1, 2*mm), t5]),
+          Spacer(1, 3*mm),
+          Paragraph(u"Y ponedle fecha de revisión. El sistema que funciona a los treinta no tiene por qué "
+                    u"servir a los cuarenta: llegan hijos, cambian sueldos, aparecen herencias. Una buena "
+                    u"estructura financiera no es la más perfecta — es la que se puede cambiar sin discutir.",
+                    small)]
+    return S
+
+
 def seccion_transparencia(rA, rB, nA, nB):
     """Transparencia financiera mutua a partir de 'opacidad_financiera' (SD-28).
     Mapea el indice elegido por A y por B al texto de la opcion. Indice >=2 = opaco,
@@ -2211,7 +2579,15 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     S+=rb._secsafe(seccion_timeline_friccion,divs,nA,nB)
     S+=rb._secsafe(seccion_coste_no_hablarlo,pA,pB,nA,nB,hogar,fi_h,divs)
     S+=rb._secsafe(seccion_sociedad_conyugal,hogar,nA,nB)
+    # Las cuatro varas del reparto (ingreso / patrimonio / esfuerzo / carga no retribuida),
+    # el coste de oportunidad acumulado y quien fija el nivel de vida. Va ANTES de la
+    # asfixia del 50%: primero se ve que hay cuatro formas de medir, luego el veredicto.
+    S+=rb._secsafe(seccion_reparto_justo, dAf, dBf, rA, rB, nA, nB)
     S+=rb._secsafe(seccion_asfixia_relativa, dAf, dBf, rA, rB, nA, nB)
+    # Y despues de medir: PRESCRIBIR. Que modelo les toca, sus tres cuentas con
+    # euros reales, y las cinco preguntas que convierten el informe en una
+    # conversacion con fecha. Es la diferencia entre un informe y un family office.
+    S+=rb._secsafe(seccion_sistema_hogar, dAf, dBf, rA, rB, nA, nB)
     # === TRANSPARENCIA FINANCIERA MUTUA (opacidad_financiera / SD-28) ===
     S+=rb._secsafe(seccion_transparencia, rA, rB, nA, nB)
     # === CONVERGENCIA DE HORIZONTES DE RETIRO (edad_retiro_ideal / SD-29) ===

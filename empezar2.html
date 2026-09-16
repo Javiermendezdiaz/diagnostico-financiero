@@ -1395,6 +1395,13 @@ async function pagar(){
     if(r.status===409){ return _fin('Tu cuestionario no llegó a guardarse completo. Escríbenos y lo recuperamos: no tendrás que repetirlo.'); }
     if(r.status===404){ return _fin('No encontramos tu sesión de diagnóstico. Escríbenos y te pasamos un enlace para retomarla.'); }
     if(r.status===503){ return _fin('El cobro está temporalmente no disponible. Avísanos y lo dejamos resuelto enseguida.'); }
+    if(r.status===422){
+      /* Codigo promocional invalido o agotado: el servidor manda el motivo exacto.
+         Se lo decimos tal cual, en vez de un numero de error que no significa nada. */
+      let _m='El código promocional no es válido. Escríbenos y te damos uno nuevo.';
+      try{ const _d=await r.json(); if(_d && _d.detail) _m=_d.detail; }catch(_e){}
+      return _fin(_m);
+    }
     if(!r.ok){ return _fin('El servidor respondió con un error ('+r.status+'). Vuelve a intentarlo; si sigue igual, escríbenos.'); }
     const d=await r.json();
     if(d.url){ location.href=d.url; return; }

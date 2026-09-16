@@ -1315,12 +1315,31 @@ def checkout(session_id: str, consent: int = 0, codigo: str = ""):
         _discount = None
         _cod = (codigo or "").strip()
         if _cod:
+            # Si el cliente TRAE un codigo y no es valido, hay que DECIRSELO. Antes se
+            # ignoraba en silencio y se le mostraba el precio completo: alguien a quien
+            # habias prometido el diagnostico gratis se encontraba con 39 EUR y sin
+            # explicacion. Eso es peor que un error: parece un engano.
             try:
                 _pcs = stripe.PromotionCode.list(code=_cod, active=True, limit=1).data
-                if _pcs:
-                    _discount = [{"promotion_code": _pcs[0].id}]
+            except Exception as _ec:
+                raise HTTPException(502, "No se pudo comprobar el código promocional: %s" % _ec)
+            if not _pcs:
+                raise HTTPException(422, "El código '%s' no existe, ha caducado o ya se ha agotado. "
+                                         "Escríbenos y te damos uno nuevo." % _cod)
+            _pc = _pcs[0]
+            # Limite de canjes del propio codigo (no del cupon): si esta agotado, Stripe
+            # lo rechazaria mas tarde con un error opaco en mitad del checkout.
+            try:
+                _max = getattr(_pc, "max_redemptions", None)
+                _usados = getattr(_pc, "times_redeemed", 0) or 0
+                if _max and _usados >= _max:
+                    raise HTTPException(422, "El código '%s' ya se ha usado el máximo de veces permitido. "
+                                             "Escríbenos y te damos uno nuevo." % _cod)
+            except HTTPException:
+                raise
             except Exception:
-                _discount = None
+                pass
+            _discount = [{"promotion_code": _pc.id}]
         _kwargs = dict(
             mode="payment",
             line_items=[line_item],
@@ -1679,6 +1698,82 @@ def _enviar_copia_impl(session_id):
     if fallback and row["notificado"] != 2:
         with db() as c: c.execute("UPDATE sesiones SET notificado=2 WHERE id=?", (session_id,))
     return {"ok": False, "reason": ("respaldo_enviado_real_pendiente" if fallback else "email_cliente_fallo")}
+
+@app.get("/api/rescate")
+def rescate(key: str = "", email: str = ""):
+    """RESCATE: busca las sesiones de un cliente por email y permite descargar su
+    informe aunque no haya pagado.
+
+    Por que existe: cuando a un cliente le falla la pasarela, o cierra la pestana
+    antes de pagar, sus respuestas siguen guardadas aqui pero no habia forma de
+    llegar a ellas. El panel /api/entregas solo lista los que YA pagaron.
+    Sin esto, la unica salida era pedirle que repitiera el cuestionario entero.
+
+    NO modifica nada: ni marca pagos ni envia correos. Solo busca y deja descargar.
+    Protegido con ADMIN_KEY; si la clave no esta configurada, no abre (falla cerrado).
+    """
+    if not ADMIN_KEY or key != ADMIN_KEY:
+        return HTMLResponse("<body style='font-family:sans-serif;padding:40px'>"
+                            "<h3>Panel protegido</h3><p>Anade <code>?key=TU_CLAVE&amp;email=cliente@correo.com</code>"
+                            "</p></body>", status_code=403)
+    em = (email or "").strip().lower()
+    if not em:
+        return HTMLResponse("<body style='font-family:sans-serif;padding:40px'>"
+                            "<h3>Falta el email</h3><p>Anade <code>&amp;email=cliente@correo.com</code> a la URL.</p>"
+                            "</body>", status_code=400)
+    try:
+        with db() as c:
+            rows = c.execute("SELECT id,nombre,email,tier,pagado,notificado,creado,"
+                             "       (respuestas IS NOT NULL AND respuestas!='{}') AS tiene_resp "
+                             "FROM sesiones WHERE lower(email) LIKE ? ORDER BY creado DESC LIMIT 50",
+                             ("%" + em + "%",)).fetchall()
+    except Exception as e:
+        return HTMLResponse("<body><h3>Error: %s</h3></body>" % e, status_code=500)
+    TN = {1: "T1 Rapido", 2: "T2 Avanzado", 3: "T3 Pareja"}
+    filas = []
+    for r in rows:
+        pag = "SI" if r["pagado"] else "NO"
+        comp = "completo" if r["tiene_resp"] else "<b style='color:#c53030'>sin respuestas</b>"
+        enlace = ("<a href='/api/rescate/pdf?key=%s&sid=%s' style='color:#1a56db;font-weight:600'>Descargar PDF</a>"
+                  % (key, r["id"])) if r["tiene_resp"] else "-"
+        filas.append("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"
+                     % ((r["creado"] or "")[:16].replace("T", " "), r["nombre"] or "-", r["email"] or "-",
+                        TN.get(r["tier"], r["tier"]), pag, comp, enlace))
+    cuerpo = "".join(filas) or "<tr><td colspan=7 style='padding:20px;text-align:center;color:#888'>Sin resultados para ese email.</td></tr>"
+    return HTMLResponse(
+        "<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>"
+        "<title>Rescate - Adapta</title><style>"
+        "body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;background:#0e1018;color:#edeae2}"
+        ".wrap{max-width:1000px;margin:0 auto;padding:24px}h1{color:#e8c861;font-size:20px;margin:0 0 4px}"
+        ".sub{color:#8a93a6;font-size:13px;margin-bottom:18px}"
+        "table{width:100%;border-collapse:collapse;background:#fff;color:#222;border-radius:10px;overflow:hidden;font-size:13px}"
+        "th{background:#161a24;color:#e8c861;text-align:left;padding:9px 11px;font-size:11px;text-transform:uppercase}"
+        "td{padding:9px 11px;border-bottom:1px solid #eee}"
+        ".foot{color:#5c6470;font-size:11px;margin-top:14px}</style></head><body><div class='wrap'>"
+        "<h1>Rescate de diagnosticos</h1>"
+        "<div class='sub'>Sesiones que coinciden con <b>" + em + "</b>. Descargar NO marca el pago ni envia correos.</div>"
+        "<table><thead><tr><th>Fecha</th><th>Cliente</th><th>Email</th><th>Producto</th><th>Pagado</th>"
+        "<th>Estado</th><th>Informe</th></tr></thead><tbody>" + cuerpo + "</tbody></table>"
+        "<div class='foot'>Uso interno. El PDF se genera en el momento a partir de las respuestas guardadas.</div>"
+        "</div></body></html>")
+
+
+@app.get("/api/rescate/pdf")
+def rescate_pdf(key: str = "", sid: str = ""):
+    """Devuelve el PDF de una sesion concreta, sin exigir pago. Solo lectura."""
+    if not ADMIN_KEY or key != ADMIN_KEY:
+        raise HTTPException(403, "Clave no valida.")
+    if not sid:
+        raise HTTPException(400, "Falta el parametro sid.")
+    try:
+        path = _asegurar_pdf(sid)
+    except Exception as e:
+        raise HTTPException(500, "No se pudo generar el informe: %s" % e)
+    if not path or not os.path.exists(path):
+        raise HTTPException(404, "No hay respuestas guardadas para esa sesion (o falta la pareja).")
+    return FileResponse(path, media_type="application/pdf",
+                        filename="Diagnostico_Adapta_%s.pdf" % sid[:8])
+
 
 @app.get("/api/entregas")
 def entregas(key: str = "", limite: int = 150):
