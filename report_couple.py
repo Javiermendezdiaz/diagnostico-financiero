@@ -711,7 +711,7 @@ def seccion_constitucion_hogar(pA,pB,nA,nB,hogar,fi_h,divs):
     cif.append("Pagaos primero, como hogar: el día 1, antes de gastar, sale el ahorro conjunto a una cuenta separada. "
                "Ahorrar lo que sobra no funciona; forzar el reparto, sí.")
     cp=[Paragraph("<b>Vuestro plan, en cifras</b>",St("cif0",fontSize=11,leading=15,textColor=ACCDK,fontName="Helvetica-Bold"))]
-    for x in cif: cp.append(Paragraph("<font color='#B45309'>&#9656;</font>  "+x,St("cifx",fontSize=9.8,leading=14,textColor=INK,leftIndent=4,spaceBefore=3)))
+    for x in cif: cp.append(Paragraph("<font color='#B45309'>&#8226;</font>  "+x,St("cifx",fontSize=9.8,leading=14,textColor=INK,leftIndent=4,spaceBefore=3)))
     out+=[rb._box(cp,"#FBF4E4","#B45309",ancho=160*mm), Spacer(1,4*mm)]
     col6=gm*6
     out+=[rb._box([Paragraph("<font color='#B45309'><b>Vuestra regla de contingencia</b></font><br/>"
@@ -750,7 +750,7 @@ def seccion_coste_no_hablarlo(pA,pB,nA,nB,hogar,fi_h,divs):
                    "despacio — o no se mueve." % fi_h[1])
     if fin:
         cp=[Paragraph("<b>Lo que cuesta en dinero</b>",St("cn0",fontSize=10.5,leading=14,fontName="Helvetica-Bold"))]
-        for x in fin: cp.append(Paragraph("<font color='#9A3B2E'>&#9656;</font>  "+x,St("cnx",fontSize=9.8,leading=14,leftIndent=4,spaceBefore=3)))
+        for x in fin: cp.append(Paragraph("<font color='#9A3B2E'>&#8226;</font>  "+x,St("cnx",fontSize=9.8,leading=14,leftIndent=4,spaceBefore=3)))
         out+=[rb._box(cp,"#FBECE8","#9A3B2E",ancho=160*mm), Spacer(1,3*mm)]
     if nconf or nfric:
         rel=("Tenéis <b>%d</b> %s de conflicto y <b>%d</b> %s de fricción concretos sin resolver. Cada uno, callado, "
@@ -783,7 +783,7 @@ def seccion_hoja_ruta_12m(pA,pB,nA,nB,hogar):
             _pbg="#FBF4E4" if mv["orden"]==1 else "#F6F4EC"
             _pin=[Paragraph("<font color='%s'><b>%s</b></font>  &#183;  <b>%s</b>"%(_pc,_es,mv["titulo"]),St("ph0",fontSize=11.3,leading=15,textColor=INK)),
                   Paragraph("<b>Por qué:</b> "+mv["porque"],St("ph1",fontSize=9.6,leading=13.5,textColor=INK,spaceBefore=3)),
-                  Paragraph("<font color='%s'><b>&#9656; Esta semana:</b></font> %s"%(_pc,mv["accion"]),St("ph2",fontSize=9.6,leading=13.5,textColor=INK,spaceBefore=2)),
+                  Paragraph("<font color='%s'><b>&#8226; Esta semana:</b></font> %s"%(_pc,mv["accion"]),St("ph2",fontSize=9.6,leading=13.5,textColor=INK,spaceBefore=2)),
                   Paragraph("<b>En 12 meses ganáis:</b> <i>%s</i>"%mv["gana"],St("ph3",fontSize=9.4,leading=13,textColor=GREY,spaceBefore=2))]
             out.append(rb._box(_pin,_pbg,_pc,ancho=160*mm)); out.append(Spacer(1,3*mm))
         out.append(Paragraph("Haced el primero hasta tenerlo en marcha — juntos. Una palanca movida vale más que diez planeadas.",St("phf",fontSize=9.4,leading=13,textColor=GREY,fontName="Helvetica-Oblique",spaceAfter=4)))
@@ -2326,7 +2326,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         PageBreak()]
     # apertura
     S+=[Paragraph("Antes de empezar",h_sec),
-        rb._box([Paragraph("<font color='#234E70'><b>&#9656;  Sois de los primeros — y lo afinamos con vosotros</b></font>",body),
+        rb._box([Paragraph("<font color='#234E70'><b>&#8226;  Sois de los primeros — y lo afinamos con vosotros</b></font>",body),
                  Paragraph("Respaldamos cada cifra de este informe. Y como sois de nuestros primeros clientes, lo construimos también con vosotros: si al leerlo veis algún número o conclusión que no os encaje, escribidnos a <font color='#234E70'><b>info@adaptafamilyoffice.com</b></font>. Lo revisamos al momento, lo corregimos y os reenviamos vuestro informe actualizado, sin coste. Vuestra mirada lo hace mejor — para vosotros y para quienes vengan detrás.",body)],
                 "#EEF2F6","#234E70",ancho=160*mm),
         Spacer(1,4*mm),

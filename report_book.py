@@ -384,7 +384,7 @@ def insights(p,tr,fi):
     if p["C7"]["score"]>=55 and p["C3"]["score"]>=50:
         o.append(("Tu mayor riesgo es perder el ingreso","Dependes de una sola fuente y tu colchón es corto. El peligro no es invertir mal: es quedarte sin entrada de dinero."))
     if p["C2"]["score"]>=50 and fi[2]<12:
-        o.append(("La libertad está lejos a este ritmo",f"Tu tasa de ahorro ({fi[2]}%) no sostiene tu meta: el horizonte es de décadas. La palanca está en el flujo de caja, no en la rentabilidad."))
+        o.append(("La libertad está lejos a este ritmo","Tu tasa de ahorro (%s%%) no sostiene tu meta: el horizonte es de décadas. La palanca está en el flujo de caja, no en la rentabilidad."%(("%.1f"%float(fi[2])).replace(".",","))))
     if p["C6"]["score"]>=50 and p["C4"]["score"]>=50:
         o.append(("Tu estatus compite con tu libertad","La capitalización de tu estatus social y la deriva de estilo de vida (lifestyle creep) compiten directamente con la compra de tu libertad futura. Aquí hay margen rápido y silencioso."))
     if tr["VINCULO"] is not None and tr["VINCULO"]>=50:
@@ -784,9 +784,12 @@ def seccion_adapta(p, datos=None):
     peores=orden[:2]
     for code in peores:
         ti,de,url=ADAPTA[code]
-        out.append(Paragraph(f"<font color='#0284C7'><b>&#9656; {ti}</b></font>",St("ad1",fontSize=11,leading=14,spaceBefore=6,spaceAfter=2)))
+        out.append(Paragraph(f"<font color='#0284C7'><b>&#8226; {ti}</b></font>",St("ad1",fontSize=11,leading=14,spaceBefore=6,spaceAfter=2)))
         out.append(Paragraph(de,St("ad2",fontSize=10,leading=14,leftIndent=8,spaceAfter=2)))
-        out.append(Paragraph(f"<a href='{url}'><font color='#1A1A17'>Ver c\u00f3mo lo trabajamos &#8594;</font></a>",St("ad3",fontSize=9.5,leading=13,leftIndent=8,spaceAfter=8)))
+        # Enlace en AZUL y con \u00bb en vez de \u2192: en negro parecia texto muerto (nadie
+        # pulsa lo que no parece pulsable) y la flecha no existe en Poppins, asi que
+        # se comia y dejaba un espacio suelto al final de la linea.
+        out.append(Paragraph(f"<a href='{url}'><font color='#0284C7'><u>Ver c\u00f3mo lo trabajamos</u> &#187;</font></a>",St("ad3",fontSize=9.5,leading=13,leftIndent=8,spaceAfter=8)))
     # Art. 5.3 de la Constituci\u00f3n: UNA recomendaci\u00f3n honesta que NO nos beneficia. La credibilidad
     # de todo lo que s\u00ed recomendamos se compra siendo capaces de decir "esto hazlo t\u00fa solo, gratis".
     try: _deu=float(_d.get("deuda_total") or 0)
@@ -2252,12 +2255,12 @@ def seccion_rentabilidad_alquiler(datos, extras=None):
          Paragraph("La mayor\u00eda de propietarios calculan la renta sobre lo que pagaron por el piso, y olvidan los "
                    "gastos y los impuestos. Esta es tu rentabilidad <b>real</b> \u2014 lo que de verdad te queda, ya neto "
                    "de gastos e IRPF \u2014 sobre el valor de mercado de hoy.",body),
-         Paragraph('<font size=32 color="%s"><b>%.1f%%</b></font><font size=12 color="#6B7280"> neta real, despu\u00e9s de gastos e impuestos</font>'%(col,neta),
+         Paragraph('<font size=32 color="%s"><b>%s%%</b></font><font size=12 color="#6B7280"> neta real, despu\u00e9s de gastos e impuestos</font>'%(col,("%.1f"%neta).replace(".",",")),
                    St("ralq1",fontSize=32,leading=36,spaceBefore=2,spaceAfter=2)),
          Paragraph("Sobre un valor de mercado de <b>%s</b> y una renta limpia de <b>%s/mes</b> (%s/a\u00f1o)."%(_eur(valor),_eur(rent),_eur(renta_anual)),body),
-         _box([Paragraph("<b>Lo que esto significa:</b> tu ladrillo te renta de verdad un <b>%.1f%%</b> anual, no el 5-6%% "
+         _box([Paragraph("<b>Lo que esto significa:</b> tu ladrillo te renta de verdad un <b>%s%%</b> anual, no el 5-6%% "
                   "que sale de dividir la renta entre lo que pagaste. Es el n\u00famero con el que de verdad se decide si "
-                  "concentrar o diversificar \u2014 no la rentabilidad \u00abde folleto\u00bb."%neta,
+                  "concentrar o diversificar \u2014 no la rentabilidad \u00abde folleto\u00bb."%(("%.1f"%neta).replace(".",",")),
                   St("ralq2",fontSize=10.5,leading=15))],"#FBF4E4","#B45309",ancho=160*mm),
          Paragraph("<font size=9.3 color='#6B7280'>Para comparar: una cartera global diversificada ha rentado de media en "
                    "torno al 7% nominal a largo plazo, es l\u00edquida y no depende de un solo inquilino. Tu inmueble "
@@ -2732,13 +2735,13 @@ def seccion_extras(extras, datos=None):
         out+=[Spacer(1,4*mm), Paragraph("Tus palancas de crecimiento",h_sub),
               Paragraph("No son consejos genéricos: salen de tus propios números. En orden de impacto.",small)]
         for ti,tx in pal:
-            out.append(Paragraph(f"<font color='#0F766E'>&#9656;</font>  <b>{ti}</b>",St("plt",fontSize=10.5,leading=14,spaceBefore=5)))
+            out.append(Paragraph(f"<font color='#0F766E'>&#8226;</font>  <b>{ti}</b>",St("plt",fontSize=10.5,leading=14,spaceBefore=5)))
             out.append(Paragraph(tx,St("plx",fontSize=9.7,leading=14,leftIndent=12,spaceAfter=3)))
     if con:
         out+=[Spacer(1,4*mm), Paragraph("Disonancias estructurales — lo que no te cuadra",h_sub),
               Paragraph("Las grietas más caras de un plan viven en la distancia entre lo que dices, lo que sientes y lo que miden tus números. Estas son las tuyas:",small)]
         for ti,tx in con:
-            out.append(Paragraph(f"<font color='#9A3B2E'>&#9656;</font>  <b>{ti}</b>",St("cot",fontSize=10.5,leading=14,spaceBefore=5)))
+            out.append(Paragraph(f"<font color='#9A3B2E'>&#8226;</font>  <b>{ti}</b>",St("cot",fontSize=10.5,leading=14,spaceBefore=5)))
             out.append(Paragraph(tx,St("cox",fontSize=9.7,leading=14,leftIndent=12,spaceAfter=3)))
     rt=extras.get("ratios") or []
     if rt:
@@ -2776,15 +2779,25 @@ def seccion_extras(extras, datos=None):
     if pr:
         out+=[Spacer(1,5*mm), Paragraph("Tu presupuesto: el marco",h_sub),
               Paragraph("No te pedimos las cuarenta categorías de tu vida — ese cuadro de mando lo construimos contigo en Adapta. Esto es el marco desde tus cifras: dónde está tu dinero y dónde debería estar.",small)]
-        lin="De tus <b>%s/mes</b> de gasto: vivienda <b>%s</b>"%(_eur(pr["gasto"]),_eur(pr["vivienda"]))
-        if pr["deuda"]: lin+=", deuda <b>%s</b>"%_eur(pr["deuda"])
-        lin+=", y el resto de tu vida <b>%s</b>."%_eur(pr["resto"])
+        # La vivienda solo se nombra si hay dato. El cuestionario NO pregunta
+        # 'coste_vivienda', asi que salia SIEMPRE "vivienda 0 EUR": una afirmacion
+        # falsa para practicamente cualquier cliente, y en la pagina que habla de
+        # su presupuesto. Si no lo sabemos, no lo decimos.
+        lin="De tus <b>%s/mes</b> de gasto:"%_eur(pr["gasto"])
+        _partes=[]
+        if pr.get("vivienda"): _partes.append(" vivienda <b>%s</b>"%_eur(pr["vivienda"]))
+        if pr.get("deuda"): _partes.append(" deuda <b>%s</b>"%_eur(pr["deuda"]))
+        if _partes:
+            lin+=",".join(_partes)+", y el resto de tu vida <b>%s</b>."%_eur(pr["resto"])
+        else:
+            lin+=" no nos has desglosado cuánto va a vivienda ni a deuda, así que aquí "\
+                 "lo tratamos entero como coste de vida."
         out.append(Paragraph(lin,St("prl",fontSize=9.7,leading=14,spaceBefore=3)))
         if pr.get("recomendado"):
             rc=pr["recomendado"]
             out.append(Paragraph("Marco de referencia 50/30/20 sobre tus ingresos: necesidades ~<b>%s</b>, deseos ~<b>%s</b>, y a construir patrimonio ~<b>%s</b>/mes. Una brújula, no una jaula."%(_eur(rc["necesidades"]),_eur(rc["deseos"]),_eur(rc["ahorro"])),St("prr",fontSize=9.7,leading=14,spaceBefore=3)))
         if pr.get("empresario"):
-            out.append(Paragraph("<font color='#B45309'>&#9656;</font>  <b>Síndrome del cortocircuito patrimonial: separa familia y negocio.</b> Tu cuota de autónomos, tus tributos y la gestoría <b>no son gasto de vida familiar</b>: mezclarlos distorsiona tu coste de vida real y tu verdadera capacidad de ahorro. Tu negocio no debe financiar tu vida ni tu vida absorber los golpes del negocio. Dos cuentas, dos presupuestos, siempre.",St("pre",fontSize=9.7,leading=14,spaceBefore=4,leftIndent=4)))
+            out.append(Paragraph("<font color='#B45309'>&#8226;</font>  <b>Síndrome del cortocircuito patrimonial: separa familia y negocio.</b> Tu cuota de autónomos, tus tributos y la gestoría <b>no son gasto de vida familiar</b>: mezclarlos distorsiona tu coste de vida real y tu verdadera capacidad de ahorro. Tu negocio no debe financiar tu vida ni tu vida absorber los golpes del negocio. Dos cuentas, dos presupuestos, siempre.",St("pre",fontSize=9.7,leading=14,spaceBefore=4,leftIndent=4)))
             out.append(Spacer(1,3*mm))
             out.append(_box([
                 Paragraph("<font color='#1F6FB2'><b>Nota de dirección patrimonial: el registro contable no es arquitectura financiera</b></font>",St("dp1",fontSize=10.6,leading=15)),
@@ -2809,7 +2822,7 @@ def seccion_extras(extras, datos=None):
                 "Diversifica por clases de activo: no dependas de una sola pieza, por buena que parezca hoy.",
                 "Vigila las comisiones: un punto al año, compuesto a 20 años, se come cerca de un tercio de lo que habrías acumulado.",
                 "Piensa en décadas y no vendas por miedo: el peor enemigo de tu rentabilidad eres tú en un mal día."]:
-        out.append(Paragraph("<font color='#0F766E'>&#9656;</font>  %s"%_pp,St("miv",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=2)))
+        out.append(Paragraph("<font color='#0F766E'>&#8226;</font>  %s"%_pp,St("miv",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=2)))
     for blk in (extras.get("energia"), extras.get("conciliacion"), extras.get("asesor"), extras.get("herencia")):
         if blk:
             ti,tx=blk
@@ -2820,7 +2833,7 @@ def seccion_extras(extras, datos=None):
         out+=[Spacer(1,3*mm), Paragraph("Llévale esto a tu próxima reunión con tu asesor",h_sub),
               Paragraph("Tres preguntas para convertir una cita de papeleo en una de estrategia:",small)]
         for q in pa:
-            out.append(Paragraph("<font color='#0F766E'>&#9656;</font>  «%s»"%q,St("pqa",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=3)))
+            out.append(Paragraph("<font color='#0F766E'>&#8226;</font>  «%s»"%q,St("pqa",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=3)))
         out.append(Paragraph("Y si esas preguntas le quedan grandes, no es un fallo tuyo: una gestoría tramita, no "
                              "diseña estrategia patrimonial. Lo que de verdad necesitas es una capa de asesoramiento "
                              "<b>integral</b> —que mire a la vez tu fiscalidad, tus inversiones y tus inmuebles como un solo "
@@ -2849,10 +2862,10 @@ def seccion_compromiso(extras):
             metas.append("Mi número de libertad <b>para la vida que quiero</b> es <b>%s</b>%s. Cada decisión me acerca o me aleja de él."%(_eur(cmp["numero_libertad"]),pl))
         if metas:
             inner.append(Paragraph("<font color='#B45309'><b>MIS OBJETIVOS IRRENUNCIABLES</b></font>",St("c1",fontSize=9.8,leading=14,spaceBefore=7)))
-            for m in metas: inner.append(Paragraph("&#9656;  %s"%m,St("c2",fontSize=9.7,leading=14,leftIndent=8,spaceAfter=1)))
+            for m in metas: inner.append(Paragraph("&#8226;  %s"%m,St("c2",fontSize=9.7,leading=14,leftIndent=8,spaceAfter=1)))
         inner.append(Paragraph("<font color='#B45309'><b>%s</b></font>"%("MIS TRES PASOS" if cmp.get("crisis") else "MIS REGLAS NO NEGOCIABLES"),St("c3",fontSize=9.8,leading=14,spaceBefore=7)))
         for r in (cmp.get("reglas") or []):
-            inner.append(Paragraph("&#9656;  %s"%r,St("c4",fontSize=9.7,leading=14,leftIndent=8,spaceAfter=1)))
+            inner.append(Paragraph("&#8226;  %s"%r,St("c4",fontSize=9.7,leading=14,leftIndent=8,spaceAfter=1)))
         inner.append(Paragraph(("Un paso cada vez. No se trata de hacerlo perfecto, sino de no rendirme: sostener estos tres, hoy, es suficiente." if cmp.get("crisis") else "No habrá excusas. Mi futuro dependerá de mis decisiones presentes. La disciplina de hoy es la libertad de mañana."),St("c5",fontSize=9.7,leading=14,spaceBefore=7)))
         out+=[Spacer(1,3*mm), _box(inner,"#FBF4E4","#B45309",ancho=164*mm)]
         firmas=Table([[Paragraph("________________________<br/><font size=8 color='#6B7280'>MI YO PRESENTE</font>",small),
@@ -2880,7 +2893,7 @@ def seccion_coste_inaccion(extras):
     out=[PageBreak(), Paragraph("El coste de no hacer nada",h_sec),
          Paragraph("Un diagnóstico sin acción es solo información cara. Esto es lo que te cuesta, en concreto, cada mes que el cuadro sigue igual:",body)]
     for it in items:
-        out.append(Paragraph("<font color='#9A3B2E'>&#9656;</font>  "+it,St("ci",fontSize=10.5,leading=15,leftIndent=6,spaceAfter=7)))
+        out.append(Paragraph("<font color='#9A3B2E'>&#8226;</font>  "+it,St("ci",fontSize=10.5,leading=15,leftIndent=6,spaceAfter=7)))
     # #13 · el coste acumulado en euros grandes (5 y 10 años) — solo si hay brecha real
     try:
         _ba=float((br or {}).get("brecha_anual") or 0)
@@ -2903,7 +2916,7 @@ def seccion_coste_inaccion(extras):
                "antes de que termine el día. Porque quien lee esto y mañana sigue exactamente igual no ha pagado por un "
                "diagnóstico: ha pagado por una excusa más cara. La diferencia entre los dos no está en la página "
                "siguiente — está en si te levantas de la silla <b>ahora</b>.",
-               St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=4)))
+               St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=16)))
     return out
 
 def seccion_numero_realista(datos, extras):
@@ -3546,7 +3559,9 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         S+=_secsafe(seccion_one_pager, salud, fi, datos, extras)
     # carta de apertura
     S+=[Paragraph("Antes de empezar",h_sec),
-        _box([Paragraph("<font color='#234E70'><b>&#9656;  Eres de los primeros — y lo afinamos contigo</b></font>",St("fbk1",fontSize=11,leading=15,fontName=FB)),
+        # Sin triangulito delante: Poppins no tiene ese glifo y se come, dejando
+        # una sangria suelta antes del titulo. Mismo caso que los circulos del semaforo.
+        _box([Paragraph("<font color='#234E70'><b>Eres de los primeros — y lo afinamos contigo</b></font>",St("fbk1",fontSize=11,leading=15,fontName=FB)),
               Paragraph("Respaldamos cada cifra de este informe. Y como eres de nuestros primeros clientes, lo construimos también contigo: si al leerlo ves algún número o conclusión que no te encaje, escríbenos a <font color='#234E70'><b>info@adaptafamilyoffice.com</b></font>. Lo revisamos al momento, lo corregimos y te reenviamos tu informe actualizado, sin coste. Tu mirada lo hace mejor — para ti y para quienes vengan detrás.",St("fbk2",fontSize=10,leading=15,spaceBefore=2,textColor=INK))],
              "#EEF2F6","#234E70",ancho=160*mm),
         Spacer(1,4*mm),
@@ -3630,7 +3645,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             pass
     S+=[Paragraph("El mapa completo",h_sec)]
     if extras and extras.get("crisis"):
-        S+=[_box([Paragraph("<font color='#7A5A00'><b>&#9656;  Primero, lo primero</b></font>",St("cri1",fontSize=11,leading=15,fontName=FB)),
+        S+=[_box([Paragraph("<font color='#7A5A00'><b>&#8226;  Primero, lo primero</b></font>",St("cri1",fontSize=11,leading=15,fontName=FB)),
                   Paragraph("Tus respuestas dicen que ahora mismo el dinero te pesa de verdad —en el sueño, en la cabeza, en el día a día. Este informe no va a sumarte presión: antes de cualquier plan a años vista, su único objetivo es ayudarte a recuperar el aire y el control del mes. Un paso cada vez.",St("cri2",fontSize=10,leading=15,spaceBefore=2,textColor=INK))],
                  "#FBF4E4","#B45309",ancho=160*mm), Spacer(1,3*mm)]
     S+=[Table([[Paragraph(f"<font size=42 color='#1A1A17'><b>{_sal100(salud)}</b></font>"
@@ -3646,7 +3661,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                      f"<font color='#9A3B2E'><b>Tu punto ciego:</b></font> {ARQ_META[arq_code]['sombra']}",
                      St("aq",fontSize=9.2,leading=13,textColor=GREY,spaceAfter=4))] if arq_code else []),
         Spacer(1,2*mm),
-        *([_box([Paragraph("<font color='#9A6A00'><b>&#9656;  Tu siguiente mejor acción</b></font>",St("sau1",fontSize=11.5,leading=15,fontName=FB)),
+        *([_box([Paragraph("<font color='#9A6A00'><b>&#8226;  Tu siguiente mejor acción</b></font>",St("sau1",fontSize=11.5,leading=15,fontName=FB)),
                  Paragraph(extras["accion_unica"],St("sau2",fontSize=10.5,leading=15,spaceBefore=2,textColor=INK))],
                 "#FBF4E4","#B45309",ancho=160*mm), Spacer(1,4*mm)] if (extras and extras.get("accion_unica")) else []),
         Paragraph("Cuanto más llena y hacia el borde está cada capa, más sana. El anillo verde exterior es el "
@@ -3694,13 +3709,13 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({_sal100(p[c]['score'])}/100). {OPORTUNIDAD[c]}",
                      St("ef",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
             _frf=(extras or {}).get("frases",{}).get(c) if extras else None
-            if _frf: S.append(Paragraph("<font color='#B45309'>&#9656;</font> <i>"+_frf+"</i>",St("eff",fontSize=9.3,leading=12.5,leftIndent=14,spaceAfter=6,textColor=GREY)))
+            if _frf: S.append(Paragraph("<font color='#B45309'>&#8226;</font> <i>"+_frf+"</i>",St("eff",fontSize=9.3,leading=12.5,leftIndent=14,spaceAfter=6,textColor=GREY)))
         S.append(Paragraph("Tus tres focos",h_sub))
         for c in foco:
             S.append(Paragraph(f"&#8226;  <b>{CAPAS[c]['nombre']}</b> ({_sal100(p[c]['score'])}/100). {RIESGO[c]}",
                      St("ec",fontSize=10,leading=14,leftIndent=6,spaceAfter=4)))
             _frc=(extras or {}).get("frases",{}).get(c) if extras else None
-            if _frc: S.append(Paragraph("<font color='#B45309'>&#9656;</font> <i>"+_frc+"</i>",St("ecf",fontSize=9.3,leading=12.5,leftIndent=14,spaceAfter=6,textColor=GREY)))
+            if _frc: S.append(Paragraph("<font color='#B45309'>&#8226;</font> <i>"+_frc+"</i>",St("ecf",fontSize=9.3,leading=12.5,leftIndent=14,spaceAfter=6,textColor=GREY)))
         S+=[Spacer(1,3*mm),
             Paragraph(f"En una frase: tu salud psicofinanciera global es de <b>{_sal100(salud)}/100</b>"
                       f"({_pct_frase}{_pct_nota}). No es una condena ni un trofeo: es tu punto "
@@ -3783,10 +3798,16 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   Paragraph((_RENT_RIESGO.get(code) if _rent else None) or RIESGO[code],body),
                   Paragraph("La oportunidad",h_sub),
                   Paragraph((_RENT_OPORT.get(code) if _rent else None) or OPORTUNIDAD[code],body),
-                  Paragraph("Tu plan de acci\u00f3n",h_sub),
-                  Paragraph("Tres pasos, en orden. Empieza por el primero y no pases al siguiente hasta tenerlo en marcha:",small)]
+                  ]
+            # El PLAN es un bloque indivisible. Antes fluia suelto y se partia: el
+            # encabezado con un solo paso al final de una pagina y los otros dos en la
+            # siguiente, que quedaba casi vacia. Un plan de tres pasos partido en dos
+            # paginas deja de leerse como un plan.
+            _plan=[Paragraph("Tu plan de acci\u00f3n",h_sub),
+                   Paragraph("Tres pasos, en orden. Empieza por el primero y no pases al siguiente hasta tenerlo en marcha:",small)]
             for a in ACCIONES[code]:
-                cab.append(Paragraph(f"<font face='Helvetica'>[   ]</font>  {a}",St("pa",fontSize=10,leading=14,textColor=INK,leftIndent=6,spaceAfter=4)))
+                _plan.append(Paragraph(f"<font face='Helvetica'>[   ]</font>  {a}",St("pa",fontSize=10,leading=14,textColor=INK,leftIndent=6,spaceAfter=4)))
+            cab.append(KeepTogether(_plan))
             # #4/#5 · la cola (cita + Para reflexionar) se mantiene junta para no dejar un encabezado hu\u00e9rfano
             _tail=[Paragraph(f"\u201c{PRINCIPIO[code]}\u201d",St("pr",fontSize=10.5,leading=14,textColor=ACCDK,
                             fontName="Helvetica-Oblique",backColor=LIGHT,borderPadding=8,spaceBefore=2)),
@@ -4094,7 +4115,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             _pbg="#FBF4E4" if mv["orden"]==1 else "#F6F4EC"
             _pin=[Paragraph("<font color='%s'><b>%s</b></font>  &#183;  <b>%s</b>"%(_pc,_es,mv["titulo"]),St("pm0",fontSize=11.5,leading=15,textColor=ACCDK,fontName=FB)),
                   Paragraph("<b>Por qué:</b> "+mv["porque"],St("pm1",fontSize=9.8,leading=14,textColor=INK,spaceBefore=3)),
-                  Paragraph("<font color='%s'><b>&#9656; Esta semana:</b></font> %s"%(_pc,mv["accion"]),St("pm2",fontSize=9.8,leading=14,textColor=INK,spaceBefore=2)),
+                  Paragraph("<font color='%s'><b>&#8226; Esta semana:</b></font> %s"%(_pc,mv["accion"]),St("pm2",fontSize=9.8,leading=14,textColor=INK,spaceBefore=2)),
                   Paragraph("<b>En 12 meses ganas:</b> <i>%s</i>"%mv["gana"],St("pm3",fontSize=9.5,leading=13,textColor=GREY,spaceBefore=2))]
             S.append(_box(_pin,_pbg,_pc,ancho=160*mm)); S.append(Spacer(1,3*mm))
         S.append(Paragraph("Haz el primero hasta tenerlo en marcha — no pases al siguiente antes. Una palanca movida vale más que diez planeadas.",St("pmf",fontSize=9.5,leading=13,textColor=GREY,fontName="Helvetica-Oblique",spaceAfter=3)))
@@ -4105,7 +4126,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     else: _lr.append("No dejar tu excedente sin destino: cada mes, lo que sobra va a su sitio antes del día 5.")
     _lr.append("No postergar el blindaje de lo que ya has construido: proteger va siempre antes que crecer.")
     _lrp=[Paragraph("<b>Tus líneas rojas — los no-negociables de tu Constitución</b>",St("lr0",fontSize=11,leading=15,textColor=ACCDK,fontName=FB))]
-    for _x in _lr: _lrp.append(Paragraph("&#9656;  "+_x,St("lrx",fontSize=10,leading=14,textColor=INK,leftIndent=4,spaceBefore=2)))
+    for _x in _lr: _lrp.append(Paragraph("&#8226;  "+_x,St("lrx",fontSize=10,leading=14,textColor=INK,leftIndent=4,spaceBefore=2)))
     S+=[_box(_lrp,"#FBF9EC","#C9962B",ancho=160*mm), Spacer(1,4*mm)]
     rows=[[Paragraph("<b>#</b>",small),Paragraph("<b>Área de impacto</b>",small),Paragraph("<b>Tu siguiente acción</b>",small),Paragraph("<b>Severidad</b>",small)]]
     _AREA={"C1":"Bienestar financiero","C2":"Libertad financiera","C3":"Resistencia ante shocks","C4":"Control del gasto","C5":"Protección patrimonial","C6":"Gasto con sentido","C7":"Diversificación de ingresos","C8":"Antifragilidad","C9":"Gobierno del flujo","C10":"Salud de la deuda","C11":"Palanca de crecimiento","C12":"Disciplina de inversión"}
@@ -4130,8 +4151,10 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     S+=[pt,Spacer(1,5*mm),Paragraph("Tus números de libertad",h_sub),
         Table([["Número de libertad financiera (neto de pensión)",f"{fi[0]:,.0f} €".replace(",",".")],
                ["En tiempo de tu trabajo actual",(_en_tiempo(fi[0],datos) or "—")],
-               ["Progreso hacia la libertad",f"{fi[1]} %"],
-               ["Tasa de ahorro actual",f"{fi[2]} %"],
+               # Decimales con COMA y sin espacio antes del %: salia "6.3 %" y "18.4 %",
+               # con punto anglosajon, en la tabla mas leida del informe.
+               ["Progreso hacia la libertad",("%s%%"%("%.1f"%float(fi[1])).replace(".",",")) if fi[1] is not None else "—"],
+               ["Tasa de ahorro actual",("%s%%"%("%.1f"%float(fi[2])).replace(".",",")) if fi[2] is not None else "—"],
                ["Años estimados a la libertad","más de 100" if fi[3] is None else ("+40 años (a este ritmo)" if fi[3]>40 else f"{fi[3]:.0f} años")]],
               colWidths=[105*mm,55*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
               ("FONTNAME",(1,0),(1,-1),FB),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
@@ -4299,7 +4322,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             _cif.append("Antes del día 90, audita con tu asesor el mix óptimo entre nómina y dividendos de tu sociedad: extraer por costumbre deja en Hacienda dinero que podría ir a tu patrimonio.")
         if _cif:
             _cp=[Paragraph("<b>Tu plan, en cifras</b>",St("cif0",fontSize=11,leading=15,textColor=ACCDK,fontName=FB))]
-            for _x in _cif: _cp.append(Paragraph("<font color='#B45309'>&#9656;</font>  "+_x,St("cifx",fontSize=9.8,leading=14,textColor=INK,leftIndent=4,spaceBefore=3)))
+            for _x in _cif: _cp.append(Paragraph("<font color='#B45309'>&#8226;</font>  "+_x,St("cifx",fontSize=9.8,leading=14,textColor=INK,leftIndent=4,spaceBefore=3)))
             S+=[_box(_cp,"#FBF4E4","#B45309",ancho=160*mm), Spacer(1,4*mm)]
         S+=[_box([Paragraph("<b>No haces esto solo.</b>",St("ej1",fontSize=11,leading=15,textColor=ACCDK,fontName=FB)),
                   Paragraph("Las tareas de hábito y decisión son tuyas. Pero el trabajo pesado —mover el capital a vehículos "
@@ -4372,8 +4395,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         _filas=[[Paragraph("<font color='white'><b>Si no haces nada</b></font>",St("mzi",fontSize=11,leading=14,textColor=colors.white,fontName=FB)),
                  Paragraph("<font color='white'><b>El siguiente paso con Adapta</b></font>",St("mzd",fontSize=11,leading=14,textColor=colors.white,fontName=FB))]]
         for i in range(max(len(_izq),len(_der))):
-            _filas.append([Paragraph(("&#9656;  "+_izq[i]) if i<len(_izq) else "",small),
-                           Paragraph(("&#9656;  "+_der[i]) if i<len(_der) else "",small)])
+            _filas.append([Paragraph(("&#8226;  "+_izq[i]) if i<len(_izq) else "",small),
+                           Paragraph(("&#8226;  "+_der[i]) if i<len(_der) else "",small)])
         _mz=Table(_filas,colWidths=[80*mm,80*mm])
         _mz.setStyle(TableStyle([("BACKGROUND",(0,0),(0,0),colors.HexColor("#9A3B2E")),("BACKGROUND",(1,0),(1,0),colors.HexColor("#1D6F42")),
             ("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),9),("RIGHTPADDING",(0,0),(-1,-1),9),

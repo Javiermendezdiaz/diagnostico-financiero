@@ -809,7 +809,7 @@ def calcular_ratios(datos, perfil_in):
     inv_liq = _num0(datos, "inversiones_liquidas")
     if colchon is not None and gasto:
         m = colchon / gasto
-        add("Fondo de emergencia", "%.1f meses en líquido inmediato" % m, "verde" if m >= 6 else ("ambar" if m >= 3 else "rojo"),
+        add("Fondo de emergencia", "%s meses en líquido inmediato" % (("%.1f" % m).replace(".",",")), "verde" if m >= 6 else ("ambar" if m >= 3 else "rojo"),
             "Construye tu colchón hasta 3-6 meses de gastos en una cuenta remunerada antes de invertir." if m < 3 else
             ("Llévalo hacia los 6 meses: es lo que te da poder para decir que no." if m < 6 else "Sólido. No dejes parado más de lo necesario."))
         if inv_liq is not None and inv_liq > 0:
@@ -871,9 +871,9 @@ def calcular_ratios(datos, perfil_in):
             "Plan de diversificación por clases de activo: no dependas de una sola pieza." if pctv >= 50 else "Razonable.")
     if pat > 0 and gasto:
         ac = pat / (gasto * 12)
-        _val_if = ("%.1f años (~%.0f meses) de vida cubiertos" % (ac, ac*12)) if ac < 2 else ("%.1f años de vida cubiertos" % ac)
+        _val_if = (("%s años (~%.0f meses) de vida cubiertos" % (("%.1f" % ac).replace(".",","), ac*12)) if ac < 2 else ("%s años de vida cubiertos" % (("%.1f" % ac).replace(".",","))))
         add("Independencia financiera", _val_if, "verde" if ac >= 25 else ("ambar" if ac >= 10 else "rojo"),
-            "Ponle número y fecha a tu libertad: fija tu objetivo (25 veces tu gasto anual) y dirige cada mes tu excedente a acercarlo, con tu patrimonio rentando. Es lo que convierte tu trabajo en una elección, no una obligación.")
+            "Ponle número y fecha a tu libertad: tienes tu Número de Libertad calculado en este informe — dirige cada mes tu excedente a acercarlo, con tu patrimonio rentando. Es lo que convierte tu trabajo en una elección, no una obligación.")
     rp = _num0(datos, "renta_pasiva")
     if rp is not None and ing:
         pp = 100 * rp / ing
@@ -907,8 +907,18 @@ def calcular_accion_unica(ratios, p):
 
 
 def calcular_fortuna_neta(datos):
-    """Foto de fortuna neta: patrimonio (ya neto) = activos - pasivos, y colchón en meses.
-    El cuadro de mando semestral vivo es de Adapta; aquí damos solo la foto y el hábito."""
+    """Foto de fortuna neta = activos - pasivos, y colchón en meses.
+
+    OJO CON 'patrimonio': el cuestionario lo pide BRUTO. La pregunta NUM-4 dice
+    literalmente "No calcules el neto: en el desglose pon el valor de mercado de
+    cada activo y la deuda que tenga". Es decir, patrimonio = ACTIVOS.
+
+    Antes esta funcion asumia que ya venia neto y hacia activos = patrimonio + deuda.
+    Resultado: al cliente se le SUMABA su deuda a la fortuna neta en vez de restarla.
+    Con 210.000 EUR de activos y 68.000 de deuda, el informe decia "fortuna neta
+    210.000" en una pagina y "patrimonio neto 142.000" en otra: 68.000 EUR de
+    diferencia, y el error iba siempre a favor de inflar al cliente.
+    """
     pat = _num(datos, "patrimonio")
     if pat is None:
         return None
@@ -917,7 +927,9 @@ def calcular_fortuna_neta(datos):
     colch = _num(datos, "colchon_liquido")
     inv_liq = _num0(datos, "inversiones_liquidas")
     meses = round(colch / gasto, 1) if (colch and gasto) else None
-    out = {"neta": pat, "activos": pat + deuda, "pasivos": deuda, "colchon_meses": meses}
+    activos = pat
+    neta = activos - deuda
+    out = {"neta": neta, "activos": activos, "pasivos": deuda, "colchon_meses": meses}
     # Musculo de resistencia TOTAL: colchon liquido + inversiones realizables en dias.
     # Resuelve el falso "estas desprotegido" cuando hay patrimonio realizable.
     if inv_liq is not None:
@@ -1502,39 +1514,39 @@ def frase_capa(code, datos, p=None):
     superavit = ing - gas
     liquido = col + inv
     e = _eur
-    meses = (lambda x: ("%.1f" % x).rstrip("0").rstrip("."))
+    meses = (lambda x: ("%.1f" % x).rstrip("0").rstrip(".").replace(".", ","))
     def mcol(): return (col / gas) if gas > 0 else None
     def mresist(): return (liquido / gas) if gas > 0 else None
     f = ""
     if code == "C1":   # agotamiento
         if ing > 0 and gas > 0:
             if superavit < 0:
-                f = "Cada mes gastas %s mas de lo que ingresas: ese numero en rojo es parte del ruido que te pesa en la cabeza." % e(-superavit)
+                f = "Cada mes gastas %s más de lo que ingresas: ese número en rojo es parte del ruido que te pesa en la cabeza." % e(-superavit)
             else:
                 _m = round(superavit / ing * 100)
                 f = "Cada mes te queda un margen de %s (%d%% de lo que entra). %s" % (e(superavit), _m,
-                    "Poco aire deja poco descanso mental." if _m < 10 else "Ese colchon de maniobra juega a favor de tu calma.")
+                    "Poco aire deja poco descanso mental." if _m < 10 else "Ese colchón de maniobra juega a favor de tu calma.")
     elif code == "C2":  # libertad financiera
         if gas > 0:
             num = gas * 12 * 25
             cob_pat = round(pat / num * 100) if num > 0 else 0
             cob_liq = round((col + inv) / num * 100) if num > 0 else 0
-            f = "Tu vida cuesta %s/ano, asi que tu numero de libertad (regla del 4%%) es %s. De ese objetivo, tu patrimonio total cubre el %d%%, pero solo el %d%% esta liquido o invertido trabajando de verdad hacia el (el resto sigue en activos que aun no rentan)." % (e(gas * 12), e(num), cob_pat, cob_liq)
+            f = "Tu vida cuesta %s/año, así que tu número de libertad (regla del 4%%) es %s. De ese objetivo, tu patrimonio total cubre el %d%%, pero solo el %d%% está líquido o invertido trabajando de verdad hacia él (el resto sigue en activos que aún no rentan)." % (e(gas * 12), e(num), cob_pat, cob_liq)
     elif code == "C3":  # resistencia / stress-test
         mr = mresist()
         if mr is not None:
-            f = "Si tus ingresos se cortaran manana, aguantarias %s meses con lo que tienes liquido y realizable (%s). %s" % (meses(mr), e(liquido),
-                "Por debajo de 3 meses, cualquier golpe te obliga a decidir con prisa." if mr < 3 else "Es un margen que te deja decidir sin panico.")
+            f = "Si tus ingresos se cortaran mañana, aguantarías %s meses con lo que tienes líquido y realizable (%s). %s" % (meses(mr), e(liquido),
+                "Por debajo de 3 meses, cualquier golpe te obliga a decidir con prisa." if mr < 3 else "Es un margen que te deja decidir sin pánico.")
     elif code == "C4":  # estilo de vida
         if ing > 0 and gas > 0:
             tasa = round(aho / ing * 100) if aho > 0 else round(max(0, superavit) / ing * 100)
             f = "De cada 100 EUR que entran, %d se quedan contigo y %d se van en tu estilo de vida." % (tasa, 100 - tasa)
     elif code == "C5":  # proteccion / herencia
         if pat > 0:
-            f = "Tienes un patrimonio neto de %s%s. La pregunta no es cuanto, sino quien lo recibiria y como, si tu faltaras manana." % (e(pat), (" y %s de deuda asociada" % e(deu)) if deu > 0 else "")
+            f = "Tienes un patrimonio neto de %s%s. La pregunta no es cuánto, sino quién lo recibiría y cómo, si tú faltaras mañana." % (e(pat), (" y %s de deuda asociada" % e(deu)) if deu > 0 else "")
     elif code == "C6":  # estatus
         if gas > 0 and ge > 0:
-            f = "Declaras %s/mes de gasto de imagen o estatus: son %s al ano, el %d%% de todo lo que gastas." % (e(ge), e(ge * 12), round(ge / gas * 100))
+            f = "Declaras %s/mes de gasto de imagen o estatus: son %s al año, el %d%% de todo lo que gastas." % (e(ge), e(ge * 12), round(ge / gas * 100))
     elif code == "C7":  # concentracion de ingresos
         if ing > 0:
             act = round((1 - min(rp, ing) / ing) * 100)
@@ -1542,11 +1554,11 @@ def frase_capa(code, datos, p=None):
     elif code == "C8":  # antifragilidad
         mr = mresist()
         if mr is not None:
-            f = "Ante un imprevisto, tu musculo real es de %s meses (%s entre colchon e inversiones realizables). Eso es lo que te separa de tener que improvisar." % (meses(mr), e(liquido))
+            f = "Ante un imprevisto, tu músculo real es de %s meses (%s entre colchón e inversiones realizables). Eso es lo que te separa de tener que improvisar." % (meses(mr), e(liquido))
     elif code == "C9":  # flujo de caja
         if ing > 0 and gas > 0:
             f = "Tu flujo: entran %s, salen %s, te quedan %s al mes. %s" % (e(ing), e(gas), e(superavit),
-                "El sistema gotea: hay que cerrar la fuga." if superavit < 0 else "Ese superavit es la materia prima de todo lo demas.")
+                "El sistema gotea: hay que cerrar la fuga." if superavit < 0 else "Ese superávit es la materia prima de todo lo demás.")
     elif code == "C10":  # salud de deuda
         if deu > 0:
             apal = round(deu / pat * 100) if pat > 0 else None
@@ -1554,18 +1566,18 @@ def frase_capa(code, datos, p=None):
             _cu = (" La cuota (%s/mes) se lleva el %d%% de tus ingresos." % (e(cuo), round(cuo / ing * 100))) if (cuo > 0 and ing > 0) else ""
             f = "Debes %s en total.%s%s" % (e(deu), _ap, _cu)
         elif ing > 0:
-            f = "Hoy no declaras deuda: empiezas cada mes sin que nadie haya cobrado antes que tu. Es una ventaja real."
+            f = "Hoy no declaras deuda: empiezas cada mes sin que nadie haya cobrado antes que tú. Es una ventaja real."
     elif code == "C11":  # crecimiento / palanca
         if ing > 0:
             vh = ing / 160.0
-            f = "Tu hora vale hoy unos %s (sobre tus ingresos y una jornada estandar). Crecer es subir ese numero o que el dinero trabaje sin ti." % e(vh)
+            f = "Tu hora vale hoy unos %s (sobre tus ingresos y una jornada estándar). Crecer es subir ese número o que el dinero trabaje sin ti." % e(vh)
     elif code == "C12":  # inversion / disciplina
         if pat > 0:
             dormido = max(0.0, pat - inv - col)
             if inv > 0 or col > 0:
-                f = "De tu patrimonio, %s esta invertido y trabajando, %s parado en liquido, y unos %s en activos que no rentan (vivienda, ilíquido). El dinero dormido es tu mayor oportunidad silenciosa." % (e(inv), e(col), e(dormido))
+                f = "De tu patrimonio, %s está invertido y trabajando, %s parado en líquido, y unos %s en activos que no rentan (vivienda, ilíquido). El dinero dormido es tu mayor oportunidad silenciosa." % (e(inv), e(col), e(dormido))
             else:
-                f = "Con %s de patrimonio, la pregunta es cuanto esta de verdad trabajando para ti hoy y cuanto solo espera."
+                f = "Con %s de patrimonio, la pregunta es cuánto está de verdad trabajando para ti hoy y cuánto solo espera."
                 f = f % e(pat)
     return f or ""
 
@@ -1579,7 +1591,7 @@ def plan_hogar(hogar):
     deu, cuo, rp = g("deuda_total"), g("cuota_deuda"), g("renta_pasiva")
     pen = g("pension_estimada")
     e = _eur; sup = max(0.0, ing - gas)
-    m1 = lambda x: ("%.1f" % x).rstrip("0").rstrip(".")
+    m1 = lambda x: ("%.1f" % x).rstrip("0").rstrip(".").replace(".", ",")
     cand = []
     def add(pal, niv, ti, pq, ac, ga): cand.append((pal, niv, ti, pq, ac, ga))
     if gas > 0:
@@ -1589,7 +1601,7 @@ def plan_hogar(hogar):
             add(1, "rojo", "Construid vuestro suelo de seguridad",
                 "Como hogar aguantariais %s meses con vuestro colchon liquido. Por debajo de 3, un imprevisto os obliga a malvender o endeudaros." % m1(m),
                 "Abrid UNA cuenta remunerada conjunta, separada del dia a dia, y automatizad %s/mes el dia de cobro." % e(ap or round(gas*0.1)),
-                "En 12 meses pasais de %s a 3 meses de colchón: de vulnerables a estar a prueba de sustos." % m1(m))
+                "En 12 meses pasáis de %s a 3 meses de colchón: de vulnerables a estar a prueba de sustos." % m1(m))
     ial_h = g("ingreso_alquiler")
     cuo_neta_h = max(0.0, cuo - ial_h)
     if ing > 0 and cuo > 0 and (100 * cuo_neta_h / ing) >= 35:
@@ -1653,57 +1665,57 @@ def plan_maestro(datos, p=None, perfil_in=None):
         m = col / gas
         if m < 3:
             obj = gas * 3; falta = max(0.0, obj - col); ap = round(falta / 12) if falta else 0
-            add(1, "rojo", "Colchon", "Construye tu suelo de seguridad",
-                "Hoy aguantarias %s meses con tu colchon liquido. Por debajo de 3, cualquier imprevisto te obliga a malvender o pedir prestado." % (("%.1f" % m).rstrip("0").rstrip(".")),
-                "Abre una cuenta remunerada SEPARADA del dia a dia y automatiza %s/mes el dia de cobro." % e(ap or round(gas*0.1)),
-                "En 12 meses pasas de %s a 3 meses de colchón: de vulnerable a estar a prueba de sustos." % (("%.1f" % m).rstrip("0").rstrip(".")))
+            add(1, "rojo", "Colchón", "Construye tu suelo de seguridad",
+                "Hoy aguantarías %s meses con tu colchón líquido. Por debajo de 3, cualquier imprevisto te obliga a malvender o pedir prestado." % (("%.1f" % m).rstrip("0").rstrip(".").replace(".", ",")),
+                "Abre una cuenta remunerada SEPARADA del día a día y automatiza %s/mes el día de cobro." % e(ap or round(gas*0.1)),
+                "En 12 meses pasas de %s a 3 meses de colchón: de vulnerable a estar a prueba de sustos." % (("%.1f" % m).rstrip("0").rstrip(".").replace(".", ",")))
     # 2) DEUDA cara — criterio NETO: descuenta lo que cubren los alquileres (deuda de inversion).
     ial_pm = g("ingreso_alquiler")
     cuo_neta_pm = max(0.0, cuo - ial_pm)
     if ing > 0 and cuo > 0 and (100 * cuo_neta_pm / ing) >= 35:
         add(2, "rojo", "Deuda", "Desactiva la deuda que te asfixia",
             "Tu cuota de deuda (%s/mes) se lleva el %d%% de lo que ingresas. Por encima del 35%%, cada mes empiezas cuesta arriba." % (e(cuo), round(100*cuo/ing)),
-            "Lista tus deudas con su TAE real y vuelca todo el excedente a amortizar la MAS CARA primero (metodo avalancha).",
+            "Lista tus deudas con su TAE real y vuelca todo el excedente a amortizar la MÁS CARA primero (método avalancha).",
             "Cada %s de deuda cara que liquidas te devuelve su cuota al bolsillo, libre, para siempre." % e(round(deu*0.1) if deu else 1000))
     elif pat > 0 and deu > 0 and (100 * deu / pat) >= 80:
         add(2, "rojo", "Deuda", "Baja tu apalancamiento",
             "Tu deuda equivale al %d%% de tu patrimonio neto. Es mucho peso para cualquier viento en contra." % round(100*deu/pat),
-            "Antes de asumir mas riesgo, dirige tu excedente a reducir la deuda mas cara hasta bajar de ese umbral.",
-            "Menos deuda = mas margen y menos intereses: la rentabilidad mas segura que existe.")
+            "Antes de asumir más riesgo, dirige tu excedente a reducir la deuda más cara hasta bajar de ese umbral.",
+            "Menos deuda = más margen y menos intereses: la rentabilidad más segura que existe.")
     # 3) TASA DE AHORRO < 20% — salvo perfil en acumulacion (colchon >= 12 meses absorbe la estacionalidad)
     if ing > 0 and gas > 0 and not (col >= 12 * gas):
         tasa = (aho / ing * 100) if aho > 0 else (sup / ing * 100)
         if tasa < 20:
             extra = max(0.0, 0.20 * ing - max(aho, 0)); anual = round(extra * 12)
             gap = max(0.0, sup - aho)
-            ac = ("Automatiza %s/mes el dia 1 hacia una cuenta de inversion — ese excedente ya lo tienes, solo no tiene destino." % e(round(gap))) if gap > 50 else ("Sube tu ahorro automatico hasta el 20%% de tus ingresos (%s/mes) y auditalo desde tus 3 mayores gastos fijos." % e(round(0.20*ing)))
+            ac = ("Automatiza %s/mes el día 1 hacia una cuenta de inversión — ese excedente ya lo tienes, solo no tiene destino." % e(round(gap))) if gap > 50 else ("Sube tu ahorro automático hasta el 20%% de tus ingresos (%s/mes) y audítalo desde tus 3 mayores gastos fijos." % e(round(0.20*ing)))
             add(3, "ambar", "Ahorro", "Lleva tu ahorro al 20%",
-                "Hoy guardas el %d%% de lo que entra. El 20%% es el umbral donde el interes compuesto empieza a trabajar de verdad a tu favor." % round(tasa),
+                "Hoy guardas el %d%% de lo que entra. El 20%% es el umbral donde el interés compuesto empieza a trabajar de verdad a tu favor." % round(tasa),
                 ac,
-                "Cada punto que subes son ~%s mas invertidos al ano. Llegar al 20%% adelanta tu libertad varios anos." % e(round(0.01*ing*12)))
+                "Cada punto que subes son ~%s más invertidos al año. Llegar al 20%% adelanta tu libertad varios años." % e(round(0.01*ing*12)))
     # 4) DINERO DORMIDO (liquido parado por encima de un colchon sano)
     if gas > 0:
         exceso = max(0.0, col - gas * 6)
         if exceso >= 5000 and inv <= exceso:
-            add(5, "ambar", "Inversion", "Despierta tu dinero dormido",
-                "Tienes unos %s parados por encima de un colchon sano de 6 meses. Quietos, pierden valor cada ano contra la inflacion." % e(round(exceso)),
-                "Mueve una parte a una cartera diversificada de bajo coste (fondos indexados); empieza pequeno y automatiza aportaciones.",
-                "Solo preservar su valor frente a una inflacion del 3%% son ~%s/ano que hoy regalas." % e(round(exceso * 0.03)))
+            add(5, "ambar", "Inversión", "Despierta tu dinero dormido",
+                "Tienes unos %s parados por encima de un colchón sano de 6 meses. Quietos, pierden valor cada año contra la inflación." % e(round(exceso)),
+                "Mueve una parte a una cartera diversificada de bajo coste (fondos indexados); empieza pequeño y automatiza aportaciones.",
+                "Solo preservar su valor frente a una inflación del 3%% son ~%s/año que hoy regalas." % e(round(exceso * 0.03)))
     # 5) CONCENTRACION DE INGRESOS (casi todo activo)
     if ing > 0:
         pp = 100 * min(rp, ing) / ing
         if pp < 10:
             add(6, "ambar", "Diversificacion", "Crea tu primera renta que no dependa de ti",
-                "El %d%% de lo que entra en tu casa depende de que tu sigas trabajando. Una sola fuente es tu mayor riesgo silencioso." % round(100 - pp),
-                "Elige UNA via (dividendos, alquiler, un proyecto digital) y dale un primer paso concreto este mes — no las tres a la vez.",
-                "150 EUR/mes de renta nueva son 1.800 EUR/ano que entran sin cambiar tu tiempo por dinero. Y solo es el principio.")
+                "El %d%% de lo que entra en tu casa depende de que tú sigas trabajando. Una sola fuente es tu mayor riesgo silencioso." % round(100 - pp),
+                "Elige UNA vía (dividendos, alquiler, un proyecto digital) y dale un primer paso concreto este mes — no las tres a la vez.",
+                "150 EUR/mes de renta nueva son 1.800 EUR/año que entran sin cambiar tu tiempo por dinero. Y solo es el principio.")
     # 6) GAP DE PENSION
     if gas > 0 and pen > 0 and (gas - pen) > 0:
         gpen = gas - pen
-        add(7, "ambar", "Jubilacion", "Cierra tu brecha de pension",
-            "Tu coste de vida (%s) supera tu pension publica estimada (%s): faltan %s/mes el dia que dejes de trabajar." % (e(gas), e(pen), e(round(gpen))),
-            "Abre un plan de pensiones o una inversion periodica y automatiza una aportacion mensual desde ya — el tiempo es tu mayor aliado aqui.",
-            "Empezar 10 anos antes puede multiplicar por 2-3 el capital final, por el interes compuesto. Cada ano cuenta.")
+        add(7, "ambar", "Jubilacion", "Cierra tu brecha de pensión",
+            "Tu coste de vida (%s) supera tu pensión pública estimada (%s): faltan %s/mes el día que dejes de trabajar." % (e(gas), e(pen), e(round(gpen))),
+            "Abre un plan de pensiones o una inversión periódica y automatiza una aportación mensual desde ya — el tiempo es tu mayor aliado aquí.",
+            "Empezar 10 años antes puede multiplicar por 2-3 el capital final, por el interés compuesto. Cada año cuenta.")
     # ordenar: rojo antes que ambar (un rojo nunca se entierra), luego LO QUE EL CLIENTE
     # DIJO QUE LE IMPORTA (saliencia), luego por palanca; quedarnos con 3
     prio = set((perfil_in or {}).get("prioridades") or [])
