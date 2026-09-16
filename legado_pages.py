@@ -27,9 +27,14 @@ def stress(datos,p):
     s_aho=max(0,min(1,(20-tasa)/20.0)); s_c1=max(0,min(1,c1))
     idx=round(100*(0.30*s_col+0.20*s_dti+0.20*s_aho+0.30*s_c1))
     def col_(s): return "#3FB984" if s<0.34 else ("#E3B341" if s<0.67 else "#D9534F")
-    drivers=[("Colchón de seguridad (%.1f meses)"%meses, max(.08,s_col), col_(s_col)),
+    # Decimales con COMA: en un informe en español un "4.1 meses" se lee como un
+    # descuido, y en una pagina que habla de rigor eso cuesta mas de lo que parece.
+    # Ademas, meses enteros se escriben sin decimal ("4 meses", no "4,0 meses").
+    _m = ("%d" % round(meses)) if abs(meses - round(meses)) < 0.05 else ("%.1f" % meses).replace(".", ",")
+    _t = (("%.1f" % tasa).replace(".", ",")) if 0 < tasa < 10 else ("%d" % round(tasa))
+    drivers=[("Colchón de seguridad (%s meses)"%_m, max(.08,s_col), col_(s_col)),
              ("Carga de deuda (DTI %d%%)"%round(dti), max(.08,s_dti), col_(s_dti)),
-             ("Tasa de ahorro (%s%%)"%(("%.1f"%tasa) if 0<tasa<10 else ("%d"%round(tasa))), max(.08,s_aho), col_(s_aho))]
+             ("Tasa de ahorro (%s%%)"%_t, max(.08,s_aho), col_(s_aho))]
     et="zona sana" if idx<40 else ("zona a vigilar" if idx<70 else "zona de alerta")
     return idx,et,drivers
 

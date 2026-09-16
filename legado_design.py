@@ -478,10 +478,15 @@ def acelerador_10x10(out, cilindros, anos_delta, enemy_nombre, enemy_motivo, acc
         ax.text(0.5,0.205,txt+" "+_uni,ha="center",va="center",color=accent,fontproperties=L(46),transform=ax.transAxes)
     import textwrap
     cap="Tu cilindro más difícil será %s: %s. Ahí es donde se gana o se pierde la fórmula."%(enemy_nombre,enemy_motivo)
-    yy=0.115
-    for ln in textwrap.wrap(cap,86):
+    _lineas = textwrap.wrap(cap, 86)
+    # El parrafo crecia hacia ABAJO desde un punto fijo y la nota legal estaba clavada
+    # en 0.04: con tres lineas se montaban una encima de otra. Ahora el bloque se
+    # coloca contando desde la nota hacia arriba, asi que nunca se pisan.
+    _alto = 0.028 * len(_lineas)
+    yy = 0.075 + _alto
+    for ln in _lineas:
         ax.text(0.5,yy,ln,ha="center",va="top",color=MUTE,fontproperties=P(9.5),transform=ax.transAxes); yy-=0.028
-    ax.text(0.5,0.04,"Objetivo de rentabilidad ilustrativo; no es una garantía.",ha="center",va="center",color=FAINT,fontproperties=P(7.5),transform=ax.transAxes)
+    ax.text(0.5,0.035,"Objetivo de rentabilidad ilustrativo; no es una garantía.",ha="center",va="center",color=FAINT,fontproperties=P(7.5),transform=ax.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
 def acelerador_tabla(out, ing_m, gas_m, pat, num, accent=GOLD, vos=False):
