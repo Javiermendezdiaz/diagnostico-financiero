@@ -155,15 +155,30 @@ def acelerador(seq, tmp, datos, extras, p):
     inv=((extras or {}).get("perfil_in") or {}).get("invierte","") or ""
     r0=1.5 if ("nada" in inv.lower() or inv=="") else (5.5 if "importante" in inv.lower() else 4.0)
     nuevo=aho+0.10*ing+0.10*gas
-    y0=_years_to(num,pat,aho,r0/100.0); y10=_years_to(num,pat,nuevo,0.10)  # #16 · tasas reales (% -> fracción)
+    # RENTABILIDAD REAL, NO NOMINAL. El 10% es la media historica del S&P 500 ANTES
+    # de inflacion; descontandola queda en ~7%. Con el 10% esta pagina prometia mucho
+    # mas que el resto del informe, que trabaja con 5% real y retiradas del 3-3,5%.
+    # Un escenario ilustrativo puede ser optimista, pero no puede contradecir al
+    # propio documento en el que vive.
+    R_PLAN=0.07
+    y0=_years_to(num,pat,aho,r0/100.0); y10=_years_to(num,pat,nuevo,R_PLAN)  # #16 · tasas reales (% -> fracción)
     _inalc=(y0>=80)
     if _inalc and y10>=80: return   # ni con plan llega: no mostramos un payoff enganoso
     delta=max(0,y0-y10)
+    # TECHO CONTRA EL PROPIO HORIZONTE. Sin esto salian cosas como "tu libertad llega
+    # 41 anos antes" a alguien de 44: no se puede adelantar 41 anos algo que esta a 23
+    # de distancia. La cifra superaba la vida laboral que le queda y convertia una
+    # pagina potente en una promesa insostenible.
+    _ed=_num(datos,"edad")
+    _tope=None
+    if _ed and 0<_ed<67:
+        _tope=max(1.0,67-_ed)
+        if delta>_tope: delta=_tope
     if (not _inalc) and delta<0.5: return
     cil=[("Ingresos",_eu(ing),_eu(ing*1.1),"+10%"),
          ("Gastos",_eu(gas),_eu(gas*0.9),"−10%"),
-         ("Rentabilidad","~%d%%"%round(r0),"~10%","S&P 500"),
-         ("Patrimonio",_eu(pat),"+10%/año","compuesto")]
+         ("Rentabilidad","~%d%%"%round(r0),"~%d%% real"%round(R_PLAN*100),"S&P 500 histórico"),
+         ("Patrimonio",_eu(pat),"compuesto","sin tocarlo")]
     # cilindro enemigo (psicología)
     c6=(p.get("C6",{}) or {}).get("score",0); c4=(p.get("C4",{}) or {}).get("score",0)
     c7=(p.get("C7",{}) or {}).get("score",0); comp=_fac(p,"C1","comparacion")
@@ -175,7 +190,10 @@ def acelerador(seq, tmp, datos, extras, p):
         en=("Ingresos","dependes demasiado de una sola fuente; subirla un 10% es frágil hasta que la diversifiques")
     else:
         en=("Gastos","mantener el gasto plano cuando suben los ingresos es donde casi todos fallan")
-    try: seq.append(LD.acelerador_10x10(tmp+"ace.svg",cil,delta,en[0],en[1],y_plan=y10,inalcanzable=_inalc))
+    # topado=True -> la pagina escribe "mas de N anos antes" en vez de un numero
+    # exacto que ya no es el del calculo.
+    _topado=bool(_tope is not None and abs(delta-_tope)<0.01 and (y0-y10)>_tope+0.5)
+    try: seq.append(LD.acelerador_10x10(tmp+"ace.svg",cil,delta,en[0],en[1],y_plan=y10,inalcanzable=_inalc,topado=_topado))
     except Exception: pass
 
 

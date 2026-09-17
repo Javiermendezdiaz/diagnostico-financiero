@@ -76,7 +76,7 @@ echo ############ 5) PAGINAS ############ >> "%ORIGEN%\%LOG%"
 REM Hasta la 45: las paginas del PLAN llevan listas con vinetas, y hay que poder
 REM verlas para confirmar que la vineta se dibuja (Poppins no tiene el triangulito
 REM que se usaba antes y se comia en silencio).
-%PY% ver_paginas.py INFORME-PRUEBA.pdf 66-92 >> "%ORIGEN%\%LOG%" 2>&1
+%PY% ver_paginas.py INFORME-PRUEBA.pdf 10-20 >> "%ORIGEN%\%LOG%" 2>&1
 
 if exist INFORME-PRUEBA.pdf copy /y INFORME-PRUEBA.pdf "%ORIGEN%\" >nul
 if exist INFORME-PAREJA-PRUEBA.pdf copy /y INFORME-PAREJA-PRUEBA.pdf "%ORIGEN%\" >nul

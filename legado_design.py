@@ -447,7 +447,7 @@ def arrepentimiento(out, findes, edad_hijo, accent=GOLD):
     ax.text(0.10,0.085,"Tu libertad financiera no es para ti: es para estar.",ha="left",va="center",color=accent,fontproperties=Li(13),transform=ax.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
-def acelerador_10x10(out, cilindros, anos_delta, enemy_nombre, enemy_motivo, accent=GOLD, y_plan=None, inalcanzable=False):
+def acelerador_10x10(out, cilindros, anos_delta, enemy_nombre, enemy_motivo, accent=GOLD, y_plan=None, inalcanzable=False, topado=False):
     """4 cilindros (panel de control) + payoff en años. cilindros=[(nombre,actual,objetivo,signo),...]"""
     fig,ax=_canvas(); _bg(ax,(0.84,0.20),tint="#13202A")
     _vbar(ax,0.085,0.90,"El Acelerador 10×10",accent,sz=23)
@@ -473,9 +473,13 @@ def acelerador_10x10(out, cilindros, anos_delta, enemy_nombre, enemy_motivo, acc
         ax.text(0.5,0.205,"Con el plan: en ~%d años"%int(round(y_plan)),ha="center",va="center",color=accent,fontproperties=L(40),transform=ax.transAxes)
     else:
         ax.text(0.5,0.30,"Resultado: tu libertad llega",ha="center",va="center",color=MUTE,fontproperties=P(12),transform=ax.transAxes)
-        txt=("%.0f"%anos_delta) if anos_delta==int(anos_delta) else ("%.1f"%anos_delta).replace(".",",")
-        _uni="año antes" if txt in ("1","1,0") else "años antes"
-        ax.text(0.5,0.205,txt+" "+_uni,ha="center",va="center",color=accent,fontproperties=L(46),transform=ax.transAxes)
+        # Sin decimales: "23,4 años antes" no se dice, y en cuerpo 46 el decimal
+        # solo resta. Si la cifra viene topada por el horizonte del cliente, se
+        # escribe "mas de N": es lo unico honesto cuando el calculo daba mas.
+        txt="%d"%round(anos_delta)
+        _uni="año antes" if txt=="1" else "años antes"
+        _pre="más de " if topado else ""
+        ax.text(0.5,0.205,_pre+txt+" "+_uni,ha="center",va="center",color=accent,fontproperties=L(46 if not topado else 38),transform=ax.transAxes)
     import textwrap
     cap="Tu cilindro más difícil será %s: %s. Ahí es donde se gana o se pierde la fórmula."%(enemy_nombre,enemy_motivo)
     _lineas = textwrap.wrap(cap, 86)
