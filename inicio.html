@@ -158,8 +158,8 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 .hd-link:hover{color:var(--tx)}
 @media(max-width:560px){.hd-link{display:none}}
 /* PRODUCTO en el hero: el diagnostico es lo que se compra */
-.prod{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:720px;margin:34px auto 0;text-align:left}
-@media(max-width:640px){.prod{grid-template-columns:1fr}}
+.prod{display:grid;grid-template-columns:1fr 1.08fr 1fr;gap:14px;max-width:900px;margin:34px auto 0;text-align:left;align-items:stretch}
+@media(max-width:760px){.prod{grid-template-columns:1fr}.pc.star{order:-1}}
 .pc{display:block;background:var(--pa);border:1px solid rgba(253,215,49,.45);border-radius:16px;padding:20px 20px 18px;text-decoration:none;color:var(--tx);transition:.2s}
 .pc:hover{border-color:var(--am);transform:translateY(-2px)}
 .pc .k{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--am)}
@@ -167,6 +167,8 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 .pc .pr{font-size:14px;color:var(--am);font-weight:700;margin-bottom:8px}
 .pc p{font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.5}
 .pc .go{display:inline-block;margin-top:12px;font-size:13.5px;font-weight:700;color:var(--am)}
+.pc{position:relative}.pc.star{border:1.5px solid var(--am);box-shadow:0 14px 40px -18px rgba(253,215,49,.55)}
+.pc .badge{position:absolute;top:-11px;left:20px;background:var(--am);color:#000;font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:99px}
 .free{margin-top:20px;font-size:14px;color:var(--gr);font-weight:300}
 .free a{color:var(--tx);font-weight:600;text-decoration:none;border-bottom:1px solid rgba(253,215,49,.5)}
 </style>
@@ -175,7 +177,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 
 <header class="head"><div class="wrap">
   <div class="logo"><b>ADAPTA</b><small>Family Office</small></div>
-  <div><a class="hd-link" href="indice.html">Nota gratis</a><a class="btn-head" href="planes.html#precios">Hacer mi diagnóstico →</a></div>
+  <div><a class="hd-link" href="indice.html">Nota gratis</a><a class="btn-head" href="empezar2.html?tier=2">Hacer mi diagnóstico →</a></div>
 </div></header>
 
 <!-- 01 · HERO -->
@@ -185,21 +187,30 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
     <h1 class="hero-t serif" style="font-family:'Poppins'">¿Cuánto te está costando <span class="hl">tu forma de gestionar el dinero?</span></h1>
     <p class="promise">Tu diagnóstico te lo dice <b>en euros</b>. Con tus cifras reales, un informe personal con lo que se te escapa al año, tu Número de Libertad, las decisiones que más lo mueven y tu hoja de ruta a 90 días.</p>
     <div class="prod">
-      <a class="pc" href="planes.html#precios">
-        <div class="k">Diagnóstico individual</div>
-        <h3>Tu informe personal</h3>
-        <div class="pr">Desde 19 €</div>
-        <p>Tus números, tu forma de decidir con el dinero y tu plan. Para ti.</p>
+      <a class="pc" href="empezar2.html?tier=1">
+        <div class="k">Rápido</div>
+        <h3>Tu foto en claro</h3>
+        <div class="pr">19 €</div>
+        <p>~50 páginas. Tu Número de Libertad, tu balance y tu hoja de ruta a 90 días.</p>
+        <span class="go">Empezar →</span>
+      </a>
+      <a class="pc star" href="empezar2.html?tier=2">
+        <div class="badge">El más elegido</div>
+        <div class="k">Avanzado</div>
+        <h3>Tu diagnóstico completo</h3>
+        <div class="pr">39 €</div>
+        <p>~90 páginas. Tus 12 dimensiones una a una, lo que te cuesta no actuar y tu plan.</p>
         <span class="go">Hacer mi diagnóstico →</span>
       </a>
-      <a class="pc" href="planes.html#precios">
-        <div class="k">Diagnóstico en pareja</div>
+      <a class="pc" href="empezar2.html?tier=3">
+        <div class="k">En pareja</div>
         <h3>Vuestro informe</h3>
         <div class="pr">54 €</div>
         <p>Vuestras cifras, el reparto justo y dónde no estáis de acuerdo sin saberlo.</p>
-        <span class="go">Hacer nuestro diagnóstico →</span>
+        <span class="go">Empezar en pareja →</span>
       </a>
     </div>
+    <p class="free" style="margin-top:14px"><a href="planes.html#precios">Compara qué incluye cada uno</a></p>
     <p class="reass" style="margin-top:18px">Pago único · Sin suscripción · Entre 10 y 20 minutos · Informe al terminar</p>
     <p class="free">¿Aún no lo tienes claro? <a href="indice.html">Haz antes tu nota gratis (2 min)</a> o <a href="#como">mira cómo funciona</a>.</p>
     <p class="tail">Tu resultado no será un consejo genérico. <b>Será tuyo.</b></p>
@@ -438,7 +449,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
   <p class="disc">Marco educativo. Los ejemplos y simuladores de esta página son ilustrativos y no constituyen asesoramiento financiero, fiscal, jurídico ni de inversión. Las proyecciones usan supuestos generales y no son previsiones garantizadas. Tu diagnóstico se elabora con los datos reales que aportes en el cuestionario.</p>
 </footer>
 
-<a id="stickyCta" href="planes.html">Hacer mi diagnóstico · desde 19 € →</a>
+<a id="stickyCta" href="empezar2.html?tier=2">Mi diagnóstico completo · 39 € →</a>
 
 <script>
 // count-up de las cifras demo (se dispara al entrar en pantalla)

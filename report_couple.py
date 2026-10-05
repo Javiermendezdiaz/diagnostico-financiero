@@ -481,7 +481,7 @@ def seccion_adapta_pareja(pA,pB,nA,nB):
     out+=[Spacer(1,3*mm),
           Paragraph("Por d\u00f3nde empezamos",h_sub),
           Paragraph("Una conversaci\u00f3n inicial, sin compromiso, los dos. Os escuchamos primero, os proponemos despu\u00e9s.",
-                    St("pcta",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=2)),
+                    St("pcta",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,rightIndent=10,leftIndent=10,spaceBefore=2)),
           Spacer(1,2*mm),
           Paragraph("<b>Reserva vuestra conversaci\u00f3n:</b> <a href='https://www.adaptafamilyoffice.com/informe'><font color='#1A1A17'>adaptafamilyoffice.com</font></a>  &#183;  "
                     "<b>WhatsApp:</b> <a href='https://wa.me/34683343531'><font color='#1A1A17'>+34 683 34 35 31</font></a>  &#183;  info@adaptafamilyoffice.com",
@@ -2548,7 +2548,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                           St("tr",fontSize=10,leading=14,leftIndent=4)),
                 Paragraph("Vuestro siguiente paso",h_sub),
                 Paragraph(f"<font color='{A_COL}'><b>&bull;</b></font>  "+paso_pareja(code),
-                          St("pp",fontSize=10,leading=14,leftIndent=4,backColor=LIGHT,borderPadding=6)),
+                          St("pp",fontSize=10,leading=14,leftIndent=6,backColor=LIGHT,borderPadding=6,rightIndent=6)),
                 Paragraph("Vuestro micro-acuerdo de este mes",h_sub),
                 rb._box([Paragraph(MICROACUERDO.get(code,""),St("ma",fontSize=10,leading=14))],
                         "#EEF2F6","#234E70",ancho=156*mm),

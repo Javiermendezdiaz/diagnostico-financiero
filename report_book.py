@@ -46,6 +46,9 @@ try:
     _LORA=True
 except Exception:
     _LORA=False
+# Paneles oscuros (matplotlib): la tipografia de marca, no DejaVu. Antes 4 paginas del informe
+# salian en otra fuente y se notaba el cambio de estilo.
+_MPLFAM = "Poppins" if _POPP else "DejaVu Sans"
 FR=("Poppins" if _POPP else "Helvetica")
 FB=("Poppins-Bold" if _POPP else "Helvetica-Bold")
 SR=("Lora" if _LORA else FR)              # serif display
@@ -454,7 +457,7 @@ def panel_dashboard(path, salud_disp, banda_lbl, cifra_lib, cobertura, tasa_ahor
     def box(x,y,w,h,fc,r=1.4,ec=None,lw=0):
         ax.add_patch(FancyBboxPatch((x,y),w,h,boxstyle="round,pad=0,rounding_size=%s"%r,fc=fc,ec=ec or fc,lw=lw,zorder=2))
     def T(x,y,ss,size,c=TX,w="normal",ha="left"):
-        ax.text(x,y,ss,fontsize=size,color=c,ha=ha,fontweight=w,family="DejaVu Sans",zorder=5)
+        ax.text(x,y,ss,fontsize=size,color=c,ha=ha,fontweight=w,family=_MPLFAM,zorder=5)
     ax.add_patch(Rectangle((0,128),100,13.6,fc="#141A28",zorder=1))
     T(8,134,"ADAPTA",13,GOLD,"bold"); T(24.2,134.2,"FAMILY OFFICE",7,GR)
     ax.plot([8,92],[131.4,131.4],color="#262C3A",lw=1,zorder=3)
@@ -493,10 +496,10 @@ def panel_dashboard(path, salud_disp, banda_lbl, cifra_lib, cobertura, tasa_ahor
     flujo(67.5,"INGRESOS",[(ing_act,"#5B6472"),(ing_pas,GREEN)])
     flujo(60.5,"GASTOS",[(g_fij,RED),(g_var,GOLD)])
     T(8,57.2,"●  activo   ●  pasivo (te libera)",6.8,GR); T(50,57.2,"●  fijo (te ata)   ●  variable",6.8,GR)
-    if dormido and dormido>15000 and cobertura<100:
+    if dormido and dormido>5000 and cobertura<100:
         box(8,46,84,7.6,"#1C2433",1.6,ec=GOLD,lw=1.2)
         T(11,51.2,"TU PALANCA #1",7,GOLD,"bold")
-        T(11,47.8,"Tienes %s dormidos. Moverlos a renta sube tu cobertura del %.0f%% sin ganar un euro más."%(_e(dormido),cobertura),8.2,TX)
+        T(11,47.8,"Tienes %s líquidos por encima de tu colchón de 6 meses. Ponerlos a rentar te acerca a tu libertad sin ganar un euro más."%_e(dormido),8.2,TX)
     T(8,40,"Las cifras de esta página son el resumen ejecutivo de tu Libro. El detalle, capa a capa, viene a continuación.",7,GR)
     ax.plot([8,92],[6.5,6.5],color="#262C3A",lw=1)
     T(8,4,"DOCUMENTO CONFIDENCIAL · ADAPTA FAMILY OFFICE · %s"%fecha,6.2,GR)
@@ -693,17 +696,25 @@ class FullBleedImage(_Flowable):
     def __init__(self, path): _Flowable.__init__(self); self.path=path; self.w=0; self.h=0
     def wrap(self, aw, ah): self.w=aw; self.h=ah; return aw, ah
     def draw(self):
+        # A SANGRE DE VERDAD: se lleva el origen a la esquina de la hoja leyendo la posicion
+        # absoluta del flowable. Antes se restaba un margen fijo (22/20 mm) que olvidaba el
+        # padding de 6 pt del Frame: quedaba una franja blanca a la izquierda y abajo, y un
+        # trozo de cabecera negra asomaba arriba en todas las paginas oscuras.
         try:
+            try:
+                _x0,_y0=self.canv.absolutePosition(0,0)
+            except Exception:
+                _x0,_y0=22*mm,20*mm
             if _SVG_OK and self.path.lower().endswith(".svg"):
                 d=_svg2rlg(self.path)
                 if d is not None and d.width and d.height:
                     self.canv.saveState()
-                    self.canv.translate(-22*mm,-20*mm)
+                    self.canv.translate(-_x0,-_y0)
                     self.canv.scale(A4[0]/d.width, A4[1]/d.height)
                     _renderPDF.draw(d, self.canv, 0, 0)
                     self.canv.restoreState()
                     return
-            self.canv.drawImage(self.path, -22*mm, -20*mm, width=A4[0], height=A4[1],
+            self.canv.drawImage(self.path, -_x0, -_y0, width=A4[0], height=A4[1],
                                 preserveAspectRatio=False, mask=None)
         except Exception:
             pass
@@ -821,7 +832,7 @@ def seccion_adapta(p, datos=None):
           Spacer(1,2.5*mm),
           Paragraph("Tienes el mapa. El siguiente paso es una <b>sesi\u00f3n estrat\u00e9gica</b> para pasar del diagn\u00f3stico a la ejecuci\u00f3n: "
                     "te escuchamos primero, te proponemos despu\u00e9s. Sin compromiso y sin llamadas de presi\u00f3n \u2014 como debe ser.",
-                    St("cta",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=0)),
+                    St("cta",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,rightIndent=10,leftIndent=10,spaceBefore=0)),
           Spacer(1,2*mm)]
     if _dorm>=10000 and _coste_dorm>=400:
         out+=[Paragraph("Un dato para esa conversaci\u00f3n: tienes en torno a <b>%s</b> de liquidez por encima de un colch\u00f3n prudente de seis meses. "
@@ -1173,8 +1184,10 @@ def cashflow_waterfall(datos, path):
     ax.annotate(_eur(abs(libre)),(3,abs(libre)),ha="center",va="bottom",size=8.5,
                 color="#2C313A" if libre>=0 else "#9A3B2E",weight="bold")
     ax.set_ylim(0,ing*1.15); ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_color("#CBC6B6"); ax.tick_params(axis="y",labelsize=7,colors="#9CA3AF")
-    ax.set_title("De cada euro que entra, a dónde va",size=10,color="#17181C",weight="bold",pad=8)
+    ax.spines["left"].set_color("#CBC6B6"); ax.tick_params(axis="y",labelsize=7.5,colors="#6B7280")
+    import matplotlib.ticker as _mtk
+    ax.yaxis.set_major_formatter(_mtk.FuncFormatter(lambda v,_: ("{:,.0f}".format(v)).replace(",",".")+" €" if v else "0"))
+    ax.set_title("Lo que entra cada mes, y a dónde va",size=10,color="#17181C",weight="bold",pad=8)
     plt.tight_layout(); fig.savefig(path,dpi=200,transparent=True); plt.close(fig); gc.collect()
     return libre
 
@@ -1362,13 +1375,18 @@ def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
         for _ in range(anos):v=v*(1+rr)+ap;out.append(v)
         return out
     if inv is not None:
-        inv=inv or 0; parado=max(0,colch-gas*6); aport_opt=max(aho,superavit)
+        # Mismo punto de partida que el resto del libro: invertido + liquido (el capital que rinde).
+        inv=inv or 0; parado=colch; aport_opt=max(aho,superavit)
         e1=[v+parado for v in grow(inv,aho,_rr)]
-        _ig=ing*12.0;_gs=gas*12.0;_cap=float(inv+parado);e3=[_cap]
-        for _y in range(anos):
-            if _y<10:_ig*=1.10
-            if _y==0:_gs*=0.90
-            _ahy=max(0.0,_ig-_gs);_cap=_cap*1.10+_ahy;e3.append(_cap)
+        try:
+            import legado_design as _LD
+            e3=_LD.plan10_serie(inv+parado, ing, gas, anos)
+        except Exception:
+            _ig=ing*12.0;_gs=gas*12.0;_cap=float(inv+parado);e3=[_cap]
+            for _y in range(anos):
+                if _y<10:_ig*=1.10
+                if _y==0:_gs*=0.90
+                _cap=_cap*1.07+max(0.0,_ig-_gs);e3.append(_cap)
         e2=grow(inv+parado,aport_opt,_r2)
         series=[("Inacción · como hoy",e1,RED,"-"),("Invertir bien",e2,GOLD,"--"),("Ejecutar el plan 10×10",e3,GREEN,"-")]
         lo,hi=e1[-1],e3[-1]
@@ -1424,7 +1442,7 @@ def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
     for sp in ["left","bottom"]: cx.spines[sp].set_color("#39414F")
     cx.tick_params(colors=MUT,labelsize=8)
     import matplotlib.ticker as mtick
-    cx.yaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: ("%.0fk"%(v/1000)) if v<1e6 else ("%.1fM"%(v/1e6))))
+    cx.yaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: "0" if abs(v)<1 else (("%.0fk"%(v/1000)) if v<1e6 else ("%.1f M"%(v/1e6)).replace(".",","))))
     cx.grid(axis="y",color="#262C3A",lw=0.6,zorder=0)
     # leyenda manual
     lx=6.5; ly=44.5
@@ -1464,19 +1482,20 @@ def proyeccion_chart(datos, path, r=0.05, titulo_override=None):
     _r2=max(0.05,_rr)                                      # invertir bien: nunca peor que tu realidad actual
     fig,ax=plt.subplots(figsize=(6.4,3.2))
     if inv is not None:
-        inv=inv or 0; parado=max(0,colch-gas*6)
+        inv=inv or 0; parado=colch      # mismo punto de partida que el grafico oscuro y que el motor
         aport_opt=max(aho,superavit)
         e1=[v+parado for v in grow(inv,aho,_rr)]          # Inaccion: TU rentabilidad real actual
         e2=grow(inv+parado,aport_opt,_r2)                 # Invertir bien: todo trabajando, a mercado
-        # Ejecutar el plan (Acelerador 10x10): ingresos +10%/anio los primeros ~10 anios (fase de construccion),
-        # gasto -10% una vez y luego plano, rentabilidad 10% -> el patrimonio compone al 10%.
-        _ig=ing*12.0; _gs=gas*12.0; _cap=float(inv+parado); e3=[_cap]
-        for _y in range(anos):
-            if _y<10: _ig*=1.10
-            if _y==0: _gs*=0.90
-            _ahy=max(0.0,_ig-_gs)
-            _cap=_cap*1.10+_ahy
-            e3.append(_cap)
+        # Ejecutar el plan: el MISMO modelo unico de las 4 palancas (7% real) que la tabla y el mapa.
+        try:
+            import legado_design as _LD
+            e3=_LD.plan10_serie(inv+parado, ing, gas, anos)
+        except Exception:
+            _ig=ing*12.0; _gs=gas*12.0; _cap=float(inv+parado); e3=[_cap]
+            for _y in range(anos):
+                if _y<10: _ig*=1.10
+                if _y==0: _gs*=0.90
+                _cap=_cap*1.07+max(0.0,_ig-_gs); e3.append(_cap)
         ax.plot(xs,e1,color="#9A3B2E",lw=2.0,label="Inacción (como hoy, al %g%%)"%round(_rr*100))
         ax.plot(xs,e2,color="#B8860B",lw=2.0,ls="--",label="Invertir bien (al %g%%)"%round(_r2*100))
         ax.plot(xs,e3,color="#1D6F42",lw=2.4,label="Ejecutar el plan (10×10)")
@@ -1568,13 +1587,13 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
         fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
         axbg=fig.add_axes([0,0,1,1]); axbg.axis("off"); axbg.set_xlim(0,100); axbg.set_ylim(0,141.6)
         axbg.add_patch(Rectangle((0,128),100,13.6,fc="#141A28",zorder=1))
-        axbg.text(8,134,"ADAPTA",fontsize=13,color=GOLD,fontweight="bold",family="DejaVu Sans",zorder=5)
-        axbg.text(24.2,134.2,"FAMILY OFFICE",fontsize=7,color=GR,family="DejaVu Sans",zorder=5)
+        axbg.text(8,134,"ADAPTA",fontsize=13,color=GOLD,fontweight="bold",family=_MPLFAM,zorder=5)
+        axbg.text(24.2,134.2,"FAMILY OFFICE",fontsize=7,color=GR,family=_MPLFAM,zorder=5)
         axbg.plot([8,92],[131.4,131.4],color="#262C3A",lw=1,zorder=3)
-        axbg.text(8,122,titulo,fontsize=10,color=GOLD,fontweight="bold",family="DejaVu Sans",zorder=5)
-        axbg.text(8,114.5,subt,fontsize=16,color=TX,fontweight="bold",family="DejaVu Sans",zorder=5)
+        axbg.text(8,122,titulo,fontsize=10,color=GOLD,fontweight="bold",family=_MPLFAM,zorder=5)
+        axbg.text(8,114.5,subt,fontsize=16,color=TX,fontweight="bold",family=_MPLFAM,zorder=5)
         axbg.plot([8,92],[7,7],color="#262C3A",lw=1,zorder=3)
-        axbg.text(8,4.3,"DOCUMENTO CONFIDENCIAL · ADAPTA FAMILY OFFICE · %s"%fecha,fontsize=6.2,color=GR,family="DejaVu Sans",zorder=5)
+        axbg.text(8,4.3,"DOCUMENTO CONFIDENCIAL · ADAPTA FAMILY OFFICE · %s"%fecha,fontsize=6.2,color=GR,family=_MPLFAM,zorder=5)
         return fig,axbg
     def band(fig,axbg,don_b,titulo_base,partes):
         l,b,w,h=0.06,don_b,0.30,0.205
@@ -1582,12 +1601,12 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
         partes=[(pl,max(0.0,pv),pc) for pl,pv,pc in partes if pv and pv>0]
         cyc=(b+h/2)*141.6
         if not partes:
-            axbg.text(8,ty,titulo_base,fontsize=11,color=GOLD,fontweight="bold",family="DejaVu Sans",zorder=5)
-            axbg.text(46,cyc,"— sin dato —",fontsize=11,color=GR,ha="left",va="center",family="DejaVu Sans",zorder=5); return
+            axbg.text(8,ty,titulo_base,fontsize=11,color=GOLD,fontweight="bold",family=_MPLFAM,zorder=5)
+            axbg.text(46,cyc,"— sin dato —",fontsize=11,color=GR,ha="left",va="center",family=_MPLFAM,zorder=5); return
         if len(partes)>8:
             partes=sorted(partes,key=lambda z:-z[1]); _r=sum(z[1] for z in partes[7:]); partes=partes[:7]+[("Otros",_r,"#7C8696")]
         tot=sum(pv for _,pv,_ in partes) or 1
-        axbg.text(8,ty,"%s — %s"%(titulo_base,_de(tot)),fontsize=11,color=GOLD,fontweight="bold",family="DejaVu Sans",zorder=5)
+        axbg.text(8,ty,"%s — %s"%(titulo_base,_de(tot)),fontsize=11,color=GOLD,fontweight="bold",family=_MPLFAM,zorder=5)
         ax=fig.add_axes([l,b,w,h]); ax.set_facecolor("none")
         ax.pie([pv for _,pv,_ in partes],colors=[pc for _,_,pc in partes],startangle=90,counterclock=False,wedgeprops=dict(width=0.40,edgecolor=BG,linewidth=2))
         ax.text(0,0,_de(tot),ha="center",va="center",fontsize=12.5,weight="bold",color=TX); ax.set(aspect="equal")
@@ -1595,8 +1614,8 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
         for k,(pl,pv,pc) in enumerate(partes):
             yy=top-k*step
             axbg.add_patch(FancyBboxPatch((45.5,yy-1.1),2.2,2.2,boxstyle="round,pad=0,rounding_size=0.5",fc=pc,ec=pc,zorder=5))
-            axbg.text(49.5,yy,str(pl),fontsize=9.2,color=TX,ha="left",va="center",family="DejaVu Sans",zorder=5)
-            axbg.text(92,yy,"%s · %.0f%%"%(_de(pv),100*pv/tot),fontsize=9.2,color=GR,ha="right",va="center",family="DejaVu Sans",zorder=5)
+            axbg.text(49.5,yy,str(pl),fontsize=9.2,color=TX,ha="left",va="center",family=_MPLFAM,zorder=5)
+            axbg.text(92,yy,"%s · %.0f%%"%(_de(pv),100*pv/tot),fontsize=9.2,color=GR,ha="right",va="center",family=_MPLFAM,zorder=5)
     fig,axbg=_newpage("LA DISTRIBUCIÓN DE TU DINERO","De dónde viene tu dinero, y a dónde va")
     band(fig,axbg,0.55,"INGRESOS / mes",_detparts("ingreso_mensual",[("Activo (por tu tiempo)",act,SLATE),("Pasivo (te libera)",pas,GREEN)]))
     band(fig,axbg,0.20,"GASTOS / mes",_detparts("gasto_mensual",[("Fijo (te ata)",fijo,RED),("Variable (flexible)",var,GOLD)]))
@@ -1614,29 +1633,29 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
     if len(pasivos)>8:
         pasivos=sorted(pasivos,key=lambda z:-z[1]); _rp=sum(z[1] for z in pasivos[7:]); pasivos=pasivos[:7]+[("Otros",_rp,"#7C8696")]
     tot_a=sum(v for _,v,_ in activos); tot_p=sum(v for _,v,_ in pasivos); _neto=tot_a-tot_p
-    axbg.text(8,53,"TU BALANCE PATRIMONIAL",fontsize=11,color=GOLD,fontweight="bold",family="DejaVu Sans",zorder=5)
-    axbg.text(8,48,"ACTIVOS — lo que tienes",fontsize=9,color=GREEN,fontweight="bold",family="DejaVu Sans",zorder=5)
-    axbg.text(52,48,"PASIVOS — lo que debes",fontsize=9,color=RED,fontweight="bold",family="DejaVu Sans",zorder=5)
+    axbg.text(8,53,"TU BALANCE PATRIMONIAL",fontsize=11,color=GOLD,fontweight="bold",family=_MPLFAM,zorder=5)
+    axbg.text(8,48,"ACTIVOS — lo que tienes",fontsize=9,color=GREEN,fontweight="bold",family=_MPLFAM,zorder=5)
+    axbg.text(52,48,"PASIVOS — lo que debes",fontsize=9,color=RED,fontweight="bold",family=_MPLFAM,zorder=5)
     axbg.plot([50,50],[16.5,46],color="#262C3A",lw=1,zorder=3)
     def _coldraw(parts,x0,xv):
         y=44.0
         for (l,v,c) in parts:
             axbg.add_patch(FancyBboxPatch((x0,y-0.9),1.8,1.8,boxstyle="round,pad=0,rounding_size=0.4",fc=c,ec=c,zorder=5))
-            axbg.text(x0+3,y,str(l),fontsize=8.2,color=TX,va="center",family="DejaVu Sans",zorder=5)
-            axbg.text(xv,y,_de(v),fontsize=8.2,color=GR,ha="right",va="center",family="DejaVu Sans",zorder=5)
+            axbg.text(x0+3,y,str(l),fontsize=8.2,color=TX,va="center",family=_MPLFAM,zorder=5)
+            axbg.text(xv,y,_de(v),fontsize=8.2,color=GR,ha="right",va="center",family=_MPLFAM,zorder=5)
             y-=3.05
     _coldraw(activos,8,47)
     if pasivos: _coldraw(pasivos,52,91)
-    else: axbg.text(54,40,"Sin deudas · 100% tuyo",fontsize=9,color=GREEN,fontweight="bold",va="center",family="DejaVu Sans",zorder=5)
+    else: axbg.text(54,40,"Sin deudas · 100% tuyo",fontsize=9,color=GREEN,fontweight="bold",va="center",family=_MPLFAM,zorder=5)
     axbg.plot([8,47],[18,18],color="#2A3140",lw=0.8,zorder=4)
-    axbg.text(8,16,"Total activos",fontsize=8.5,color=TX,fontweight="bold",family="DejaVu Sans",zorder=5)
-    axbg.text(47,16,_de(tot_a),fontsize=9.5,color=GREEN,fontweight="bold",ha="right",family="DejaVu Sans",zorder=5)
+    axbg.text(8,16,"Total activos",fontsize=8.5,color=TX,fontweight="bold",family=_MPLFAM,zorder=5)
+    axbg.text(47,16,_de(tot_a),fontsize=9.5,color=GREEN,fontweight="bold",ha="right",family=_MPLFAM,zorder=5)
     axbg.plot([52,91],[18,18],color="#2A3140",lw=0.8,zorder=4)
-    axbg.text(52,16,"Total pasivos",fontsize=8.5,color=TX,fontweight="bold",family="DejaVu Sans",zorder=5)
-    axbg.text(91,16,_de(tot_p),fontsize=9.5,color=RED,fontweight="bold",ha="right",family="DejaVu Sans",zorder=5)
+    axbg.text(52,16,"Total pasivos",fontsize=8.5,color=TX,fontweight="bold",family=_MPLFAM,zorder=5)
+    axbg.text(91,16,_de(tot_p),fontsize=9.5,color=RED,fontweight="bold",ha="right",family=_MPLFAM,zorder=5)
     axbg.add_patch(FancyBboxPatch((8,8.5),84,5.2,boxstyle="round,pad=0,rounding_size=1.0",fc="#161A24",ec="#262C3A",lw=1,zorder=4))
-    axbg.text(11,11.1,"DIFERENCIA  =  PATRIMONIO NETO",fontsize=9,color=GR,fontweight="bold",va="center",family="DejaVu Sans",zorder=6)
-    axbg.text(89,10.9,_de(_neto),fontsize=13.5,color=(GOLD if _neto>=0 else RED),fontweight="bold",ha="right",va="center",family="DejaVu Sans",zorder=6)
+    axbg.text(11,11.1,"DIFERENCIA  =  PATRIMONIO NETO",fontsize=9,color=GR,fontweight="bold",va="center",family=_MPLFAM,zorder=6)
+    axbg.text(89,10.9,_de(_neto),fontsize=13.5,color=(GOLD if _neto>=0 else RED),fontweight="bold",ha="right",va="center",family=_MPLFAM,zorder=6)
     fig.savefig(p2,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
     return [path,p2]
 
@@ -2508,7 +2527,7 @@ def cuadro_financiero(p, datos, fi):
         narr=(f"Hoy tu liquidez invertible es casi cero, así que las dos primeras vías —seguir igual o solo invertir "
               f"mejor— apenas mueven la aguja: sin capital que crezca, el interés compuesto no tiene de dónde partir. "
               f"Lo que de verdad cambia tu futuro es <b>construir ese capital cada mes</b>: ejecutando el plan (ahorro "
-              f"sistemático, ingresos +10%/año los primeros años y un 10% —media histórica del mercado—), a los {medad} "
+              f"sistemático, ingresos +10%/año los primeros años y un 7 % real —media histórica de la bolsa mundial descontada la inflación—), a los {medad} "
               f"podrías rondar los <b>{_eur(m65)}</b>. La palabra clave es empezar: el primer euro invertido es el que "
               f"pone en marcha todo lo demás. Orientativo, no una promesa.")
     elif modo=="3":
@@ -2519,7 +2538,7 @@ def cuadro_financiero(p, datos, fi):
               f"<b>3 · Ejecutar el plan completo</b>: <b>{_eur(m65)}</b> — <b>{_eur(m65-f65)}</b> más que sin hacer nada. "
               f"La lección es brutal: invertir mejor ayuda, pero lo que multiplica tu patrimonio es <b>ejecutar el plan</b>. "
               f"Eso no es suerte ni mercado: es el coste de no decidir. (Inacción: tu rentabilidad declarada. Plan: ingresos "
-              f"+10%/año los primeros años, estilo de vida contenido y un 10% —media histórica del mercado—. Orientativo, no "
+              f"+10%/año los primeros años, estilo de vida contenido y un 7 % real —media histórica de la bolsa mundial descontada la inflación—. Orientativo, no "
               f"una promesa.)")
     else:
         narr=(f"Si mantienes tu ritmo actual, a los {medad} rondarías los <b>{_eur(f65)}</b>. Subiendo tu ahorro cinco "
@@ -2714,7 +2733,7 @@ def seccion_extras(extras, datos=None):
                         "libertad a décadas — eso, ahora, solo añadiría peso. Cuando recuperes el control del mes "
                         "(colchón, deuda, calma), esta brecha será una conversación útil y hasta motivadora. Hoy tu única "
                         "meta es estabilizar; lo demás llegará desde tierra firme.",
-                        St("brc",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=8))]
+                        St("brc",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=8,rightIndent=8,leftIndent=8))]
     elif br:
         ci=_eur(br["coste_ideal_mes"])
         if br.get("sin_ingreso"):
@@ -2805,7 +2824,7 @@ def seccion_extras(extras, datos=None):
     dt=extras.get("deuda_tipo")
     if dt:
         out+=[Spacer(1,5*mm), Paragraph(dt[0],h_sub), Spacer(1,2*mm),
-              Paragraph(dt[1],St("dtx",fontSize=10,leading=14,textColor=INK,backColor=LIGHT,borderPadding=7,spaceBefore=0,spaceAfter=0))]
+              Paragraph(dt[1],St("dtx",fontSize=10,leading=14,textColor=INK,backColor=LIGHT,borderPadding=7,rightIndent=7,leftIndent=7,spaceBefore=0,spaceAfter=0))]
     pr=extras.get("presupuesto")
     if pr:
         out+=[Spacer(1,5*mm), Paragraph("Tu presupuesto: el marco",h_sub),
@@ -2858,7 +2877,7 @@ def seccion_extras(extras, datos=None):
         if blk:
             ti,tx=blk
             out+=[Spacer(1,5*mm), Paragraph(ti,h_sub), Spacer(1,3*mm),
-                  Paragraph(tx,St("axh",fontSize=10,leading=14,textColor=INK,backColor=LIGHT,borderPadding=7,spaceBefore=0,spaceAfter=0))]
+                  Paragraph(tx,St("axh",fontSize=10,leading=14,textColor=INK,backColor=LIGHT,borderPadding=7,rightIndent=7,leftIndent=7,spaceBefore=0,spaceAfter=0))]
     pa=extras.get("preguntas_asesor")
     if pa:
         out+=[Spacer(1,3*mm), Paragraph("Llévale esto a tu próxima reunión con tu asesor",h_sub),
@@ -2947,7 +2966,7 @@ def seccion_coste_inaccion(extras):
                "antes de que termine el día. Porque quien lee esto y mañana sigue exactamente igual no ha pagado por un "
                "diagnóstico: ha pagado por una excusa más cara. La diferencia entre los dos no está en la página "
                "siguiente — está en si te levantas de la silla <b>ahora</b>.",
-               St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=16)))
+               St("cic",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,rightIndent=10,leftIndent=10,spaceBefore=16)))
     return out
 
 def seccion_numero_realista(datos, extras):
@@ -3604,22 +3623,34 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     if not _ap_ok:
         S+=_secsafe(seccion_one_pager, salud, fi, datos, extras)
     # carta de apertura
-    S+=[Paragraph("Antes de empezar",h_sec),
-        # Sin triangulito delante: Poppins no tiene ese glifo y se come, dejando
-        # una sangria suelta antes del titulo. Mismo caso que los circulos del semaforo.
-        _box([Paragraph("<font color='#234E70'><b>Eres de los primeros — y lo afinamos contigo</b></font>",St("fbk1",fontSize=11,leading=15,fontName=FB)),
+    # CARTA: le habla a la persona, con SUS cifras, y le empuja a actuar. Es la primera pagina
+    # de texto que lee: tiene que sonar a alguien que le ha leido entero, no a un manual.
+    try:
+        _nom=(str(cli.get("nombre") or "").strip().split() or [""])[0].capitalize()
+    except Exception:
+        _nom=""
+    try:
+        _Nc=_eur(fi[0]) if fi and fi[0] else None; _pc=("%.0f"%float(fi[1])) if fi and fi[1] is not None else None
+    except Exception:
+        _Nc=_pc=None
+    _carta=St("carta",fontSize=11.5,leading=18,textColor=INK,fontName="Lora",spaceAfter=7)
+    _l=[Paragraph(("%s,"%_nom) if _nom else "Hola,",St("carta0",fontSize=13,leading=18,textColor=INK,fontName="Lora-Bold",spaceAfter=8)),
+        Paragraph("No has hecho un test. Has hecho algo que casi nadie se atreve a hacer: <b>mirarte de frente con el dinero</b>. "
+                  "Eso ya dice mucho de ti.",_carta)]
+    if _Nc and _pc is not None:
+        _l.append(Paragraph("En estas páginas vas a ver tu vida en números, y alguno te va a remover. Tu Número de Libertad es "
+                            "<b>%s</b>: la cifra que, el día que la tengas trabajando para ti, convierte tu trabajo en una elección. "
+                            "Hoy llevas el <b>%s %%</b> del camino. No es una nota: es tu punto de partida, y desde aquí se construye."%(_Nc,_pc),_carta))
+    _l+=[Paragraph("Léelo con calma y en orden. Subraya lo que te incomode: casi siempre ahí está tu palanca. Y quédate con una idea: "
+                   "<b>lo que cambia tu vida no es leer este libro, es lo que hagas en los próximos siete días.</b>",_carta),
+         Paragraph("Cuando quieras recorrerlo con alguien al lado, aquí estamos.",_carta),
+         Spacer(1,2*mm),
+         Paragraph("Javier Méndez",St("cartaf",fontSize=12,leading=16,textColor=INK,fontName="Lora-Italic")),
+         Paragraph("Fundador · Adapta Family Office",St("cartaf2",fontSize=9,leading=12,textColor=GREY))]
+    S+=[Paragraph("Una carta antes de empezar",h_sec), Spacer(1,2*mm)]+_l+[Spacer(1,8*mm),
+        _box([Paragraph("<font color='#234E70'><b>Eres de los primeros — y lo afinamos contigo</b></font>",St("fbk1",fontSize=10,leading=15,fontName=FB)),
               Paragraph("Respaldamos cada cifra de este informe. Y como eres de nuestros primeros clientes, lo construimos también contigo: si al leerlo ves algún número o conclusión que no te encaje, escríbenos a <font color='#234E70'><b>info@adaptafamilyoffice.com</b></font>. Lo revisamos al momento, lo corregimos y te reenviamos tu informe actualizado, sin coste. Tu mirada lo hace mejor — para ti y para quienes vengan detrás.",St("fbk2",fontSize=10,leading=15,spaceBefore=2,textColor=INK))],
              "#EEF2F6","#234E70",ancho=160*mm),
-        Spacer(1,4*mm),
-        Paragraph("Este libro no es un cuestionario más ni una sentencia. "
-                  "Es un espejo. Cada página nace de tus propias respuestas y las ordena para que veas, sin ruido, "
-                  "dónde tu dinero te sostiene y dónde te pesa.",body),
-        Paragraph("Lo hemos escrito como un libro, no como una ficha, porque tu vida financiera no se entiende con "
-                  "un solo número. Se entiende como una historia con capítulos: tu salud emocional con el dinero, tu "
-                  "libertad, tu resistencia a los golpes, tu deuda, tu manera de gastar y de protegerte. Cada capítulo "
-                  "te dice qué mide, qué ha salido, qué significa para ti y cuál es tu siguiente paso.",body),
-        Paragraph("No se trata de aprobar o suspender: esto fija la línea de base de tu eficiencia patrimonial, el punto desde el que se construye. Léelo con calma, en orden. Al final "
-                  "tendrás un mapa y un plan.",body),
         Spacer(1,4*mm),
         Paragraph("Una nota de cuidado: este libro es una herramienta de autoconocimiento, no asesoramiento "
                   "individualizado ni atención psicológica. Si el dinero te genera un malestar que te desborda, "
@@ -3651,7 +3682,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         _ing=float(datos.get("ingreso_mensual") or 0); _ipas=min(float(datos.get("renta_pasiva") or 0),_ing); _iact=max(0.0,_ing-_ipas)
         _gas=float(datos.get("gasto_mensual") or 0); _pf=float(datos.get("pct_gasto_fijo") or 0)
         _gfij=min(_gas,(_gas*_pf/100.0) if _pf>0 else _fijo_viv_deuda(datos.get("coste_vivienda"),datos.get("cuota_deuda"),datos.get("vivienda_tenencia"))); _gvar=max(0.0,_gas-_gfij)
-        panel_dashboard("_panel.png", 100-salud, bl, fi[0], fi[1] or 0, fi[2] or 0, _inv,_par,_ili, _iact,_ipas, _gfij,_gvar, _ili, cli.get("fecha",""))
+        panel_dashboard("_panel.png", 100-salud, bl, fi[0], fi[1] or 0, fi[2] or 0, _inv,_par,_ili, _iact,_ipas, _gfij,_gvar, max(0.0,_par-6*_gas), cli.get("fecha",""))
         S+=[FullBleedImage("_panel.png"), PageBreak()]
         try:
             _dp=panel_distribucion("_distrib.png", datos, extras, cli.get("fecha",""))
@@ -3699,7 +3730,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 Paragraph(f"<b>{bl}</b><br/><font size=8 color='#6B7280'>Salud psicofinanciera global · "
                           f"{_pct_frase}</font>",body)]],
               colWidths=[42*mm,118*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(-1,-1),0)]),
-        *([Spacer(1,5*mm),Paragraph(coh[0],h_sub),Spacer(1,3*mm),Paragraph(coh[1],St("coh",fontSize=10,leading=14,backColor=LIGHT,borderPadding=8,textColor=INK,spaceBefore=0,spaceAfter=0))] if coh else []),
+        *([Spacer(1,5*mm),Paragraph(coh[0],h_sub),Spacer(1,3*mm),Paragraph(coh[1],St("coh",fontSize=10,leading=14,backColor=LIGHT,borderPadding=8,rightIndent=8,leftIndent=8,textColor=INK,spaceBefore=0,spaceAfter=0))] if coh else []),
         *([Spacer(1,4*mm),
            Paragraph(f"Tu arquetipo del dinero: {ARQ_META[arq_code]['nombre']}",h_sub),
            Paragraph(f"<i>{ARQ_META[arq_code]['lema']}</i> {ARQ_META[arq_code]['desc']}",body),
@@ -3818,7 +3849,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 cab.append(Spacer(1,2*mm))
         if depth=="esencial":
             cab+=[Paragraph("Tu siguiente paso",h_sub),
-                  Paragraph(f"&#8226;  {ACCIONES[code][0]}",St("ps",fontSize=10,leading=14,textColor=INK,leftIndent=4,backColor=LIGHT,borderPadding=6,spaceBefore=2)),
+                  Paragraph(f"&#8226;  {ACCIONES[code][0]}",St("ps",fontSize=10,leading=14,textColor=INK,leftIndent=6,backColor=LIGHT,borderPadding=6,rightIndent=6,spaceBefore=2)),
                   Spacer(1,6*mm)]
             S.append(KeepTogether(cab))
         else:
@@ -3915,7 +3946,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         S+=[Paragraph(tt,h_sub),
             _viz,
             Paragraph(f"Mide {dd} En tu caso, {_lect(val)}",body),
-            Paragraph(qhacer[t],St("qh",fontSize=9.6,leading=13,textColor=INK,leftIndent=4,backColor=LIGHT,borderPadding=6,spaceAfter=8))]
+            Paragraph(qhacer[t],St("qh",fontSize=9.6,leading=13,textColor=INK,leftIndent=6,backColor=LIGHT,borderPadding=6,rightIndent=6,spaceAfter=8))]
     S+=[PageBreak()]
     # insights
     S+=[Paragraph("Lo que tus respuestas revelan",h_sec),
@@ -4215,7 +4246,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     else:
         pt=Paragraph("<b>Sin focos críticos: mantén el rumbo.</b> Ninguna dimensión está en tensión alta. "
                      "Tu trabajo no es contener fugas, sino afinar una maquinaria que ya funciona.",
-                     St("pa_ok",fontSize=10,leading=14,textColor=INK,leftIndent=4,backColor="#F1F6EF",borderPadding=8,spaceBefore=2))
+                     St("pa_ok",fontSize=10,leading=14,textColor=INK,leftIndent=8,backColor="#F1F6EF",borderPadding=8,rightIndent=8,spaceBefore=2))
     _pens=float(datos.get("pension_estimada") or 0); _gm_lib=float(datos.get("gasto_mensual") or 0)
     _num_aj=max(0.0,(_gm_lib-_pens))*12*25
     S+=[pt,Spacer(1,5*mm),Paragraph("Tus números de libertad",h_sub),
@@ -4501,7 +4532,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             _dp.append(Paragraph("<font color='#B8860B'>&#9670;</font>  <b>%s</b>"%_d,St("deb",fontSize=11.5,leading=17,leftIndent=6,spaceAfter=1)))
         _dp+=[Spacer(1,4*mm),Paragraph("No esperes una solución mágica. La aplicación honesta de esta lista —tan lejos como "
               "quieras llevarla— es lo que cambia la realidad de tus finanzas, de tu tiempo y, con ellos, de tu vida.",
-              St("debc",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,spaceBefore=2))]
+              St("debc",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,rightIndent=10,leftIndent=10,spaceBefore=2))]
         S+=[PageBreak()]+_dp
     if extras: S+=_secsafe(seccion_conclusion,extras)
     # DICTAMEN de comportamiento (convierte el test en prosa ejecutiva, antes del anexo crudo)

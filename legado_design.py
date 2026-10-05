@@ -198,13 +198,13 @@ def termometro(out, titulo, indice, etiqueta, drivers, accent=BLUE):
     ax.text(cx,cy-0.215,"0 = BLINDADO   ·   100 = EXPUESTO",ha="center",va="center",color=MUTE,fontproperties=P(7.5),transform=ax.transAxes)
     ax.text(cx,cy+Rr+0.03,"ÍNDICE DE VULNERABILIDAD",ha="center",va="center",color=MUTE,fontproperties=P(9.5),transform=ax.transAxes)
     # drivers columna derecha
-    x=0.70; yy=0.62
+    x=0.655; yy=0.62
     ax.text(x,yy+0.06,"Qué lo mueve",ha="left",va="center",color=accent,fontproperties=Pm(12),transform=ax.transAxes)
     ax.text(x,yy+0.028,"barra llena = factor sano",ha="left",va="center",color=MUTE,fontproperties=Li(8.5),transform=ax.transAxes)
     for nombre,val,estado in drivers:  # val 0..1, estado color
-        ax.text(x,yy,nombre,ha="left",va="center",color=WHITE,fontproperties=P(10),transform=ax.transAxes)
-        ax.add_patch(Rectangle((x,yy-0.028),0.22,0.012,color="#1E2C46",transform=ax.transAxes))
-        ax.add_patch(Rectangle((x,yy-0.028),0.22*val,0.012,color=estado,transform=ax.transAxes))
+        ax.text(x,yy,nombre,ha="left",va="center",color=WHITE,fontproperties=P(8.8),transform=ax.transAxes)
+        ax.add_patch(Rectangle((x,yy-0.028),0.25,0.012,color="#1E2C46",transform=ax.transAxes))
+        ax.add_patch(Rectangle((x,yy-0.028),0.25*val,0.012,color=estado,transform=ax.transAxes))
         yy-=0.085
     import textwrap as _tw2
     _expv="Mide cuánto te afectaría un imprevisto —un paro, un gasto grande—. Cuanto más alto el número, más expuesto estás; cuanto más bajo, más blindado."
@@ -408,10 +408,10 @@ def coste_ego(out, gasto_mes, anos, capital, n_anos=25, accent=GOLD):
     fig,ax=_canvas(); _bg(ax,(0.84,0.82),tint="#1A1726")
     _vbar(ax,0.085,0.86,"El precio que pagas por parecer rico",accent,sz=19)
     ax.text(0.10,0.62,"Ese gasto de imagen te roba",ha="left",va="center",color=MUTE,fontproperties=P(12),transform=ax.transAxes)
-    txt=("%.1f"%anos).replace(".",",")
+    txt=("%.1f"%anos).replace(".",",").replace(",0","")
     ax.text(0.10,0.50,txt,ha="left",va="center",color=accent,fontproperties=L(86),transform=ax.transAxes)
-    ax.text(0.12+0.066*len(txt)+0.02,0.495,"AÑOS",ha="left",va="center",color=WHITE,fontproperties=L(30),transform=ax.transAxes)
-    ax.text(0.10,0.40,_spaced("DE LIBERTAD, ADELANTADOS",1),ha="left",va="center",color=MUTE,fontproperties=P(10),transform=ax.transAxes)
+    ax.text(0.12+0.066*len(txt)+0.02,0.495,("AÑO" if txt=="1" else "AÑOS"),ha="left",va="center",color=WHITE,fontproperties=L(30),transform=ax.transAxes)
+    ax.text(0.10,0.40,_spaced("DE TU LIBERTAD, RETRASADA",1),ha="left",va="center",color=MUTE,fontproperties=P(10),transform=ax.transAxes)
     import textwrap
     msg=("Gastas %s €/mes en sostener una imagen. Invertido al 7%% hasta tu jubilación (unos %d años), ese mismo "
          "dinero sumaría unos %s y adelantaría tu libertad %s. Ese coche, esa marca, esa mesa del mejor "
@@ -493,6 +493,26 @@ def acelerador_10x10(out, cilindros, anos_delta, enemy_nombre, enemy_motivo, acc
     ax.text(0.5,0.035,"Objetivo de rentabilidad ilustrativo; no es una garantía.",ha="center",va="center",color=FAINT,fontproperties=P(7.5),transform=ax.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
+PLAN_R = 0.07   # rentabilidad REAL del plan, la misma en todo el libro
+
+def plan10_serie(cap0, ing_m, gas_m, anos, r=PLAN_R):
+    """UNICA definicion del plan de las 4 palancas: ingresos +10%/año los 10 primeros años,
+    gasto -10% una vez, todo el excedente reinvertido al 7% real. La usan la tabla año a
+    año, la pagina del acelerador y el grafico "El mapa de tu futuro": antes cada una tenia
+    su propio modelo y daban edades de libertad distintas (55, 59...)."""
+    w=float(cap0 or 0); ig=float(ing_m or 0)*12.0; gs=float(gas_m or 0)*12.0; out=[w]
+    for t in range(int(anos)):
+        if t<10: ig*=1.10
+        if t==0: gs*=0.90
+        w=w*(1+r)+max(0.0,ig-gs); out.append(w)
+    return out
+
+def plan10_anios(cap0, ing_m, gas_m, num, max_anos=80):
+    s=plan10_serie(cap0, ing_m, gas_m, max_anos)
+    for i,v in enumerate(s):
+        if num and v>=num: return i
+    return max_anos+1
+
 def acelerador_tabla(out, ing_m, gas_m, pat, num, accent=GOLD, vos=False):
     """Proyección a 10 años con las 4 palancas: ingresos +10%/año, gasto −10% (una vez),
     rentabilidad 10% (media histórica del S&P 500), patrimonio compuesto. Tabla año a año."""
@@ -501,13 +521,13 @@ def acelerador_tabla(out, ing_m, gas_m, pat, num, accent=GOLD, vos=False):
     ax.text(0.107,0.862,_spaced("PROYECCIÓN A 10 AÑOS",1),ha="left",va="center",color=MUTE,fontproperties=P(9),transform=ax.transAxes)
     ax.text(0.107,0.832,"Si cumples las 4 palancas: ingresos +10 %/año · gasto −10 % una vez · rentabilidad ~7 % real (bolsa mundial, histórico) · todo reinvertido.",
             ha="left",va="center",color=FAINT,fontproperties=P(7.6),transform=ax.transAxes)
-    R=0.07   # real, coherente con el resto del libro (antes 10% nominal)
-    rows=[]; w=float(pat or 0); ig=float(ing_m or 0)*12.0; gs=float(gas_m or 0)*12.0; y_lib=None
+    _ser=plan10_serie(pat, ing_m, gas_m, 10)
+    rows=[]; ig=float(ing_m or 0)*12.0; gs=float(gas_m or 0)*12.0; y_lib=None
     for t in range(1,11):
         ig*=1.10
         if t==1: gs*=0.90
         aho=max(0.0,ig-gs)
-        w=w*(1+R)+aho
+        w=_ser[t]
         pc=int(round(100*w/num)) if num else 0
         if y_lib is None and num and w>=num: y_lib=t
         rows.append((t,ig/12.0,gs/12.0,aho,w,pc))

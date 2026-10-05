@@ -165,7 +165,16 @@ def acelerador(seq, tmp, datos, extras, p):
     # Un escenario ilustrativo puede ser optimista, pero no puede contradecir al
     # propio documento en el que vive.
     R_PLAN=0.07
-    y0=_years_to(num,pat,aho,r0/100.0); y10=_years_to(num,pat,nuevo,R_PLAN)  # #16 · tasas reales (% -> fracción)
+    # Años HOY: los del motor (los mismos 31 de "tus tres decisiones"). Años CON PLAN: el modelo
+    # unico de las 4 palancas (LD.plan10_anios), el mismo de la tabla y del mapa de tu futuro.
+    y0=None
+    try:
+        import seccion_apertura as _ap
+        y0=(_ap.datos_expectativas(datos) or {}).get("anios_reales")
+    except Exception:
+        y0=None
+    if y0 is None: y0=_years_to(num,pat,aho,r0/100.0)
+    y10=LD.plan10_anios(pat,ing,gas,num)
     _inalc=(y0>=80)
     if _inalc and y10>=80: return   # ni con plan llega: no mostramos un payoff enganoso
     delta=max(0,y0-y10)
