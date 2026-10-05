@@ -219,9 +219,20 @@ def calcular_brecha(datos, resp, perfil_in):
     patrimonio = _num(datos, "patrimonio") or 0.0
     if not coste_ideal:
         return None
-    numero_ideal = coste_ideal * 12 * 25         # regla 25x sobre la vida que QUIERES
+    # NUMERO CANONICO (motor): neto de pension y con la retirada prudente por edad.
+    # El x25 queda solo como red de seguridad si el motor no puede calcular.
+    try:
+        import seccion_apertura as _ap
+        _nl = _ap.numero_libertad
+    except Exception:
+        _nl = lambda d, c=None: None
+    numero_ideal = _nl(datos, coste_ideal)
+    if numero_ideal is None:
+        numero_ideal = coste_ideal * 12 * 25
     base = gasto or ingreso
-    numero_actual = base * 12 * 25 if base else None
+    numero_actual = _nl(datos, base) if base else None
+    if base and numero_actual is None:
+        numero_actual = base * 12 * 25
     arq = (perfil_in or {}).get("vida_ideal_arq")
     # reconocimiento del propio cliente (VIS-03): 0 en rumbo, 1 espejismo, 2 via muerta
     recon = resp.get("VIS-03")
@@ -915,15 +926,20 @@ def calcular_fortuna_neta(datos):
     Por eso: neta = patrimonio; activos = suma bruta del desglose si llega, o
     patrimonio + deuda si no. Restar la deuda aqui otra vez la contaria dos veces.
     """
-    pat = _num(datos, "patrimonio")
-    if pat is None:
+    # Admite patrimonio NEGATIVO (debes mas de lo que tienes). Antes se descartaba
+    # y la pagina de fortuna neta desaparecia en silencio justo a quien mas la necesita.
+    try:
+        pat = float(datos.get("patrimonio"))
+    except (TypeError, ValueError, AttributeError):
         return None
     deuda = _num(datos, "deuda_total") or 0
+    if pat == 0 and deuda == 0:
+        return None
     gasto = _num(datos, "gasto_mensual")
     colch = _num(datos, "colchon_liquido")
     inv_liq = _num0(datos, "inversiones_liquidas")
     meses = round(colch / gasto, 1) if (colch and gasto) else None
-    activos = pat + deuda
+    activos = max(0.0, pat + deuda)
     det = datos.get("patrimonio_detalle") if isinstance(datos, dict) else None
     if isinstance(det, list):
         try:
@@ -1326,7 +1342,13 @@ def calcular_compromiso(datos, perfil_in, brecha, p):
     objetivo_ing = coste_ideal or (round(ingreso * 1.3) if ingreso else None)
     numero = (brecha or {}).get("numero_ideal") if brecha else None
     if not numero and coste_ideal:
-        numero = coste_ideal * 12 * 25
+        try:
+            import seccion_apertura as _ap
+            numero = _ap.numero_libertad(datos, coste_ideal)
+        except Exception:
+            numero = None
+        if numero is None:
+            numero = coste_ideal * 12 * 25
     reglas = ["Construir activos que generen ingresos recurrentes, no solo cambiar mi tiempo por dinero.",
               "Revisar mi fortuna neta, mis ingresos y mis gastos cada 6 meses, sin excepciones ni autoengaños."]
     rp = _num0(datos, "renta_pasiva")
@@ -1500,6 +1522,26 @@ def validar_finanzas(datos):
     # 8) pension estimada implausible frente al ingreso
     if ing>0 and pen>ing*1.6:
         flag("pension_estimada","baja","La pension que estimas (%s) es bastante mayor que tu ingreso actual (%s). ¿La revisamos?"%(_eur(pen),_eur(ing)))
+    # 9-10) DOBLE CONTEO: colchon e inversiones deben cuadrar con el desglose de patrimonio.
+    #       Es el mismo dinero preguntado dos veces; si no cuadra, alguna cifra esta contada dos veces o falta.
+    det=datos.get("patrimonio_detalle") if isinstance(datos,dict) else None
+    if isinstance(det,list):
+        def _sum_cat(*claves):
+            t=0.0
+            for r in det:
+                c=str((r or {}).get("c","")).lower()
+                if any(k in c for k in claves):
+                    try: t+=max(0.0,float((r or {}).get("v") or 0))
+                    except Exception: pass
+            return t
+        d_liq=_sum_cat("liquidez","depósito","deposito"); d_inv=_sum_cat("cartera financiera","criptomoneda")
+        try: _sv=sum(max(0.0,float((r or {}).get("v") or 0)) for r in det)
+        except Exception: _sv=0.0
+        if _sv>0: activos=_sv
+        if d_liq>0 and abs(col-d_liq)>max(3000.0,0.25*d_liq):
+            flag("colchon_liquido","media","Tu colchón (%s) no cuadra con lo que pusiste en «Liquidez / depósitos» de tu patrimonio (%s). Es el mismo dinero: cada euro debe contar una sola vez."%(_eur(col),_eur(d_liq)))
+        if d_inv>0 and abs(inv-d_inv)>max(3000.0,0.25*d_inv):
+            flag("inversiones_liquidas","media","Lo que tienes invertido (%s) no cuadra con tu «Cartera financiera» del patrimonio (%s). Es el mismo dinero: cada euro debe contar una sola vez."%(_eur(inv),_eur(d_inv)))
     der={"superavit":superavit,"patrimonio_neto":pat,"activos_brutos":activos,"liquido":liquido,
          "tasa_ahorro_pct":tasa,"colchon_meses":col_meses,"renta_pasiva":rp}
     # confirmacion en lenguaje claro
@@ -1537,10 +1579,21 @@ def frase_capa(code, datos, p=None):
                     "Poco aire deja poco descanso mental." if _m < 10 else "Ese colchón de maniobra juega a favor de tu calma.")
     elif code == "C2":  # libertad financiera
         if gas > 0:
-            num = gas * 12 * 25
-            cob_pat = round(pat / num * 100) if num > 0 else 0
-            cob_liq = round((col + inv) / num * 100) if num > 0 else 0
-            f = "Tu vida cuesta %s/año, así que tu número de libertad (regla del 4%%) es %s. De ese objetivo, tu patrimonio total cubre el %d%%, pero solo el %d%% está líquido o invertido trabajando de verdad hacia él (el resto sigue en activos que aún no rentan)." % (e(gas * 12), e(num), cob_pat, cob_liq)
+            num = None
+            try:
+                import seccion_apertura as _ap
+                _e = _ap.datos_expectativas(datos) or {}
+                num = _e.get("numero_libertad")
+            except Exception:
+                num = None
+            if num:
+                cob_pat = round(pat / num * 100)
+                cob_liq = round((col + inv) / num * 100)
+                _vida = "la vida que quieres" if (_num(datos, "coste_vida_ideal") or 0) > 0 else "tu vida de hoy"
+                f = ("Tu Número de Libertad —el capital que, sumado a tu pensión estimada, sostiene %s— es %s. "
+                     "Tu patrimonio total equivale al %d%% de esa cifra, pero solo el %d%% está líquido o invertido "
+                     "trabajando de verdad hacia ella (el resto sigue en activos que aún no rentan)."
+                     % (_vida, e(num), cob_pat, cob_liq))
     elif code == "C3":  # resistencia / stress-test
         mr = mresist()
         if mr is not None:

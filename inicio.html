@@ -141,13 +141,29 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 .foot .disc{font-size:11px;color:#6b7280;max-width:720px;margin:22px auto 0;line-height:1.6;font-weight:300}
 /* sticky */
 #stickyCta{position:fixed;right:22px;bottom:22px;z-index:60;background:var(--am);color:#000;font-weight:700;font-size:13px;padding:13px 22px;border-radius:999px;box-shadow:0 12px 34px -8px rgba(253,215,49,.55);opacity:0;pointer-events:none;transition:opacity .3s,transform .2s}
+/* RUTA: el test gratis es el PASO 1, no el producto */
+.ruta{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:960px;margin:40px auto 0;text-align:left}
+@media(max-width:820px){.ruta{grid-template-columns:1fr}}
+.rp{background:var(--pa);border:1px solid var(--bd);border-radius:16px;padding:22px;display:flex;flex-direction:column}
+.rp.main{border-color:rgba(253,215,49,.55);box-shadow:0 0 0 1px rgba(253,215,49,.15) inset}
+.rp .k{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--gr)}
+.rp.main .k{color:var(--am)}
+.rp h4{font-size:19px;font-weight:700;margin:8px 0 6px}
+.rp .m{font-size:12.5px;color:var(--am);font-weight:600;margin-bottom:10px}
+.rp p{font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.55;flex:1}
+.rp a{margin-top:16px;font-size:13.5px;font-weight:700;color:var(--am);text-decoration:none}
+.ruta-n{text-align:center;color:var(--gr);font-size:14.5px;margin-top:26px;font-weight:300}
+.ruta-n b{color:var(--tx);font-weight:600}
+.hd-link{color:var(--gr);font-size:13px;text-decoration:none;margin-right:14px;white-space:nowrap}
+.hd-link:hover{color:var(--tx)}
+@media(max-width:560px){.hd-link{display:none}}
 </style>
 </head>
 <body>
 
 <header class="head"><div class="wrap">
   <div class="logo"><b>ADAPTA</b><small>Family Office</small></div>
-  <a class="btn-head" href="indice.html">Calcular mi nota gratis →</a>
+  <div><a class="hd-link" href="planes.html">Diagnóstico completo</a><a class="btn-head" href="indice.html">Paso 1: mi nota gratis →</a></div>
 </div></header>
 
 <!-- 01 · HERO -->
@@ -155,13 +171,46 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
   <div class="wrap">
     <p class="kick">Diagnóstico psicofinanciero</p>
     <h1 class="hero-t serif" style="font-family:'Poppins'">¿Cuánto te está costando <span class="hl">tu forma de gestionar el dinero?</span></h1>
-    <p class="promise">Descúbrelo en 2 minutos. Tu Índice de Salud Financiera te pone nota sobre 100 y te dice en qué punto está más floja tu economía. Gratis y sin registro.</p>
+    <p class="promise">Empieza por tu nota: en 2 minutos, gratis, sabrás dónde estás sobre 100. Es el <b>primer paso</b>. El diagnóstico completo pone después tus cifras reales, tu Número de Libertad y tu plan.</p>
     <div class="cta-row">
       <a class="btn btn-am" href="indice.html">Descubrir mi situación →</a>
       <a class="btn btn-gh" href="#como">Ver cómo funciona ↓</a>
     </div>
-    <p class="reass">Gratis · 2 minutos · Sin registro · Sin tarjeta</p>
+    <p class="reass">Paso 1 gratis · 2 minutos · Sin registro · Sin tarjeta</p>
     <p class="tail">Tu resultado no será un consejo genérico. <b>Será tuyo.</b></p>
+  </div>
+</section>
+
+<!-- 01b · LA RUTA: tres pasos, el gratis es el primero -->
+<section class="band" id="ruta">
+  <div class="wrap">
+    <div class="sec-h">
+      <p class="eyebrow">Cómo se hace</p>
+      <h2>Tres pasos. <span class="serif">La nota es solo el primero.</span></h2>
+    </div>
+    <div class="ruta">
+      <div class="rp">
+        <div class="k">Paso 1 · Gratis</div>
+        <h4>Tu nota</h4>
+        <div class="m">2 minutos · 10 preguntas</div>
+        <p>El termómetro. Te dice si hay fiebre y en qué pilar flojeas. No usa tus cifras, así que no puede decirte cuánto te cuesta.</p>
+        <a href="indice.html">Hacer mi nota →</a>
+      </div>
+      <div class="rp main">
+        <div class="k">Paso 2 · Desde 19 €</div>
+        <h4>Tu diagnóstico</h4>
+        <div class="m">10-20 minutos · con tus cifras reales</div>
+        <p>La radiografía. Un informe personal con cuánto se te escapa al año, tu Número de Libertad, las 3 decisiones que más lo mueven y tu plan de 100 días.</p>
+        <a href="planes.html">Ver el diagnóstico →</a>
+      </div>
+      <div class="rp">
+        <div class="k">Paso 3 · Si lo quieres</div>
+        <h4>Lo trabajamos juntos</h4>
+        <div class="m">Una sesión con Adapta</div>
+        <p>Convertimos tu informe en decisiones concretas, con números y fechas. Tú decides si das este paso.</p>
+      </div>
+    </div>
+    <p class="ruta-n">La nota te dice <b>dónde estás</b>. El diagnóstico te dice <b>cuánto te cuesta y qué hacer</b>.</p>
   </div>
 </section>
 
@@ -169,7 +218,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 <section class="band pa">
   <div class="wrap">
     <div class="sec-h">
-      <p class="eyebrow">Lo que verás</p>
+      <p class="eyebrow">Paso 1 · Lo que verás gratis</p>
       <h2>En 2 minutos sabrás <span class="serif">tres cosas</span> sobre ti</h2>
     </div>
     <div class="demo">
@@ -214,13 +263,13 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
   <div class="wrap">
     <div class="sec-h">
       <p class="eyebrow">Cómo funciona</p>
-      <h2>Unos minutos para saber <span class="serif">dónde estás</span></h2>
+      <h2>De tu nota a <span class="serif">tu plan</span></h2>
     </div>
     <div class="steps">
-      <div class="step"><span class="num">1</span><div><h4>Respondes unas preguntas</h4><p>Sobre tus números y tu forma de decidir con el dinero. Sin tecnicismos.</p></div></div>
-      <div class="step"><span class="num">2</span><div><h4>Analizamos tu situación</h4><p>Cruzamos tus respuestas y tus cifras con nuestro modelo de análisis patrimonial y de comportamiento.</p></div></div>
-      <div class="step"><span class="num">3</span><div><h4>Te enseñamos tus puntos ciegos</h4><p>Tu salud financiera, tu Número de Libertad y la fuga que más te está costando.</p></div></div>
-      <div class="step"><span class="num">4</span><div><h4>Tú decides si profundizar</h4><p>Ves una parte de tu resultado gratis. Solo si quieres el análisis completo, das el siguiente paso.</p></div></div>
+      <div class="step"><span class="num">1</span><div><h4>Haces tu nota gratis</h4><p>10 preguntas, 2 minutos. Sabes dónde estás sobre 100 y qué pilar flojea. Es el termómetro, no el diagnóstico.</p></div></div>
+      <div class="step"><span class="num">2</span><div><h4>Si quieres ver el porqué, haces el diagnóstico</h4><p>Desde 19 €. Un cuestionario de 10-20 minutos con tus cifras reales —ingresos, gastos, patrimonio, deuda— y tu forma de decidir con el dinero.</p></div></div>
+      <div class="step"><span class="num">3</span><div><h4>Recibes tu informe personal</h4><p>Cuánto se te escapa al año, tu Número de Libertad, las decisiones que más lo mueven y tu plan de 100 días. Con tus números, no con medias.</p></div></div>
+      <div class="step"><span class="num">4</span><div><h4>Si quieres, lo trabajamos juntos</h4><p>Una sesión con Adapta para convertir el informe en decisiones con fecha.</p></div></div>
     </div>
     <div style="text-align:center;margin-top:36px"><a class="btn btn-am" href="indice.html">Calcular mi nota gratis →</a></div>
   </div>
@@ -339,8 +388,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
       <h2>Antes de empezar</h2>
     </div>
     <div class="faq">
-      <details><summary>¿De verdad es gratis?</summary><p>Sí. La primera fase —tu arquetipo, tu nivel de exposición y una parte de tu resultado— es gratuita, sin registro y sin tarjeta. Solo si quieres el diagnóstico completo das el siguiente paso.</p></details>
-      <details><summary>¿Cuánto tiempo me lleva?</summary><p>El vistazo inicial, unos 2 minutos. El cuestionario completo, en torno a 10 minutos. Puedes parar y retomar.</p></details>
+      <details><summary>¿De verdad es gratis?</summary><p>El primer paso, sí: tu nota del Índice de Salud Financiera es gratuita, sin registro y sin tarjeta. Pero es un termómetro, no el diagnóstico: no usa tus cifras. El diagnóstico completo —tu informe personal con tus números y tu plan— cuesta desde 19 €.</p></details>
+      <details><summary>¿Qué diferencia hay entre la nota y el diagnóstico?</summary><p>La nota te dice <b>dónde estás</b>, con 10 preguntas generales. El diagnóstico trabaja con tus cifras reales y te dice <b>cuánto te cuesta y qué hacer</b>: lo que se te escapa al año en euros, tu Número de Libertad, cuándo llegas y tu plan de 100 días.</p></details>
+      <details><summary>¿Cuánto tiempo me lleva?</summary><p>La nota, 2 minutos. El diagnóstico completo, entre 10 y 20 minutos según la modalidad. Puedes parar y retomar.</p></details>
       <details><summary>¿Qué necesito tener a mano?</summary><p>Nada especial para empezar. Para el diagnóstico completo ayuda tener tus cifras aproximadas de ingresos, gastos y patrimonio; cuanto más reales, más útil es el resultado.</p></details>
       <details><summary>¿Esto es asesoramiento financiero?</summary><p>No. Es un marco educativo y orientativo que te ayuda a ver tu situación con claridad. No constituye asesoramiento financiero, fiscal, jurídico ni de inversión personalizado.</p></details>
       <details><summary>¿Qué pasa con mis datos?</summary><p>Tu diagnóstico se elabora con los datos que tú aportas. No los necesitamos para nada ajeno a construir tu informe.</p></details>
@@ -352,7 +402,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 <section class="final">
   <div class="wrap">
     <h2 class="serif">Tu patrimonio ya está tomando decisiones. <span class="hl">La pregunta es si las estás tomando tú.</span></h2>
-    <p>Descúbrelo en 2 minutos. Gratis, sin registro.</p>
+    <p>Empieza por el paso 1: tu nota, en 2 minutos, gratis.</p>
     <div class="cta-row"><a class="btn btn-am" href="indice.html">Descubrir mi nota gratis →</a></div>
   </div>
 </section>
@@ -401,6 +451,11 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
     else{s.style.opacity='0';s.style.pointerEvents='none';}
   },{passive:true});
 })();
+</script>
+<script>
+/* MEDICION: si la visita llega con ?de=... (p.ej. linkedin-post), se arrastra a la nota, a planes y al diagnóstico. */
+(function(){try{var de=(new URLSearchParams(location.search).get("de")||"").replace(/[^a-z0-9_-]/gi,"").slice(0,40);if(!de)return;
+document.querySelectorAll('a[href^="indice.html"],a[href^="planes.html"],a[href^="empezar2.html"]').forEach(function(a){var h=a.getAttribute("href");if(h.indexOf("de=")<0)a.setAttribute("href",h+(h.indexOf("?")<0?"?":"&")+"de="+encodeURIComponent(de));});}catch(e){}})();
 </script>
 </body>
 </html>

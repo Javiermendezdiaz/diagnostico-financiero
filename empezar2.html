@@ -402,6 +402,8 @@ function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {'&':'&a
 try{ verificarInvitacion(); }catch(e){}
 const _qt=new URLSearchParams(location.search).get('tier'); if((_qt==='1'||_qt==='2'||_qt==='3')&&document.getElementById('tier')) document.getElementById('tier').value=_qt; try{descTier();}catch(e){}
 try{const _cd=new URLSearchParams(location.search).get('codigo'); if(_cd) sessionStorage.setItem('adaptaCod',_cd);}catch(e){}
+// MEDICION: etiqueta de origen (?de=linkedin-post, ?de=indice...). Solo la etiqueta, ningun dato personal.
+try{const _de=(new URLSearchParams(location.search).get('de')||'').replace(/[^a-z0-9_-]/gi,'').slice(0,40); if(_de) sessionStorage.setItem('adaptaDe',_de);}catch(e){}
 let INST=null, st={email:"",nombre:"",tier:2,sid:null,perfil:{},resp:{},datos:{},abiertas:{},
    cola:[], i:0, tens:[], reportUrl:null, abierta:new Set(), insertados:new Set(), inyectados:0, motorLog:[], _prog:0, _lastIdx:null, avisoEstres:false};
 
@@ -1078,9 +1080,14 @@ function auditCoherencia(only){
   var dt=+D.deuda_total||0,cuo=+D.cuota_deuda||0,viv=+D.coste_vivienda||0;
   var rp=+D.renta_pasiva||0,est=+D.gasto_estatus||0,pen=+D.pension_estimada||0;
   function push(campos,msg){ if(!only||campos.indexOf(only)>=0) out.push(msg); }
-  // 1) el líquido (invertido + parado) no puede superar el patrimonio neto, que ya los incluye
-  if(pat>0 && (inv+col)>pat*1.02) push(['patrimonio','inversiones_liquidas','colchon_liquido'],
-    'Tu dinero líquido (invertido '+Math.round(inv)+' € + parado '+Math.round(col)+' €) supera tu patrimonio neto ('+Math.round(pat)+' €), que ya los incluye');
+  // 1) el líquido (invertido + parado) no puede superar tus ACTIVOS (valor bruto), que ya lo incluyen.
+  //    Antes se comparaba con el patrimonio NETO: a quien tiene hipoteca le saltaba "no cuadra" sin motivo
+  //    (casa 200.000 + coche 25.000, deudas 210.000, 25.000 ahorrados: neto 40.000 y saltaba el aviso).
+  var _det=Array.isArray(D.patrimonio_detalle)?D.patrimonio_detalle:[];
+  var _sv=_det.reduce(function(a,r){return a+(parseFloat((r||{}).v)||0);},0);
+  var act=_sv>0?_sv:(pat+dt);
+  if(act>0 && (inv+col)>act*1.02) push(['patrimonio','inversiones_liquidas','colchon_liquido'],
+    'Tu dinero líquido (invertido '+Math.round(inv)+' € + parado '+Math.round(col)+' €) supera el valor de todo lo que tienes ('+Math.round(act)+' €), que ya lo incluye. ¿Lo has contado dos veces?');
   // 2) no puedes ahorrar más de lo que te sobra (ingreso − gasto)
   if(ing>0 && gas>0 && aho>(ing-gas)+Math.max(50,ing*0.02)) push(['ahorro_mensual','ingreso_mensual','gasto_mensual'],
     'Dices que ahorras '+Math.round(aho)+' €/mes, pero tu ingreso menos tu gasto deja '+Math.round(ing-gas)+' €');
@@ -1157,6 +1164,20 @@ function contNum(){
       st.datos[q.campo]=100;
       toast(100,'⚠ Eso es un porcentaje (0–100). Lo he ajustado a 100% — si te confundiste, pulsa ← Atrás para corregirlo.');
     }
+    // DOBLE CONTEO: el colchón y lo invertido deben cuadrar con lo que pusiste en el desglose de patrimonio.
+    // Cada euro, en una sola casilla. Aviso suave (no bloquea): solo si la diferencia es grande.
+    try{
+      if(q.campo==='colchon_liquido'||q.campo==='inversiones_liquidas'){
+        var _dp=st.datos.patrimonio_detalle||[];
+        var _sum=function(re){return _dp.reduce(function(a,r){return a+(re.test(r.c||'')?(parseFloat(r.v)||0):0);},0);};
+        var _ref=q.campo==='colchon_liquido'?_sum(/liquidez|dep[oó]sito/i):_sum(/cartera financiera|criptomonedas/i);
+        var _val=parseFloat(st.datos[q.campo])||0;
+        var _nom=q.campo==='colchon_liquido'?'«Liquidez / depósitos»':'«Cartera financiera» y «Criptomonedas»';
+        if(_ref>0 && Math.abs(_val-_ref)>Math.max(3000,0.25*_ref)){
+          toast(100,'⚠ En el desglose de tu patrimonio pusiste '+Math.round(_ref).toLocaleString('es-ES')+' € en '+_nom+', y aquí '+Math.round(_val).toLocaleString('es-ES')+' €. Deberían cuadrar: cada euro, en una sola casilla. Si te equivocaste, pulsa ← Atrás.');
+        }
+      }
+    }catch(e){}
     var _g=st.datos['gasto_mensual']||0, _viv=st.datos['coste_vivienda']||0, _cuo=st.datos['cuota_deuda']||0;
     if(_g>0 && (q.campo==='cuota_deuda'||q.campo==='coste_vivienda') && (_viv+_cuo)>_g){
       toast(100,'⚠ Tu vivienda ('+Math.round(_viv)+' €) + cuotas de deuda ('+Math.round(_cuo)+' €) suman más que tu gasto mensual ('+Math.round(_g)+' €). Revisa si te equivocaste — pulsa ← Atrás.');
@@ -1261,6 +1282,7 @@ async function finalizar(){
   ]);
   try{
     st.datos._motor=st.motorLog;
+    try{const _o=sessionStorage.getItem('adaptaDe'); if(_o) st.datos._origen=_o;}catch(e){}
     const body={session_id:st.sid,email:st.email,respuestas:st.resp,datos:st.datos,abiertas:st.abiertas,perfil:st.perfil,v2:true};
     if(PAREJA) body.pareja_de=PAREJA;
     const r=await fetch(API+'/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});

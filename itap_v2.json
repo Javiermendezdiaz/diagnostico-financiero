@@ -5274,7 +5274,8 @@
    "id": "NUM-3",
    "campo": "ahorro_mensual",
    "unidad": "€/mes",
-   "texto": "¿Cuánto ahorras o inviertes de media cada mes, de verdad?"
+   "texto": "¿Cuánto ahorras o inviertes de media cada mes, de verdad?",
+   "ayuda": "Es lo que apartas cada mes, vaya donde vaya: a tu cuenta de ahorro, a fondos, a un plan o a Letras. Ahorro + inversión juntos, una sola cifra. Es un flujo mensual, no lo que ya tienes acumulado (eso va más adelante). No cuentes la parte de hipoteca que ya pagas en tu cuota: ya está en tu gasto."
   },
   {
    "id": "NUM-12",
@@ -5327,8 +5328,8 @@
    "id": "NUM-6",
    "campo": "colchon_liquido",
    "unidad": "€",
-   "texto": "¿Cuánto tienes ahora mismo en dinero parado y disponible — cuenta corriente, cuentas de ahorro, depósitos y efectivo —, sin contar inversiones ni vivienda?",
-   "ayuda": "Es tu colchón ante un imprevisto. Incluye aquí también los fondos monetarios: funcionan como efectivo. Dinero seguro, pero que apenas renta: lo que tengas por encima de tu fondo de emergencia pierde valor con la inflación."
+   "texto": "¿Cuánto tienes ahora mismo en dinero parado y disponible — cuenta corriente, cuentas de ahorro, depósitos, Letras del Tesoro y efectivo —, sin contar inversiones ni vivienda?",
+   "ayuda": "Regla Adapta: es ahorro todo lo que puedes hacer líquido sin exigirle más que la inflación. Va aquí: cuentas, depósitos, fondos monetarios y Letras del Tesoro. Si su objetivo es hacer crecer tu dinero, va en la pregunta de inversión. Cada euro, en una sola casilla: es el mismo dinero que pusiste en «Liquidez / depósitos» de tu patrimonio, no uno adicional."
   },
   {
    "id": "NUM-11",
@@ -5401,8 +5402,8 @@
    "id": "NUM-13",
    "campo": "inversiones_liquidas",
    "unidad": "€",
-   "texto": "¿Cuánto tienes invertido en mercados — bolsa, fondos, ETFs o renta fija —, sin contar cuenta corriente, depósitos, fondos monetarios ni tu vivienda? Pon 0 si no tienes nada invertido.",
-   "ayuda": "Esto es tu dinero que trabaja de verdad: solo lo que está en mercados (renta variable o fija), no lo que tienes parado en el banco. Es la base sobre la que proyectamos tu crecimiento."
+   "texto": "¿Cuánto tienes invertido en mercados — bolsa, fondos, ETFs o renta fija —, sin contar cuenta corriente, depósitos, fondos monetarios, Letras del Tesoro ni tu vivienda? Pon 0 si no tienes nada invertido.",
+   "ayuda": "Solo el dinero cuyo objetivo es crecer: bolsa, fondos, ETFs, renta fija a medio y largo plazo. Lo que guardas para preservarlo ya está en tu colchón: no lo sumes otra vez. Es el mismo dinero que pusiste en «Cartera financiera» de tu patrimonio, y la base sobre la que proyectamos tu crecimiento."
   },
   {
    "id": "NUM-R1",

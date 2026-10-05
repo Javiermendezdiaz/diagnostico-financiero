@@ -94,6 +94,24 @@ body{font-family:'Poppins',sans-serif;background:var(--ng);color:var(--tx);-webk
 .legal{margin-top:32px;text-align:center;color:#48484E;font-size:11px;line-height:1.6;font-weight:300}
 .legal a{color:#6A6A70}
 @media(max-width:480px){#hero h1{font-size:31px}.sc-num{font-size:78px}.share-row{grid-template-columns:1fr}.wrap{padding:22px 18px 50px}}
+/* PASO 1 DE 2 */
+.paso{display:flex;align-items:center;gap:10px;justify-content:center;margin:0 0 16px}
+.paso i{display:block;height:4px;width:38px;border-radius:9px;background:var(--linea)}
+.paso i.on{background:var(--am)}
+.paso span{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--am);font-weight:700}
+.termo{margin:18px auto 0;max-width:430px;border:1px solid var(--linea);border-radius:12px;padding:12px 14px;color:var(--gr);font-size:13px;line-height:1.5;font-weight:300}
+.termo b{color:#fff;font-weight:600}
+.vs{width:100%;border-collapse:collapse;margin:4px 0 18px;font-size:13px;text-align:left}
+.vs th{font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:0 6px 8px;color:var(--gr);text-align:center}
+.vs th.d{color:var(--am)}
+.vs td{padding:9px 6px;border-top:1px solid var(--linea);vertical-align:top;line-height:1.4}
+.vs td:first-child{color:#fff;font-weight:500;width:56%}
+.vs td.n{color:#6a6a70;text-align:center}
+.vs td.y{color:var(--am);font-weight:600;text-align:center}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 8px}
+.thumbs img{width:100%;border-radius:6px;border:1px solid var(--linea);display:block}
+.thumbs-n{font-size:11.5px;color:#6a6a70;margin-bottom:18px}
+.thumbs-n a{color:var(--gr)}
 </style>
 </head>
 <body>
@@ -105,6 +123,7 @@ body{font-family:'Poppins',sans-serif;background:var(--ng);color:var(--tx);-webk
 
   <!-- HERO -->
   <section id="hero">
+    <div class="paso"><i class="on"></i><i></i><span>Paso 1 de 2 · gratis</span></div>
     <span class="eyebrow">Índice de Salud Financiera</span>
     <h1>¿Qué nota tiene <b>tu salud financiera</b>?</h1>
     <p>No es cuánto ganas. Es lo bien montada que está tu economía. Descubre tu nota sobre 100 y en qué punto estás más flojo.</p>
@@ -114,6 +133,7 @@ body{font-family:'Poppins',sans-serif;background:var(--ng);color:var(--tx);-webk
       <span><i class="dot"></i> Sin registro</span>
     </div>
     <button class="btn" onclick="start()">Calcular mi nota →</button>
+    <p class="termo">Esto es el <b>termómetro</b>: te dice si hay fiebre. El <b>diagnóstico completo</b> es la radiografía: con tus cifras reales, dice cuánto te cuesta y qué hacer.</p>
   </section>
 
   <!-- QUIZ -->
@@ -127,6 +147,7 @@ body{font-family:'Poppins',sans-serif;background:var(--ng);color:var(--tx);-webk
 
   <!-- RESULT -->
   <section id="result">
+    <div class="paso"><i class="on"></i><i></i><span>Paso 1 de 2 completado</span></div>
     <p class="reveal">Tu Índice de Salud Financiera:</p>
 
     <div id="scoreCard">
@@ -147,6 +168,21 @@ body{font-family:'Poppins',sans-serif;background:var(--ng);color:var(--tx);-webk
     <div class="cta">
       <h3 id="ctaH">Tu nota dice <b>dónde estás</b>. No dice <b>cuánto te está costando</b>.</h3>
       <p id="ctaP">El diagnóstico completo pone tus cifras exactas: cuánto se te escapa al año, tu número de libertad y el plan de 100 días para subir esta nota.</p>
+      <table class="vs" aria-label="Lo que tienes frente a lo que te da el diagnóstico">
+        <tr><th></th><th>Esta nota</th><th class="d">Diagnóstico</th></tr>
+        <tr><td>Dónde estás, sobre 100</td><td class="n">Sí</td><td class="y">Sí</td></tr>
+        <tr><td>Con tus cifras reales</td><td class="n">No</td><td class="y">Sí</td></tr>
+        <tr><td>Cuánto se te escapa al año, en euros</td><td class="n">No</td><td class="y">Sí</td></tr>
+        <tr><td>Tu Número de Libertad y cuándo llegas</td><td class="n">No</td><td class="y">Sí</td></tr>
+        <tr><td>Las 3 decisiones que más lo mueven</td><td class="n">No</td><td class="y">Sí</td></tr>
+        <tr><td>Tu plan de 100 días, por escrito</td><td class="n">No</td><td class="y">Sí</td></tr>
+      </table>
+      <div class="thumbs">
+        <img src="muestra-p1.jpg" alt="Portada del informe" loading="lazy">
+        <img src="muestra-p2.jpg" alt="Las tres decisiones que más mueven tu número" loading="lazy">
+        <img src="muestra-p3.jpg" alt="Tu número y las vías para llegar" loading="lazy">
+      </div>
+      <p class="thumbs-n">Páginas reales del informe, con un perfil inventado. <a href="muestra-avanzado.pdf" target="_blank" rel="noopener">Ver el ejemplo completo →</a></p>
       <div class="price" id="ctaPrice"></div>
       <a class="btn block" id="ctaBtn" href="empezar2.html?tier=2">Ver mi diagnóstico completo →</a>
       <a id="ctaAlt" href="empezar2.html?tier=2" style="display:none;margin-top:16px;color:var(--gr);font-size:13px;text-decoration:none;border-bottom:1px solid var(--linea);padding-bottom:2px">Prefiero solo el mío · Avanzado 39&nbsp;€ →</a>
@@ -299,6 +335,11 @@ function finish(){
   $("weakName").textContent=PILAR[weakKey];
   $("weakTxt").textContent=PILAR_TXT[weakKey];
 
+  /* MEDICION: de dónde viene el pago. Conserva el ?de= con el que llegó (p.ej. linkedin-post)
+     y, si no trae ninguno, marca "indice". Solo una etiqueta de origen, ningún dato personal. */
+  var _de0=(new URLSearchParams(location.search).get("de")||"").replace(/[^a-z0-9_-]/gi,"").slice(0,40);
+  var _de=_de0?("indice-"+_de0):"indice";
+  setTimeout(function(){ ["ctaBtn","ctaAlt"].forEach(function(id){ var a=$(id); if(a&&a.getAttribute("href").indexOf("de=")<0) a.setAttribute("href",a.getAttribute("href")+"&de="+encodeURIComponent(_de)); }); },0);
   /* recomendación comercial según convivencia */
   if(segVal==="pareja"){
     $("ctaBtn").href="empezar2.html?tier=3";

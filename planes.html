@@ -237,5 +237,10 @@ footer a{color:#8A8A90;}
   Herramienta orientativa de autoconocimiento, no asesoramiento financiero individualizado.<br>
   <a href="privacidad.html">Política de privacidad</a> · <a href="https://www.adaptafamilyoffice.com" target="_blank">adaptafamilyoffice.com</a>
 </footer>
+<script>
+/* MEDICION: arrastra la etiqueta de origen (?de=...) hasta el cuestionario. */
+(function(){try{var de=(new URLSearchParams(location.search).get("de")||"").replace(/[^a-z0-9_-]/gi,"").slice(0,40);if(!de)return;
+document.querySelectorAll('a[href^="empezar2.html"],a[href^="empezar.html"]').forEach(function(a){var h=a.getAttribute("href");if(h.indexOf("de=")<0)a.setAttribute("href",h+(h.indexOf("?")<0?"?":"&")+"de="+encodeURIComponent(de));});}catch(e){}})();
+</script>
 </body>
 </html>

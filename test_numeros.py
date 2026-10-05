@@ -224,6 +224,49 @@ def fortuna_neta():
             if r.get("neta") != pat or r.get("neta") > r.get("activos", 0):
                 malos.append((pat, deu))
     _chk("F. la neta es el patrimonio declarado y nunca supera a los activos", malos, [])
+    # Fortuna NEGATIVA: se muestra, no desaparece.
+    r = sv.calcular_fortuna_neta({"patrimonio": -15000, "deuda_total": 95000, "gasto_mensual": 1500}) or {}
+    _chk("F. fortuna negativa se muestra (neta)", r.get("neta"), -15000)
+    _chk("F. fortuna negativa: activos = neta + deuda", r.get("activos"), 80000)
+    # DOBLE CONTEO: colchon/inversion que no cuadran con el desglose -> alerta
+    d = {"patrimonio": 210000, "deuda_total": 68000, "colchon_liquido": 12000, "inversiones_liquidas": 45000,
+         "patrimonio_detalle": [{"c": "Vivienda habitual", "v": 221000, "d": 68000},
+                                {"c": "Cartera financiera (fondos, acciones, ETF)", "v": 90000},
+                                {"c": "Liquidez / depósitos", "v": 12000}]}
+    campos = [a["campo"] for a in sv.validar_finanzas(d)["alertas"]]
+    _chk("F. doble conteo: inversiones que no cuadran con la cartera -> alerta", "inversiones_liquidas" in campos, True)
+    _chk("F. doble conteo: colchon que cuadra -> sin alerta", "colchon_liquido" in campos, False)
+
+
+def un_solo_numero():
+    """El Numero de Libertad es UNO en todo el informe.
+
+    (Fallo real, oct 2026: el mismo PDF decia 909.480, 870.000 y 1.170.000 porque
+     varias piezas calculaban coste*12*25 por su cuenta.)
+    """
+    print("== 4) UN SOLO NUMERO DE LIBERTAD ==")
+    try:
+        import score_v2 as sv, seccion_apertura as ap
+    except Exception as e:
+        _chk("N. modulos importables", "excepcion: %s" % e, True)
+        return
+    perfiles = [
+        dict(edad=45, gasto_mensual=2900, coste_vida_ideal=3900, pension_estimada=1250,
+             ingreso_mensual=4200, ahorro_mensual=700, patrimonio=210000, deuda_total=68000,
+             colchon_liquido=12000, inversiones_liquidas=45000),
+        dict(edad=38, gasto_mensual=2000, coste_vida_ideal=2600, pension_estimada=0,
+             ingreso_mensual=3000, ahorro_mensual=500, patrimonio=60000,
+             colchon_liquido=10000, inversiones_liquidas=20000),
+    ]
+    for d in perfiles:
+        canon = (ap.datos_expectativas(d) or {}).get("numero_libertad")
+        br = sv.calcular_brecha(d, {}, {}) or {}
+        _chk("N. brecha.numero_ideal = canonico (edad %d)" % d["edad"], br.get("numero_ideal"), canon)
+        _chk("N. brecha.numero_canonico = canonico (edad %d)" % d["edad"], br.get("numero_canonico"), canon)
+        f = sv.frase_capa("C2", d, {}) or ""
+        _chk("N. la frase del capitulo 2 cita el canonico (edad %d)" % d["edad"],
+             sv._eur(canon) in f, True)
+        _chk("N. ninguna frase usa la regla del 4%% bruta (edad %d)" % d["edad"], "regla del 4" in f, False)
 
 
 def main():
@@ -233,6 +276,7 @@ def main():
     casos_de_oro()
     invariantes()
     fortuna_neta()
+    un_solo_numero()
     print("-" * 62)
     if FALLOS:
         print("X %d COMPROBACION(ES) FALLIDA(S) de %d:" % (len(FALLOS), len(FALLOS) + OK))

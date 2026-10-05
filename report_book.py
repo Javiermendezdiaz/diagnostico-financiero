@@ -2771,6 +2771,21 @@ def seccion_extras(extras, datos=None):
               Spacer(1,2*mm),
               _box([Paragraph("Activos <b>%s</b> &#8722; Deuda <b>%s</b> = Fortuna neta <b>%s</b>%s"%(_eur(fnt["activos"]),_eur(fnt["pasivos"]),_eur(fnt["neta"]),cm),
                               St("fnt",fontSize=10.5,leading=15))],"#EEF2F8","#0F766E",ancho=160*mm)]
+        # DOBLE CONTEO: si el colchon o lo invertido no cuadran con el desglose del patrimonio, se dice aqui,
+        # junto a la cifra que afecta. Mejor un aviso honesto que un numero inflado.
+        try:
+            _al=[a for a in ((extras.get("coherencia") or {}).get("alertas") or [])
+                 if a.get("campo") in ("colchon_liquido","inversiones_liquidas","patrimonio")]
+        except Exception:
+            _al=[]
+        if _al:
+            out+=[Spacer(1,2*mm),_box([Paragraph("<b>Revisa este dato antes de decidir nada.</b> "+" ".join(a["mensaje"] for a in _al[:2])+
+                  " Las cifras de este informe usan lo que declaraste; si alguna está contada dos veces, lo corregimos en la sesión.",
+                  St("dcx",fontSize=9.6,leading=13.5))],"#FFF7E6","#B45309",ancho=160*mm)]
+        if (fnt.get("neta") or 0)<0:
+            out+=[Spacer(1,2*mm),Paragraph("<b>Hoy debes más de lo que tienes.</b> No es una sentencia: es el punto de partida. "
+                  "Tu primer objetivo no es invertir, es devolver tu fortuna neta a cero —empezando por la deuda más cara—. "
+                  "Cada euro que amortizas ahí rinde más, y con más certeza, que cualquier inversión.",small)]
         if fnt.get("asignacion") and donut_asignacion(fnt["asignacion"],"_donut.png"):
             out+=[Spacer(1,4*mm), Paragraph("Cómo está repartido tu patrimonio",h_sub),
                   Paragraph("Solo con lo que has declarado, sin suponer nada:",small),

@@ -92,6 +92,25 @@ def datos_expectativas(datos):
         return None
 
 
+def numero_libertad(datos, coste_mensual=None):
+    """Numero de Libertad CANONICO para un coste de vida dado (por defecto, el del cliente).
+
+    Todo el libro debe pedir el numero aqui. Antes varias piezas hacian
+    `coste*12*25` por su cuenta (sin pension y con la regla del 4% bruta) y el
+    mismo informe ensenaba 909.480, 870.000 y 1.170.000 al mismo cliente.
+    Devuelve None solo si el motor no puede calcular (datos incompletos).
+    """
+    d = dict(datos or {})
+    if coste_mensual is not None:
+        d["coste_vida_ideal"] = coste_mensual
+    exp = datos_expectativas(d)
+    try:
+        v = (exp or {}).get("numero_libertad")
+        return None if v is None else round(float(v))
+    except Exception:
+        return None
+
+
 def tres_palancas(exp):
     """Hasta 3 decisiones DISTINTAS, sin repetir cifra.
 
