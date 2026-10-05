@@ -5328,7 +5328,7 @@
    "campo": "colchon_liquido",
    "unidad": "€",
    "texto": "¿Cuánto tienes ahora mismo en dinero parado y disponible — cuenta corriente, cuentas de ahorro, depósitos y efectivo —, sin contar inversiones ni vivienda?",
-   "ayuda": "Es tu colchón ante un imprevisto. Dinero seguro, pero que apenas renta: lo que tengas por encima de tu fondo de emergencia pierde valor con la inflación."
+   "ayuda": "Es tu colchón ante un imprevisto. Incluye aquí también los fondos monetarios: funcionan como efectivo. Dinero seguro, pero que apenas renta: lo que tengas por encima de tu fondo de emergencia pierde valor con la inflación."
   },
   {
    "id": "NUM-11",
@@ -5401,7 +5401,7 @@
    "id": "NUM-13",
    "campo": "inversiones_liquidas",
    "unidad": "€",
-   "texto": "¿Cuánto tienes invertido en mercados — bolsa, fondos, ETFs o renta fija —, sin contar cuenta corriente, depósitos ni tu vivienda? Pon 0 si no tienes nada invertido.",
+   "texto": "¿Cuánto tienes invertido en mercados — bolsa, fondos, ETFs o renta fija —, sin contar cuenta corriente, depósitos, fondos monetarios ni tu vivienda? Pon 0 si no tienes nada invertido.",
    "ayuda": "Esto es tu dinero que trabaja de verdad: solo lo que está en mercados (renta variable o fija), no lo que tienes parado en el banco. Es la base sobre la que proyectamos tu crecimiento."
   },
   {
