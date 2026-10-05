@@ -179,15 +179,19 @@ def fi_metrics(d):
     # Capital INVERTIBLE = lo que genera la renta (mercados + liquido). NO la vivienda ni el negocio iliquido.
     invertible=max(0.0, float(d.get("inversiones_liquidas") or 0)+float(d.get("colchon_liquido") or 0))
     tasa=round(100*aho/ingreso,1) if ingreso else 0.0
-    fi=None
+    fi=None; _anios_motor=None
     try:
         import seccion_apertura as _ap        # import tardio: evita el ciclo de importacion
         _exp=_ap.datos_expectativas(d)
         if _exp and _exp.get("numero_libertad"): fi=float(_exp["numero_libertad"])
+        if _exp and _exp.get("anios_reales") is not None: _anios_motor=float(_exp["anios_reales"])
     except Exception:
         fi=None
     if not fi: fi=gasto*12*25                 # failsafe: comportamiento anterior
     pct=round(100*invertible/fi,1) if fi else 0.0
+    # Años: los del motor (mismos que "tus tres decisiones" y la tabla de escenarios). El bucle solo es red.
+    if _anios_motor is not None:
+        return fi,pct,tasa,_anios_motor
     r,pv,m,n=0.05/12,invertible,aho,0
     while pv<fi and n<1200: pv=pv*(1+r)+m; n+=1
     return fi,pct,tasa,(round(n/12,1) if n<1200 else None)
@@ -1304,7 +1308,7 @@ def panel_persona(path, nombre, salud, arq_code, prof):
     ax.text(8,9,"ADAPTA FAMILY OFFICE",color=GOLD,fontsize=8.2,fontweight="bold",va="center",zorder=4)
     fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
 
-_SHORT12={"C1":"Agotamiento","C2":"Libertad FI","C3":"Resistencia","C4":"Estilo de vida","C5":"Protección","C6":"Estatus","C7":"Concentración","C8":"Antifragilidad","C9":"Flujo de caja","C10":"Salud deuda","C11":"Crecimiento","C12":"Inversión"}
+_SHORT12={"C1":"Agotamiento","C2":"Libertad","C3":"Resistencia","C4":"Estilo de vida","C5":"Protección","C6":"Estatus","C7":"Concentración","C8":"Antifragilidad","C9":"Flujo de caja","C10":"Salud deuda","C11":"Crecimiento","C12":"Inversión"}
 
 def panel_capas(path, p, titulo="TUS 12 DIMENSIONES",
                 subtitulo="Una mirada a cada palanca de tu vida financiera. El verde sostiene; el rojo pide acción."):
@@ -1873,7 +1877,7 @@ def seccion_conclusion(extras):
         return []
     nd = extras.get("nudo"); rv = extras.get("ratio_vida"); acc = extras.get("accion_unica")
     out = [PageBreak(), Paragraph("¿Por qué levantarte del sofá?", h_sec),
-           Paragraph("Has llegado al final. La mayoría no lo hace. Pero leer no cambia nada — y este "
+           Paragraph("Has llegado hasta aquí. La mayoría no lo hace. Pero leer no cambia nada — y este "
                      "diagnóstico no vale por lo que te ha contado, sino por lo que hagas en los próximos diez "
                      "minutos. Antes de cerrarlo, quédate solo con esto:", body),
            Spacer(1, 5*mm)]
@@ -2085,7 +2089,7 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
     rn=cm.get("rentabilidad_necesaria")
     out+=[Spacer(1,2*mm),
           via("CAMINO 2 \u00b7 Haz rentar mejor",
-              ("Con tu ahorro actual no basta solo con rentabilidad" if rn is None else "%s%% anual"%rn),
+              ("Con tu ahorro actual no basta solo con rentabilidad" if rn is None else ("%s %% anual"%rn).replace(".",",")),
               "Manteniendo tu ahorro de hoy, esta es la rentabilidad que tu capital necesita.","#B45309","#FBF1E3")]
     out+=[Spacer(1,2*mm),
           via("CAMINO 3 \u00b7 Ajusta el objetivo",
@@ -2100,14 +2104,19 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
     # === ESCENARIOS: como se mueve TU numero con lo que si controlas ===
     _esc = exp.get("escenarios") or []
     if len(_esc) > 1:
-        out += [Spacer(1, 5*mm), Paragraph("C\u00f3mo se mueve tu n\u00famero", h_sub)]
-        out.append(Paragraph("Tu cifra no est\u00e1 grabada en piedra: depende de decisiones que est\u00e1n en tu mano. "
-                             "Esto es lo que pasar\u00eda si tocas cada palanca.", body))
+        _blk = [Spacer(1, 5*mm), Paragraph("C\u00f3mo se mueve tu n\u00famero", h_sub),
+                Paragraph("Tu cifra no est\u00e1 grabada en piedra: depende de decisiones que est\u00e1n en tu mano. "
+                          "Esto es lo que pasar\u00eda si tocas cada palanca.", body)]
         _fil = [[Paragraph("<b>Si\u2026</b>", St("esh", fontSize=9.5)),
                  Paragraph("<b>Tu n\u00famero</b>", St("esh2", fontSize=9.5)),
                  Paragraph("<b>Diferencia</b>", St("esh3", fontSize=9.5)),
                  Paragraph("<b>A\u00f1os para llegar</b>", St("esh4", fontSize=9.5))]]
-        for _e in _esc:
+        _b0 = _esc[0]
+        for _k, _e in enumerate(_esc):
+            # Un escenario que no cambia ni el numero ni los años no es una palanca: confunde ("paras 2 años
+            # mas tarde" salia identico al plan de hoy). Se omite.
+            if _k > 0 and round(float(_e.get("numero") or 0)) == round(float(_b0.get("numero") or 0)) and _e.get("anios") == _b0.get("anios"):
+                continue
             _d = _e.get("delta", 0)
             _dt = ("\u2014" if not _d else
                    ('<font color="#1D6F42"><b>%s</b></font>' % _eur(_d) if _d < 0 else "+%s" % _eur(_d)))
@@ -2117,15 +2126,16 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
                          Paragraph("<b>%s</b>" % _eur(_e.get("numero", 0)), St("esc2", fontSize=9.5)),
                          Paragraph(_dt, St("esc3", fontSize=9.5)),
                          Paragraph(("%s a\u00f1os" % _an) if _an is not None else "no llega", St("esc4", fontSize=9.5))])
-        _t = Table(_fil, colWidths=[62*mm, 34*mm, 32*mm, 32*mm])
+        _t = Table(_fil, colWidths=[62*mm, 34*mm, 32*mm, 32*mm], repeatRows=1)
         _t.setStyle(TableStyle([("LINEBELOW", (0,0), (-1,-1), 0.4, colors.HexColor("#E5E0D5")),
                                 ("BACKGROUND", (0,1), (-1,1), colors.HexColor("#FBF4E4")),
                                 ("TOPPADDING", (0,0), (-1,-1), 5),
                                 ("BOTTOMPADDING", (0,0), (-1,-1), 5)]))
-        out += [Spacer(1, 2*mm), _t, Spacer(1, 3*mm)]
-        out.append(Paragraph("F\u00edjate en algo: recortar el gasto baja el n\u00famero <b>mucho m\u00e1s</b> que ahorrar m\u00e1s, "
-                             "porque reduce el capital que necesitas <b>para siempre</b>. Ahorrar m\u00e1s no cambia la meta: "
-                             "te acerca antes a ella.", body))
+        _blk += [Spacer(1, 2*mm), _t, Spacer(1, 3*mm)]
+        out.append(KeepTogether(_blk))
+        out.append(Paragraph("F\u00edjate en la diferencia: recortar el gasto <b>baja tu n\u00famero para siempre</b> \u2014necesitas "
+                             "menos capital\u2014; ahorrar m\u00e1s no cambia la meta, pero te acerca antes a ella. Combinadas son las que "
+                             "m\u00e1s a\u00f1os te devuelven. Decidir la mezcla que encaja con tu vida es el trabajo de la sesi\u00f3n.", body))
     # === LAS DOS PIEZAS QUE SOLO LLEGABAN AL ANEXO ===
     # Riesgo de secuencia y fiscalidad de la retirada: dos de los mayores
     # diferenciadores frente a cualquier calculadora, y el cliente que paga el
@@ -2649,7 +2659,7 @@ def glosario(p, datos, fi):
         g.append(("Blindaje patrimonial",
             "El conjunto de medidas legales —testamento, seguros, poderes— que protegen lo tuyo y a los tuyos.",
             "Tu checklist de herencia y blindaje tiene huecos: es de lo que más tranquilidad da cerrar.",
-            "Barato de resolver, caragísimo de ignorar. El día que hace falta, ya no hay margen."))
+            "Barato de resolver, carísimo de ignorar. El día que hace falta, ya no hay margen."))
     return g[:8]
 
 EDAD_JUBILACION = 67  # referencia ordinaria (2026: 66a10m si <38a3m cotizados, 65 si mas; 67 objetivo 2027)
@@ -2952,15 +2962,27 @@ def seccion_numero_realista(datos, extras):
         return []
     if not N or N<=0 or aho<=0:
         return []
-    falta=max(0.0,N-pat)
-    anios=falta/(aho*12.0)
+    # Años: los MISMOS del motor (con rentabilidad y pension), no una division sin intereses
+    # sobre el patrimonio con la casa dentro (daba 83 años frente a los 31 del resto del libro).
+    anios=None
+    try:
+        import seccion_apertura as _ap
+        _esc=((_ap.datos_expectativas(d) or {}).get("escenarios") or [])
+        if _esc: anios=_esc[0].get("anios")
+    except Exception:
+        anios=None
+    if anios is None:
+        _cap=float(d.get("inversiones_liquidas") or 0)+float(d.get("colchon_liquido") or 0)
+        _r=0.05/12; _n=0
+        while _cap<N and _n<1200: _cap=_cap*(1+_r)+aho; _n+=1
+        anios=_n/12.0
     if anios<40:
         return []
     return [Spacer(1,3*mm),
             _box([Paragraph("UN NÚMERO HONESTO",St("nr0",fontSize=8.5,leading=11,textColor=colors.HexColor("#9A3B2E"),fontName=FB)),
                   Paragraph("Tu número de libertad es real, pero conviene decirlo sin rodeos: a tu ritmo de ahorro de hoy "
                             "(<b>%s/mes</b>), llegar a él tomaría del orden de <b>%d años</b>. Eso significa que <b>no se "
-                            "alcanza ahorrando</b> —ningún recorte de gastos cierra esa distancia—: se alcanza <b>cambiando "
+                            "alcanza solo ahorrando</b>: se alcanza <b>cambiando "
                             "de fase de ingresos</b>: subir lo que generas, poner a trabajar tu patrimonio, o crear una "
                             "fuente que no dependa de tu tiempo. Ese, y no apretarte el cinturón, es el verdadero trabajo."
                             %(_eur(aho), int(round(anios))),St("nr1",fontSize=10.5,leading=15,textColor=colors.HexColor("#2C313A"),spaceBefore=3))],
@@ -3425,9 +3447,9 @@ def seccion_dictamen_empresa(resp, datos=None, extras=None):
         depende = any(k in ot for k in ("depende", "evapora", "apenas", "solo de mí", "solo de mi", "si yo falto"))
         if (sc is not None and sc >= 60) or depende:
             bloques.append((
-                "Tu empresa: Key-Person Risk",
+                "Tu empresa depende de ti",
                 "DEPENDENCIA CRÍTICA", "#9A3B2E",
-                "Tu principal activo operativo presenta Key-Person Risk: la dependencia del fundador y la falta de "
+                "Tu principal activo operativo presenta riesgo de persona clave: la dependencia del fundador y la falta de "
                 "protocolización reducen el valor de traspaso un estimado del 40-60%. La empresa que vale mucho contigo "
                 "dentro puede valer la mitad el día que tengas que salir o faltes. Es prioritario un plan de contingencia "
                 "—protocolo, delegación real y documentación— que convierta tu talento en un activo transmisible, no en una "
@@ -3827,14 +3849,30 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             _plan=[Paragraph("Tu plan de acci\u00f3n",h_sub),
                    Paragraph("Tres pasos, en orden. Empieza por el primero y no pases al siguiente hasta tenerlo en marcha:",small)]
             for a in ACCIONES[code]:
-                _plan.append(Paragraph(f"<font face='Helvetica'>[   ]</font>  {a}",St("pa",fontSize=10,leading=14,textColor=INK,leftIndent=6,spaceAfter=4)))
+                _a=(a[:1].upper()+a[1:]) if a else a     # cada paso empieza en mayuscula
+                _plan.append(Paragraph(f"<font face='ZapfDingbats' size='9' color='#9CA3AF'>o</font>&nbsp;&nbsp;{_a}",St("pa",fontSize=10,leading=14,textColor=INK,leftIndent=14,firstLineIndent=-14,spaceAfter=4)))
             cab.append(KeepTogether(_plan))
             # #4/#5 · la cola (cita + Para reflexionar) se mantiene junta para no dejar un encabezado hu\u00e9rfano
-            _tail=[Paragraph(f"\u201c{PRINCIPIO[code]}\u201d",St("pr",fontSize=10.5,leading=14,textColor=ACCDK,
-                            fontName="Helvetica-Oblique",backColor=LIGHT,borderPadding=8,spaceBefore=2)),
-                   Spacer(1,2*mm),
+            _tail=[Paragraph(f"\u00ab{PRINCIPIO[code]}\u00bb",St("pr",fontSize=10.5,leading=14,textColor=ACCDK,
+                            fontName="Lora-Italic",backColor=LIGHT,borderPadding=8,spaceBefore=2,leftIndent=8,rightIndent=8)),
+                   Spacer(1,3*mm),
                    Paragraph("Para reflexionar",h_sub),
-                   Paragraph(REFLEX[code],St("rf",fontSize=10,leading=14,textColor=INK,fontName="Helvetica-Oblique"))]
+                   Paragraph(REFLEX[code],St("rf",fontSize=10.5,leading=14.5,textColor=INK,fontName="Lora-Italic"))]
+            # PUENTE A LA SESION: en las capas con tension, el capitulo termina diciendo como lo
+            # trabajamos en Adapta. Es el momento en que el lector siente el problema: ahi se ofrece el paso.
+            try:
+                _ad=ADAPTA.get(code)
+                if _ad and int(pc.get("bi",0))>=1:
+                    _tail+=[Spacer(1,5*mm),_box([
+                        Paragraph("C\u00d3MO LO TRABAJAMOS CONTIGO",St("adk",fontSize=8.5,leading=11,textColor=colors.HexColor("#B45309"),fontName=FB)),
+                        Paragraph("<b>%s.</b> %s"%(_ad[0],_ad[1]),St("adb",fontSize=10,leading=14,textColor=INK,spaceBefore=2)),
+                        Paragraph("Lo vemos en una sesi\u00f3n estrat\u00e9gica de 30 minutos, y te descontamos de ella el importe de este diagn\u00f3stico. "
+                                  "<a href='%s'><font color='#0284C7'><u>Ver c\u00f3mo lo hacemos</u></font></a> &#183; "
+                                  "<a href='https://wa.me/34683343531'><font color='#0284C7'><u>WhatsApp +34 683 34 35 31</u></font></a>"%_ad[2],
+                                  St("adl",fontSize=9.2,leading=13,textColor=GREY,spaceBefore=3))],
+                        "#FBF9EC","#C9962B",ancho=160*mm)]
+            except Exception:
+                pass
             cab.append(Spacer(1,2*mm))
             S.extend(cab); S.append(KeepTogether(_tail)); S.append(PageBreak())
     # transversales
@@ -3855,7 +3893,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         return "es un foco importante que cruza varias \u00e1reas a la vez."
     # PSIQUE -> Termometro de Estres ; LIQUIDEZ -> Indice de Vulnerabilidad: gauge tipo velocimetro
     # (valor 0-100 de TENSION, alto=peor). VINCULO se queda en barra (desglose secundario).
-    _GAUGE_LBL={"PSIQUE":"Termometro de estrés","LIQUIDEZ":"Indice de vulnerabilidad"}
+    _GAUGE_LBL={"PSIQUE":"Termómetro de estrés","LIQUIDEZ":"Índice de vulnerabilidad"}
     for t in ("PSIQUE","LIQUIDEZ","VINCULO"):
         val=tr[t]; tt,dd=desc[t]
         vtxt=("%s"%_sal100(val)) if val is not None else "\u2014"
@@ -3961,15 +3999,19 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 _parr.append(Paragraph(_txt_cs,St("mlcs",fontSize=9.4,leading=13,textColor=colors.HexColor("#2C5C8A"),spaceBefore=5)))
         except Exception:
             pass
-        if _niv=="libertad":
-            _parr.append(Paragraph("<b>¿Y si vives más de 100 años?</b> Tu patrimonio ya es perpetuo: al 4% renta más de lo que "
+        # "Libre" solo si el capital INVERTIBLE ya cubre el Numero de Libertad (fi[1] = % cubierto).
+        # Antes bastaba el patrimonio total (casa incluida) y a quien llevaba un 6% se le decia que ya era libre.
+        try: _cubre_fi=float(fi[1] or 0)>=100
+        except Exception: _cubre_fi=False
+        if _niv=="libertad" and _cubre_fi:
+            _parr.append(Paragraph("<b>¿Y si vives más de 100 años?</b> Tu patrimonio ya es perpetuo: a un ritmo de retirada prudente renta más de lo que "
                                    "gastas, así que no se agota con los años. Vivas hasta los 90 o los 110, te cubre — el escenario de "
                                    "longevidad que casi nadie contempla, tú ya lo tienes resuelto.",
                                    St("mlon",fontSize=9.4,leading=13,textColor=colors.HexColor("#0F766E"),spaceBefore=5)))
         else:
             _parr.append(Paragraph(("<b>¿Y si vives más de 100 años?</b> Hoy, sin ingresos, tu patrimonio cubre unos %s años de vida. "
                                     "Blindar la longevidad —que no se agote vivas lo que vivas— es justo para lo que sirve cruzar tu número "
-                                    "de libertad: a partir de ahí, la renta al 4%% cubre tu vida para siempre.") % (("%g" % _an_p).replace(".",",")),
+                                    "de libertad: a partir de ahí, la renta de tu capital cubre tu vida para siempre.") % (("%g" % _an_p).replace(".",",")),
                                     St("mlon",fontSize=9.4,leading=13,textColor=GREY,spaceBefore=5)))
         S+=[_box(_parr,"#FBF9EC","#C9962B",ancho=160*mm), Spacer(1,4*mm)]
     # === ACTO 1: Ratio de Esclavitud Temporal (dinamico y honesto, derivado del flujo real) ===
@@ -3978,7 +4020,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     if _ingm_e>0:
         _s_e=max(0.0,min(1.0,_ahom_e/_ingm_e)); _escl=max(0.0,min(1.0,1.0-_s_e))
         _ml=round(12*_s_e,1); _mi=round(12*_escl)
-        _ya_libre=bool(_res and _res.get("nivel") in ("libertad","solido"))
+        try: _ya_libre=bool(_res and _res.get("nivel") in ("libertad","solido")) and float(fi[1] or 0)>=100
+        except Exception: _ya_libre=False
         if _ya_libre:
             _txt_e=(f"<b>En puro flujo, tu mes se parece al de todos: el {_escl*100:.0f}% de lo que trabajas se va en sostener tu "
                     f"vida.</b> Pero en ti esa cifra engaña, y mucho. Tu patrimonio ya ha comprado tu libertad: no cambias tiempo "
@@ -4241,8 +4284,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 _mj="<b>Aviso — a este ritmo, trabajarás más allá de tu jubilación.</b> Con tu ahorro y rentabilidad de hoy, tu patrimonio no alcanza tu libertad financiera. Al llegar a los 67 dependerías solo de tu pensión pública y, muy probablemente, tendrías que seguir generando ingresos después de la edad de jubilación. No es destino: acelerar el ahorro o poner a trabajar tu capital cambia esta foto."
             else:
                 _desp=int(round(_edad_j+_y0_j-_JUB)); _lleg=int(round(_edad_j+_y0_j))
-                _mj=("<b>Aviso — a este ritmo, trabajarás más allá de tu jubilación.</b> A tu ritmo actual alcanzarías tu libertad hacia los <b>%d años</b>: unos <b>%d años después</b> de la edad de jubilación (67). Es decir, al jubilarte no podrias dejar de depender de tus ingresos. Cada punto que subas tu ahorro o tu rentabilidad adelanta esa fecha. En la p\u00e1gina siguiente tienes las 4 v\u00edas exactas \u2014 cu\u00e1nto subir el ahorro o la rentabilidad \u2014 para adelantarla.") % (_lleg,_desp)
-            _mj += " Y no es solo dinero: cada año de mas atado al trabajo es salud que no vuelve, tiempo con los tuyos, relaciones y aficiones que no se recuperan. Tu libertad financiera es, en el fondo, libertad de vida."
+                _mj=("<b>Aviso — a este ritmo, trabajarás más allá de tu jubilación.</b> A tu ritmo actual alcanzarías tu libertad hacia los <b>%d años</b>: unos <b>%d años después</b> de la edad de jubilación (67). Es decir, al jubilarte no podrías dejar de depender de tus ingresos. Cada punto que subas tu ahorro o tu rentabilidad adelanta esa fecha: en «Tu número, y las 4 vías para llegar a él» tienes cuánto, exactamente. Elegir cuál de ellas te conviene —y en qué orden— es justo lo que hacemos en la sesión.") % (_lleg,_desp)
+            _mj += " Y no es solo dinero: cada año de más atado al trabajo es salud que no vuelve, tiempo con los tuyos, relaciones y aficiones que no se recuperan. Tu libertad financiera es, en el fondo, libertad de vida."
             S+=[Spacer(1,3*mm),_box([Paragraph(_mj,St("jub1",fontSize=10,leading=14,textColor=INK))],"#FBF4E4","#B45309",ancho=160*mm)]
     except Exception:
         pass
@@ -4329,10 +4372,16 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         _cif=[]
         _gm=datos.get("gasto_mensual") or 0; _im=max(datos.get("ingreso_mensual",0),0); _pt=datos.get("patrimonio") or 0
         _colobj=round(_gm*3) if _gm else 0
-        if _colobj:
-            _cif.append("<b>Tu colchón objetivo: %s</b> (3 meses de tus gastos reales). Ábrelo en una cuenta remunerada, separada del día a día, y aliméntalo con una transferencia automática el día 1 de cada mes." % _eur(_colobj))
-        if _pt and _colobj and _pt>_colobj:
-            _cif.append("Divide tu patrimonio de hoy: <b>%s</b> congelados como fondo intocable de resiliencia y <b>%s</b> como base operativa para invertir o amortizar." % (_eur(_colobj),_eur(_pt-_colobj)))
+        _colact=float(datos.get("colchon_liquido") or 0); _invact=float(datos.get("inversiones_liquidas") or 0)
+        # Colchon: objetivo 3 meses. Si YA lo tiene, no se le pide "abrirlo": se le dice que esta cubierto.
+        # Base para invertir: solo el LIQUIDO (colchon + invertido), nunca el patrimonio total (casa incluida).
+        if _colobj and _colact<_colobj:
+            _cif.append("<b>Tu colchón objetivo: %s</b> (3 meses de tus gastos reales). Hoy tienes %s: te faltan <b>%s</b>. Ábrelo en una cuenta remunerada, separada del día a día, y aliméntalo con una transferencia automática el día 1 de cada mes." % (_eur(_colobj),_eur(_colact),_eur(_colobj-_colact)))
+        elif _colobj:
+            _cif.append("<b>Tu colchón ya está cubierto:</b> tienes %s y el mínimo sano son %s (3 meses de gastos). No lo toques: es lo que te deja decidir sin prisa." % (_eur(_colact),_eur(_colobj)))
+        _liq=_colact+_invact
+        if _colobj and _liq>_colobj:
+            _cif.append("Tu dinero líquido hoy son <b>%s</b>: <b>%s</b> son tu fondo intocable de resiliencia y <b>%s</b> tu base operativa para invertir o amortizar. Tu vivienda y lo ilíquido no cuentan aquí: no se pueden mover sin coste." % (_eur(_liq),_eur(_colobj),_eur(_liq-_colobj)))
         _rec=(extras.get("presupuesto") or {}).get("recomendado") if extras else None
         if _rec and _im:
             _cif.append("Págate primero: el día 1, reparte tus <b>%s</b> en cuentas separadas — Necesidades <b>%s</b>, Deseos <b>%s</b>, Construcción <b>%s</b>. Ahorrar lo que sobra no funciona; forzar el reparto, sí." % (_eur(_im),_eur(_rec.get("necesidades",0)),_eur(_rec.get("deseos",0)),_eur(_rec.get("ahorro",0))))
@@ -4351,10 +4400,10 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                             "Tú decides; nosotros operamos.",St("ej2",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
                 "#FBF9EC","#C9962B",ancho=160*mm), Spacer(1,4*mm)]
         # Regla de contingencia (kill-switch sano)
-        col6=datos.get("gasto_mensual",0)*6
+        col6=datos.get("gasto_mensual",0)*3
         S+=[_box([Paragraph("<font color='#B45309'><b>Tu regla de contingencia</b></font><br/>"
                 f"<font size=9.5>Todo plan necesita un freno de emergencia. El tuyo: si tu fondo l\u00edquido baja de "
-                f"<b>{_eur(col6)}</b> (seis meses de gastos) o llega un imprevisto grande, <b>pausa las fases 2 y 3</b> "
+                f"<b>{_eur(col6)}</b> (tres meses de gastos, tu colchón objetivo) o llega un imprevisto grande, <b>pausa las fases 2 y 3</b> "
                 f"y vuelca todo el excedente a reconstruir ese colch\u00f3n antes de seguir. Proteger la base va siempre "
                 f"primero; crecer puede esperar unas semanas.</font>",St("kc",fontSize=10.5,leading=15))],
                 "#FBF4E4","#B45309",ancho=160*mm)]

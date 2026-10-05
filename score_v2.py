@@ -351,12 +351,17 @@ def calcular_palancas(datos, p, perfil_in, resp=None):
                         "ese excedente genere dinero: el siguiente salto es de eficiencia, no de esfuerzo." % (tasa_consc, _eur(ahorro))))
 
     # 2) Coste de oportunidad del patrimonio parado
-    if patrimonio >= 10000 and ("No, nada" in invierte or invierte == "" or "nada invertido" in invierte.lower()):
-        coste_op = patrimonio * 0.04
-        out.append(("Tienes patrimonio dormido",
-                    "Manejas un patrimonio de %s que, por lo que indicas, no está trabajando. A una rentabilidad "
-                    "real prudente del 4%%, el coste de oportunidad ronda %s al año: dinero que dejas de ganar por "
-                    "tenerlo quieto. No es urgencia de invertir por invertir; es dejar de regalar ese margen." % (_eur(patrimonio), _eur(coste_op))))
+    # Solo el dinero LIQUIDO parado por encima de 6 meses de colchon: la vivienda no se "pone a trabajar",
+    # y si ya hay dinero invertido no se le puede decir que no invierte (contradice sus propios datos).
+    _col_p = _num0(datos, "colchon_liquido") or 0.0
+    _inv_p = _num0(datos, "inversiones_liquidas") or 0.0
+    _parado = max(0.0, _col_p - 6 * (gasto or 0))
+    if _parado >= 10000 and _inv_p < 1000 and ("No, nada" in invierte or invierte == "" or "nada invertido" in invierte.lower()):
+        coste_op = _parado * 0.04
+        out.append(("Tienes dinero dormido",
+                    "Tienes unos %s líquidos por encima de un colchón prudente de seis meses, y no están invertidos. A una "
+                    "rentabilidad real prudente del 4%%, el coste de oportunidad ronda %s al año: dinero que dejas de ganar "
+                    "por tenerlo quieto. No es urgencia de invertir por invertir; es dejar de regalar ese margen." % (_eur(_parado), _eur(coste_op))))
 
     # 3) Brecha de ingresos hacia la vida ideal
     if coste_ideal and ingreso and coste_ideal > ingreso:
@@ -419,7 +424,7 @@ def calcular_palancas(datos, p, perfil_in, resp=None):
     # 9) Vas con retraso respecto a tu meta y eres conservador: el coste de la prudencia excesiva (gobernado por el horizonte)
     edad = _num(datos, "edad")
     detras = bool(coste_ideal and ingreso and coste_ideal > ingreso)
-    conservador = ("nada" in invierte.lower()) or (invierte == "")
+    conservador = (("nada" in invierte.lower()) or (invierte == "")) and (_inv_p < 1000)
     if detras and conservador:
         if edad and edad >= 55:
             out.append(("Vas con retraso y el margen de tiempo se acorta",
@@ -671,26 +676,26 @@ def validez(resp, datos, perfil_in, p, contradicciones=None, inst=None):
                 "factores": factores,
                 "titulo": "Una lectura para releer con calma",
                 "texto": "Algunas de tus respuestas tiran en direcciones opuestas. No es un error: casi siempre "
-                         "marca el punto exacto donde tu sensacion y tus numeros aun no se han puesto de acuerdo "
-                         "— y ese desajuste suele ser lo mas valioso de mirar. Relee tu diagnostico despacio: "
-                         "donde notes que algo no te cuadra del todo, probablemente este la palanca.",
+                         "marca el punto exacto donde tu sensación y tus números aún no se han puesto de acuerdo "
+                         "— y ese desajuste suele ser lo más valioso de mirar. Relee tu diagnóstico despacio: "
+                         "donde notes que algo no te cuadra del todo, probablemente esté la palanca.",
             }
         if r >= 1:
             return {
                 "banda": "media", "etiqueta": "Fiable, con un matiz", "indice": indice,
                 "factores": factores,
-                "titulo": "Tu diagnostico es fiable, con un matiz",
-                "texto": "El retrato es solido. Solo un apunte para afinarlo: hay algun punto donde lo que sientes "
-                         "y lo que dicen tus datos no van del todo a la par. Leelo no como una contradiccion, "
-                         "sino como una pista de por donde empezar.",
+                "titulo": "Tu diagnóstico es fiable, con un matiz",
+                "texto": "El retrato es sólido. Solo un apunte para afinarlo: hay algún punto donde lo que sientes "
+                         "y lo que dicen tus datos no van del todo a la par. Léelo no como una contradicción, "
+                         "sino como una pista de por dónde empezar.",
             }
         return {
             "banda": "alta", "etiqueta": "Muy fiable", "indice": indice,
             "factores": factores,
-            "titulo": "Tu diagnostico es muy fiable",
-            "texto": "Respondiste con matices —distinguiendo entre areas y sin refugiarte en los extremos faciles—. "
+            "titulo": "Tu diagnóstico es muy fiable",
+            "texto": "Respondiste con matices —distinguiendo entre áreas y sin refugiarte en los extremos fáciles—. "
                      "Eso le da a este retrato una solidez alta: puedes tomarlo como un espejo honesto, no como una "
-                     "foto movida. Lo que leas aqui, te lo puedes creer.",
+                     "foto movida. Lo que leas aquí, te lo puedes creer.",
         }
     except Exception:
         return None
@@ -1602,7 +1607,7 @@ def frase_capa(code, datos, p=None):
     elif code == "C4":  # estilo de vida
         if ing > 0 and gas > 0:
             tasa = round(aho / ing * 100) if aho > 0 else round(max(0, superavit) / ing * 100)
-            f = "De cada 100 EUR que entran, %d se quedan contigo y %d se van en tu estilo de vida." % (tasa, 100 - tasa)
+            f = "De cada 100 € que entran, %d se quedan contigo y %d se van en tu estilo de vida." % (tasa, 100 - tasa)
     elif code == "C5":  # proteccion / herencia
         if pat > 0:
             f = "Tienes un patrimonio neto de %s%s. La pregunta no es cuánto, sino quién lo recibiría y cómo, si tú faltaras mañana." % (e(pat), (" y %s de deuda asociada" % e(deu)) if deu > 0 else "")
@@ -1661,50 +1666,50 @@ def plan_hogar(hogar):
         if m < 3:
             obj = gas * 3; ap = round(max(0.0, obj - col) / 12)
             add(1, "rojo", "Construid vuestro suelo de seguridad",
-                "Como hogar aguantariais %s meses con vuestro colchon liquido. Por debajo de 3, un imprevisto os obliga a malvender o endeudaros." % m1(m),
-                "Abrid UNA cuenta remunerada conjunta, separada del dia a dia, y automatizad %s/mes el dia de cobro." % e(ap or round(gas*0.1)),
+                "Como hogar aguantaríais %s meses con vuestro colchón líquido. Por debajo de 3, un imprevisto os obliga a malvender o endeudaros." % m1(m),
+                "Abrid UNA cuenta remunerada conjunta, separada del día a día, y automatizad %s/mes el día de cobro." % e(ap or round(gas*0.1)),
                 "En 12 meses pasáis de %s a 3 meses de colchón: de vulnerables a estar a prueba de sustos." % m1(m))
     ial_h = g("ingreso_alquiler")
     cuo_neta_h = max(0.0, cuo - ial_h)
     if ing > 0 and cuo > 0 and (100 * cuo_neta_h / ing) >= 35:
         add(2, "rojo", "Desactivad la deuda que os asfixia",
             "Vuestras cuotas de deuda (%s/mes) se llevan el %d%% de lo que entra en casa." % (e(cuo), round(100*cuo/ing)),
-            "Listad TODAS vuestras deudas con su TAE y volcad el excedente del hogar a amortizar la mas cara primero (metodo avalancha).",
-            "Cada deuda cara que liquidais os devuelve su cuota al bolsillo comun, libre, para siempre.")
+            "Listad TODAS vuestras deudas con su TAE y volcad el excedente del hogar a amortizar la más cara primero (método avalancha).",
+            "Cada deuda cara que liquidais os devuelve su cuota al bolsillo común, libre, para siempre.")
     elif pat > 0 and deu > 0 and (100 * deu / pat) >= 80:
         add(2, "rojo", "Bajad vuestro apalancamiento",
             "Vuestra deuda equivale al %d%% del patrimonio neto del hogar. Es mucho peso ante cualquier viento en contra." % round(100*deu/pat),
-            "Antes de asumir mas riesgo, dirigid el excedente conjunto a reducir la deuda mas cara.",
-            "Menos deuda compartida = mas margen y menos intereses para los dos.")
+            "Antes de asumir más riesgo, dirigid el excedente conjunto a reducir la deuda más cara.",
+            "Menos deuda compartida = más margen y menos intereses para los dos.")
     if ing > 0 and gas > 0:
         tasa = (aho / ing * 100) if aho > 0 else (sup / ing * 100)
         if tasa < 20:
             gap = max(0.0, sup - aho)
-            ac = ("Automatizad %s/mes el dia 1 a una cuenta de inversion conjunta — ese excedente ya lo teneis, solo no tiene destino." % e(round(gap))) if gap > 50 else ("Subid vuestro ahorro automatico hasta el 20%% de los ingresos del hogar (%s/mes)." % e(round(0.20*ing)))
+            ac = ("Automatizad %s/mes el día 1 a una cuenta de inversión conjunta — ese excedente ya lo tenéis, solo no tiene destino." % e(round(gap))) if gap > 50 else ("Subid vuestro ahorro automático hasta el 20%% de los ingresos del hogar (%s/mes)." % e(round(0.20*ing)))
             add(3, "ambar", "Llevad vuestro ahorro al 20%",
-                "Hoy el hogar guarda el %d%% de lo que entra. El 20%% es el umbral donde el interes compuesto empieza a trabajar de verdad." % round(tasa),
+                "Hoy el hogar guarda el %d%% de lo que entra. El 20%% es el umbral donde el interés compuesto empieza a trabajar de verdad." % round(tasa),
                 ac,
-                "Cada punto que subis son ~%s mas invertidos al ano. Llegar al 20%% adelanta vuestra libertad varios anos." % e(round(0.01*ing*12)))
+                "Cada punto que subís son ~%s más invertidos al año. Llegar al 20%% adelanta vuestra libertad varios años." % e(round(0.01*ing*12)))
     if gas > 0:
         exceso = max(0.0, col - gas * 6)
         if exceso >= 5000 and inv <= exceso:
             add(5, "ambar", "Despertad vuestro dinero dormido",
-                "Teneis unos %s parados por encima de un colchon sano de 6 meses. Quietos, pierden valor cada ano contra la inflacion." % e(round(exceso)),
+                "Tenéis unos %s parados por encima de un colchón sano de 6 meses. Quietos, pierden valor cada año contra la inflación." % e(round(exceso)),
                 "Moved una parte a una cartera diversificada de bajo coste y automatizad aportaciones conjuntas.",
-                "Solo preservar su valor frente a una inflacion del 3%% son ~%s/ano que hoy regalais." % e(round(exceso*0.03)))
+                "Solo preservar su valor frente a una inflación del 3%% son ~%s/año que hoy regaláis." % e(round(exceso*0.03)))
     if ing > 0:
         pp = 100 * min(rp, ing) / ing
         if pp < 10:
             add(6, "ambar", "Cread una renta que no dependa de vuestro tiempo",
-                "El %d%% de lo que entra en casa depende de que sigais trabajando. Una sola fuente es vuestro mayor riesgo silencioso." % round(100 - pp),
-                "Elegid UNA via juntos (dividendos, alquiler, un proyecto) y dad un primer paso este mes — no las tres a la vez.",
-                "150 EUR/mes de renta nueva son 1.800 EUR/ano que entran sin cambiar vuestro tiempo por dinero.")
+                "El %d%% de lo que entra en casa depende de que sigáis trabajando. Una sola fuente es vuestro mayor riesgo silencioso." % round(100 - pp),
+                "Elegid UNA vía juntos (dividendos, alquiler, un proyecto) y dad un primer paso este mes — no las tres a la vez.",
+                "150 €/mes de renta nueva son 1.800 €/año que entran sin cambiar vuestro tiempo por dinero.")
     if gas > 0 and pen > 0 and (gas - pen) > 0:
         gp = gas - pen
-        add(7, "ambar", "Cerrad vuestra brecha de pension",
-            "Vuestro coste de vida (%s) supera la pension publica estimada conjunta (%s): faltan %s/mes el dia que dejeis de trabajar." % (e(gas), e(pen), e(round(gp))),
-            "Abrid un plan de pensiones o inversion periodica y automatizad una aportacion mensual desde ya.",
-            "Empezar 10 anos antes puede multiplicar por 2-3 el capital final. Cada ano cuenta.")
+        add(7, "ambar", "Cerrad vuestra brecha de pensión",
+            "Vuestro coste de vida (%s) supera la pensión pública estimada conjunta (%s): faltan %s/mes el día que dejéis de trabajar." % (e(gas), e(pen), e(round(gp))),
+            "Abrid un plan de pensiones o inversión periódica y automatizad una aportacion mensual desde ya.",
+            "Empezar 10 años antes puede multiplicar por 2-3 el capital final. Cada año cuenta.")
     orden_niv = {"rojo": 0, "ambar": 1}
     cand.sort(key=lambda x: (orden_niv.get(x[1], 2), x[0]))
     return [{"orden": i, "titulo": t, "porque": pq, "accion": ac, "gana": ga, "nivel": niv}
@@ -1770,7 +1775,7 @@ def plan_maestro(datos, p=None, perfil_in=None):
             add(6, "ambar", "Diversificacion", "Crea tu primera renta que no dependa de ti",
                 "El %d%% de lo que entra en tu casa depende de que tú sigas trabajando. Una sola fuente es tu mayor riesgo silencioso." % round(100 - pp),
                 "Elige UNA vía (dividendos, alquiler, un proyecto digital) y dale un primer paso concreto este mes — no las tres a la vez.",
-                "150 EUR/mes de renta nueva son 1.800 EUR/año que entran sin cambiar tu tiempo por dinero. Y solo es el principio.")
+                "150 €/mes de renta nueva son 1.800 €/año que entran sin cambiar tu tiempo por dinero. Y solo es el principio.")
     # 6) GAP DE PENSION
     if gas > 0 and pen > 0 and (gas - pen) > 0:
         gpen = gas - pen

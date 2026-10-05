@@ -152,12 +152,12 @@
     "control": "Control",
     "libertad": "Libertad",
     "vergüenza_social": "Vergüenza social",
-    "conflicto_pareja": "Conflicto pareja",
+    "conflicto_pareja": "Conflicto en pareja",
     "evitacion": "Evitación",
     "panico": "Pánico",
     "identidad": "Identidad",
-    "miedo_futuro": "Miedo futuro",
-    "alineacion_pareja": "Alineación pareja"
+    "miedo_futuro": "Miedo al futuro",
+    "alineacion_pareja": "Alineación en pareja"
    },
    "items": [
     {
@@ -740,11 +740,11 @@
     }
    ],
    "facetas": {
-    "numero_fi": "Número fi",
+    "numero_fi": "Tu cifra de libertad",
     "coste_inversion": "Coste de tu inversión",
     "inversion": "Inversión",
     "plan": "Plan",
-    "expectativa_rentab": "Expectativa rentab.",
+    "expectativa_rentab": "Expectativa de rentabilidad",
     "diversificacion": "Diversificación",
     "automatizacion": "Automatización",
     "progreso": "Progreso",
@@ -1326,15 +1326,15 @@
     }
    ],
    "facetas": {
-    "colchon": "Colchon",
+    "colchon": "Colchón",
     "imprevisto": "Imprevisto",
-    "fondo_existe": "Fondo existe",
+    "fondo_existe": "Fondo de emergencia",
     "flexibilidad": "Flexibilidad",
     "dependientes_protegidos": "Dependientes protegidos",
     "inflacion": "Inflación",
-    "red_apoyo": "Red apoyo",
+    "red_apoyo": "Red de apoyo",
     "seguros": "Seguros",
-    "plan_b_crisis": "Plan b crisis"
+    "plan_b_crisis": "Plan B ante una crisis"
    },
    "items": [
     {
@@ -1668,8 +1668,8 @@
     }
    ],
    "facetas": {
-    "creep_ingreso": "Creep ingreso",
-    "conciencia_gasto": "Conciencia gasto",
+    "creep_ingreso": "Gasto que crece con el sueldo",
+    "conciencia_gasto": "Conciencia del gasto",
     "suscripciones": "Suscripciones",
     "ahorro_evolucion": "Ahorro evolución",
     "gasto_sin_sentido": "Gasto sin sentido",
@@ -2020,7 +2020,7 @@
     "blindaje_profesional": "Blindaje profesional",
     "mapa_patrimonial": "Mapa patrimonial",
     "pareja_protegida": "Pareja protegida",
-    "seguro_vida": "Seguro vida",
+    "seguro_vida": "Seguro de vida",
     "revision_legal": "Revisión legal",
     "optimizacion_fiscal": "Optimización fiscal",
     "poder_preventivo": "Poder preventivo"
@@ -2339,13 +2339,13 @@
     }
    ],
    "facetas": {
-    "precio_estatus": "Precio estatus",
+    "precio_estatus": "Precio del estatus",
     "validacion": "Validación",
     "oculto": "Oculto",
     "prescindible": "Prescindible",
-    "exito": "Exito",
-    "comparacion_circulo": "Comparación circulo",
-    "deuda_imagen": "Deuda imagen"
+    "exito": "Éxito",
+    "comparacion_circulo": "Comparación con tu círculo",
+    "deuda_imagen": "Deuda por imagen"
    },
    "items": [
     {
@@ -2610,13 +2610,13 @@
     }
    ],
    "facetas": {
-    "fuente_unica": "Fuente unica",
-    "plan_b": "Plan b",
+    "fuente_unica": "Fuente única",
+    "plan_b": "Plan B",
     "pasivos": "Pasivos",
-    "amenaza_sector": "Amenaza sector",
+    "amenaza_sector": "Amenaza en tu sector",
     "segunda_fuente": "Segunda fuente",
     "empleabilidad": "Empleabilidad",
-    "concentracion_geografica": "Concentración geografica"
+    "concentracion_geografica": "Concentración geográfica"
    },
    "items": [
     {
@@ -2852,13 +2852,13 @@
    ],
    "facetas": {
     "crisis_pasada": "Crisis pasada",
-    "polvora_seca": "Polvora seca",
+    "polvora_seca": "Liquidez para oportunidades",
     "mentalidad": "Mentalidad",
-    "anticiclico": "Anticiclico",
+    "anticiclico": "Actitud anticíclica",
     "cisne_negro": "Cisne negro",
     "aprendizaje": "Aprendizaje",
     "opcionalidad": "Opcionalidad",
-    "liquidez_patrimonio": "Liquidez patrimonio"
+    "liquidez_patrimonio": "Liquidez del patrimonio"
    },
    "items": [
     {
@@ -3159,12 +3159,12 @@
     }
    ],
    "facetas": {
-    "conoce_gasto": "Conoce gasto",
-    "sistema_cajas": "Sistema cajas",
+    "conoce_gasto": "Conoces tu gasto",
+    "sistema_cajas": "Sistema de cajas",
     "fuga": "Fuga",
     "irregularidad": "Irregularidad",
     "margen_mensual": "Margen mensual",
-    "anticipa_grandes": "Anticipa grandes",
+    "anticipa_grandes": "Anticipas gastos grandes",
     "revision": "Revisión"
    },
    "items": [
@@ -3464,11 +3464,11 @@
     }
    ],
    "facetas": {
-    "relacion_deuda": "Relación deuda",
-    "carga_cuota": "Carga cuota",
-    "tipos": "Tipos",
+    "relacion_deuda": "Relación con la deuda",
+    "carga_cuota": "Carga de la cuota",
+    "tipos": "Tipo de interés",
     "trayectoria": "Trayectoria",
-    "alto_interes": "Alto interes",
+    "alto_interes": "Deuda de alto interés",
     "liquidable": "Liquidable",
     "apalancamiento": "Apalancamiento"
    },
@@ -3754,16 +3754,16 @@
     }
    ],
    "facetas": {
-    "precio_hora": "Precio hora",
+    "precio_hora": "Precio de tu hora",
     "activo_latente": "Activo latente",
-    "tijera": "Tijera",
-    "automatizacion_compromiso": "Automatización compromiso",
-    "techo_ingresos": "Techo ingresos",
+    "tijera": "Tijera de ahorro",
+    "automatizacion_compromiso": "Ahorro automatizado",
+    "techo_ingresos": "Techo de ingresos",
     "negociacion": "Negociación",
-    "palanca_ingresos": "Palanca ingresos",
-    "palanca_rentabilidad": "Palanca rentabilidad",
-    "palanca_tecnologia": "Palanca tecnología",
-    "palanca_entorno": "Palanca entorno",
+    "palanca_ingresos": "Palanca de ingresos",
+    "palanca_rentabilidad": "Palanca de rentabilidad",
+    "palanca_tecnologia": "Palanca de tecnología",
+    "palanca_entorno": "Palanca de entorno",
     "liquidez_sociedad": "Liquidez en sociedad",
     "div_nomina": "Nómina vs dividendos",
     "optim_is": "Optimización del IS",
