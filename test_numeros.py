@@ -182,15 +182,14 @@ def invariantes():
 
 
 def fortuna_neta():
-    """La fortuna neta debe RESTAR la deuda, no sumarla.
+    """La deuda se resta UNA sola vez.
 
-    (Fallo real: el cuestionario pide el patrimonio BRUTO —"No calcules el neto:
-     pon el valor de mercado de cada activo"— pero el calculo asumia que ya venia
-     neto y hacia activos = patrimonio + deuda. Al cliente se le sumaba su propia
-     deuda a la fortuna neta: 210.000 de activos con 68.000 de deuda daban
-     "fortuna neta 210.000" en una pagina y "patrimonio neto 142.000" en otra.)
+    'patrimonio' llega YA NETO: el frontend (empezar2.html) hace
+    patrimonio = suma(valores del desglose) - max(suma(deudas), deuda_total).
+    (Fallo real, sep-oct 2026: se asumio que llegaba bruto y se volvio a restar
+     la deuda: 210.000 netos con 68.000 de deuda salian "fortuna neta 142.000".)
     """
-    print("== 3) FORTUNA NETA (activos menos deuda) ==")
+    print("== 3) FORTUNA NETA (la deuda se resta una sola vez) ==")
     try:
         import score_v2 as sv
     except Exception as e:
@@ -198,27 +197,33 @@ def fortuna_neta():
         return
     casos = [
         ({"patrimonio": 210000, "deuda_total": 68000, "gasto_mensual": 2900,
-          "colchon_liquido": 12000, "inversiones_liquidas": 45000}, 210000, 142000),
+          "colchon_liquido": 12000, "inversiones_liquidas": 45000}, 278000, 210000),
         ({"patrimonio": 500000, "deuda_total": 0, "gasto_mensual": 2000,
           "colchon_liquido": 10000, "inversiones_liquidas": 40000}, 500000, 500000),
-        ({"patrimonio": 80000, "deuda_total": 95000, "gasto_mensual": 1500,
-          "colchon_liquido": 3000, "inversiones_liquidas": 5000}, 80000, -15000),
+        ({"patrimonio": 85000, "deuda_total": 95000, "gasto_mensual": 1500,
+          "colchon_liquido": 3000, "inversiones_liquidas": 5000}, 180000, 85000),
+        # Con desglose: activos = suma bruta; neta = patrimonio (ya neto)
+        ({"patrimonio": 210000, "deuda_total": 68000, "gasto_mensual": 2900,
+          "colchon_liquido": 12000, "inversiones_liquidas": 45000,
+          "patrimonio_detalle": [{"c": "Vivienda habitual", "v": 221000, "d": 68000},
+                                 {"c": "Fondos", "v": 45000, "d": 0},
+                                 {"c": "Cuentas", "v": 12000, "d": 0}]}, 278000, 210000),
     ]
     for d, act_esp, neta_esp in casos:
         r = sv.calcular_fortuna_neta(d) or {}
-        _chk("F. activos = patrimonio declarado (deuda %d)" % d["deuda_total"],
-             r.get("activos"), act_esp)
-        _chk("F. neta = activos - deuda (deuda %d)" % d["deuda_total"],
-             r.get("neta"), neta_esp)
-    # Invariante: la neta NUNCA puede superar a los activos.
+        tag = "%s%s" % (d["deuda_total"], " +desglose" if "patrimonio_detalle" in d else "")
+        _chk("F. activos brutos (deuda %s)" % tag, r.get("activos"), act_esp)
+        _chk("F. neta = patrimonio declarado (deuda %s)" % tag, r.get("neta"), neta_esp)
+        _chk("F. activos - pasivos = neta (deuda %s)" % tag,
+             (r.get("activos") or 0) - (r.get("pasivos") or 0), neta_esp)
     malos = []
     for pat in (50000, 210000, 900000):
         for deu in (0, 25000, 68000, 400000):
             r = sv.calcular_fortuna_neta({"patrimonio": pat, "deuda_total": deu,
                                           "gasto_mensual": 2000}) or {}
-            if r.get("neta") is not None and r.get("neta") > r.get("activos", 0):
+            if r.get("neta") != pat or r.get("neta") > r.get("activos", 0):
                 malos.append((pat, deu))
-    _chk("F. la fortuna neta nunca supera a los activos", malos, [])
+    _chk("F. la neta es el patrimonio declarado y nunca supera a los activos", malos, [])
 
 
 def main():

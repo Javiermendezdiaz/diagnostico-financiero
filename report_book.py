@@ -1552,7 +1552,13 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
     var=max(0.0,gas-fijo)
     deu=g("deuda_total"); cuota=g("cuota_deuda")
     pat=g("patrimonio"); inv=g("inversiones_liquidas"); colch=g("colchon_liquido")
-    liquido=inv+colch; iliquido=max(0.0,pat-liquido); neto=pat-deu
+    # 'patrimonio' llega NETO (el frontend ya resta la deuda). El balance muestra activos BRUTOS:
+    # sin desglose, ilíquido = (patrimonio + deuda) - líquido, para que activos - deuda = patrimonio.
+    liquido=inv+colch; iliquido=max(0.0,pat+deu-liquido); neto=pat
+    try:
+        _sdd=sum(max(0.0,float((_r or {}).get("d") or 0)) for _r in (d.get("patrimonio_detalle") or []) if isinstance(_r,dict))
+        if _sdd>deu: deu=_sdd
+    except Exception: pass
     asig=(ex.get("fuentes") or {}).get("asignacion") if ex else None
     def _newpage(titulo,subt):
         fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)

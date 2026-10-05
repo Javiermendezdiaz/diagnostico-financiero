@@ -907,17 +907,13 @@ def calcular_accion_unica(ratios, p):
 
 
 def calcular_fortuna_neta(datos):
-    """Foto de fortuna neta = activos - pasivos, y colchón en meses.
+    """Foto de fortuna neta = activos - pasivos, y colchon en meses.
 
-    OJO CON 'patrimonio': el cuestionario lo pide BRUTO. La pregunta NUM-4 dice
-    literalmente "No calcules el neto: en el desglose pon el valor de mercado de
-    cada activo y la deuda que tenga". Es decir, patrimonio = ACTIVOS.
-
-    Antes esta funcion asumia que ya venia neto y hacia activos = patrimonio + deuda.
-    Resultado: al cliente se le SUMABA su deuda a la fortuna neta en vez de restarla.
-    Con 210.000 EUR de activos y 68.000 de deuda, el informe decia "fortuna neta
-    210.000" en una pagina y "patrimonio neto 142.000" en otra: 68.000 EUR de
-    diferencia, y el error iba siempre a favor de inflar al cliente.
+    'patrimonio' LLEGA YA NETO. El cuestionario pide el desglose bruto (valor de
+    mercado de cada activo y su deuda) y el FRONTEND (empezar2.html) calcula
+    patrimonio = suma(valores) - max(suma(deudas), deuda_total) antes de enviarlo.
+    Por eso: neta = patrimonio; activos = suma bruta del desglose si llega, o
+    patrimonio + deuda si no. Restar la deuda aqui otra vez la contaria dos veces.
     """
     pat = _num(datos, "patrimonio")
     if pat is None:
@@ -927,18 +923,31 @@ def calcular_fortuna_neta(datos):
     colch = _num(datos, "colchon_liquido")
     inv_liq = _num0(datos, "inversiones_liquidas")
     meses = round(colch / gasto, 1) if (colch and gasto) else None
-    activos = pat
-    neta = activos - deuda
-    out = {"neta": neta, "activos": activos, "pasivos": deuda, "colchon_meses": meses}
+    activos = pat + deuda
+    det = datos.get("patrimonio_detalle") if isinstance(datos, dict) else None
+    if isinstance(det, list):
+        try:
+            sv = sum(max(0.0, float((r or {}).get("v") or 0)) for r in det)
+            sd = sum(max(0.0, float((r or {}).get("d") or 0)) for r in det)
+            if sv > 0:
+                activos = sv
+                deuda = max(deuda, sd)
+        except Exception:
+            pass
+    neta = pat
+    if neta > activos:          # blindaje: la neta nunca supera a los activos
+        activos = neta
+    out = {"neta": neta, "activos": activos, "pasivos": max(0.0, activos - neta),
+           "colchon_meses": meses}
     # Musculo de resistencia TOTAL: colchon liquido + inversiones realizables en dias.
     # Resuelve el falso "estas desprotegido" cuando hay patrimonio realizable.
     if inv_liq is not None:
         realizable = (colch or 0) + inv_liq
         out["realizable"] = realizable
         out["resistencia_meses"] = round(realizable / gasto, 1) if gasto else None
-        # Asignacion para el donut (sin suposiciones: solo lo declarado)
+        # Asignacion para el donut (sin suposiciones: solo lo declarado), en BRUTO
         parado = colch or 0
-        resto = max(0.0, pat - parado - inv_liq)  # vivienda, negocio, inmuebles, iliquido
+        resto = max(0.0, activos - parado - inv_liq)  # vivienda, negocio, inmuebles, iliquido
         out["asignacion"] = {"parado": parado, "realizable_invertido": inv_liq, "resto": resto}
     return out
 
