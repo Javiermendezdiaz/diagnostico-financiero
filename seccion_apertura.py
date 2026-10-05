@@ -235,7 +235,26 @@ def _apertura(salud, fi, datos, extras, p):
         t.hAlign = "LEFT"
         return t
 
+    from reportlab.platypus import Flowable as _Fl
+
+    class _Progreso(_Fl):
+        """Barra de camino: de lo que tienes hoy a tu Numero de Libertad. Se entiende sin leer."""
+        def __init__(self, pct, izq, der, ancho=160 * mm, alto=9 * mm):
+            _Fl.__init__(self); self.pct = max(0.0, min(100.0, float(pct or 0)))
+            self.izq, self.der, self.w, self.h = izq, der, ancho, alto
+        def wrap(self, aw, ah): return self.w, self.h + 11 * mm
+        def draw(self):
+            c = self.canv; y0 = 8 * mm
+            c.setFillColor(colors.HexColor("#ECE7DA")); c.roundRect(0, y0, self.w, self.h, self.h / 2, fill=1, stroke=0)
+            fw = max(self.h, self.w * self.pct / 100.0)
+            c.setFillColor(colors.HexColor("#C9962B")); c.roundRect(0, y0, fw, self.h, self.h / 2, fill=1, stroke=0)
+            c.setFillColor(colors.HexColor("#1A1A17")); c.setFont("Poppins-Bold", 10)
+            c.drawString(fw + 3 * mm, y0 + self.h / 2 - 3.5, "%d%%" % round(self.pct))
+            c.setFont("Poppins", 8.5); c.setFillColor(colors.HexColor("#6B7280"))
+            c.drawString(0, 1.5 * mm, self.izq); c.drawRightString(self.w, 1.5 * mm, self.der)
+
     # =========================================================== PAGINA 1
+    out.append(Spacer(1, 8 * mm))
     out.append(Paragraph("TU DIAGNÓSTICO EN CUATRO PÁGINAS",
                          St("ap_eyebrow", fontSize=8.5, leading=11, textColor=rb.ACC,
                             fontName=FB, spaceAfter=3)))
@@ -257,19 +276,24 @@ def _apertura(salud, fi, datos, extras, p):
         except Exception:
             cap = 0.0
         falta = max(0.0, N - cap)
-        out += [Paragraph("Esto es lo que te separa de no depender de un sueldo", rb.h_sec),
+        out += [Paragraph("Esto es lo que te separa de no depender de un sueldo",
+                          St("ap_h1", fontSize=24, leading=29, textColor=INK, fontName="Lora-Bold", spaceAfter=6)),
+                Spacer(1, 3 * mm),
                 cifra(eur(falta) if falta > 0 else "Ya has llegado",
-                      ROJO if falta > 0 else VERDE),
+                      ROJO if falta > 0 else VERDE, 62),
+                Spacer(1, 2 * mm),
                 texto("Tu Número de Libertad es <b>%s</b> y hoy tienes <b>%s</b> entre lo invertido y lo líquido "
                       "(tu vivienda no cuenta: no paga tus gastos). "
                       "Lo tienes cubierto al <b>%s%%</b>."
-                      % (eur(N), eur(cap), exp.get("pct_cubierto", 0)))]
+                      % (eur(N), eur(cap), exp.get("pct_cubierto", 0)), 12.5),
+                Spacer(1, 7 * mm),
+                _Progreso(exp.get("pct_cubierto", 0), "Hoy · %s" % eur(cap), "Tu libertad · %s" % eur(N))]
         if br_anual > 0:
             out += [Spacer(1, 5 * mm),
                     box([rotulo("Y LA VIDA QUE DIJISTE QUERER", ROJO),
                          texto("Pide <b>%s al mes</b> más de lo que hoy ingresas: <b>%s al año</b>. "
                                "Es la otra distancia que hay que cerrar, y sale de tus propios números."
-                               % (eur(br_mes), eur(br_anual)), 10, rb.INK)],
+                               % (eur(br_mes), eur(br_anual)), 11.5, rb.INK)],
                         "#FBEDEC", ROJO, ancho=160 * mm)]
     elif br_anual > 0:
         out += [Paragraph("Esto es lo que te separa, cada año, de la vida que dijiste querer",
@@ -302,23 +326,28 @@ def _apertura(salud, fi, datos, extras, p):
     if kpis:
         fila = []
         for rot, val, col in kpis[:3]:
-            fila.append([Paragraph(rot, St(_id("apkl"), fontSize=8, leading=10,
+            fila.append([Paragraph(rot, St(_id("apkl"), fontSize=8.5, leading=11,
                                            textColor=colors.HexColor("#6B7280"), fontName=FB)),
                          Paragraph("<b>%s</b>" % val,
-                                   St(_id("apkv"), fontSize=19, leading=23,
-                                      textColor=colors.HexColor(col), fontName=FB, spaceBefore=1))])
+                                   St(_id("apkv"), fontSize=24, leading=29,
+                                      textColor=colors.HexColor(col), fontName=FB, spaceBefore=3))])
         while len(fila) < 3:
             fila.append([Paragraph("", rb.small)])
-        out += [Spacer(1, 8 * mm),
+        out += [Spacer(1, 12 * mm),
                 Table([fila], colWidths=[53 * mm, 53 * mm, 54 * mm],
                       style=[("VALIGN", (0, 0), (-1, -1), "TOP"),
-                             ("LEFTPADDING", (0, 0), (-1, -1), 2),
-                             ("TOPPADDING", (0, 0), (-1, -1), 9),
-                             ("BOTTOMPADDING", (0, 0), (-1, -1), 9),
-                             ("LINEABOVE", (0, 0), (-1, 0), 0.5, rb.LINE),
-                             ("LINEBELOW", (0, 0), (-1, -1), 0.5, rb.LINE)])]
-    out.append(PageBreak())
+                             ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F3EFE4")),
+                             ("LINEBEFORE", (1, 0), (-1, -1), 5, rb.PAGEBG),
+                             ("LEFTPADDING", (0, 0), (-1, -1), 12),
+                             ("TOPPADDING", (0, 0), (-1, -1), 12),
+                             ("BOTTOMPADDING", (0, 0), (-1, -1), 14),
+                             ("LINEABOVE", (0, 0), (-1, 0), 2.2, rb.AMARILLO)])]
+    out += [Spacer(1, 16 * mm),
+            Paragraph("«No es una nota. Es tu punto de partida: a partir de aquí, cada página te dice cuánto, por qué y cómo.»",
+                      St("ap_q1", fontSize=13, leading=19, textColor=colors.HexColor("#6B5A2E"), fontName="Lora-Italic")),
+            PageBreak()]
 
+    H1 = St("ap_h1g", fontSize=24, leading=29, textColor=INK, fontName="Lora-Bold", spaceAfter=6)
     # =========================================================== PAGINA 2
     # EL CUADRO: las 12 dimensiones como scorecard. Se lee sin leer.
     if isinstance(p, dict) and p:
@@ -330,20 +359,22 @@ def _apertura(salud, fi, datos, extras, p):
                                                           textColor=colors.HexColor("#6B7280"), fontName=FB))]]
         estilo = [("LINEBELOW", (0, 0), (-1, -1), 0.4, rb.LINE),
                   ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                  ("TOPPADDING", (0, 0), (-1, -1), 7),
-                  ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
-                  ("LEFTPADDING", (0, 0), (-1, -1), 8)]
+                  ("TOPPADDING", (0, 0), (-1, -1), 9),
+                  ("BOTTOMPADDING", (0, 0), (-1, -1), 9),
+                  ("LEFTPADDING", (0, 0), (-1, -1), 10)]
         # Orden: lo peor arriba. Un informe que decide no ordena por numero de capa.
         capas = sorted(p.items(), key=lambda kv: -(kv[1].get("score") or 0))
         for i, (code, v) in enumerate(capas, 1):
             etq, col = _estado(v.get("score"))
             filas.append([
                 Paragraph(v.get("nombre", code),
-                          St(_id("apsn"), fontSize=9.5, leading=12.5, textColor=INK)),
+                          St(_id("apsn"), fontSize=10.5, leading=13.5, textColor=INK)),
                 Paragraph('<font color="%s"><b>%s</b></font>' % (col, etq),
-                          St(_id("apse"), fontSize=9.5, leading=12.5)),
+                          St(_id("apse"), fontSize=10.5, leading=13.5)),
                 Paragraph(v.get("peor") or "—",
-                          St(_id("apsp"), fontSize=9, leading=12, textColor=GREY))])
+                          St(_id("apsp"), fontSize=9.5, leading=12.5, textColor=GREY))])
+            # filete de color a la izquierda: el semaforo se lee sin leer
+            estilo.append(("LINEBEFORE", (0, i), (0, i), 3.2, colors.HexColor(col)))
             if etq == "Crítico":
                 estilo.append(("BACKGROUND", (0, i), (-1, i), colors.HexColor("#FBEDEC")))
         criticas = sum(1 for _, v in capas if _estado(v.get("score"))[0] == "Crítico")
@@ -366,23 +397,45 @@ def _apertura(salud, fi, datos, extras, p):
             _cierre = ("Ninguna en estado crítico, pero %s. No hay urgencias; hay margen "
                        "de mejora casi en todo. La que más pide atención es <b>%s</b>, la primera de la lista."
                        % (_pl(solidas, "sólida", "sólidas"), _peor))
-        out += [Paragraph("Tu cuadro completo, de un vistazo", rb.h_sec),
+        _cnt = {}
+        for _, v in capas:
+            _e = _estado(v.get("score")); _cnt[_e] = _cnt.get(_e, 0) + 1
+        _tira = []
+        for (_et, _co), _nn in sorted(_cnt.items(), key=lambda kv: ["Crítico","A vigilar","Con margen","Sólido"].index(kv[0][0]) if kv[0][0] in ["Crítico","A vigilar","Con margen","Sólido"] else 9):
+            _tira.append([Paragraph("<b>%d</b>" % _nn, St(_id("apcn"), fontSize=26, leading=30, textColor=colors.HexColor(_co), fontName=FB)),
+                          Paragraph(_et.upper(), St(_id("apcl"), fontSize=8.5, leading=11, textColor=GREY, fontName=FB))])
+        _tw = 160.0 / max(1, len(_tira))
+        out += [Spacer(1, 8 * mm), Paragraph("Tu cuadro completo, de un vistazo", H1),
                 texto("Doce dimensiones medidas. Ordenadas de la más frágil a la más sólida — "
-                      "no por orden de capítulo."),
-                Spacer(1, 5 * mm),
-                Table(filas, colWidths=[62 * mm, 44 * mm, 54 * mm], style=estilo),
-                Spacer(1, 5 * mm),
-                texto(_cierre, 10, GREY),
+                      "no por orden de capítulo.", 12),
+                Spacer(1, 6 * mm),
+                Table([_tira], colWidths=[_tw * mm] * len(_tira),
+                      style=[("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F3EFE4")),
+                             ("LINEBEFORE", (1, 0), (-1, -1), 5, rb.PAGEBG),
+                             ("LEFTPADDING", (0, 0), (-1, -1), 12), ("TOPPADDING", (0, 0), (-1, -1), 9),
+                             ("BOTTOMPADDING", (0, 0), (-1, -1), 10)]),
+                Spacer(1, 6 * mm),
+                Table(filas, colWidths=[64 * mm, 40 * mm, 56 * mm], style=estilo),
+                Spacer(1, 6 * mm),
+                texto(_cierre, 11.5, INK),
                 PageBreak()]
 
     # =========================================================== PAGINA 3
     palancas = tres_palancas(exp)
     if palancas:
-        out += [Paragraph("Las tres decisiones que más mueven tu número", rb.h_sec),
+        try:
+            _a0 = (exp.get("escenarios") or [{}])[0].get("anios")
+        except Exception:
+            _a0 = None
+        out += [Spacer(1, 8 * mm), Paragraph("Las tres decisiones que más mueven tu número", H1),
                 texto("Tu cifra no está grabada en piedra. De todo lo que podrías hacer, estas "
                       "tres son las que más la acercan — ordenadas por euros, no por lo que "
-                      "suena mejor."),
-                Spacer(1, 5 * mm)]
+                      "suena mejor.", 12)]
+        if _a0 is not None:
+            out += [Spacer(1, 4 * mm),
+                    texto("<b>Hoy, a tu ritmo:</b> %s en <b>%s años</b>. Mira lo que cambia con cada decisión:"
+                          % (eur(exp.get("numero_libertad", 0)), _a0), 11.5, INK)]
+        out += [Spacer(1, 5 * mm)]
         def _anios(n):
             if n is None:
                 return None
@@ -395,8 +448,8 @@ def _apertura(salud, fi, datos, extras, p):
             if e.get("_tipo") == "acerca":
                 # No baja la meta: adelanta la fecha. Decirlo asi evita que dos
                 # decisiones parezcan la misma por compartir cifra.
-                cifra = ('<font size=22 color="%s"><b>%s años antes</b></font>'
-                         '<font size=10 color="#6B7280">  de llegar</font>'
+                cifra = ('<font size=28 color="%s"><b>%s años antes</b></font>'
+                         '<font size=11 color="#6B7280">  de llegar</font>'
                          % (VERDE, _anios(gana)))
                 _antes = _anios((anios or 0) + (gana or 0))
                 if e.get("_baja_igual"):
@@ -412,8 +465,8 @@ def _apertura(salud, fi, datos, extras, p):
                     delta = abs(float(e.get("delta") or 0))
                 except Exception:
                     delta = 0
-                cifra = ('<font size=22 color="%s"><b>−%s</b></font>'
-                         '<font size=10 color="#6B7280">  sobre tu número</font>'
+                cifra = ('<font size=28 color="%s"><b>−%s</b></font>'
+                         '<font size=11 color="#6B7280">  sobre tu número</font>'
                          % (VERDE, eur(delta)))
                 detalle = ("Tu número pasaría a <b>%s</b>%s."
                            % (eur(e.get("numero", 0)),
@@ -422,17 +475,16 @@ def _apertura(salud, fi, datos, extras, p):
                               else " · aun así no llegarías al ritmo de hoy"))
             out += [box([Paragraph("<font color='%s'><b>DECISIÓN %d</b></font>   %s"
                                    % (VERDE, i, e.get("escenario", "")),
-                                   St(_id("apdt"), fontSize=10.5, leading=14, textColor=INK)),
-                         Paragraph(cifra, St(_id("apdc"), fontSize=22, leading=26, spaceBefore=3)),
+                                   St(_id("apdt"), fontSize=11.5, leading=15, textColor=INK)),
+                         Paragraph(cifra, St(_id("apdc"), fontSize=28, leading=34, spaceBefore=5)),
                          Paragraph(detalle,
-                                   St(_id("apdd"), fontSize=9.5, leading=13, textColor=GREY))],
+                                   St(_id("apdd"), fontSize=10.5, leading=14.5, textColor=GREY, spaceBefore=2))],
                         "#F3F7F4", VERDE, ancho=160 * mm),
-                    Spacer(1, 3 * mm)]
+                    Spacer(1, 5 * mm)]
         out += [Spacer(1, 3 * mm),
-                texto("Fíjate en el orden: <b>recortar el gasto baja el número mucho más que "
-                      "ahorrar más</b>, porque reduce el capital que necesitas <i>para siempre</i>. "
-                      "Ahorrar más no cambia la meta: te acerca antes a ella. La mayoría de la "
-                      "gente hace justo lo contrario.", 10, GREY),
+                texto("Fíjate en la diferencia: <b>recortar el gasto baja tu número para siempre</b>, porque reduce "
+                      "el capital que necesitas. Ahorrar más no cambia la meta: te acerca antes a ella. "
+                      "Las dos juntas son las que más años te devuelven.", 11, GREY),
                 PageBreak()]
 
     # =========================================================== PAGINA 4
@@ -442,9 +494,9 @@ def _apertura(salud, fi, datos, extras, p):
     foco = nudo.get("tit") or rv.get("weakest")
 
     if foco or accion:
-        out += [Paragraph("Por dónde empezar", rb.h_sec),
+        out += [Spacer(1, 8 * mm), Paragraph("Por dónde empezar", H1),
                 texto("Tienes doce dimensiones medidas y todo el detalle en las páginas que siguen. "
-                      "Pero si esta semana solo cambias una cosa, que sea esta.")]
+                      "Pero si esta semana solo cambias una cosa, que sea esta.", 12)]
         if foco:
             out += [Spacer(1, 5 * mm),
                     box([rotulo("TU ESLABÓN MÁS DÉBIL", ROJO),
@@ -458,8 +510,8 @@ def _apertura(salud, fi, datos, extras, p):
         if accion and isinstance(accion, str):
             out += [Spacer(1, 3 * mm),
                     box([rotulo("TU PRIMER PASO", VERDE),
-                         Paragraph(accion, St("ap_paso", fontSize=11.5, leading=16,
-                                              textColor=INK, spaceBefore=2))],
+                         Paragraph(accion, St("ap_paso", fontSize=14, leading=20,
+                                              textColor=INK, spaceBefore=4))],
                         "#EAF3EC", VERDE, ancho=160 * mm)]
 
         # --- puente a Adapta. UNA linea. Sin venta blanda.
@@ -467,16 +519,16 @@ def _apertura(salud, fi, datos, extras, p):
                 regla(),
                 Spacer(1, 5 * mm),
                 Paragraph("Tienes el diagnóstico. Ejecutarlo sin errores es otra conversación.",
-                          St("ap_cierre", fontSize=15, leading=20, textColor=INK, fontName=FB)),
+                          St("ap_cierre", fontSize=20, leading=26, textColor=INK, fontName="Lora-Bold")),
                 Paragraph("Las páginas que siguen son el porqué, el cuánto y el cómo de todo lo "
                           "que acabas de leer: tus doce dimensiones una a una, tu mapa a 72 horas, "
                           "30 y 90 días, y la metodología completa. Léelas en orden.",
-                          St("ap_cierre2", fontSize=10, leading=14, textColor=GREY, spaceBefore=5)),
+                          St("ap_cierre2", fontSize=11, leading=15.5, textColor=GREY, spaceBefore=6)),
                 Spacer(1, 6 * mm),
                 box([rotulo("SI QUIERES IR MÁS RÁPIDO Y SIN ERRORES", rb.ACC),
                      texto("En una <b>sesión estratégica de 30 minutos</b> convertimos este diagnóstico en tus "
                            "primeras decisiones, con números y fechas. Y te descontamos de ella el importe "
-                           "íntegro de este informe.", 10.5, INK),
+                           "íntegro de este informe.", 12, INK),
                      texto("<a href='https://www.adaptafamilyoffice.com/informe'><font color='#0284C7'><u>Reservar mi sesión</u></font></a>"
                            " &#183; <a href='https://wa.me/34683343531'><font color='#0284C7'><u>WhatsApp +34 683 34 35 31</u></font></a>",
                            9.5, GREY)],
