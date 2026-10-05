@@ -809,14 +809,14 @@ def seccion_hoja_ruta_12m(pA,pB,nA,nB,hogar):
 
 def mapa_relacion(path, capas, compat, nA, nB):
     from matplotlib.patches import FancyBboxPatch, Rectangle, Circle
-    BG="#0E1018"; PANEL="#161A24"; GOLD="#E8C861"; TXC="#F4F1E8"; GRC="#8A93A6"; GREEN="#2FB36B"; RED="#D8674F"; AMB="#E0A93B"; BLUE="#5B8DEF"
+    BG="#0E0E11"; PANEL="#17171B"; GOLD="#E3B341"; TXC="#F4F1E8"; GRC="#B9B4A8"; GREEN="#2FB36B"; RED="#D8674F"; AMB="#E0A93B"; BLUE="#5B8DEF"
     fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
     ax=fig.add_axes([0,0,1,1]); ax.axis("off"); ax.set_xlim(0,100); ax.set_ylim(0,141.6)
     def T(x,y,ss,sz,c=TXC,w="normal",ha="left"): ax.text(x,y,ss,fontsize=sz,color=c,ha=ha,fontweight=w,family="DejaVu Sans",zorder=6)
     def bx(x,y,w,h,fc,r=1.4,ec=None,lw=0): ax.add_patch(FancyBboxPatch((x,y),w,h,boxstyle="round,pad=0,rounding_size=%s"%r,fc=fc,ec=ec or fc,lw=lw,zorder=2))
-    ax.add_patch(Rectangle((0,128),100,13.6,fc="#141A28",zorder=1))
+    ax.add_patch(Rectangle((0,128),100,13.6,fc="#141417",zorder=1))
     T(8,134,"ADAPTA",13,GOLD,"bold"); T(24.2,134.2,"FAMILY OFFICE",7,GRC)
-    ax.plot([8,92],[131.4,131.4],color="#262C3A",lw=1,zorder=3)
+    ax.plot([8,92],[131.4,131.4],color="#2A2A30",lw=1,zorder=3)
     T(8,123,"EL MAPA DE VUESTRA RELACIÓN CON EL DINERO",9.5,GOLD,"bold")
     T(8,116.8,"Dónde os encontráis y dónde chocáis",18,TXC,"bold")
     bx(8,108,26,5.6,PANEL,1.4); T(10.5,109.9,"COMPATIBILIDAD",6.6,GRC,"bold"); T(31.5,109.4,"%d/100"%compat,12,GOLD,"bold",ha="right")
@@ -830,15 +830,15 @@ def mapa_relacion(path, capas, compat, nA, nB):
         col=RED if g>=30 else (AMB if g>=18 else GREEN)
         ax.plot([x0,x1],[y,y],color="#1E2430",lw=0.8,zorder=2)
         ax.plot([mx(va),mx(vb)],[y,y],color=col,lw=2.6,zorder=4,solid_capstyle="round")
-        ax.add_patch(Circle((mx(va),y),0.95,color=GOLD,ec="#0E1018",lw=0.8,zorder=5))
-        ax.add_patch(Circle((mx(vb),y),0.95,color=BLUE,ec="#0E1018",lw=0.8,zorder=5))
+        ax.add_patch(Circle((mx(va),y),0.95,color=GOLD,ec="#0E0E11",lw=0.8,zorder=5))
+        ax.add_patch(Circle((mx(vb),y),0.95,color=BLUE,ec="#0E0E11",lw=0.8,zorder=5))
         T(8,y-0.9,(nm or "")[:22],7.6,(TXC if g<30 else "#F2C9BE"),("bold" if g>=30 else "normal"))
     fuerte=sorted(capas,key=lambda t:-(((100-t[1])+(100-t[2]))/2))[0]
     fric=sorted(capas,key=lambda t:-abs(t[1]-t[2]))[0]
-    bx(8,20,40,8.2,"#1C2433",1.6,ec=RED,lw=1.1); T(11,25.4,"VUESTRA MAYOR FRICCIÓN",6.6,RED,"bold"); T(11,22,(fric[0] or "")[:26],9.5,TXC,"bold")
+    bx(8,20,40,8.2,"#1E1E23",1.6,ec=RED,lw=1.1); T(11,25.4,"VUESTRA MAYOR FRICCIÓN",6.6,RED,"bold"); T(11,22,(fric[0] or "")[:26],9.5,TXC,"bold")
     bx(52,20,40,8.2,"#16241C",1.6,ec=GREEN,lw=1.1); T(55,25.4,"VUESTRA MAYOR FUERZA",6.6,GREEN,"bold"); T(55,22,(fuerte[0] or "")[:26],9.5,TXC,"bold")
     T(8,14,"Cada línea es una conversación pendiente. Las rojas, las que más os cuesta tener — y las que más os unen al tenerlas.",7,GRC)
-    ax.plot([8,92],[6.5,6.5],color="#262C3A",lw=1)
+    ax.plot([8,92],[6.5,6.5],color="#2A2A30",lw=1)
     T(8,4,"DOCUMENTO CONFIDENCIAL · ADAPTA FAMILY OFFICE",6.2,GRC)
     fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
 

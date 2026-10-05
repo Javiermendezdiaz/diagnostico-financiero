@@ -413,7 +413,7 @@ def radar_png(p,path):
     N=len(labels); ang=np.linspace(0,2*np.pi,N,endpoint=False).tolist(); ang+=ang[:1]; v=vsal+vsal[:1]
     m=sum(vals)/len(vals)
     # tono del poligono segun tension global: oro aristocratico -> ambar -> terracota
-    fill = "#E8C861" if m<35 else ("#D99A2B" if m<58 else "#B5563C")
+    fill = "#E3B341" if m<35 else ("#D99A2B" if m<58 else "#B5563C")
     fig,ax=plt.subplots(figsize=(5.8,5.8),subplot_kw=dict(polar=True))
     ax.set_theta_offset(np.pi/2); ax.set_theta_direction(-1); ax.set_ylim(0,100)
     # anillos concentricos finos, sin rejilla dura
@@ -448,7 +448,7 @@ def radar_png(p,path):
 
 def panel_dashboard(path, salud_disp, banda_lbl, cifra_lib, cobertura, tasa_ahorro, inv, par, ili, ing_act, ing_pas, g_fij, g_var, dormido, fecha):
     from matplotlib.patches import FancyBboxPatch, Rectangle
-    BG="#0E1018"; PANEL="#161A24"; GOLD="#E8C861"; AM="#FDD731"; TX="#F4F1E8"; GR="#8A93A6"; GREEN="#2FB36B"; RED="#D8674F"; SLATE="#3A4150"
+    BG="#0E0E11"; PANEL="#17171B"; GOLD="#E3B341"; AM="#FDD731"; TX="#F4F1E8"; GR="#B9B4A8"; GREEN="#2FB36B"; RED="#D8674F"; SLATE="#3E3E45"
     def _e(n):
         try: return ("%s €"%format(float(n),",.0f")).replace(",",".")
         except Exception: return "—"
@@ -457,10 +457,13 @@ def panel_dashboard(path, salud_disp, banda_lbl, cifra_lib, cobertura, tasa_ahor
     def box(x,y,w,h,fc,r=1.4,ec=None,lw=0):
         ax.add_patch(FancyBboxPatch((x,y),w,h,boxstyle="round,pad=0,rounding_size=%s"%r,fc=fc,ec=ec or fc,lw=lw,zorder=2))
     def T(x,y,ss,size,c=TX,w="normal",ha="left"):
-        ax.text(x,y,ss,fontsize=size,color=c,ha=ha,fontweight=w,family=_MPLFAM,zorder=5)
-    ax.add_patch(Rectangle((0,128),100,13.6,fc="#141A28",zorder=1))
+        # Titulares en Lora (como las paginas oscuras del libro); cuerpo pequeño +1 pt para que se lea.
+        _fam=("Lora" if (size>=16 and w=="bold" and _LORA) else _MPLFAM)
+        _sz=(size+1.0 if size<9 else size)
+        ax.text(x,y,ss,fontsize=_sz,color=c,ha=ha,fontweight=w,family=_fam,zorder=5)
+    ax.add_patch(Rectangle((0,128),100,13.6,fc="#141417",zorder=1))
     T(8,134,"ADAPTA",13,GOLD,"bold"); T(24.2,134.2,"FAMILY OFFICE",7,GR)
-    ax.plot([8,92],[131.4,131.4],color="#262C3A",lw=1,zorder=3)
+    ax.plot([8,92],[131.4,131.4],color="#2A2A30",lw=1,zorder=3)
     T(8,123,"TU PANEL FINANCIERO",10,GOLD,"bold")
     T(8,116.5,"Tu vida económica, de un vistazo",19,TX,"bold")
     box(8,92,40,20,PANEL,2)
@@ -478,7 +481,7 @@ def panel_dashboard(path, salud_disp, banda_lbl, cifra_lib, cobertura, tasa_ahor
         for val,col,dark in [(inv,GREEN,True),(par,GOLD,True),(ili,SLATE,False)]:
             w=84*val/tot
             if w>0.5: box(x,83,max(w-0.4,0.6),5.0,col,1.0)
-            if w>9: T(x+w/2,85.3,"%.0f%%"%(100*val/tot),9,"#0E1018" if dark else TX,"bold",ha="center")
+            if w>9: T(x+w/2,85.3,"%.0f%%"%(100*val/tot),9,"#0E0E11" if dark else TX,"bold",ha="center")
             x+=w
         trab=100*inv/tot
         T(8,79.6,"●  %.0f%% TRABAJA para ti"%trab,7.5,GREEN,"bold")
@@ -493,15 +496,15 @@ def panel_dashboard(path, salud_disp, banda_lbl, cifra_lib, cobertura, tasa_ahor
             w=84*v/mx
             if w>0.4: box(x,y,max(w-0.4,0.6),3.4,col,0.9)
             x+=w
-    flujo(67.5,"INGRESOS",[(ing_act,"#5B6472"),(ing_pas,GREEN)])
+    flujo(67.5,"INGRESOS",[(ing_act,"#6A6A72"),(ing_pas,GREEN)])
     flujo(60.5,"GASTOS",[(g_fij,RED),(g_var,GOLD)])
     T(8,57.2,"●  activo   ●  pasivo (te libera)",6.8,GR); T(50,57.2,"●  fijo (te ata)   ●  variable",6.8,GR)
     if dormido and dormido>5000 and cobertura<100:
-        box(8,46,84,7.6,"#1C2433",1.6,ec=GOLD,lw=1.2)
+        box(8,46,84,7.6,"#1E1E23",1.6,ec=GOLD,lw=1.2)
         T(11,51.2,"TU PALANCA #1",7,GOLD,"bold")
         T(11,47.8,"Tienes %s líquidos por encima de tu colchón de 6 meses. Ponerlos a rentar te acerca a tu libertad sin ganar un euro más."%_e(dormido),8.2,TX)
     T(8,40,"Las cifras de esta página son el resumen ejecutivo de tu Libro. El detalle, capa a capa, viene a continuación.",7,GR)
-    ax.plot([8,92],[6.5,6.5],color="#262C3A",lw=1)
+    ax.plot([8,92],[6.5,6.5],color="#2A2A30",lw=1)
     T(8,4,"DOCUMENTO CONFIDENCIAL · ADAPTA FAMILY OFFICE · %s"%fecha,6.2,GR)
     fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
 
@@ -1195,10 +1198,10 @@ def panel_compat(path, compat, nA, nB, notaA, notaB):
     """Heroe oscuro de compatibilidad de pareja: el número titular del libro."""
     import matplotlib.pyplot as plt, numpy as np
     from matplotlib.patches import Rectangle, FancyBboxPatch
-    BG="#0E1018"; CARD="#161A24"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"
-    A_COL="#E8C861"; B_COL="#6FA8DC"
+    BG="#0E0E11"; CARD="#17171B"; GOLD="#E3B341"; TX="#EDEAE2"; MUT="#B9B4A8"
+    A_COL="#E3B341"; B_COL="#6FA8DC"
     c=max(0,min(100,round(compat)))
-    ccol="#5FB98E" if c>=75 else ("#E8C861" if c>=50 else "#D9755B")
+    ccol="#5FB98E" if c>=75 else ("#E3B341" if c>=50 else "#D9755B")
     if c>=80: lect="Vivís el dinero de forma muy parecida. Vuestro reto no es entenderos: es no acomodaros."
     elif c>=60: lect="Hay sintonía de fondo y diferencias sanas. Bien habladas, esas diferencias os suman."
     elif c>=40: lect="Veis el dinero distinto en varias capas. No es incompatibilidad: es trabajo de traducción."
@@ -1217,12 +1220,12 @@ def panel_compat(path, compat, nA, nB, notaA, notaB):
     for _ln in _tw.wrap(lect,58):
         ax.text(8,_ly,_ln,color=MUT,fontsize=12,va="center",zorder=4); _ly-=4.6
     # nombres con su salud
-    ax.add_patch(FancyBboxPatch((8,28),40,14,boxstyle="round,pad=0.6,rounding_size=2",fc=CARD,ec="#2A3140",lw=1,zorder=3))
+    ax.add_patch(FancyBboxPatch((8,28),40,14,boxstyle="round,pad=0.6,rounding_size=2",fc=CARD,ec="#2C2C33",lw=1,zorder=3))
     from matplotlib.patches import Circle
     ax.add_patch(Circle((11.5,38.5),0.9,color=A_COL,zorder=5))
     ax.text(13.8,38.5,str(nA).upper(),color=TX,fontsize=11,fontweight="bold",va="center",zorder=5)
     ax.text(10.6,32.5,"Salud psicofinanciera  %d/100"%round(notaA),color=MUT,fontsize=9,va="center",zorder=5)
-    ax.add_patch(FancyBboxPatch((52,28),40,14,boxstyle="round,pad=0.6,rounding_size=2",fc=CARD,ec="#2A3140",lw=1,zorder=3))
+    ax.add_patch(FancyBboxPatch((52,28),40,14,boxstyle="round,pad=0.6,rounding_size=2",fc=CARD,ec="#2C2C33",lw=1,zorder=3))
     ax.add_patch(Circle((55.5,38.5),0.9,color=B_COL,zorder=5))
     ax.text(57.8,38.5,str(nB).upper(),color=TX,fontsize=11,fontweight="bold",va="center",zorder=5)
     ax.text(54.6,32.5,"Salud psicofinanciera  %d/100"%round(notaB),color=MUT,fontsize=9,va="center",zorder=5)
@@ -1233,7 +1236,7 @@ def cierre_cta(path, titulo, subtitulo, puntos, contacto):
     """Pagina de cierre a sangre: el siguiente paso con Adapta (CTA)."""
     import matplotlib.pyplot as plt, textwrap
     from matplotlib.patches import Rectangle, FancyBboxPatch, Circle
-    BG="#0E1018"; CARD="#161A24"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"
+    BG="#0E0E11"; CARD="#17171B"; GOLD="#E3B341"; TX="#EDEAE2"; MUT="#B9B4A8"
     fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
     ax=fig.add_axes([0,0,1,1]); ax.set_xlim(0,100); ax.set_ylim(0,141.6); ax.axis("off")
     ax.add_patch(Rectangle((0,0),100,141.6,color=BG,zorder=0))
@@ -1265,7 +1268,7 @@ def portadilla(path, acto, titulo, subtitulo, dato=None, dato_lbl="", dato_col=N
     """
     import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle
-    BG="#0E1018"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"; FAINT="#171C28"
+    BG="#0E0E11"; GOLD="#E3B341"; TX="#EDEAE2"; MUT="#B9B4A8"; FAINT="#18181C"
     num="".join(ch for ch in (acto or "") if ch.isdigit())
     fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
     ax=fig.add_axes([0,0,1,1]); ax.set_xlim(0,100); ax.set_ylim(0,141.6); ax.axis("off")
@@ -1291,11 +1294,11 @@ def panel_persona(path, nombre, salud, arq_code, prof):
     """Portada-heroe oscura del perfil individual: nombre, arquetipo, salud gigante, fortaleza/foco."""
     import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle, FancyBboxPatch, Circle
-    BG="#0E1018"; CARD="#161A24"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"
+    BG="#0E0E11"; CARD="#17171B"; GOLD="#E3B341"; TX="#EDEAE2"; MUT="#B9B4A8"
     nota=_sal100(salud)
     arq=ARQ_META.get(arq_code) if arq_code else None
     arqcol=arq.get("color",GOLD) if arq else GOLD
-    scol="#5FB98E" if nota>=70 else ("#E8C861" if nota>=45 else "#D9755B")
+    scol="#5FB98E" if nota>=70 else ("#E3B341" if nota>=45 else "#D9755B")
     orden=sorted([c for c in CAPAS if c in prof],key=lambda c:prof[c]["score"])
     fuerte=_SHORT12.get(orden[0],CAPAS[orden[0]]["nombre"]) if orden else "—"
     foco=_SHORT12.get(orden[-1],CAPAS[orden[-1]]["nombre"]) if orden else "—"
@@ -1312,10 +1315,10 @@ def panel_persona(path, nombre, salud, arq_code, prof):
     ax.text(7.6,70,str(nota),color=scol,fontsize=104,fontweight="bold",va="center",zorder=4)
     ax.text(8,52.5,"/ 100   ·   SALUD PSICOFINANCIERA",color=MUT,fontsize=12.5,fontweight="bold",va="center",zorder=4)
     ax.text(8,47,"Cómo vive el dinero por dentro. 100 = en paz; 0 = en tensión constante.",color=MUT,fontsize=9.5,va="center",zorder=4)
-    ax.add_patch(FancyBboxPatch((8,26),40,14,boxstyle="round,pad=0.6,rounding_size=2",fc=CARD,ec="#2A3140",lw=1,zorder=3))
+    ax.add_patch(FancyBboxPatch((8,26),40,14,boxstyle="round,pad=0.6,rounding_size=2",fc=CARD,ec="#2C2C33",lw=1,zorder=3))
     ax.text(10.6,36,"SU MAYOR FORTALEZA",color="#5FB98E",fontsize=8.4,fontweight="bold",va="center",zorder=4)
     ax.text(10.6,30.5,fuerte,color=TX,fontsize=13,fontweight="bold",va="center",zorder=4)
-    ax.add_patch(FancyBboxPatch((52,26),40,14,boxstyle="round,pad=0.6,rounding_size=2",fc=CARD,ec="#2A3140",lw=1,zorder=3))
+    ax.add_patch(FancyBboxPatch((52,26),40,14,boxstyle="round,pad=0.6,rounding_size=2",fc=CARD,ec="#2C2C33",lw=1,zorder=3))
     ax.text(54.6,36,"SU FOCO PRINCIPAL",color="#D9755B",fontsize=8.4,fontweight="bold",va="center",zorder=4)
     ax.text(54.6,30.5,foco,color=TX,fontsize=13,fontweight="bold",va="center",zorder=4)
     ax.text(8,9,"ADAPTA FAMILY OFFICE",color=GOLD,fontsize=8.2,fontweight="bold",va="center",zorder=4)
@@ -1328,7 +1331,7 @@ def panel_capas(path, p, titulo="TUS 12 DIMENSIONES",
     """Pagina a sangre: las 12 dimensiones en diales (vista de un vistazo)."""
     import matplotlib.pyplot as plt, numpy as np
     from matplotlib.patches import Rectangle
-    BG="#0E1018"; CARD="#161A24"; GOLD="#E8C861"; TX="#EDEAE2"; MUT="#8A93A6"; TRACK="#2A3140"
+    BG="#0E0E11"; CARD="#17171B"; GOLD="#E3B341"; TX="#EDEAE2"; MUT="#B9B4A8"; TRACK="#2C2C33"
     SHORT=_SHORT12
     codes=sorted([c for c in CAPAS if c in p], key=lambda c: p[c]["score"], reverse=True)  # #3 · de peor a mejor
     fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
@@ -1336,7 +1339,7 @@ def panel_capas(path, p, titulo="TUS 12 DIMENSIONES",
     ax.add_patch(Rectangle((0,0),100,141.6,color=BG,zorder=0))
     ax.add_patch(Rectangle((0,128.5),100,13.1,color=CARD,zorder=1))
     ax.add_patch(Rectangle((0,128.3),100,0.35,color=GOLD,zorder=2))
-    ax.text(8,135.6,titulo,color=GOLD,fontsize=22,fontweight="bold",va="center",zorder=3)
+    ax.text(8,135.6,titulo,color=GOLD,fontsize=22,fontweight="bold",va="center",zorder=3,family=("Lora" if _LORA else _MPLFAM))
     ax.text(8,131.4,subtitulo,color=MUT,fontsize=10.5,va="center",zorder=3)
     cols=[14,38,62,86]; rows=[107,72,37]; R=10.0
     for idx,code in enumerate(codes[:12]):
@@ -1361,7 +1364,7 @@ def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
     """Pagina cinematografica a sangre: tres caminos del patrimonio + LA BRECHA + hito de libertad."""
     import matplotlib.pyplot as plt
     from matplotlib.patches import FancyBboxPatch, Rectangle
-    BG="#0E1018"; CARD="#161A24"; PANEL="#1B2030"; GOLD="#E8C861"; RED="#D9755B"; GREEN="#5FB98E"; BLUE="#6FA8DC"; TX="#EDEAE2"; MUT="#8A93A6"
+    BG="#0E0E11"; CARD="#17171B"; PANEL="#1D1D22"; GOLD="#E3B341"; RED="#D9755B"; GREEN="#5FB98E"; BLUE="#6FA8DC"; TX="#EDEAE2"; MUT="#B9B4A8"
     edad=int(datos.get("edad",40)); meta_edad=max(EDAD_JUBILACION, edad+5); anos=max(meta_edad-edad,1)
     pat=datos.get("patrimonio",0) or 0; aho=(datos.get("ahorro_mensual",0) or 0)*12
     ing=datos.get("ingreso_mensual",0) or 0; gas=datos.get("gasto_mensual",0) or 0
@@ -1415,7 +1418,7 @@ def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
     # banda superior
     bg.add_patch(Rectangle((0,128.5),100,13.1,color=CARD,zorder=1))
     bg.add_patch(Rectangle((0,128.3),100,0.35,color=GOLD,zorder=2))
-    bg.text(8,135.6,titulo,color=GOLD,fontsize=22,fontweight="bold",va="center",zorder=3)
+    bg.text(8,135.6,titulo,color=GOLD,fontsize=22,fontweight="bold",va="center",zorder=3,family=("Lora" if _LORA else _MPLFAM))
     bg.text(8,131.4,subtitulo,color=MUT,fontsize=10.5,va="center",zorder=3)
     # --- chart inset ---
     cx=fig.add_axes([0.085,0.355,0.85,0.475]); cx.set_facecolor("none")
@@ -1439,11 +1442,11 @@ def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
     cx.set_xlim(xs[0],xs[-1]); cx.set_ylim(ymin,ymax)
     cx.set_xlabel("Tu edad",color=MUT,fontsize=9)
     for sp in ["top","right"]: cx.spines[sp].set_visible(False)
-    for sp in ["left","bottom"]: cx.spines[sp].set_color("#39414F")
+    for sp in ["left","bottom"]: cx.spines[sp].set_color("#3A3A40")
     cx.tick_params(colors=MUT,labelsize=8)
     import matplotlib.ticker as mtick
     cx.yaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: "0" if abs(v)<1 else (("%.0fk"%(v/1000)) if v<1e6 else ("%.1f M"%(v/1e6)).replace(".",","))))
-    cx.grid(axis="y",color="#262C3A",lw=0.6,zorder=0)
+    cx.grid(axis="y",color="#2A2A30",lw=0.6,zorder=0)
     # leyenda manual
     lx=6.5; ly=44.5
     for nombre,s,col,ls in series:
@@ -1456,7 +1459,7 @@ def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
     bg.text(10.5,20.6,(brecha_cap or "Lo que separa actuar de no actuar, a los %d años.")%meta_edad,color=MUT,fontsize=8.6,va="center",zorder=4)
     # caja derecha: coste de un anio perdido
     coste_ano=brecha/anos if anos else 0
-    bg.add_patch(FancyBboxPatch((63,17.5),30,20,boxstyle="round,pad=0.6,rounding_size=2.2",fc=CARD,ec="#39414F",lw=1.0,zorder=3))
+    bg.add_patch(FancyBboxPatch((63,17.5),30,20,boxstyle="round,pad=0.6,rounding_size=2.2",fc=CARD,ec="#3A3A40",lw=1.0,zorder=3))
     bg.text(64.8,33.5,"CADA AÑO QUE ESPERAS",color=MUT,fontsize=8.4,fontweight="bold",va="center",zorder=4)
     bg.text(64.8,27.2,"−"+_eur(coste_ano),color=RED,fontsize=18,fontweight="bold",va="center",zorder=4)
     bg.text(64.8,21.2,"de patrimonio futuro,\nde media.",color=MUT,fontsize=8.2,va="center",zorder=4,linespacing=1.25)
@@ -1551,9 +1554,9 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
     def _de(n):
         try: return ("%s €"%format(float(n),",.0f")).replace(",",".")
         except Exception: return "—"
-    BG="#0E1018"; GOLD="#E8C861"; TX="#F4F1E8"; GR="#8A93A6"
-    GREEN="#2FB36B"; RED="#D8674F"; SLATE="#3A4150"; AM="#FDD731"
-    _PALD=["#2FB36B","#E8C861","#6FA8DC","#D8674F","#9B8CCB","#C2710C","#5FB98E","#E0653B","#7C8696"]
+    BG="#0E0E11"; GOLD="#E3B341"; TX="#F4F1E8"; GR="#B9B4A8"
+    GREEN="#2FB36B"; RED="#D8674F"; SLATE="#3E3E45"; AM="#FDD731"
+    _PALD=["#2FB36B","#E3B341","#6FA8DC","#D8674F","#9B8CCB","#C2710C","#5FB98E","#E0653B","#8A8A92"]
     d=datos or {}; ex=extras or {}
     g=lambda k: float(d.get(k) or 0)
     def _detparts(campo, fb):
@@ -1586,13 +1589,13 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
     def _newpage(titulo,subt):
         fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
         axbg=fig.add_axes([0,0,1,1]); axbg.axis("off"); axbg.set_xlim(0,100); axbg.set_ylim(0,141.6)
-        axbg.add_patch(Rectangle((0,128),100,13.6,fc="#141A28",zorder=1))
+        axbg.add_patch(Rectangle((0,128),100,13.6,fc="#141417",zorder=1))
         axbg.text(8,134,"ADAPTA",fontsize=13,color=GOLD,fontweight="bold",family=_MPLFAM,zorder=5)
         axbg.text(24.2,134.2,"FAMILY OFFICE",fontsize=7,color=GR,family=_MPLFAM,zorder=5)
-        axbg.plot([8,92],[131.4,131.4],color="#262C3A",lw=1,zorder=3)
+        axbg.plot([8,92],[131.4,131.4],color="#2A2A30",lw=1,zorder=3)
         axbg.text(8,122,titulo,fontsize=10,color=GOLD,fontweight="bold",family=_MPLFAM,zorder=5)
-        axbg.text(8,114.5,subt,fontsize=16,color=TX,fontweight="bold",family=_MPLFAM,zorder=5)
-        axbg.plot([8,92],[7,7],color="#262C3A",lw=1,zorder=3)
+        axbg.text(8,114.5,subt,fontsize=17,color=TX,fontweight="bold",family=("Lora" if _LORA else _MPLFAM),zorder=5)
+        axbg.plot([8,92],[7,7],color="#2A2A30",lw=1,zorder=3)
         axbg.text(8,4.3,"DOCUMENTO CONFIDENCIAL · ADAPTA FAMILY OFFICE · %s"%fecha,fontsize=6.2,color=GR,family=_MPLFAM,zorder=5)
         return fig,axbg
     def band(fig,axbg,don_b,titulo_base,partes):
@@ -1604,7 +1607,7 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
             axbg.text(8,ty,titulo_base,fontsize=11,color=GOLD,fontweight="bold",family=_MPLFAM,zorder=5)
             axbg.text(46,cyc,"— sin dato —",fontsize=11,color=GR,ha="left",va="center",family=_MPLFAM,zorder=5); return
         if len(partes)>8:
-            partes=sorted(partes,key=lambda z:-z[1]); _r=sum(z[1] for z in partes[7:]); partes=partes[:7]+[("Otros",_r,"#7C8696")]
+            partes=sorted(partes,key=lambda z:-z[1]); _r=sum(z[1] for z in partes[7:]); partes=partes[:7]+[("Otros",_r,"#8A8A92")]
         tot=sum(pv for _,pv,_ in partes) or 1
         axbg.text(8,ty,"%s — %s"%(titulo_base,_de(tot)),fontsize=11,color=GOLD,fontweight="bold",family=_MPLFAM,zorder=5)
         ax=fig.add_axes([l,b,w,h]); ax.set_facecolor("none")
@@ -1629,14 +1632,14 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
     activos=_detparts("patrimonio",[("Inversiones / liquidez",liquido,GREEN),("Vivienda / ilíquido",iliquido,SLATE)])
     pasivos=(_detparts("deuda_total",[("Deuda total",deu,RED)]) if deu>0 else [])
     if len(activos)>8:
-        activos=sorted(activos,key=lambda z:-z[1]); _ra=sum(z[1] for z in activos[7:]); activos=activos[:7]+[("Otros",_ra,"#7C8696")]
+        activos=sorted(activos,key=lambda z:-z[1]); _ra=sum(z[1] for z in activos[7:]); activos=activos[:7]+[("Otros",_ra,"#8A8A92")]
     if len(pasivos)>8:
-        pasivos=sorted(pasivos,key=lambda z:-z[1]); _rp=sum(z[1] for z in pasivos[7:]); pasivos=pasivos[:7]+[("Otros",_rp,"#7C8696")]
+        pasivos=sorted(pasivos,key=lambda z:-z[1]); _rp=sum(z[1] for z in pasivos[7:]); pasivos=pasivos[:7]+[("Otros",_rp,"#8A8A92")]
     tot_a=sum(v for _,v,_ in activos); tot_p=sum(v for _,v,_ in pasivos); _neto=tot_a-tot_p
     axbg.text(8,53,"TU BALANCE PATRIMONIAL",fontsize=11,color=GOLD,fontweight="bold",family=_MPLFAM,zorder=5)
     axbg.text(8,48,"ACTIVOS — lo que tienes",fontsize=9,color=GREEN,fontweight="bold",family=_MPLFAM,zorder=5)
     axbg.text(52,48,"PASIVOS — lo que debes",fontsize=9,color=RED,fontweight="bold",family=_MPLFAM,zorder=5)
-    axbg.plot([50,50],[16.5,46],color="#262C3A",lw=1,zorder=3)
+    axbg.plot([50,50],[16.5,46],color="#2A2A30",lw=1,zorder=3)
     def _coldraw(parts,x0,xv):
         y=44.0
         for (l,v,c) in parts:
@@ -1647,13 +1650,13 @@ def panel_distribucion(path, datos, extras=None, fecha=""):
     _coldraw(activos,8,47)
     if pasivos: _coldraw(pasivos,52,91)
     else: axbg.text(54,40,"Sin deudas · 100% tuyo",fontsize=9,color=GREEN,fontweight="bold",va="center",family=_MPLFAM,zorder=5)
-    axbg.plot([8,47],[18,18],color="#2A3140",lw=0.8,zorder=4)
+    axbg.plot([8,47],[18,18],color="#2C2C33",lw=0.8,zorder=4)
     axbg.text(8,16,"Total activos",fontsize=8.5,color=TX,fontweight="bold",family=_MPLFAM,zorder=5)
     axbg.text(47,16,_de(tot_a),fontsize=9.5,color=GREEN,fontweight="bold",ha="right",family=_MPLFAM,zorder=5)
-    axbg.plot([52,91],[18,18],color="#2A3140",lw=0.8,zorder=4)
+    axbg.plot([52,91],[18,18],color="#2C2C33",lw=0.8,zorder=4)
     axbg.text(52,16,"Total pasivos",fontsize=8.5,color=TX,fontweight="bold",family=_MPLFAM,zorder=5)
     axbg.text(91,16,_de(tot_p),fontsize=9.5,color=RED,fontweight="bold",ha="right",family=_MPLFAM,zorder=5)
-    axbg.add_patch(FancyBboxPatch((8,8.5),84,5.2,boxstyle="round,pad=0,rounding_size=1.0",fc="#161A24",ec="#262C3A",lw=1,zorder=4))
+    axbg.add_patch(FancyBboxPatch((8,8.5),84,5.2,boxstyle="round,pad=0,rounding_size=1.0",fc="#17171B",ec="#2A2A30",lw=1,zorder=4))
     axbg.text(11,11.1,"DIFERENCIA  =  PATRIMONIO NETO",fontsize=9,color=GR,fontweight="bold",va="center",family=_MPLFAM,zorder=6)
     axbg.text(89,10.9,_de(_neto),fontsize=13.5,color=(GOLD if _neto>=0 else RED),fontweight="bold",ha="right",va="center",family=_MPLFAM,zorder=6)
     fig.savefig(p2,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
@@ -3715,7 +3718,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             try:
                 _n1=_sal100(salud)
                 _d1="%d/100"%_n1; _dl1="Tu salud psicofinanciera hoy"
-                _c1="#5FB98E" if _n1>=60 else ("#E8C861" if _n1>=40 else "#D9755B")
+                _c1="#5FB98E" if _n1>=60 else ("#E3B341" if _n1>=40 else "#D9755B")
             except Exception:
                 pass
             portadilla("_pa_t2_1.png", "Acto 1", 'TU FOTO\nDE HOY', 'El diagnóstico completo: radar, las 12 capas y tu cuadro financiero.',

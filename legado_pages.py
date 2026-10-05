@@ -236,14 +236,14 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
     if completo:
         seq.append(LD.divider(tmp+"01.svg","Sección I — Pasado",["Arqueología del","Comportamiento"],
             "Las decisiones y creencias que construyeron, en silencio, tus cimientos de hoy.",
-            tint="#0E1622", accent="#8FA1BC"))
+            tint="#121215", accent="#C9B98F"))
         if arq_meta:
             _pars=[arq_meta.get("desc",""),
                    "Esta forma de mirar el dinero no nació contigo: se aprendió, en lo que viste y oíste de pequeño sobre el dinero. No es un defecto. Es un guion — y todo guion se puede leer.",
                    "Hoy se nota así: %s Y su reverso: %s" % (arq_meta.get("luz",""), arq_meta.get("sombra",""))]
             seq.append(LD.guion_dinero(tmp+"01r.svg", arq_meta.get("nombre","Tu arquetipo"),
                 arq_meta.get("lema",""), _pars,
-                "Un guion se puede reescribir. Empieza por verlo.", accent="#8FA1BC"))
+                "Un guion se puede reescribir. Empieza por verlo.", accent="#C9B98F"))
     ci=br.get("coste_ideal_mes"); ing=br.get("ingreso_mes"); gap=br.get("brecha_mes")
     if ci:
         if gap and gap>0:
@@ -263,12 +263,12 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
                 "La vida que describí como ideal cuesta %s al mes."%LD_fmt(ci),
                 _hero,
                 "Eso es lo que tu modelo genera hoy. Tu vida ideal pide %s al mes. La brecha son %s al mes — %s al año. Esa distancia es, exactamente, lo que vamos a cerrar. No es un fracaso: es el mapa."%(LD_fmt(ci),LD_fmt(gap),LD_fmt(_gap_anual)),
-                "Cerremos la brecha.", accent="#8FA1BC"))
+                "Cerremos la brecha.", accent="#C9B98F"))
         else:
             seq.append(LD.efecto_espejo(tmp+"02.svg","El espejo",
                 "La vida que describí como ideal cuesta %s al mes."%LD_fmt(ci),
                 "Ya llegas","Hoy tu flujo ya cubre tu vida ideal. El reto deja de ser cuánto ganas y pasa a ser a qué velocidad conviertes ese margen en capital que trabaje por ti.",
-                "Ahora, protégelo.", accent="#8FA1BC"))
+                "Ahora, protégelo.", accent="#C9B98F"))
     if completo:
         seq.append(LD.divider(tmp+"03.svg","Sección II — Presente",["Radiografía","del Capital"],
             "Dónde estás hoy, medido no en cuánto tienes, sino en cuánta paz y cuánta libertad te da.",
@@ -288,7 +288,7 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
         joyas_0001(seq,tmp,cli,datos,extras,p)
         seq.append(LD.divider(tmp+"05.svg","Sección III — Futuro",["Visión","y Libertad"],
             "Hacia dónde vas, y el número exacto que convierte tu trabajo en una elección.",
-            tint="#13202A", accent=LD.GOLD))
+            tint="#141417", accent=LD.GOLD))
         barrera(seq,tmp,datos,extras,p)
     num=br.get("numero_ideal")
     if num:

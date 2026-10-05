@@ -12,13 +12,15 @@ def _fp(f,sz): return FontProperties(fname=os.path.join(_FD,f),size=sz)
 def L(sz):  return _fp("Lora-Bold.ttf",sz)        # serif display
 def Lr(sz): return _fp("Lora-Regular.ttf",sz)
 def Li(sz): return _fp("Lora-Italic.ttf",sz)
-def P(sz):  return _fp("Poppins-Regular.ttf",sz)
+# Legibilidad: en fondo oscuro el cuerpo pequeño se pierde. Todo texto < 10,5 pt sube un punto.
+def _lg(sz): return sz+1.0 if sz<10.5 else sz
+def P(sz):  return _fp("Poppins-Regular.ttf",_lg(sz))
 def Pm(sz): return _fp("Poppins-Medium.ttf",sz)
 def Pb(sz): return _fp("Poppins-Bold.ttf",sz)
-def Pl(sz): return _fp("Poppins-Light.ttf",sz)
+def Pl(sz): return _fp("Poppins-Regular.ttf",_lg(sz))   # Light era ilegible sobre negro
 
 BG0="#0A0A0C"; BG1="#121215"; GLOW="#2A2410"
-BLUE="#FDD731"; BLUE_L="#FFE36A"; WHITE="#F3F6FC"; MUTE="#C7C2B6"; FAINT="#9C968A"; RULE="#33312A"
+BLUE="#E3B341"; BLUE_L="#F0CC6A"; WHITE="#F4F1E8"; MUTE="#DDD8CC"; FAINT="#B4AEA1"; RULE="#33312A"
 GOLD="#E3B341"; GREEN="#3FB984"
 A4=(8.27,11.69)  # portrait inches
 
@@ -142,7 +144,7 @@ def efecto_espejo(out, kicker, frase, dato_num, dato_txt, cierre, accent=BLUE):
 
 def guion_dinero(out, arq_nombre, arq_lema, parrafos, cierre, accent=GOLD):
     """Raíz emocional del Pasado: el 'guion del dinero' derivado del arquetipo. Página editorial narrativa."""
-    fig,ax=_canvas(); _bg(ax,(0.80,0.84),tint="#0E1622")
+    fig,ax=_canvas(); _bg(ax,(0.80,0.84),tint="#121215")
     ax.text(0.10,0.865,_spaced("TU GUION DEL DINERO"),ha="left",va="center",color=accent,fontproperties=Pm(11),transform=ax.transAxes)
     ax.text(0.10,0.775,(arq_nombre or "").upper(),ha="left",va="center",color=WHITE,fontproperties=L(38),transform=ax.transAxes)
     if arq_lema:
@@ -159,7 +161,7 @@ def guion_dinero(out, arq_nombre, arq_lema, parrafos, cierre, accent=GOLD):
 
 def el_salto(out, arq_nombre, hoy, manana, cierre, accent=GOLD):
     """El salto: misma identidad, sin el punto ciego. HOY (apagado) -> EN 12 MESES (vivo)."""
-    fig,ax=_canvas(); _bg(ax,(0.84,0.16),tint="#0E1622")
+    fig,ax=_canvas(); _bg(ax,(0.84,0.16),tint="#121215")
     ax.text(0.10,0.90,_spaced("EL SALTO"),ha="left",va="center",color=accent,fontproperties=Pm(11),transform=ax.transAxes)
     ax.text(0.10,0.825,"La misma raíz, sin el peaje.",ha="left",va="center",color=WHITE,fontproperties=L(32),transform=ax.transAxes)
     # ---- HOY (apagado) ----
@@ -167,7 +169,7 @@ def el_salto(out, arq_nombre, hoy, manana, cierre, accent=GOLD):
     ax.text(0.105,0.675,(arq_nombre or "").upper(),ha="left",va="center",color=MUTE,fontproperties=Lr(15),transform=ax.transAxes)
     yy=0.625
     for ln in _tw.wrap(hoy,58):
-        ax.text(0.10,yy,ln,ha="left",va="top",color="#67768F",fontproperties=P(11.5),transform=ax.transAxes); yy-=0.0345
+        ax.text(0.10,yy,ln,ha="left",va="top",color="#8A857A",fontproperties=P(11.5),transform=ax.transAxes); yy-=0.0345
     # ---- flecha de salto ----
     ax.plot([0.12,0.12],[0.47,0.40],color=accent,lw=2.2,transform=ax.transAxes,zorder=4)
     ax.fill([0.108,0.132,0.12],[0.402,0.402,0.382],color=accent,transform=ax.transAxes,zorder=4)
@@ -176,7 +178,7 @@ def el_salto(out, arq_nombre, hoy, manana, cierre, accent=GOLD):
     ax.text(0.105,0.305,(arq_nombre or "").upper(),ha="left",va="center",color=WHITE,fontproperties=Lr(15),transform=ax.transAxes)
     yy=0.255
     for ln in _tw.wrap(manana,58):
-        ax.text(0.10,yy,ln,ha="left",va="top",color="#D7DEEA",fontproperties=P(11.5),transform=ax.transAxes); yy-=0.0345
+        ax.text(0.10,yy,ln,ha="left",va="top",color="#E6E1D5",fontproperties=P(11.5),transform=ax.transAxes); yy-=0.0345
     ax.text(0.10,0.10,cierre,ha="left",va="center",color=WHITE,fontproperties=Li(18),transform=ax.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
@@ -203,7 +205,7 @@ def termometro(out, titulo, indice, etiqueta, drivers, accent=BLUE):
     ax.text(x,yy+0.028,"barra llena = factor sano",ha="left",va="center",color=MUTE,fontproperties=Li(8.5),transform=ax.transAxes)
     for nombre,val,estado in drivers:  # val 0..1, estado color
         ax.text(x,yy,nombre,ha="left",va="center",color=WHITE,fontproperties=P(8.8),transform=ax.transAxes)
-        ax.add_patch(Rectangle((x,yy-0.028),0.25,0.012,color="#1E2C46",transform=ax.transAxes))
+        ax.add_patch(Rectangle((x,yy-0.028),0.25,0.012,color="#2A2A30",transform=ax.transAxes))
         ax.add_patch(Rectangle((x,yy-0.028),0.25*val,0.012,color=estado,transform=ax.transAxes))
         yy-=0.085
     import textwrap as _tw2
@@ -263,12 +265,12 @@ def matriz_tiempo(out, pct_pasivo, ing_activo, ing_pasivo, accent=BLUE):
 
 def mapa_100(out, hitos, accent=GOLD):
     """Tu mapa de escape: los próximos 90 días. hitos=[(dia,titulo,detalle),...]"""
-    fig,ax=_canvas(); _bg(ax,(0.82,0.82),tint="#13202A")
+    fig,ax=_canvas(); _bg(ax,(0.82,0.82),tint="#141417")
     _vbar(ax,0.085,0.85,"Tu mapa de escape",accent,sz=22)
     ax.text(0.107,0.79,_spaced("LOS PRÓXIMOS 90 DÍAS",1),ha="left",va="center",color=MUTE,fontproperties=P(9.5),transform=ax.transAxes)
     import textwrap
     xline=0.16; ytop=0.66; ybot=0.20
-    ax.plot([xline,xline],[ybot,ytop],color="#33425E",lw=2,transform=ax.transAxes,zorder=3)
+    ax.plot([xline,xline],[ybot,ytop],color="#3A3A41",lw=2,transform=ax.transAxes,zorder=3)
     n=len(hitos)
     for i,(dia,titulo,det) in enumerate(hitos):
         y=ytop-(ytop-ybot)*(i/(max(1,n-1)))
@@ -290,7 +292,7 @@ def qr_golden(out, url, titulo, sub, accent=GOLD):
     qr.add_data(url); qr.make(fit=True)
     img=qr.make_image(fill_color="#0B1A39",back_color="#F3F0E6").convert("RGB")
     qpath=out.replace(".png","_qr.png"); img.save(qpath)
-    fig,ax=_canvas(); _bg(ax,(0.84,0.20),tint="#16202E")
+    fig,ax=_canvas(); _bg(ax,(0.84,0.20),tint="#1A1A1F")
     ax.text(0.5,0.82,_spaced("ACCESO EXCLUSIVO",2),ha="center",va="center",color=accent,fontproperties=Pm(11),transform=ax.transAxes)
     ax.text(0.5,0.73,titulo,ha="center",va="center",color=WHITE,fontproperties=L(30),transform=ax.transAxes)
     # panel claro con QR
@@ -324,7 +326,7 @@ def sistema_scorecard(out, items, weakest, accent=BLUE):
             ax.text(barx+barw/2.0,y,"Revisión personalizada",ha="center",va="center",color=accent,fontproperties=Pm(8.5),transform=ax.transAxes,zorder=4)
             ax.text(barx+barw+0.03,y,status,ha="left",va="center",color=accent,fontproperties=P(9),transform=ax.transAxes)
         else:
-            ax.add_patch(Rectangle((barx,y-0.006),barw,0.010,color="#1E2C46",transform=ax.transAxes,zorder=3))
+            ax.add_patch(Rectangle((barx,y-0.006),barw,0.010,color="#2A2A30",transform=ax.transAxes,zorder=3))
             ax.add_patch(Rectangle((barx,y-0.006),barw*max(.04,health/100.0),0.010,color=hc(health),transform=ax.transAxes,zorder=4))
             ax.text(barx+barw+0.03,y,status,ha="left",va="center",color=hc(health),fontproperties=Pm(9.5),transform=ax.transAxes)
         ax.text(x0+0.075,y-0.018,_SIS_SUB[i],ha="left",va="center",color=FAINT,fontproperties=P(8.5),transform=ax.transAxes)
@@ -382,11 +384,11 @@ def escudo(out, escenarios, accent=BLUE):
     for i,(y0,y1) in enumerate(bands):
         s=escenarios[i][2]; c=col(s)
         ax.add_patch(plt.Polygon([(cx-w,y0),(cx+w,y0),(cx+w,y1),(cx-w,y1)],closed=True,
-                     facecolor=c,alpha=ALFA[i],edgecolor="#0A1220",lw=2.0,
+                     facecolor=c,alpha=ALFA[i],edgecolor="#0F0F12",lw=2.0,
                      transform=ax.transAxes,zorder=4))
     s3=escenarios[2][2]; c3=col(s3)
     ax.add_patch(plt.Polygon([(cx-w,tip_y),(cx+w,tip_y),(cx,tip_y-0.16)],closed=True,
-                 facecolor=c3,alpha=ALFA[2],edgecolor="#0A1220",lw=2.0,
+                 facecolor=c3,alpha=ALFA[2],edgecolor="#0F0F12",lw=2.0,
                  transform=ax.transAxes,zorder=4))
     # contorno escudo
     ax.add_patch(plt.Polygon([(cx-w,top),(cx+w,top),(cx+w,tip_y),(cx,tip_y-0.16),(cx-w,tip_y)],
@@ -405,7 +407,7 @@ def escudo(out, escenarios, accent=BLUE):
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
 def coste_ego(out, gasto_mes, anos, capital, n_anos=25, accent=GOLD):
-    fig,ax=_canvas(); _bg(ax,(0.84,0.82),tint="#1A1726")
+    fig,ax=_canvas(); _bg(ax,(0.84,0.82),tint="#16151A")
     _vbar(ax,0.085,0.86,"El precio que pagas por parecer rico",accent,sz=19)
     ax.text(0.10,0.62,"Ese gasto de imagen te roba",ha="left",va="center",color=MUTE,fontproperties=P(12),transform=ax.transAxes)
     txt=("%.1f"%anos).replace(".",",").replace(",0","")
@@ -437,7 +439,7 @@ def arrepentimiento(out, findes, edad_hijo, accent=GOLD):
     for k in range(n):
         rx=0.10+(k%cols)*0.018; ry=0.38-(k//cols)*0.020
         frac=k/n
-        c=accent if frac>=viv/total else "#2A3850"
+        c=accent if frac>=viv/total else "#303037"
         ax.add_patch(Circle((rx,ry),0.004,color=c,transform=ax.transAxes,zorder=4))
     import textwrap
     msg=("Tu hijo tiene %d años. Cada fin de semana que cambias por una hora más de trabajo para pagar algo más grande, no vuelve. El patrimonio se reconstruye; estos sábados, no.") % edad_hijo
@@ -449,7 +451,7 @@ def arrepentimiento(out, findes, edad_hijo, accent=GOLD):
 
 def acelerador_10x10(out, cilindros, anos_delta, enemy_nombre, enemy_motivo, accent=GOLD, y_plan=None, inalcanzable=False, topado=False):
     """4 cilindros (panel de control) + payoff en años. cilindros=[(nombre,actual,objetivo,signo),...]"""
-    fig,ax=_canvas(); _bg(ax,(0.84,0.20),tint="#13202A")
+    fig,ax=_canvas(); _bg(ax,(0.84,0.20),tint="#141417")
     _vbar(ax,0.085,0.90,"El Acelerador 10×10",accent,sz=23)
     ax.text(0.107,0.85,"Cuatro ajustes del 10% que no se suman: se multiplican.",
             ha="left",va="center",color=MUTE,fontproperties=Li(12),transform=ax.transAxes)
@@ -460,7 +462,7 @@ def acelerador_10x10(out, cilindros, anos_delta, enemy_nombre, enemy_motivo, acc
         ax.text(x,0.80,nombre.upper(),ha="center",va="center",color=WHITE,fontproperties=Pm(9.5),transform=ax.transAxes)
         ax.text(x,0.768,signo,ha="center",va="center",color=accent,fontproperties=Pm(9),transform=ax.transAxes)
         ax.add_patch(FancyBboxPatch((x-w,cy0),2*w,cy1-cy0,boxstyle="round,pad=0.002,rounding_size=0.014",
-                     facecolor="#0E1C30",edgecolor="#2C3E5C",lw=1.2,transform=ax.transAxes,zorder=3))
+                     facecolor="#1C1C21",edgecolor="#34343B",lw=1.2,transform=ax.transAxes,zorder=3))
         fillh=(cy1-cy0)*0.45
         ax.add_patch(Rectangle((x-w+0.004,cy0+0.004),2*w-0.008,fillh,color=BLUE,alpha=0.55,transform=ax.transAxes,zorder=4))
         ax.plot([x-w,x+w],[cy0+(cy1-cy0)*0.82]*2,color=accent,lw=2,transform=ax.transAxes,zorder=5)
@@ -516,7 +518,7 @@ def plan10_anios(cap0, ing_m, gas_m, num, max_anos=80):
 def acelerador_tabla(out, ing_m, gas_m, pat, num, accent=GOLD, vos=False):
     """Proyección a 10 años con las 4 palancas: ingresos +10%/año, gasto −10% (una vez),
     rentabilidad 10% (media histórica del S&P 500), patrimonio compuesto. Tabla año a año."""
-    fig,ax=_canvas(); _bg(ax,(0.84,0.20),tint="#13202A")
+    fig,ax=_canvas(); _bg(ax,(0.84,0.20),tint="#141417")
     _vbar(ax,0.085,0.91,("Vuestro" if vos else "Tu")+" acelerador, año a año",accent,sz=20)
     ax.text(0.107,0.862,_spaced("PROYECCIÓN A 10 AÑOS",1),ha="left",va="center",color=MUTE,fontproperties=P(9),transform=ax.transAxes)
     ax.text(0.107,0.832,"Si cumples las 4 palancas: ingresos +10%/año · gasto −10% una vez · rentabilidad ~7% real (bolsa mundial, histórico) · todo reinvertido.",
@@ -537,7 +539,7 @@ def acelerador_tabla(out, ing_m, gas_m, pat, num, accent=GOLD, vos=False):
     ytop=0.78; rh=0.0505
     for (h,x,al) in cols:
         ax.text(x,ytop,h,ha=al,va="center",color=accent,fontproperties=Pm(8),transform=ax.transAxes)
-    ax.plot([0.10,0.97],[ytop-0.020,ytop-0.020],color="#3A4A66",lw=0.8,transform=ax.transAxes)
+    ax.plot([0.10,0.97],[ytop-0.020,ytop-0.020],color="#3A3A40",lw=0.8,transform=ax.transAxes)
     for i,(t,im,gm,ah,pw,pc) in enumerate(rows):
         yy=ytop-0.044-i*rh
         hl=(y_lib is not None and t==y_lib)
@@ -574,13 +576,13 @@ def barrera_100k(out, p0, aho_m, r, valle_caption, accent=GOLD):
     # año en que se alcanza 100k
     y100=next((t for t in range(YRS+1) if total[t]>=100000),None)
     fig=plt.figure(figsize=A4,dpi=200); axm=fig.add_axes([0,0,1,1]); axm.set_xlim(0,1); axm.set_ylim(0,1); axm.axis("off")
-    _bg(axm,(0.84,0.20),tint="#13202A")
+    _bg(axm,(0.84,0.20),tint="#141417")
     _vbar(axm,0.085,0.90,"El nacimiento de tu empleado invisible",accent,sz=18)
     axm.text(0.107,0.85,_spaced("LA BARRERA DE LOS 100.000 €",1),ha="left",va="center",color=MUTE,fontproperties=P(9),transform=axm.transAxes)
     # Se parte en DOS lineas: en una sola se salia del papel y quedaba cortada a media
     # palabra en el borde derecho ("...trabaja mas que t"). Un texto cortado por el
     # margen destruye mas credibilidad que cualquier problema de color.
-    for _i,_ln in enumerate(["Azul: lo que aportas tú. Oro: lo que tu dinero genera solo, por interés compuesto al ~%d%%."%round(r),
+    for _i,_ln in enumerate(["Gris: lo que aportas tú. Oro: lo que tu dinero genera solo, por interés compuesto al ~%d%%."%round(r),
                              "Donde se cruzan, tu dinero trabaja más que tú."]):
         axm.text(0.107,0.812-_i*0.022,_ln,ha="left",va="center",color=FAINT,
                  fontproperties=P(8),transform=axm.transAxes)
@@ -589,7 +591,7 @@ def barrera_100k(out, p0, aho_m, r, valle_caption, accent=GOLD):
     # se montaban encima del titular de abajo. Mismo techo (0.75), mas aire debajo.
     ax=fig.add_axes([0.11,0.325,0.80,0.425]); ax.set_facecolor("none")
     yrs=_np.arange(YRS+1)
-    ax.fill_between(yrs,0,aport,color="#2E6BFF",alpha=0.45,zorder=3,label="Tu esfuerzo (lo que aportas)")
+    ax.fill_between(yrs,0,aport,color="#7A7466",alpha=0.45,zorder=3,label="Tu esfuerzo (lo que aportas)")
     ax.fill_between(yrs,aport,total,color=accent,alpha=0.55,zorder=4,label="El esfuerzo de tu dinero (interés)")
     ax.plot(yrs,total,color="#FFFFFF",lw=1.4,zorder=5)
     ax.axhline(100000,color=accent,lw=1,ls=(0,(4,3)),zorder=6)
@@ -599,14 +601,14 @@ def barrera_100k(out, p0, aho_m, r, valle_caption, accent=GOLD):
             bbox=dict(facecolor="#0B1520",edgecolor="none",pad=1.6,alpha=0.85),zorder=7)
     if y100 is not None:
         ax.scatter([y100],[total[y100]],s=42,color="#FFFFFF",zorder=8)
-    for sp in ax.spines.values(): sp.set_color("#2A3A5C")
-    ax.tick_params(colors="#7A8AA8",labelsize=7.5)
-    ax.set_xlabel("años",color="#7A8AA8",fontsize=8); ax.set_xlim(0,YRS)
+    for sp in ax.spines.values(): sp.set_color("#323239")
+    ax.tick_params(colors="#A39E92",labelsize=7.5)
+    ax.set_xlabel("años",color="#A39E92",fontsize=8); ax.set_xlim(0,YRS)
     ax.set_ylim(0,max(total)*1.05)
     import matplotlib.ticker as _mt
     ax.yaxis.set_major_formatter(_mt.FuncFormatter(lambda v,_: ("%dk"%(v/1000)) if v>=1000 else "0"))
     # leyenda manual
-    axm.add_patch(Rectangle((0.12,0.245),0.018,0.010,color="#2E6BFF",alpha=0.7,transform=axm.transAxes))
+    axm.add_patch(Rectangle((0.12,0.245),0.018,0.010,color="#7A7466",alpha=0.7,transform=axm.transAxes))
     axm.text(0.145,0.25,"Tu esfuerzo (lo que aportas de tu bolsillo)",ha="left",va="center",color=MUTE,fontproperties=P(8.5),transform=axm.transAxes)
     axm.add_patch(Rectangle((0.55,0.245),0.018,0.010,color=accent,alpha=0.8,transform=axm.transAxes))
     axm.text(0.575,0.25,"El esfuerzo de tu dinero (interés compuesto)",ha="left",va="center",color=MUTE,fontproperties=P(8.5),transform=axm.transAxes)
@@ -655,7 +657,7 @@ def mapa_friccion(out, nA, nB, zonas, accent=BLUE):
     _vbar(ax,0.085,0.90,"Vuestro Mapa de Fricción",accent,sz=21)
     ax.text(0.107,0.85,"Las zonas exactas donde el dinero os enfrenta — y el momento en que salta.",
             ha="left",va="center",color=MUTE,fontproperties=Li(11.5),transform=ax.transAxes)
-    cA="#3D7DFF"; cB="#E3B341"
+    cA="#8C8577"; cB="#E3B341"
     # cabecera nombres
     ax.text(0.27,0.795,nA.upper(),ha="center",va="center",color=cA,fontproperties=Pm(10),transform=ax.transAxes)
     ax.text(0.73,0.795,nB.upper(),ha="center",va="center",color=cB,fontproperties=Pm(10),transform=ax.transAxes)
@@ -664,14 +666,14 @@ def mapa_friccion(out, nA, nB, zonas, accent=BLUE):
     for i,(tit,a,b,trig) in enumerate(zonas[:3]):
         y=top-i*h
         ax.add_patch(FancyBboxPatch((0.09,y-h+0.03),0.82,h-0.04,boxstyle="round,pad=0.004,rounding_size=0.012",
-                     facecolor="#0E1A2E",edgecolor="#27384F",lw=1,transform=ax.transAxes,zorder=2))
+                     facecolor="#17171B",edgecolor="#2E2E35",lw=1,transform=ax.transAxes,zorder=2))
         ax.text(0.5,y-0.005,tit,ha="center",va="center",color=WHITE,fontproperties=Lr(14),transform=ax.transAxes)
         # stances enfrentados
         ax.fill([0.49,0.51,0.50],[y-0.055,y-0.055,y-0.075],color="#C0473B",transform=ax.transAxes,zorder=4)
         ax.text(0.495,y-0.048,"",ha="center")
         yy=y-0.05
         for j,ln in enumerate(textwrap.wrap("«%s»"%a,30)):
-            ax.text(0.27,yy-j*0.026,ln,ha="center",va="top",color="#BFD3F5",fontproperties=P(9.3),transform=ax.transAxes)
+            ax.text(0.27,yy-j*0.026,ln,ha="center",va="top",color="#E6DAB8",fontproperties=P(9.3),transform=ax.transAxes)
         for j,ln in enumerate(textwrap.wrap("«%s»"%b,30)):
             ax.text(0.73,yy-j*0.026,ln,ha="center",va="top",color="#F0D79A",fontproperties=P(9.3),transform=ax.transAxes)
         # detonante
@@ -693,7 +695,7 @@ def esfuerzo_vital(out, nA, nB, pctA, pctB, modelo, micro, accent=BLUE, capA=Non
             ha="left",va="center",color=MUTE,fontproperties=P(9),transform=ax.transAxes)
     ax.text(0.10,0.79,"Qué porcentaje del sueldo de cada uno se evapora en los gastos comunes:",
             ha="left",va="center",color=MUTE,fontproperties=P(10.5),transform=ax.transAxes)
-    cA="#3D7DFF"; cB="#E3B341"
+    cA="#8C8577"; cB="#E3B341"
     def row(y,nombre,pct,c):
         ax.text(0.10,y+0.035,nombre,ha="left",va="center",color=WHITE,fontproperties=Lr(13),transform=ax.transAxes)
         ax.text(0.90,y+0.035,"%d%%"%round(pct),ha="right",va="center",color=c,fontproperties=L(24),transform=ax.transAxes)
@@ -703,7 +705,7 @@ def esfuerzo_vital(out, nA, nB, pctA, pctB, modelo, micro, accent=BLUE, capA=Non
     my=0.40
     if capA is not None and capB is not None:
         ax.text(0.10,0.485,"Y LO QUE LE QUEDA A CADA UNO PARA AHORRAR LO SUYO, TRAS LO COMÚN:",
-                ha="left",va="center",color="#8FA1BC",fontproperties=P(8.5),transform=ax.transAxes)
+                ha="left",va="center",color="#C9B98F",fontproperties=P(8.5),transform=ax.transAxes)
         def cap(x,nombre,val,c):
             ax.text(x,0.435,nombre,ha="left",va="center",color=c,fontproperties=Pm(9.5),transform=ax.transAxes)
             ax.text(x,0.388,_eur0(val),ha="left",va="center",color=WHITE,fontproperties=L(23),transform=ax.transAxes)
@@ -722,21 +724,21 @@ def balanza_aportacion(out, nA, nB, econA, econB, hogarA, hogarB, verdict, accen
     _vbar(ax,0.085,0.90,"Las dos monedas de una familia",accent,sz=20)
     ax.text(0.107,0.85,"Una casa no se sostiene solo con dinero. Esto es lo que cada uno aporta de verdad.",
             ha="left",va="center",color=MUTE,fontproperties=Li(11.5),transform=ax.transAxes)
-    cA="#3D7DFF"; cB="#E3B341"
+    cA="#8C8577"; cB="#E3B341"
     ax.text(0.27,0.80,nA.upper(),ha="center",va="center",color=cA,fontproperties=Pm(10),transform=ax.transAxes)
     ax.text(0.73,0.80,nB.upper(),ha="center",va="center",color=cB,fontproperties=Pm(10),transform=ax.transAxes)
     def split(y,titulo,a,b):
         ax.text(0.10,y+0.052,titulo,ha="left",va="center",color=WHITE,fontproperties=Lr(13),transform=ax.transAxes)
         ax.add_patch(Rectangle((0.10,y),0.80*(a/100.0),0.034,color=cA,transform=ax.transAxes,zorder=4))
         ax.add_patch(Rectangle((0.10+0.80*(a/100.0),y),0.80*(b/100.0),0.034,color=cB,transform=ax.transAxes,zorder=4))
-        ax.text(0.11,y+0.017,"%d%%"%round(a),ha="left",va="center",color="#06101F",fontproperties=Pb(10),transform=ax.transAxes)
-        ax.text(0.89,y+0.017,"%d%%"%round(b),ha="right",va="center",color="#06101F",fontproperties=Pb(10),transform=ax.transAxes)
+        ax.text(0.11,y+0.017,"%d%%"%round(a),ha="left",va="center",color="#0C0C0E",fontproperties=Pb(10),transform=ax.transAxes)
+        ax.text(0.89,y+0.017,"%d%%"%round(b),ha="right",va="center",color="#0C0C0E",fontproperties=Pb(10),transform=ax.transAxes)
     split(0.64,"Aportación económica",econA,econB)
     split(0.50,"Aportación al hogar y los cuidados",hogarA,hogarB)
     # veredicto
     import textwrap
     ax.add_patch(FancyBboxPatch((0.09,0.20),0.82,0.16,boxstyle="round,pad=0.006,rounding_size=0.012",
-                 facecolor="#0E1A2E",edgecolor="#27384F",lw=1,transform=ax.transAxes,zorder=2))
+                 facecolor="#17171B",edgecolor="#2E2E35",lw=1,transform=ax.transAxes,zorder=2))
     yy=0.325
     for ln in textwrap.wrap(verdict,84):
         ax.text(0.12,yy,ln,ha="left",va="top",color=WHITE,fontproperties=P(10),transform=ax.transAxes); yy-=0.030
@@ -746,7 +748,7 @@ def balanza_aportacion(out, nA, nB, econA, econB, hogarA, hogarB, verdict, accen
 
 def anzuelo(out, items, url, accent=GOLD):
     """Página-anzuelo T1: lo que espera en el Libro completo (T2)."""
-    fig,ax=_canvas(); _bg(ax,(0.84,0.20),tint="#16202E")
+    fig,ax=_canvas(); _bg(ax,(0.84,0.20),tint="#1A1A1F")
     _vbar(ax,0.085,0.86,"Has visto tu diagnóstico.",accent,sz=21)
     ax.text(0.107,0.805,"No has visto tu Libro.",ha="left",va="center",color=WHITE,fontproperties=L(21),transform=ax.transAxes)
     ax.text(0.10,0.73,"Esto es solo el espejo. El Libro Financiero completo abre, con tus mismos datos:",
@@ -756,7 +758,7 @@ def anzuelo(out, items, url, accent=GOLD):
         ax.fill([0.105,0.119,0.112],[yy-0.004,yy-0.004,yy+0.010],color=accent,transform=ax.transAxes,zorder=5)
         ax.text(0.14,yy+0.004,it,ha="left",va="center",color=WHITE,fontproperties=P(10.5),transform=ax.transAxes); yy-=0.048
     ax.add_patch(FancyBboxPatch((0.09,0.10),0.82,0.12,boxstyle="round,pad=0.006,rounding_size=0.012",
-                 facecolor="#0E1A2E",edgecolor=accent,lw=1.2,transform=ax.transAxes,zorder=2))
+                 facecolor="#17171B",edgecolor=accent,lw=1.2,transform=ax.transAxes,zorder=2))
     ax.text(0.5,0.175,"Desbloquea El Libro Financiero completo",ha="center",va="center",color=accent,fontproperties=L(15),transform=ax.transAxes)
     ax.text(0.5,0.135,url,ha="center",va="center",color=MUTE,fontproperties=P(9),transform=ax.transAxes)
     fig.savefig(out,dpi=130); plt.close(fig); return out

@@ -162,7 +162,21 @@ body{font-family:'Poppins',sans-serif;background:var(--ng);color:var(--tx);-webk
     <div class="weak">
       <div class="k">Tu punto más débil</div>
       <h4 id="weakName">—</h4>
-      <p id="weakTxt">Aquí es donde tu economía pierde más fuerza hoy.</p>
+      <!-- Lo que significa y que hacer esta semana: se desbloquea con el email (la nota sigue siendo gratis y sin registro) -->
+      <div id="gate">
+        <p style="color:var(--gr);font-size:13.5px;font-weight:300;line-height:1.5;margin-bottom:12px">Te digo <b style="color:#fff">qué significa y qué harías esta semana</b> para reforzarlo. Gratis, a tu correo.</p>
+        <input type="email" id="gMail" placeholder="tu@email.com" autocomplete="email" style="width:100%;padding:13px 14px;border-radius:10px;border:1.5px solid var(--linea);background:#0a0a0c;color:#fff;font-family:inherit;font-size:15px;margin-bottom:10px">
+        <label id="gLbl" style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:#9aa0ab;line-height:1.45;cursor:pointer;text-align:left;margin-bottom:12px">
+          <input type="checkbox" id="gCons" style="margin-top:2px;flex:none;width:17px;height:17px;accent-color:#FDD731">
+          <span>Acepto recibir mi resultado y comunicaciones de Adapta Family Office por email. Puedo darme de baja cuando quiera. <a href="privacidad.html" target="_blank" style="color:#FDD731;text-decoration:none">Política de privacidad</a>.</span>
+        </label>
+        <button class="btn block" onclick="desbloquear()">Ver qué hacer con mi punto débil →</button>
+      </div>
+      <div id="gOpen" style="display:none">
+        <p id="weakTxt">Aquí es donde tu economía pierde más fuerza hoy.</p>
+        <p id="weakAct" style="margin-top:10px;color:#fff;font-size:13.5px;line-height:1.55"></p>
+        <p style="margin-top:10px;color:var(--am);font-size:12.5px;font-weight:600">Te lo hemos enviado también a tu correo.</p>
+      </div>
     </div>
 
     <div class="cta">
@@ -268,6 +282,22 @@ const PILAR_TXT={
  habito:"Tu día a día es lo que más flojea: lo que entra y sale cada mes no está jugando a tu favor.",
  futuro:"Tu futuro es lo que más flojea: hoy aguantas, pero nada está construyendo lo que viene."
 };
+const PILAR_ACT={
+ seguridad:"<b>Esta semana:</b> calcula tu gasto real de un mes y abre una cuenta separada solo para el colchón. Meta: 6 meses de gastos. Empieza con una transferencia automática el día que cobras, aunque sea pequeña.",
+ habito:"<b>Esta semana:</b> repasa tus 3 últimos extractos y suma lo que se fue sin decidirlo. Ponle nombre y automatiza que una parte vaya al ahorro antes de gastar, no lo que sobre.",
+ futuro:"<b>Esta semana:</b> ponle número a tu libertad: el capital que necesitas para no depender de un sueldo. Sin esa cifra, ahorrar es un deseo; con ella, es un plan con fecha."
+};
+function desbloquear(){
+  var m=($("gMail").value||"").trim();
+  if(!m||m.indexOf("@")<1||m.indexOf(".")<0){ $("gMail").style.borderColor="#FDD731"; $("gMail").focus(); return; }
+  if(!$("gCons").checked){ $("gLbl").style.color="#FDD731"; $("gCons").focus(); return; }
+  try{
+    var de=(new URLSearchParams(location.search).get("de")||"").replace(/[^a-z0-9_-]/gi,"").slice(0,40);
+    fetch("https://diagnostico-financiero-app.onrender.com/api/lead",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email:m,arquetipo:"indice:"+score+":"+PILAR[weakKey]+(de?":"+de:""),consent:true})}).catch(function(){});
+  }catch(e){}
+  $("gate").style.display="none"; $("gOpen").style.display="block";   // nunca bloqueamos si el envio falla
+}
 let i=0, ans=[], segVal="solo", score=0, weakKey="seguridad";
 
 function start(){$("hero").style.display="none";$("quiz").style.display="block";i=0;ans=[];render();scrollTo(0,0);}
@@ -334,6 +364,8 @@ function finish(){
 
   $("weakName").textContent=PILAR[weakKey];
   $("weakTxt").textContent=PILAR_TXT[weakKey];
+  $("weakAct").innerHTML=PILAR_ACT[weakKey];
+  $("gate").style.display="block"; $("gOpen").style.display="none";
 
   /* MEDICION: de dónde viene el pago. Conserva el ?de= con el que llegó (p.ej. linkedin-post)
      y, si no trae ninguno, marca "indice". Solo una etiqueta de origen, ningún dato personal. */

@@ -985,6 +985,46 @@ def _build_lead_email(arquetipo, nombre="", unsub=""):
             "html": html,
             "headers": hdrs}
 
+_IDX_TXT = {
+    "Seguridad": ("Tu red de emergencia es lo que m&aacute;s flojea: si algo se tuerce, no hay colch&oacute;n detr&aacute;s.",
+                  "Calcula tu gasto real de un mes y abre hoy una cuenta separada solo para el colch&oacute;n. La meta: 6 meses de gastos. "
+                  "Empieza con una transferencia autom&aacute;tica el d&iacute;a que cobras, aunque sea peque&ntilde;a."),
+    "H\u00e1bito": ("Tu d&iacute;a a d&iacute;a es lo que m&aacute;s flojea: lo que entra y sale cada mes no est&aacute; jugando a tu favor.",
+                  "Mira tus &uacute;ltimos 3 extractos y suma lo que se fue sin decidirlo. Ponle nombre a ese dinero y autom&aacute;tiza que "
+                  "una parte vaya al ahorro antes de gastar, no lo que sobre."),
+    "Futuro": ("Tu futuro es lo que m&aacute;s flojea: hoy aguantas, pero nada est&aacute; construyendo lo que viene.",
+               "Ponle n&uacute;mero a tu libertad: cu&aacute;nto capital necesitas para no depender de un sueldo. Sin esa cifra, "
+               "ahorrar es un deseo; con ella, es un plan con fecha."),
+}
+
+def _build_indice_email(arq, nombre="", unsub=""):
+    """Email del Indice de Salud Financiera (nota gratis). arq = 'indice:<nota>:<pilar>[:<origen>]'."""
+    partes = (arq or "").split(":")
+    nota = partes[1] if len(partes) > 1 else ""
+    pilar = partes[2] if len(partes) > 2 else ""
+    saludo = ("Hola %s," % nombre.strip().split()[0]) if (nombre or "").strip() else "Hola,"
+    que, hacer = _IDX_TXT.get(pilar, ("", ""))
+    cuerpo = (
+        "<h1 style=\"font-size:22px;line-height:1.3;margin:24px 0 8px\">%s</h1>"
+        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd;margin:0\">Tu &Iacute;ndice de Salud Financiera es "
+        "<b style=\"color:#fdd731;font-size:20px\">%s/100</b>.</p>"
+        "<div style=\"margin:18px 0 4px;padding:16px 18px;background:#16161c;border-left:3px solid #fdd731;border-radius:10px\">"
+        "<div style=\"font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#fdd731;font-weight:700\">Tu punto m&aacute;s d&eacute;bil: %s</div>"
+        "<p style=\"font-size:15px;line-height:1.6;color:#e9e9e6;margin:8px 0 0\">%s</p>"
+        "<p style=\"font-size:15px;line-height:1.6;color:#e9e9e6;margin:10px 0 0\"><b>Qu&eacute; har&iacute;a esta semana:</b> %s</p></div>"
+        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd;margin:18px 0 0\">"
+        "Tu nota dice <b style=\"color:#fff\">d&oacute;nde est&aacute;s</b>. No dice <b style=\"color:#fff\">cu&aacute;nto te est&aacute; costando</b>. "
+        "El diagn&oacute;stico completo trabaja con tus cifras reales y te devuelve cu&aacute;nto se te escapa al a&ntilde;o, tu N&uacute;mero "
+        "de Libertad, cu&aacute;ndo llegas y tu hoja de ruta a 90 d&iacute;as.</p>"
+    ) % (saludo, nota or "&mdash;", pilar or "&mdash;", que, hacer)
+    cuerpo += _tiers_html()
+    fe = _from_email(RESEND_FROM)
+    hdrs = ({"List-Unsubscribe": "<%s/api/baja?t=%s>" % (_BAJA_BASE, unsub), "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"}
+            if unsub else {"List-Unsubscribe": "<mailto:%s?subject=BAJA>" % fe})
+    return {"from": RESEND_FROM, "to": None, "reply_to": fe,
+            "subject": "Tu nota: %s/100 \u2014 y tu punto m\u00e1s d\u00e9bil \u00b7 Adapta" % (nota or "?"),
+            "html": _lead_wrap(cuerpo, unsub, "el \u00cdndice de Salud Financiera"), "headers": hdrs}
+
 @app.post("/api/lead")
 def lead(payload: LeadPayload):
     """Captura de lead del test de arquetipo gratuito. Todo failsafe: nunca lanza excepcion al cliente.
@@ -1013,7 +1053,8 @@ def lead(payload: LeadPayload):
     # 3) Enviar email con su arquetipo (failsafe)
     if RESEND_API_KEY:
         try:
-            msg = _build_lead_email(arquetipo, nombre, unsub_token)
+            msg = (_build_indice_email(arquetipo, nombre, unsub_token) if arquetipo.startswith("indice:")
+                   else _build_lead_email(arquetipo, nombre, unsub_token))
             msg["to"] = [email]
             status, _body = _resend_post(msg)
             if not (200 <= status < 300):
@@ -1026,7 +1067,7 @@ def lead(payload: LeadPayload):
     if RESEND_API_KEY:
         try:
             _resend_post({"from": RESEND_FROM, "to": [NOTIFY_EMAIL],
-                          "subject": "Nuevo lead (test arquetipo): %s" % (arquetipo or "-"),
+                          "subject": ("Nuevo lead (Indice de salud): %s" if arquetipo.startswith("indice:") else "Nuevo lead (test arquetipo): %s") % (arquetipo or "-"),
                           "html": "<p><b>Nuevo lead del test gratuito</b></p><p>Email: <b>%s</b><br>Arquetipo: %s<br>Nombre: %s</p>" % (email, arquetipo or "-", nombre or "-")})
         except Exception as e:
             print("[lead] aviso interno fallo:", repr(e))
@@ -1081,7 +1122,7 @@ def _ensure_tally_table(c):
     c.execute("CREATE TABLE IF NOT EXISTS arq_tally (nombre TEXT PRIMARY KEY, codigo TEXT, n INTEGER DEFAULT 0)")
 
 
-def _lead_wrap(cuerpo_html, unsub=""):
+def _lead_wrap(cuerpo_html, unsub="", origen="el test del arquetipo del dinero"):
     baja_url = ("%s/api/baja?t=%s" % (_BAJA_BASE, unsub)) if unsub else ""
     baja_linea = ("<br>Si no quieres recibir m&aacute;s, <a href=\"%s\" style=\"color:#6b6b66;text-decoration:underline\">date de baja aqu&iacute;</a>." % baja_url) if baja_url else ""
     return ("<div style=\"font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;"
@@ -1096,14 +1137,25 @@ def _lead_wrap(cuerpo_html, unsub=""):
             "Quiero mi diagnostico completo &rarr;</a></div>"
             "<p style=\"font-size:11.5px;color:#6b6b66;margin-top:24px;border-top:1px solid #2a2a30;padding-top:14px;line-height:1.6\">"
             "Adapta Family Office &middot; Diagnostico psicofinanciero confidencial. "
-            "Recibes esto porque hiciste el test del arquetipo del dinero." + baja_linea + "</p></div>")
+            "Recibes esto porque hiciste " + origen + "." + baja_linea + "</p></div>")
 
 
 def _build_lead_followup(arquetipo, nombre, paso, unsub=""):
     """Correo de seguimiento (nurturing). paso=2 (dia 2) o paso=3 (dia 4). Funcion pura."""
     arq = (arquetipo or "").strip() or "tu arquetipo"
     saludo = ("Hola %s," % nombre.strip().split()[0]) if (nombre or "").strip() else "Hola,"
-    if paso == 2:
+    _es_idx = arq.startswith("indice:")
+    if paso == 2 and _es_idx:
+        asunto = "Tu nota es el s\u00edntoma. Esto es la causa"
+        cuerpo = (
+            "<h1 style=\"font-size:22px;line-height:1.3;margin:24px 0 8px\">%s</h1>"
+            "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
+            "Hace dos d&iacute;as viste tu nota. La nota es el term&oacute;metro: te dice si hay fiebre. No te dice de d&oacute;nde viene "
+            "ni cu&aacute;nto te est&aacute; costando cada mes que sigue igual.</p>"
+            "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
+            "El diagn&oacute;stico completo es la radiograf&iacute;a: con tus cifras reales, tu N&uacute;mero de Libertad, las decisiones "
+            "que m&aacute;s lo mueven y tu hoja de ruta a 90 d&iacute;as.</p>") % saludo
+    elif paso == 2:
         asunto = "Lo que %s no te deja ver" % arq
         cuerpo = (
             "<h1 style=\"font-size:22px;line-height:1.3;margin:24px 0 8px\">%s</h1>"
@@ -1115,7 +1167,7 @@ def _build_lead_followup(arquetipo, nombre, paso, unsub=""):
             "malas decisiones, y al reves. No es cuestion de cuanto ganas &mdash; es como decides.</p>"
             "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
             "El diagnostico completo pone tu punto ciego sobre la mesa, con tus cifras reales, y te da el plan para "
-            "neutralizarlo en los proximos 100 dias.</p>") % (saludo, arq)
+            "neutralizarlo en los proximos 90 dias.</p>") % (saludo, arq)
     else:
         asunto = "La diferencia nunca fue el dinero"
         cuerpo = (
@@ -1135,7 +1187,7 @@ def _build_lead_followup(arquetipo, nombre, paso, unsub=""):
     hdrs = ({"List-Unsubscribe": "<%s/api/baja?t=%s>" % (_BAJA_BASE, unsub), "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"}
             if unsub else {"List-Unsubscribe": "<mailto:%s?subject=BAJA>" % fe})
     return {"from": RESEND_FROM, "to": None, "reply_to": fe, "subject": asunto,
-            "html": _lead_wrap(cuerpo, unsub), "headers": hdrs}
+            "html": _lead_wrap(cuerpo, unsub, ("el \u00cdndice de Salud Financiera" if _es_idx else "el test del arquetipo del dinero")), "headers": hdrs}
 
 
 @app.get("/api/leads")
