@@ -2338,7 +2338,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     # apertura
     S+=[Paragraph("Antes de empezar",h_sec),
         rb._box([Paragraph("<font color='#234E70'><b>&#8226;  Sois de los primeros — y lo afinamos con vosotros</b></font>",body),
-                 Paragraph("Respaldamos cada cifra de este informe. Y como sois de nuestros primeros clientes, lo construimos también con vosotros: si al leerlo veis algún número o conclusión que no os encaje, escribidnos a <font color='#234E70'><b>info@adaptafamilyoffice.com</b></font>. Lo revisamos al momento, lo corregimos y os reenviamos vuestro informe actualizado, sin coste. Vuestra mirada lo hace mejor — para vosotros y para quienes vengan detrás.",body)],
+                 Paragraph("Respaldamos cada cifra de este informe. Y como esta versión del diagnóstico es nueva, la afinamos también con vosotros: si al leerlo veis algún número o conclusión que no os encaje, escribidnos a <font color='#234E70'><b>info@adaptafamilyoffice.com</b></font>. Lo revisamos al momento, lo corregimos y os reenviamos vuestro informe actualizado, sin coste. Vuestra mirada lo hace mejor — para vosotros y para quienes vengan detrás.",body)],
                 "#EEF2F6","#234E70",ancho=160*mm),
         Spacer(1,4*mm),
         Paragraph(f"{nA} y {nB}: el dinero es una de las causas más citadas de ruptura en las parejas — y casi "

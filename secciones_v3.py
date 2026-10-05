@@ -70,7 +70,7 @@ def seccion_numero_caminos(exp):
     pen = exp.get("gasto_propio") is not None
     S.append(Paragraph('<font size=30 color="#1A1A17"><b>%s €</b></font>'%_eur(exp["numero_libertad"]), BODY))
     S.append(Paragraph("El capital que necesitas para vivir de rentas, <b>neto de tu pensión</b>. Lo tienes cubierto al <b>%s%%</b>%s." % (
-        exp.get("pct_cubierto",0), (" · te falta %s €"%_eur(exp.get("brecha_renta"))) if exp.get("brecha_renta",0)>0 else ""), BODY))
+        exp.get("pct_cubierto",0), (" · te faltan %s €"%_eur(exp.get("brecha_renta"))) if exp.get("brecha_renta",0)>0 else ""), BODY))
     if exp.get("tasa_retirada_pct"):
         _com = lambda v: str(v).replace(".", ",")
         S.append(Paragraph(

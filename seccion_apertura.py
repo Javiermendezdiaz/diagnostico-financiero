@@ -260,8 +260,8 @@ def _apertura(salud, fi, datos, extras, p):
         out += [Paragraph("Esto es lo que te separa de no depender de un sueldo", rb.h_sec),
                 cifra(eur(falta) if falta > 0 else "Ya has llegado",
                       ROJO if falta > 0 else VERDE),
-                texto("Tu Número de Libertad es <b>%s</b> y hoy tienes <b>%s</b> trabajando para ti "
-                      "(invertido y líquido; tu vivienda no cuenta, porque no paga tus gastos). "
+                texto("Tu Número de Libertad es <b>%s</b> y hoy tienes <b>%s</b> entre lo invertido y lo líquido "
+                      "(tu vivienda no cuenta: no paga tus gastos). "
                       "Lo tienes cubierto al <b>%s %%</b>."
                       % (eur(N), eur(cap), exp.get("pct_cubierto", 0)))]
         if br_anual > 0:
@@ -354,7 +354,7 @@ def _apertura(salud, fi, datos, extras, p):
             return "<b>%d</b> %s" % (n, sing if n == 1 else plur)
         _peor = capas[0][1].get("nombre", "") if capas else ""
         if criticas:
-            _cierre = ("%s y %s. Empieza por <b>%s</b>: es la que está "
+            _cierre = ("%s y %s. La que más pide atención es <b>%s</b>: es la que está "
                        "tirando del resto hacia abajo."
                        % (_pl(criticas, "dimensión en estado crítico", "dimensiones en estado crítico"),
                           _pl(solidas, "sólida", "sólidas"), _peor))
@@ -364,7 +364,7 @@ def _apertura(salud, fi, datos, extras, p):
                        % (_pl(solidas, "sólida", "sólidas"), _peor))
         else:
             _cierre = ("Ninguna en estado crítico, pero %s. No hay urgencias; hay margen "
-                       "de mejora casi en todo. Empieza por <b>%s</b>, la primera de la lista."
+                       "de mejora casi en todo. La que más pide atención es <b>%s</b>, la primera de la lista."
                        % (_pl(solidas, "sólida", "sólidas"), _peor))
         out += [Paragraph("Tu cuadro completo, de un vistazo", rb.h_sec),
                 texto("Doce dimensiones medidas. Ordenadas de la más frágil a la más sólida — "
@@ -443,7 +443,7 @@ def _apertura(salud, fi, datos, extras, p):
 
     if foco or accion:
         out += [Paragraph("Por dónde empezar", rb.h_sec),
-                texto("Tienes doce dimensiones medidas y ochenta páginas de detalle detrás. "
+                texto("Tienes doce dimensiones medidas y todo el detalle en las páginas que siguen. "
                       "Pero si esta semana solo cambias una cosa, que sea esta.")]
         if foco:
             out += [Spacer(1, 5 * mm),

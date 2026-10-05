@@ -363,7 +363,7 @@ def analizar_expectativas(gasto_objetivo, pension, capital, ahorro_mensual, hori
             _add("Paras 2 a\u00f1os m\u00e1s tarde", go, edad_parada + 2, aho)
             _add("Recortas el gasto un 10%", go * 0.90, edad_parada, aho)
             _add("Ahorras 200 \u20ac m\u00e1s al mes", go, edad_parada, aho + 200)
-            _add("Las tres cosas a la vez", go * 0.90, edad_parada + 2, aho + 200)
+            _add("Recortas, ahorras más y paras 2 años después", go * 0.90, edad_parada + 2, aho + 200)
             out["escenarios"] = esc
         except Exception:
             pass

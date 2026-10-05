@@ -419,7 +419,7 @@ def calcular_palancas(datos, p, perfil_in, resp=None):
             out.append(("Tus rentas pasivas ya empujan: ahora amplíalas",
                         "Un %s%% de lo que ingresas ya no depende de tu tiempo (%s/mes). Esa es la palanca correcta: "
                         "reinvierte lo que generan para que crezcan solas, hasta que un día cubran tu coste de vida. "
-                        "Ese es el punto exacto donde el trabajo deja de ser obligatorio y pasa a ser elección." % (("%g" % round(pp, 1)), _eur(rp))))
+                        "Ese es el punto exacto donde el trabajo deja de ser obligatorio y pasa a ser elección." % (("%g" % round(pp, 1)).replace(".", ","), _eur(rp))))
 
     # 9) Vas con retraso respecto a tu meta y eres conservador: el coste de la prudencia excesiva (gobernado por el horizonte)
     edad = _num(datos, "edad")
@@ -888,7 +888,7 @@ def calcular_ratios(datos, perfil_in):
     if pat > 0 and gasto:
         ac = pat / (gasto * 12)
         _val_if = (("%s años (~%.0f meses) de vida cubiertos" % (("%.1f" % ac).replace(".",","), ac*12)) if ac < 2 else ("%s años de vida cubiertos" % (("%.1f" % ac).replace(".",","))))
-        add("Independencia financiera", _val_if, "verde" if ac >= 25 else ("ambar" if ac >= 10 else "rojo"),
+        add("Patrimonio total en años de vida (vivienda incluida)", _val_if, "verde" if ac >= 25 else ("ambar" if ac >= 10 else "rojo"),
             "Ponle número y fecha a tu libertad: tienes tu Número de Libertad calculado en este informe — dirige cada mes tu excedente a acercarlo, con tu patrimonio rentando. Es lo que convierte tu trabajo en una elección, no una obligación.")
     rp = _num0(datos, "renta_pasiva")
     if rp is not None and ing:
@@ -901,10 +901,10 @@ def calcular_ratios(datos, perfil_in):
     if pension is not None and pension > 0 and gasto:
         gap = gasto - pension
         if gap > 0:
-            add("Gap de pensión", "faltan %s/mes" % _eur(gap), "rojo" if gap > gasto * 0.5 else "ambar",
+            add("Brecha de pensión", "faltan %s/mes" % _eur(gap), "rojo" if gap > gasto * 0.5 else "ambar",
                 "Es lo que separa tu coste de vida (%s) de tu pensión pública estimada (%s): un plan de pensiones o inversión periódica lo cierra antes de jubilarte." % (_eur(gasto), _eur(pension)))
         else:
-            add("Gap de pensión", "cubierto", "verde", "Tu pensión estimada cubre tu coste de vida.")
+            add("Brecha de pensión", "cubierto", "verde", "Tu pensión estimada cubre tu coste de vida.")
     return R
 
 
@@ -1370,7 +1370,14 @@ def calcular_compromiso(datos, perfil_in, brecha, p):
     if _es_empresario(perfil_in):
         reglas.append("Separar siempre las cuentas de mi familia y las de mi negocio.")
     reglas.append("Pensar en décadas, no en meses: la disciplina de hoy es la libertad de mañana.")
-    plazo = int(max(5, 65 - edad)) if edad else None
+    # Plazo: los MISMOS años del motor que en el resto del libro (antes 65-edad: salian 21 años
+    # aqui y 31 en todas las demas paginas).
+    plazo = None
+    try:
+        import seccion_apertura as _ap
+        plazo = (_ap.datos_expectativas(datos) or {}).get("anios_reales")
+    except Exception:
+        plazo = None
     return {"crisis": False, "objetivo_ingresos": objetivo_ing, "numero_libertad": numero,
             "plazo_anios": plazo, "edad": edad, "reglas": reglas[:6]}
 
@@ -1580,7 +1587,8 @@ def frase_capa(code, datos, p=None):
                 f = "Cada mes gastas %s más de lo que ingresas: ese número en rojo es parte del ruido que te pesa en la cabeza." % e(-superavit)
             else:
                 _m = round(superavit / ing * 100)
-                f = "Cada mes te queda un margen de %s (%d%% de lo que entra). %s" % (e(superavit), _m,
+                f = "Cada mes te queda un margen de %s (%d%% de lo que entra)%s. %s" % (e(superavit), _m,
+                    ((": ahorras %s y %s no tienen destino" % (e(aho), e(superavit - aho))) if (aho > 0 and superavit - aho > 50) else ""),
                     "Poco aire deja poco descanso mental." if _m < 10 else "Ese colchón de maniobra juega a favor de tu calma.")
     elif code == "C2":  # libertad financiera
         if gas > 0:
@@ -1606,8 +1614,15 @@ def frase_capa(code, datos, p=None):
                 "Por debajo de 3 meses, cualquier golpe te obliga a decidir con prisa." if mr < 3 else "Es un margen que te deja decidir sin pánico.")
     elif code == "C4":  # estilo de vida
         if ing > 0 and gas > 0:
-            tasa = round(aho / ing * 100) if aho > 0 else round(max(0, superavit) / ing * 100)
-            f = "De cada 100 € que entran, %d se quedan contigo y %d se van en tu estilo de vida." % (tasa, 100 - tasa)
+            _ah = round(aho / ing * 100) if aho > 0 else 0
+            _gs = round(gas / ing * 100)
+            _sd = max(0, 100 - _ah - _gs)
+            if _sd > 0 and aho > 0:
+                f = ("De cada 100 € que entran, %d se van en tu vida, %d los ahorras de forma consciente y %d se quedan "
+                     "sin destino: ese es dinero que se evapora si no le pones nombre." % (_gs, _ah, _sd))
+            else:
+                _t = _ah or round(max(0, superavit) / ing * 100)
+                f = "De cada 100 € que entran, %d se quedan contigo y %d se van en tu vida." % (_t, 100 - _t)
     elif code == "C5":  # proteccion / herencia
         if pat > 0:
             f = "Tienes un patrimonio neto de %s%s. La pregunta no es cuánto, sino quién lo recibiría y cómo, si tú faltaras mañana." % (e(pat), (" y %s de deuda asociada" % e(deu)) if deu > 0 else "")
@@ -1642,7 +1657,7 @@ def frase_capa(code, datos, p=None):
         if pat > 0:
             dormido = max(0.0, pat - inv - col)
             if inv > 0 or col > 0:
-                f = "De tu patrimonio, %s está invertido y trabajando, %s parado en líquido, y unos %s en activos que no rentan (vivienda, ilíquido). El dinero dormido es tu mayor oportunidad silenciosa." % (e(inv), e(col), e(dormido))
+                f = "De tu patrimonio, %s están invertidos y trabajando, %s parado en líquido, y unos %s en activos que no rentan (vivienda, ilíquido). El dinero dormido es tu mayor oportunidad silenciosa." % (e(inv), e(col), e(dormido))
             else:
                 f = "Con %s de patrimonio, la pregunta es cuánto está de verdad trabajando para ti hoy y cuánto solo espera."
                 f = f % e(pat)
@@ -1755,8 +1770,9 @@ def plan_maestro(datos, p=None, perfil_in=None):
         if tasa < 20:
             extra = max(0.0, 0.20 * ing - max(aho, 0)); anual = round(extra * 12)
             gap = max(0.0, sup - aho)
-            ac = ("Automatiza %s/mes el día 1 hacia una cuenta de inversión — ese excedente ya lo tienes, solo no tiene destino." % e(round(gap))) if gap > 50 else ("Sube tu ahorro automático hasta el 20%% de tus ingresos (%s/mes) y audítalo desde tus 3 mayores gastos fijos." % e(round(0.20*ing)))
-            add(3, "ambar", "Ahorro", "Lleva tu ahorro al 20%",
+            _nueva = round(100 * (aho + gap) / ing) if ing else 0
+            ac = ("Automatiza %s/mes el día 1 hacia tu colchón o tu inversión — ese excedente ya lo tienes, solo no tiene destino. Con eso pasas del %d %% al %d %%." % (e(round(gap)), round(tasa), _nueva)) if gap > 50 else ("Sube tu ahorro automático hasta el 20%% de tus ingresos (%s/mes) y audítalo desde tus 3 mayores gastos fijos." % e(round(0.20*ing)))
+            add(3, "ambar", "Ahorro", ("Da destino a todo tu excedente" if (gap > 50 and _nueva >= 20) else "Lleva tu ahorro al 20%"),
                 "Hoy guardas el %d%% de lo que entra. El 20%% es el umbral donde el interés compuesto empieza a trabajar de verdad a tu favor." % round(tasa),
                 ac,
                 "Cada punto que subes son ~%s más invertidos al año. Llegar al 20%% adelanta tu libertad varios años." % e(round(0.01*ing*12)))
@@ -1852,18 +1868,25 @@ def computar_extras(resp, datos, perfil_in, inst=None):
     brecha = calcular_brecha(datos, resp, perfil_in)
     compromiso = calcular_compromiso(datos, perfil_in, brecha, p)
     contras = calcular_contradicciones(datos, resp, perfil_in, p)
+    # UN SOLO PRIMER PASO en todo el libro: el movimiento 1 del plan maestro. Antes la apertura,
+    # el resumen y el cierre recomendaban cosas distintas (diversificar, estatus, ahorro...).
+    _pm = plan_maestro(datos, p, perfil_in)
+    try:
+        _acc1 = ("<b>%s.</b> %s" % (_pm[0]["titulo"], _pm[0]["accion"])) if _pm else None
+    except Exception:
+        _acc1 = None
     return {
         "crisis": bool(compromiso.get("crisis")),
         "rentista": bool(compromiso.get("rentista")) or _es_rentista(perfil_in),
         "brecha": brecha,
         "ratios": ratios,
-        "accion_unica": calcular_accion_unica(ratios, p),
+        "accion_unica": _acc1 or calcular_accion_unica(ratios, p),
         "palancas": calcular_palancas(datos, p, perfil_in, resp),
         "contradicciones": contras,
         "validez": validez(resp, datos, perfil_in, p, contras, inst),
         "coherencia": validar_finanzas(datos),
         "frases": {c["code"]: frase_capa(c["code"], datos, p) for c in inst["capas"]},
-        "plan_maestro": plan_maestro(datos, p, perfil_in),
+        "plan_maestro": _pm,
         "energia": calcular_energia(perfil_in),
         "conciliacion": calcular_conciliacion(perfil_in),
         "preguntas_asesor": calcular_preguntas_asesor(perfil_in, p),
