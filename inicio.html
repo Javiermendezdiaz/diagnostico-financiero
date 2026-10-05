@@ -16,9 +16,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ADAPTA · ¿Cuánto te está costando tu forma de gestionar el dinero?</title>
-<meta name="description" content="¿Qué nota tiene tu salud financiera? Descúbrelo en 2 minutos con el Índice de Salud Financiera de Adapta Family Office. Gratis y sin registro.">
+<meta name="description" content="Tu diagnóstico financiero personal, individual o en pareja: con tus cifras reales, lo que se te escapa al año, tu Número de Libertad y tu plan de 100 días. Desde 19 €. Por Adapta Family Office.">
 <meta property="og:title" content="¿Cuánto te está costando tu forma de gestionar el dinero?">
-<meta property="og:description" content="Tu nota sobre 100 y el punto donde tu economía flojea. En 2 minutos, gratis y sin registro.">
+<meta property="og:description" content="Tu diagnóstico financiero, individual o en pareja: tus cifras, tu Número de Libertad y tu plan de 100 días. Desde 19 €.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#06070d">
 <style>
@@ -157,26 +157,51 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 .hd-link{color:var(--gr);font-size:13px;text-decoration:none;margin-right:14px;white-space:nowrap}
 .hd-link:hover{color:var(--tx)}
 @media(max-width:560px){.hd-link{display:none}}
+/* PRODUCTO en el hero: el diagnostico es lo que se compra */
+.prod{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:720px;margin:34px auto 0;text-align:left}
+@media(max-width:640px){.prod{grid-template-columns:1fr}}
+.pc{display:block;background:var(--pa);border:1px solid rgba(253,215,49,.45);border-radius:16px;padding:20px 20px 18px;text-decoration:none;color:var(--tx);transition:.2s}
+.pc:hover{border-color:var(--am);transform:translateY(-2px)}
+.pc .k{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--am)}
+.pc h3{font-size:20px;font-weight:700;margin:6px 0 4px}
+.pc .pr{font-size:14px;color:var(--am);font-weight:700;margin-bottom:8px}
+.pc p{font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.5}
+.pc .go{display:inline-block;margin-top:12px;font-size:13.5px;font-weight:700;color:var(--am)}
+.free{margin-top:20px;font-size:14px;color:var(--gr);font-weight:300}
+.free a{color:var(--tx);font-weight:600;text-decoration:none;border-bottom:1px solid rgba(253,215,49,.5)}
 </style>
 </head>
 <body>
 
 <header class="head"><div class="wrap">
   <div class="logo"><b>ADAPTA</b><small>Family Office</small></div>
-  <div><a class="hd-link" href="planes.html">Diagnóstico completo</a><a class="btn-head" href="indice.html">Paso 1: mi nota gratis →</a></div>
+  <div><a class="hd-link" href="indice.html">Nota gratis</a><a class="btn-head" href="planes.html#precios">Hacer mi diagnóstico →</a></div>
 </div></header>
 
 <!-- 01 · HERO -->
 <section class="hero">
   <div class="wrap">
-    <p class="kick">Diagnóstico psicofinanciero</p>
+    <p class="kick">Diagnóstico psicofinanciero · individual o en pareja</p>
     <h1 class="hero-t serif" style="font-family:'Poppins'">¿Cuánto te está costando <span class="hl">tu forma de gestionar el dinero?</span></h1>
-    <p class="promise">Empieza por tu nota: en 2 minutos, gratis, sabrás dónde estás sobre 100. Es el <b>primer paso</b>. El diagnóstico completo pone después tus cifras reales, tu Número de Libertad y tu plan.</p>
-    <div class="cta-row">
-      <a class="btn btn-am" href="indice.html">Descubrir mi situación →</a>
-      <a class="btn btn-gh" href="#como">Ver cómo funciona ↓</a>
+    <p class="promise">Tu diagnóstico te lo dice <b>en euros</b>. Con tus cifras reales, un informe personal con lo que se te escapa al año, tu Número de Libertad, las decisiones que más lo mueven y tu plan de 100 días.</p>
+    <div class="prod">
+      <a class="pc" href="planes.html#precios">
+        <div class="k">Diagnóstico individual</div>
+        <h3>Tu informe personal</h3>
+        <div class="pr">Desde 19 €</div>
+        <p>Tus números, tu forma de decidir con el dinero y tu plan. Para ti.</p>
+        <span class="go">Hacer mi diagnóstico →</span>
+      </a>
+      <a class="pc" href="planes.html#precios">
+        <div class="k">Diagnóstico en pareja</div>
+        <h3>Vuestro informe</h3>
+        <div class="pr">54 €</div>
+        <p>Vuestras cifras, el reparto justo y dónde no estáis de acuerdo sin saberlo.</p>
+        <span class="go">Hacer nuestro diagnóstico →</span>
+      </a>
     </div>
-    <p class="reass">Paso 1 gratis · 2 minutos · Sin registro · Sin tarjeta</p>
+    <p class="reass" style="margin-top:18px">Pago único · Sin suscripción · Entre 12 y 20 minutos · Informe al terminar</p>
+    <p class="free">¿Aún no lo tienes claro? <a href="indice.html">Haz antes tu nota gratis (2 min)</a> o <a href="#como">mira cómo funciona</a>.</p>
     <p class="tail">Tu resultado no será un consejo genérico. <b>Será tuyo.</b></p>
   </div>
 </section>
@@ -199,7 +224,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
       <div class="rp main">
         <div class="k">Paso 2 · Desde 19 €</div>
         <h4>Tu diagnóstico</h4>
-        <div class="m">10-20 minutos · con tus cifras reales</div>
+        <div class="m">12-20 minutos · con tus cifras reales</div>
         <p>La radiografía. Un informe personal con cuánto se te escapa al año, tu Número de Libertad, las 3 decisiones que más lo mueven y tu plan de 100 días.</p>
         <a href="planes.html">Ver el diagnóstico →</a>
       </div>
@@ -267,11 +292,11 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
     </div>
     <div class="steps">
       <div class="step"><span class="num">1</span><div><h4>Haces tu nota gratis</h4><p>10 preguntas, 2 minutos. Sabes dónde estás sobre 100 y qué pilar flojea. Es el termómetro, no el diagnóstico.</p></div></div>
-      <div class="step"><span class="num">2</span><div><h4>Si quieres ver el porqué, haces el diagnóstico</h4><p>Desde 19 €. Un cuestionario de 10-20 minutos con tus cifras reales —ingresos, gastos, patrimonio, deuda— y tu forma de decidir con el dinero.</p></div></div>
+      <div class="step"><span class="num">2</span><div><h4>Si quieres ver el porqué, haces el diagnóstico</h4><p>Desde 19 €. Un cuestionario de 12-20 minutos con tus cifras reales —ingresos, gastos, patrimonio, deuda— y tu forma de decidir con el dinero.</p></div></div>
       <div class="step"><span class="num">3</span><div><h4>Recibes tu informe personal</h4><p>Cuánto se te escapa al año, tu Número de Libertad, las decisiones que más lo mueven y tu plan de 100 días. Con tus números, no con medias.</p></div></div>
       <div class="step"><span class="num">4</span><div><h4>Si quieres, lo trabajamos juntos</h4><p>Una sesión con Adapta para convertir el informe en decisiones con fecha.</p></div></div>
     </div>
-    <div style="text-align:center;margin-top:36px"><a class="btn btn-am" href="indice.html">Calcular mi nota gratis →</a></div>
+    <div style="text-align:center;margin-top:36px"><a class="btn btn-am" href="planes.html#precios">Hacer mi diagnóstico →</a></div>
   </div>
 </section>
 
@@ -329,7 +354,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
         <div class="n"><span id="lib-out">26,7</span> meses</div>
       </div>
     </div>
-    <div style="text-align:center;margin-top:32px"><a class="btn btn-am" href="indice.html">Empezar por mi nota gratis →</a></div>
+    <div style="text-align:center;margin-top:32px"><a class="btn btn-am" href="planes.html#precios">Hacer mi diagnóstico →</a></div>
     <div style="text-align:center;margin-top:16px"><a href="herramientas.html" style="color:var(--gr);font-size:12.5px;border-bottom:1px solid var(--bd);padding-bottom:2px">Explorar las 5 herramientas gratis →</a></div>
   </div>
 </section>
@@ -353,7 +378,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
       </table>
     </div>
     <p class="pj-punch">Matemáticamente igual. Económicamente injusto. El diagnóstico en pareja lo pone sobre la mesa, con datos imparciales.</p>
-    <div style="text-align:center;margin-top:30px"><a class="btn btn-am" href="indice.html">Analizar nuestra situación →</a></div>
+    <div style="text-align:center;margin-top:30px"><a class="btn btn-am" href="planes.html#precios">Hacer nuestro diagnóstico en pareja →</a></div>
   </div>
 </section>
 
@@ -390,7 +415,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
     <div class="faq">
       <details><summary>¿De verdad es gratis?</summary><p>El primer paso, sí: tu nota del Índice de Salud Financiera es gratuita, sin registro y sin tarjeta. Pero es un termómetro, no el diagnóstico: no usa tus cifras. El diagnóstico completo —tu informe personal con tus números y tu plan— cuesta desde 19 €.</p></details>
       <details><summary>¿Qué diferencia hay entre la nota y el diagnóstico?</summary><p>La nota te dice <b>dónde estás</b>, con 10 preguntas generales. El diagnóstico trabaja con tus cifras reales y te dice <b>cuánto te cuesta y qué hacer</b>: lo que se te escapa al año en euros, tu Número de Libertad, cuándo llegas y tu plan de 100 días.</p></details>
-      <details><summary>¿Cuánto tiempo me lleva?</summary><p>La nota, 2 minutos. El diagnóstico completo, entre 10 y 20 minutos según la modalidad. Puedes parar y retomar.</p></details>
+      <details><summary>¿Cuánto tiempo me lleva?</summary><p>La nota, 2 minutos. El diagnóstico completo, entre 12 y 20 minutos según la modalidad. Puedes parar y retomar.</p></details>
       <details><summary>¿Qué necesito tener a mano?</summary><p>Nada especial para empezar. Para el diagnóstico completo ayuda tener tus cifras aproximadas de ingresos, gastos y patrimonio; cuanto más reales, más útil es el resultado.</p></details>
       <details><summary>¿Esto es asesoramiento financiero?</summary><p>No. Es un marco educativo y orientativo que te ayuda a ver tu situación con claridad. No constituye asesoramiento financiero, fiscal, jurídico ni de inversión personalizado.</p></details>
       <details><summary>¿Qué pasa con mis datos?</summary><p>Tu diagnóstico se elabora con los datos que tú aportas. No los necesitamos para nada ajeno a construir tu informe.</p></details>
@@ -402,8 +427,8 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 <section class="final">
   <div class="wrap">
     <h2 class="serif">Tu patrimonio ya está tomando decisiones. <span class="hl">La pregunta es si las estás tomando tú.</span></h2>
-    <p>Empieza por el paso 1: tu nota, en 2 minutos, gratis.</p>
-    <div class="cta-row"><a class="btn btn-am" href="indice.html">Descubrir mi nota gratis →</a></div>
+    <p>Tu diagnóstico, individual o en pareja, desde 19 €.</p>
+    <div class="cta-row"><a class="btn btn-am" href="planes.html#precios">Hacer mi diagnóstico →</a><a class="btn btn-gh" href="indice.html">Antes, mi nota gratis</a></div>
   </div>
 </section>
 
@@ -413,7 +438,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
   <p class="disc">Marco educativo. Los ejemplos y simuladores de esta página son ilustrativos y no constituyen asesoramiento financiero, fiscal, jurídico ni de inversión. Las proyecciones usan supuestos generales y no son previsiones garantizadas. Tu diagnóstico se elabora con los datos reales que aportes en el cuestionario.</p>
 </footer>
 
-<a id="stickyCta" href="indice.html">Calcular mi nota gratis →</a>
+<a id="stickyCta" href="planes.html">Hacer mi diagnóstico · desde 19 € →</a>
 
 <script>
 // count-up de las cifras demo (se dispara al entrar en pantalla)
