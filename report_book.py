@@ -3110,6 +3110,9 @@ def seccion_resumen_ejecutivo(extras, datos, breve=False):
     de Vida y meses de libertad) en vez de repetir tres bloques identicos.
     """
     if not extras: return []
+    # Con la apertura delante, la version breve dejaba una pagina casi vacia con un solo dato
+    # ("Meses de libertad 6,0 años", contando la vivienda). No aporta: se omite.
+    if breve: return []
     rv=extras.get("ratio_vida"); nudo=extras.get("nudo"); res=extras.get("resiliencia"); acc=extras.get("accion_unica")
     out=[PageBreak(), Paragraph("Tu diagnóstico en una página", h_sec),
          Paragraph("Si solo lees esto, ya sabrás lo esencial. El resto del libro es el porqué, el cuánto y el cómo.", body),
@@ -3121,7 +3124,7 @@ def seccion_resumen_ejecutivo(extras, datos, breve=False):
         cells.append([Paragraph("Tu Ratio de Vida",_lbl),Paragraph("<b>%d</b><font size=11 color='#6B7280'>/100</font>"%rv["iri"],St("ren1",fontSize=26,leading=30,textColor=colors.HexColor(_bc),fontName=FB))])
     if res and res.get("meses_libertad") is not None:
         _m=res["meses_libertad"]; _mt=("%.0f meses"%_m) if _m<24 else (("%.1f años"%(_m/12.0)).replace(".",","))
-        cells.append([Paragraph("Meses de libertad",_lbl),Paragraph("<b>%s</b>"%_mt,St("ren2",fontSize=20,leading=26,textColor=INK,fontName=FB))])
+        cells.append([Paragraph("Tiempo que te sostiene tu patrimonio",_lbl),Paragraph("<b>%s</b>"%_mt,St("ren2",fontSize=20,leading=26,textColor=INK,fontName=FB))])
     if rv:
         cells.append([Paragraph("Tu eslabón más débil",_lbl),Paragraph("<b>%s</b>"%rv["weakest"],St("ren3",fontSize=20,leading=26,textColor=colors.HexColor("#9A3B2E"),fontName=FB))])
     if cells:
@@ -3622,6 +3625,25 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   "individualizado ni atención psicológica. Si el dinero te genera un malestar que te desborda, "
                   "apóyate también en un profesional de confianza.",small),
         PageBreak()]
+    # === Indice: el mapa de los 5 actos ===
+    _ix=[("APERTURA","Tu cifra, tu semáforo, tus tres decisiones y tu cuadro financiero","sec_apertura"),
+         ("ACTO 1 · DIAGNÓSTICO","Tu foto de hoy: radar, las 12 capas y tu síntesis financiera","sec_acto1"),
+         ("ACTO 2 · LA BRECHA","Vida ideal vs actual · palancas · el coste de no hacer nada","sec_acto2"),
+         ("ACTO 3 · EL PLAN","Tu Constitución financiera: hoja de ruta a 72 h / 30 / 90 días","sec_acto3"),
+         ("ACTO 4 · ADAPTA","El siguiente paso: ejecución con tu family office","sec_acto4"),
+         ("ANEXOS","Glosario · tus respuestas · metodología","sec_anexos")]
+    S+=[Paragraph("El mapa de tu libro",h_sec),
+        Paragraph("Seis tramos, un solo recorrido: del diagnóstico a la acción. Lo esencial ya lo has visto en la apertura; a partir de aquí, el porqué, el cuánto y el cómo.",body),Spacer(1,5*mm)]
+    _clickable = (depth != "esencial")  # #8 · en T1 no hay p\u00e1ginas de acto: enlaces solo cuando el destino existe
+    for _t,_d,_anc in _ix:
+        _ttl = ("<a href=\"#%s\"><font color=\"#1A1A17\"><b>%s</b></font></a>"%(_anc,_t)) if _clickable else ("<b>%s</b>"%_t)
+        S.append(Table([[Paragraph(_ttl,St("ixt",fontSize=11,leading=14,textColor=ACCDK,fontName=FB)),
+                         Paragraph(_d,St("ixd",fontSize=9.6,leading=13,textColor=GREY))]],
+                 colWidths=[54*mm,106*mm],
+                 style=[("LINEBELOW",(0,0),(-1,-1),0.5,LINE),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+                        ("LINEBEFORE",(0,0),(0,-1),2.6,AMARILLO),("LEFTPADDING",(0,0),(0,-1),10),
+                        ("TOPPADDING",(0,0),(-1,-1),9),("BOTTOMPADDING",(0,0),(-1,-1),9)]))
+    S+=[PageBreak()]
     # === PANEL FINANCIERO ===
     try:
         _inv=float(datos.get("inversiones_liquidas") or 0); _par=float(datos.get("colchon_liquido") or 0)
@@ -3642,25 +3664,6 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             S+=[FullBleedImage("_capas.png"), PageBreak()]
     except Exception:
         pass
-    # === Indice: el mapa de los 5 actos ===
-    _ix=[("APERTURA","Portada · carta de bienvenida","sec_apertura"),
-         ("ACTO 1 · DIAGNÓSTICO","Tu foto de hoy: radar, las 12 capas y tu síntesis financiera","sec_acto1"),
-         ("ACTO 2 · LA BRECHA","Vida ideal vs actual · palancas · el coste de no hacer nada","sec_acto2"),
-         ("ACTO 3 · EL PLAN","Tu Constitución financiera: hoja de ruta a 72 h / 30 / 90 días","sec_acto3"),
-         ("ACTO 4 · ADAPTA","El siguiente paso: ejecución con tu family office","sec_acto4"),
-         ("ANEXOS","Glosario · tus respuestas · metodología","sec_anexos")]
-    S+=[Paragraph("El mapa de tu libro",h_sec),
-        Paragraph("Seis tramos, un solo recorrido: del diagnóstico a la acción. Léelo en orden.",body),Spacer(1,5*mm)]
-    _clickable = (depth != "esencial")  # #8 · en T1 no hay p\u00e1ginas de acto: enlaces solo cuando el destino existe
-    for _t,_d,_anc in _ix:
-        _ttl = ("<a href=\"#%s\"><font color=\"#1A1A17\"><b>%s</b></font></a>"%(_anc,_t)) if _clickable else ("<b>%s</b>"%_t)
-        S.append(Table([[Paragraph(_ttl,St("ixt",fontSize=11,leading=14,textColor=ACCDK,fontName=FB)),
-                         Paragraph(_d,St("ixd",fontSize=9.6,leading=13,textColor=GREY))]],
-                 colWidths=[54*mm,106*mm],
-                 style=[("LINEBELOW",(0,0),(-1,-1),0.5,LINE),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
-                        ("LINEBEFORE",(0,0),(0,-1),2.6,AMARILLO),("LEFTPADDING",(0,0),(0,-1),10),
-                        ("TOPPADDING",(0,0),(-1,-1),9),("BOTTOMPADDING",(0,0),(-1,-1),9)]))
-    S+=[PageBreak()]
     if extras: S+=_secsafe(seccion_resumen_ejecutivo,extras,datos,_ap_ok)
     if extras: S+=_secsafe(seccion_como_medimos,extras)
     if extras: S+=_secsafe(seccion_paradoja,extras)
@@ -4079,9 +4082,12 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             # ACTO 2 -> el dinero que se escapa cada ano. La cifra que duele.
             _d2=_dl2=None; _c2=None
             try:
-                _ba=float(((extras or {}).get("brecha") or {}).get("brecha_anual") or 0)
-                if _ba>0:
-                    _d2=_eur(_ba); _dl2="Lo que te separa cada año de la vida que quieres"; _c2="#D9755B"
+                # La cifra del acto es la MISMA que abre el libro: lo que falta para tu libertad,
+                # sobre el capital que rinde. (Antes: la brecha de ingresos, 1.200 €/año, que trivializaba.)
+                _capr=float(datos.get("inversiones_liquidas") or 0)+float(datos.get("colchon_liquido") or 0)
+                _falta2=(float(fi[0])-_capr) if (fi and fi[0]) else 0
+                if _falta2>0:
+                    _d2=_eur(_falta2); _dl2="Lo que te separa de tu libertad financiera"; _c2="#D9755B"
                 elif fi and fi[0]:
                     _d2=_eur(fi[0]); _dl2="Tu Número de Libertad"
             except Exception:
@@ -4371,14 +4377,15 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         # === Tu plan, en cifras: cuantificado y gated sobre datos reales ===
         _cif=[]
         _gm=datos.get("gasto_mensual") or 0; _im=max(datos.get("ingreso_mensual",0),0); _pt=datos.get("patrimonio") or 0
-        _colobj=round(_gm*3) if _gm else 0
+        # Colchon objetivo: 6 meses, la MISMA definicion de "Como medimos" y de la matriz de resiliencia.
+        _colobj=round(_gm*6) if _gm else 0
         _colact=float(datos.get("colchon_liquido") or 0); _invact=float(datos.get("inversiones_liquidas") or 0)
         # Colchon: objetivo 3 meses. Si YA lo tiene, no se le pide "abrirlo": se le dice que esta cubierto.
         # Base para invertir: solo el LIQUIDO (colchon + invertido), nunca el patrimonio total (casa incluida).
         if _colobj and _colact<_colobj:
-            _cif.append("<b>Tu colchón objetivo: %s</b> (3 meses de tus gastos reales). Hoy tienes %s: te faltan <b>%s</b>. Ábrelo en una cuenta remunerada, separada del día a día, y aliméntalo con una transferencia automática el día 1 de cada mes." % (_eur(_colobj),_eur(_colact),_eur(_colobj-_colact)))
+            _cif.append("<b>Tu colchón objetivo: %s</b> (6 meses de tus gastos reales). Hoy tienes %s: te faltan <b>%s</b>. Tenlo en una cuenta remunerada, separada del día a día, y complétalo con una transferencia automática el día 1 de cada mes." % (_eur(_colobj),_eur(_colact),_eur(_colobj-_colact)))
         elif _colobj:
-            _cif.append("<b>Tu colchón ya está cubierto:</b> tienes %s y el mínimo sano son %s (3 meses de gastos). No lo toques: es lo que te deja decidir sin prisa." % (_eur(_colact),_eur(_colobj)))
+            _cif.append("<b>Tu colchón ya está cubierto:</b> tienes %s y el objetivo son %s (6 meses de gastos). No lo toques: es lo que te deja decidir sin prisa." % (_eur(_colact),_eur(_colobj)))
         _liq=_colact+_invact
         if _colobj and _liq>_colobj:
             _cif.append("Tu dinero líquido hoy son <b>%s</b>: <b>%s</b> son tu fondo intocable de resiliencia y <b>%s</b> tu base operativa para invertir o amortizar. Tu vivienda y lo ilíquido no cuentan aquí: no se pueden mover sin coste." % (_eur(_liq),_eur(_colobj),_eur(_liq-_colobj)))
@@ -4403,7 +4410,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         col6=datos.get("gasto_mensual",0)*3
         S+=[_box([Paragraph("<font color='#B45309'><b>Tu regla de contingencia</b></font><br/>"
                 f"<font size=9.5>Todo plan necesita un freno de emergencia. El tuyo: si tu fondo l\u00edquido baja de "
-                f"<b>{_eur(col6)}</b> (tres meses de gastos, tu colchón objetivo) o llega un imprevisto grande, <b>pausa las fases 2 y 3</b> "
+                f"<b>{_eur(col6)}</b> (tres meses de gastos, el suelo mínimo) o llega un imprevisto grande, <b>pausa las fases 2 y 3</b> "
                 f"y vuelca todo el excedente a reconstruir ese colch\u00f3n antes de seguir. Proteger la base va siempre "
                 f"primero; crecer puede esperar unas semanas.</font>",St("kc",fontSize=10.5,leading=15))],
                 "#FBF4E4","#B45309",ancho=160*mm)]

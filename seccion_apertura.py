@@ -247,32 +247,36 @@ def _apertura(salud, fi, datos, extras, p):
     except Exception:
         br_mes = br_anual = 0.0
 
-    if br_anual > 0:
-        # EL TITULAR ES EL DINERO. No el metodo, no la bienvenida.
+    # EL TITULAR ES LO QUE TE SEPARA DE LA LIBERTAD, medido sobre el capital que de verdad rinde
+    # (invertido + liquido), el mismo del "ya cubierto". Antes abria con la brecha de ingresos
+    # (100 €/mes en el perfil de prueba) y trivializaba un informe que luego habla de 850.000 €.
+    if exp and exp.get("numero_libertad"):
+        N = float(exp["numero_libertad"])
+        try:
+            cap = float(d.get("inversiones_liquidas") or 0) + float(d.get("colchon_liquido") or 0)
+        except Exception:
+            cap = 0.0
+        falta = max(0.0, N - cap)
+        out += [Paragraph("Esto es lo que te separa de no depender de un sueldo", rb.h_sec),
+                cifra(eur(falta) if falta > 0 else "Ya has llegado",
+                      ROJO if falta > 0 else VERDE),
+                texto("Tu Número de Libertad es <b>%s</b> y hoy tienes <b>%s</b> trabajando para ti "
+                      "(invertido y líquido; tu vivienda no cuenta, porque no paga tus gastos). "
+                      "Lo tienes cubierto al <b>%s %%</b>."
+                      % (eur(N), eur(cap), exp.get("pct_cubierto", 0)))]
+        if br_anual > 0:
+            out += [Spacer(1, 5 * mm),
+                    box([rotulo("Y LA VIDA QUE DIJISTE QUERER", ROJO),
+                         texto("Pide <b>%s al mes</b> más de lo que hoy ingresas: <b>%s al año</b>. "
+                               "Es la otra distancia que hay que cerrar, y sale de tus propios números."
+                               % (eur(br_mes), eur(br_anual)), 10, rb.INK)],
+                        "#FBEDEC", ROJO, ancho=160 * mm)]
+    elif br_anual > 0:
         out += [Paragraph("Esto es lo que te separa, cada año, de la vida que dijiste querer",
                           rb.h_sec),
                 cifra(eur(br_anual)),
                 texto("Son <b>%s al mes</b> de distancia entre la vida que tienes y la que "
-                      "describiste en tus respuestas. Sale de tus propios números." % eur(br_mes)),
-                Spacer(1, 6 * mm),
-                box([rotulo("SI DENTRO DE DIEZ AÑOS EL CUADRO SIGUE IGUAL", ROJO),
-                     cifra(eur(br_anual * 10), ROJO, 30),
-                     texto("Acumulado sobre tu brecha actual, sin capitalizar. "
-                           "Es el precio de aplazarlo.", 8.5, GREY)],
-                    "#FBEDEC", ROJO, ancho=160 * mm)]
-    elif exp and exp.get("numero_libertad"):
-        N = float(exp["numero_libertad"])
-        try:
-            pat = float(d.get("patrimonio") or 0)
-        except Exception:
-            pat = 0.0
-        falta = max(0.0, N - pat)
-        out += [Paragraph("Esto es lo que te separa de no depender de un sueldo", rb.h_sec),
-                cifra(eur(falta) if falta > 0 else "Ya has llegado",
-                      ROJO if falta > 0 else VERDE),
-                texto("Tu Número de Libertad es <b>%s</b> y hoy tienes <b>%s</b>. "
-                      "Lo tienes cubierto al <b>%s%%</b>."
-                      % (eur(N), eur(pat), exp.get("pct_cubierto", 0)))]
+                      "describiste en tus respuestas. Sale de tus propios números." % eur(br_mes))]
     else:
         return []      # sin cifra que ensenar, no abrimos con humo
 
@@ -286,11 +290,11 @@ def _apertura(salud, fi, datos, extras, p):
         pass
     if exp and exp.get("numero_libertad"):
         kpis.append(("NÚMERO DE LIBERTAD", eur(exp["numero_libertad"]), "#1A1A17"))
-        kpis.append(("YA CUBIERTO", "%s%%" % exp.get("pct_cubierto", 0), "#1A1A17"))
+        kpis.append(("YA CUBIERTO", "%s %%" % exp.get("pct_cubierto", 0), "#1A1A17"))
     try:
         tasa = float(fi[2]) if fi and fi[2] is not None else None
         if tasa is not None and len(kpis) < 3:
-            kpis.append(("TASA DE AHORRO", "%.0f%%" % tasa,
+            kpis.append(("TASA DE AHORRO", "%.0f %%" % tasa,
                          VERDE if tasa >= 20 else (AMBAR if tasa >= 10 else ROJO)))
     except Exception:
         pass
@@ -468,6 +472,15 @@ def _apertura(salud, fi, datos, extras, p):
                           "que acabas de leer: tus doce dimensiones una a una, tu mapa a 72 horas, "
                           "30 y 90 días, y la metodología completa. Léelas en orden.",
                           St("ap_cierre2", fontSize=10, leading=14, textColor=GREY, spaceBefore=5)),
+                Spacer(1, 6 * mm),
+                box([rotulo("SI QUIERES IR MÁS RÁPIDO Y SIN ERRORES", rb.ACC),
+                     texto("En una <b>sesión estratégica de 30 minutos</b> convertimos este diagnóstico en tus "
+                           "primeras decisiones, con números y fechas. Y te descontamos de ella el importe "
+                           "íntegro de este informe.", 10.5, INK),
+                     texto("<a href='https://www.adaptafamilyoffice.com/informe'><font color='#0284C7'><u>Reservar mi sesión</u></font></a>"
+                           " &#183; <a href='https://wa.me/34683343531'><font color='#0284C7'><u>WhatsApp +34 683 34 35 31</u></font></a>",
+                           9.5, GREY)],
+                    "#FBF9EC", "#C9962B", ancho=160 * mm),
                 PageBreak()]
 
     return out

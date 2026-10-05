@@ -148,12 +148,16 @@ def _eu(n):
 def acelerador(seq, tmp, datos, extras, p):
     br=(extras or {}).get("brecha") or {}; num=br.get("numero_ideal")
     ing=_num(datos,"ingreso_mensual") or 0; gas=_num(datos,"gasto_mensual") or 0
-    aho=_num(datos,"ahorro_mensual") or 0; pat=_num(datos,"patrimonio") or 0
+    aho=_num(datos,"ahorro_mensual") or 0
+    # Capital que RINDE: invertido + liquido. La vivienda no se capitaliza al 7% (antes se usaba el
+    # patrimonio total y la proyeccion salia muy optimista y contradecia al resto del libro).
+    pat=(_num(datos,"inversiones_liquidas") or 0)+(_num(datos,"colchon_liquido") or 0)
     if not num or ing<=0: return
     try: seq.append(LD.acelerador_tabla(tmp+"acetab.svg",ing,gas,pat,num))
     except Exception: pass
     inv=((extras or {}).get("perfil_in") or {}).get("invierte","") or ""
-    r0=1.5 if ("nada" in inv.lower() or inv=="") else (5.5 if "importante" in inv.lower() else 4.0)
+    _invl=_num(datos,"inversiones_liquidas") or 0
+    r0=1.5 if (("nada" in inv.lower() or inv=="") and _invl<1000) else (5.5 if "importante" in inv.lower() else 4.0)
     nuevo=aho+0.10*ing+0.10*gas
     # RENTABILIDAD REAL, NO NOMINAL. El 10% es la media historica del S&P 500 ANTES
     # de inflacion; descontandola queda en ~7%. Con el 10% esta pagina prometia mucho
@@ -178,13 +182,13 @@ def acelerador(seq, tmp, datos, extras, p):
     cil=[("Ingresos",_eu(ing),_eu(ing*1.1),"+10%"),
          ("Gastos",_eu(gas),_eu(gas*0.9),"−10%"),
          ("Rentabilidad","~%d%%"%round(r0),"~%d%% real"%round(R_PLAN*100),"S&P 500 histórico"),
-         ("Patrimonio",_eu(pat),"compuesto","sin tocarlo")]
+         ("Capital invertible",_eu(pat),"compuesto","sin tocarlo")]
     # cilindro enemigo (psicología)
     c6=(p.get("C6",{}) or {}).get("score",0); c4=(p.get("C4",{}) or {}).get("score",0)
     c7=(p.get("C7",{}) or {}).get("score",0); comp=_fac(p,"C1","comparacion")
     if c6>=55 or c4>=55 or comp>=55:
         en=("Gastos","tu tendencia a la comparación y al estatus te empuja a gastar más en cuanto ganas más (la inflación del estilo de vida anula la fórmula)")
-    elif "nada" in inv.lower() or inv=="":
+    elif ("nada" in inv.lower() or inv=="") and _invl<1000:
         en=("Rentabilidad","tu capital está dormido; pasar de 'parado' a 'invertido con un plan' es tu mayor salto pendiente")
     elif c7>=55:
         en=("Ingresos","dependes demasiado de una sola fuente; subirla un 10% es frágil hasta que la diversifiques")
@@ -198,7 +202,8 @@ def acelerador(seq, tmp, datos, extras, p):
 
 
 def barrera(seq, tmp, datos, extras, p):
-    p0=_num(datos,"patrimonio") or 0; aho=_num(datos,"ahorro_mensual") or 0
+    # Punto de partida: el capital que rinde (invertido + liquido), no el patrimonio con la casa dentro.
+    p0=(_num(datos,"inversiones_liquidas") or 0)+(_num(datos,"colchon_liquido") or 0); aho=_num(datos,"ahorro_mensual") or 0
     if p0<=0 and aho<=0: return
     c6=(p.get("C6",{}) or {}).get("score",0); comp=_fac(p,"C1","comparacion")
     gas=_num(datos,"gasto_mensual") or 0; col=_num(datos,"colchon_liquido") or 0
@@ -315,7 +320,7 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
         seq.append(LD.mapa_100(tmp+"07.svg",[
             ("Día 1–30",m1[0],m1[1]),
             ("Día 31–60",m2[0],m2[1]),
-            ("Día 61–100",m3[0],m3[1])], accent=LD.GOLD))
+            ("Día 61–90",m3[0],m3[1])], accent=LD.GOLD))
         if arq_meta:
             _man="%s Y, esta vez, lo ejecutas: actúas sobre tu plan en lugar de aplazarlo." % (arq_meta.get('luz','') or '')
             seq.append(LD.el_salto(tmp+"07b.svg", arq_meta.get('nombre','Tu arquetipo'),

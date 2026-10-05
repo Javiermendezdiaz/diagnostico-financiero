@@ -220,7 +220,18 @@ def _compartimento(prof, resp):
 def seccion_acelerador_hogar(dA, dB, tmp="/tmp/_lp_"):
     a=_fill(dA); b=_fill(dB)
     ing=a["ingreso_mensual"]+b["ingreso_mensual"]; gas=_gasto_hogar(a,b)
-    pat=a["patrimonio"]+b["patrimonio"]; num=(gas*12.0/0.04) if gas>0 else 0
+    # Capital que rinde (invertido + liquido) y Numero de Libertad del motor (neto de pensiones),
+    # no gasto x25 ni el patrimonio con las viviendas dentro.
+    pat=sum(float(x.get(k) or 0) for x in (dA or {}, dB or {}) for k in ("inversiones_liquidas","colchon_liquido"))
+    num=0
+    try:
+        import seccion_apertura as _ap
+        _hog={"gasto_mensual":gas,"pension_estimada":float((dA or {}).get("pension_estimada") or 0)+float((dB or {}).get("pension_estimada") or 0),
+              "edad":max(a.get("edad") or 0,b.get("edad") or 0),"inversiones_liquidas":pat,"ahorro_mensual":a["ahorro_mensual"]+b["ahorro_mensual"]}
+        num=_ap.numero_libertad(_hog, gas) or 0
+    except Exception:
+        num=0
+    if not num and gas>0: num=gas*12.0/0.04
     if ing<=0 or num<=0: return []
     try:
         import legado_design as LD

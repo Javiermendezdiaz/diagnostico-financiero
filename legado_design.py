@@ -262,10 +262,10 @@ def matriz_tiempo(out, pct_pasivo, ing_activo, ing_pasivo, accent=BLUE):
     fig.savefig(out,dpi=130); plt.close(fig); return out
 
 def mapa_100(out, hitos, accent=GOLD):
-    """Tu mapa de escape: los próximos 100 días. hitos=[(dia,titulo,detalle),...]"""
+    """Tu mapa de escape: los próximos 90 días. hitos=[(dia,titulo,detalle),...]"""
     fig,ax=_canvas(); _bg(ax,(0.82,0.82),tint="#13202A")
     _vbar(ax,0.085,0.85,"Tu mapa de escape",accent,sz=22)
-    ax.text(0.107,0.79,_spaced("LOS PRÓXIMOS 100 DÍAS",1),ha="left",va="center",color=MUTE,fontproperties=P(9.5),transform=ax.transAxes)
+    ax.text(0.107,0.79,_spaced("LOS PRÓXIMOS 90 DÍAS",1),ha="left",va="center",color=MUTE,fontproperties=P(9.5),transform=ax.transAxes)
     import textwrap
     xline=0.16; ytop=0.66; ybot=0.20
     ax.plot([xline,xline],[ybot,ytop],color="#33425E",lw=2,transform=ax.transAxes,zorder=3)
@@ -499,9 +499,9 @@ def acelerador_tabla(out, ing_m, gas_m, pat, num, accent=GOLD, vos=False):
     fig,ax=_canvas(); _bg(ax,(0.84,0.20),tint="#13202A")
     _vbar(ax,0.085,0.91,("Vuestro" if vos else "Tu")+" acelerador, año a año",accent,sz=20)
     ax.text(0.107,0.862,_spaced("PROYECCIÓN A 10 AÑOS",1),ha="left",va="center",color=MUTE,fontproperties=P(9),transform=ax.transAxes)
-    ax.text(0.107,0.832,"Ingresos +10%/año · gasto −10% una vez · rentabilidad 10% (media histórica del S&P 500) · objetivo +10% de patrimonio al año.",
+    ax.text(0.107,0.832,"Si cumples las 4 palancas: ingresos +10 %/año · gasto −10 % una vez · rentabilidad ~7 % real (bolsa mundial, histórico) · todo reinvertido.",
             ha="left",va="center",color=FAINT,fontproperties=P(7.6),transform=ax.transAxes)
-    R=0.10
+    R=0.07   # real, coherente con el resto del libro (antes 10% nominal)
     rows=[]; w=float(pat or 0); ig=float(ing_m or 0)*12.0; gs=float(gas_m or 0)*12.0; y_lib=None
     for t in range(1,11):
         ig*=1.10
@@ -512,8 +512,8 @@ def acelerador_tabla(out, ing_m, gas_m, pat, num, accent=GOLD, vos=False):
         if y_lib is None and num and w>=num: y_lib=t
         rows.append((t,ig/12.0,gs/12.0,aho,w,pc))
     def _e(n): return ("{:,.0f}".format(n).replace(",","."))+" €"
-    def _ek(n): return ("%.0fk €"%(n/1000.0)) if n>=1000 else _e(n)
-    cols=[("AÑO",0.11,"left"),("INGRESO",0.31,"right"),("GASTO",0.47,"right"),("AHORRO/AÑO",0.67,"right"),("PATRIMONIO",0.86,"right"),("%",0.965,"right")]
+    def _ek(n): return (("{:,.0f}".format(n/1000.0).replace(",","."))+"k €") if n>=1000 else _e(n)
+    cols=[("AÑO",0.11,"left"),("INGRESO",0.31,"right"),("GASTO",0.47,"right"),("AHORRO/AÑO",0.67,"right"),("CAPITAL",0.86,"right"),("%",0.965,"right")]
     ytop=0.78; rh=0.0505
     for (h,x,al) in cols:
         ax.text(x,ytop,h,ha=al,va="center",color=accent,fontproperties=Pm(8),transform=ax.transAxes)
@@ -526,14 +526,14 @@ def acelerador_tabla(out, ing_m, gas_m, pat, num, accent=GOLD, vos=False):
         ax.text(0.47,yy,_e(gm),ha="right",va="center",color=MUTE,fontproperties=P(8.4),transform=ax.transAxes)
         ax.text(0.67,yy,_e(ah),ha="right",va="center",color=WHITE,fontproperties=P(8.4),transform=ax.transAxes)
         ax.text(0.86,yy,_ek(pw),ha="right",va="center",color=accent,fontproperties=Pm(9),transform=ax.transAxes)
-        ax.text(0.965,yy,("%d%%"%pc if pc<100 else "100%"),ha="right",va="center",color=(accent if pc>=100 else MUTE),fontproperties=P(8.4),transform=ax.transAxes)
+        ax.text(0.965,yy,("%d %%"%pc if pc<100 else "100 %"),ha="right",va="center",color=(accent if pc>=100 else MUTE),fontproperties=P(8.4),transform=ax.transAxes)
     final=rows[-1]
     if y_lib:
-        head=(("Vuestra" if vos else "Tu")+" libertad financiera, alcanzada en el año %d.") % y_lib
+        head=(("Con las 4 palancas, vuestra" if vos else "Con las 4 palancas, tu")+" libertad llegaría en el año %d.") % y_lib
     else:
         head=(("En 10 años recorréis el %d%% del camino a vuestra libertad." if vos else "En 10 años recorres el %d%% del camino a tu libertad.")) % final[5]
     ax.text(0.11,0.140,head,ha="left",va="center",color=WHITE,fontproperties=L(19),transform=ax.transAxes)
-    ax.text(0.11,0.098,"Cuatro palancas del 10%% que no se suman: se multiplican. De %s a %s de patrimonio en una década."
+    ax.text(0.11,0.098,"Cuatro palancas que no se suman: se multiplican. De %s a %s de capital invertido en una década."
             % (_ek(float(pat or 0)),_ek(final[4])),ha="left",va="top",color=MUTE,fontproperties=P(9),transform=ax.transAxes)
     ax.text(0.11,0.034,"Proyección ilustrativa con objetivos exigentes; no es una garantía. La rentabilidad real varía cada año.",
             ha="left",va="center",color=FAINT,fontproperties=P(7),transform=ax.transAxes)
