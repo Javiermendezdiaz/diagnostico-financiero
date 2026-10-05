@@ -1284,6 +1284,25 @@ def calcular_deuda_tipo(resp, datos):
                 "financie algo que rinde— o dejar que derive en freno. La diferencia no la marca la deuda, la marcas tú "
                 "con para qué la usas. Y si la sientes más pesada de lo que dicen los números, esa tensión también "
                 "decide por ti: ponerle cifra exacta —cuánto pagas y a qué interés— es lo que disuelve el peso que notas.")
+    # ¿Es sobre todo HIPOTECA? Una hipoteca sobre tu vivienda no es "consumo": tratarla asi es falso y el
+    # cliente lo nota. Se detecta por los datos (desglose, tenencia o plazo implicito deuda/cuota).
+    _hip = False
+    try:
+        _det = (datos or {}).get("patrimonio_detalle") or []
+        _hip = any(("vivienda" in str((r or {}).get("c", "")).lower() or "inmueble" in str((r or {}).get("c", "")).lower())
+                   and float((r or {}).get("d") or 0) > 0 for r in _det)
+        _ten = str((datos or {}).get("vivienda_tenencia") or "").lower()
+        _hip = _hip or ("hipoteca" in _ten)
+        _dt = float((datos or {}).get("deuda_total") or 0); _cu = float((datos or {}).get("cuota_deuda") or 0)
+        _hip = _hip or (_cu > 0 and _dt / _cu >= 120)          # 10+ años de cuotas: perfil hipotecario
+    except Exception:
+        pass
+    if _hip:
+        return ("Tu deuda, hoy, es un coste que no rinde",
+                "Sientes que tu deuda te quita dinero, y es lógico: la hipoteca de tu casa no es consumo, pero tampoco te "
+                "devuelve nada cada mes. Ahí hay dos tareas. Primera: si además tienes alguna deuda cara —tarjetas, préstamos "
+                "personales, aplazamientos—, esa va fuera antes que nada. Segunda: revisar las condiciones de tu hipoteca "
+                "(tipo, plazo, vinculaciones), porque un punto de interés sobre muchos años son miles de euros de tu libertad.")
     return ("Tu deuda, hoy, es un freno",
             "Tu deuda te quita dinero: es consumo que pagas con intereses, sin nada que rinda detrás. Es lo primero que "
             "hay que desactivar, empezando por la más cara, porque cada euro de intereses es un euro que no construye tu "
@@ -1771,7 +1790,7 @@ def plan_maestro(datos, p=None, perfil_in=None):
             extra = max(0.0, 0.20 * ing - max(aho, 0)); anual = round(extra * 12)
             gap = max(0.0, sup - aho)
             _nueva = round(100 * (aho + gap) / ing) if ing else 0
-            ac = ("Automatiza %s/mes el día 1 hacia tu colchón o tu inversión — ese excedente ya lo tienes, solo no tiene destino. Con eso pasas del %d %% al %d %%." % (e(round(gap)), round(tasa), _nueva)) if gap > 50 else ("Sube tu ahorro automático hasta el 20%% de tus ingresos (%s/mes) y audítalo desde tus 3 mayores gastos fijos." % e(round(0.20*ing)))
+            ac = ("Automatiza %s/mes el día 1 hacia tu colchón o tu inversión — ese excedente ya lo tienes, solo no tiene destino. Con eso pasas del %d%% al %d%%." % (e(round(gap)), round(tasa), _nueva)) if gap > 50 else ("Sube tu ahorro automático hasta el 20%% de tus ingresos (%s/mes) y audítalo desde tus 3 mayores gastos fijos." % e(round(0.20*ing)))
             add(3, "ambar", "Ahorro", ("Da destino a todo tu excedente" if (gap > 50 and _nueva >= 20) else "Lleva tu ahorro al 20%"),
                 "Hoy guardas el %d%% de lo que entra. El 20%% es el umbral donde el interés compuesto empieza a trabajar de verdad a tu favor." % round(tasa),
                 ac,

@@ -8,7 +8,7 @@ import numpy as np
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.lib import colors
-from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
+from reportlab.platypus import (CondPageBreak, SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
                                 Image, PageBreak, Flowable, KeepTogether)
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
@@ -1895,7 +1895,7 @@ def seccion_conclusion(extras):
     if not extras:
         return []
     nd = extras.get("nudo"); rv = extras.get("ratio_vida"); acc = extras.get("accion_unica")
-    out = [PageBreak(), Paragraph("¿Por qué levantarte del sofá?", h_sec),
+    out = [CondPageBreak(130*mm), Spacer(1,8*mm), Paragraph("¿Por qué levantarte del sofá?", h_sec),
            Paragraph("Has llegado hasta aquí. La mayoría no lo hace. Pero leer no cambia nada — y este "
                      "diagnóstico no vale por lo que te ha contado, sino por lo que hagas en los próximos diez "
                      "minutos. Antes de cerrarlo, quédate solo con esto:", body),
@@ -2040,7 +2040,7 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
     if not exp or not exp.get("numero_libertad"):
         return []
     N=exp["numero_libertad"]; pct=exp.get("pct_cubierto",0); falta=exp.get("brecha_renta",0)
-    out=[PageBreak(), Paragraph("Tu n\u00famero, y las 4 v\u00edas para llegar a \u00e9l",h_sec)]
+    out=[CondPageBreak(150*mm), Spacer(1,8*mm), Paragraph("Tu n\u00famero, y las 4 v\u00edas para llegar a \u00e9l",h_sec)]
     if pension>0:
         _vida=("la vida que <b>quieres</b>" if _ideal>0 else "tu vida")
         out.append(Paragraph("Este es el capital que necesitas para vivir de %s sin depender de un sueldo, ya <b>neto de "
@@ -2108,7 +2108,7 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
     rn=cm.get("rentabilidad_necesaria")
     out+=[Spacer(1,2*mm),
           via("CAMINO 2 \u00b7 Haz rentar mejor",
-              ("Con tu ahorro actual no basta solo con rentabilidad" if rn is None else ("%s %% anual"%rn).replace(".",",")),
+              ("Con tu ahorro actual no basta solo con rentabilidad" if rn is None else ("%s%% anual"%rn).replace(".",",")),
               "Manteniendo tu ahorro de hoy, esta es la rentabilidad que tu capital necesita.","#B45309","#FBF1E3")]
     out+=[Spacer(1,2*mm),
           via("CAMINO 3 \u00b7 Ajusta el objetivo",
@@ -2169,7 +2169,7 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
         out.append(Paragraph("Par\u00e1metros econ\u00f3micos y fiscales vigentes a <b>%s</b>. Revisamos y actualizamos estas "
                              "referencias peri\u00f3dicamente." % _vg, St("c4v", fontSize=8.5, leading=11,
                              textColor=colors.HexColor("#6B7280"))))
-    out+=[PageBreak()]
+    out+=[CondPageBreak(120*mm), Spacer(1,6*mm)]
     return out
 
 
@@ -2527,7 +2527,7 @@ def cuadro_financiero(p, datos, fi):
         narr=(f"Hoy tu liquidez invertible es casi cero, así que las dos primeras vías —seguir igual o solo invertir "
               f"mejor— apenas mueven la aguja: sin capital que crezca, el interés compuesto no tiene de dónde partir. "
               f"Lo que de verdad cambia tu futuro es <b>construir ese capital cada mes</b>: ejecutando el plan (ahorro "
-              f"sistemático, ingresos +10%/año los primeros años y un 7 % real —media histórica de la bolsa mundial descontada la inflación—), a los {medad} "
+              f"sistemático, ingresos +10%/año los primeros años y un 7% real —media histórica de la bolsa mundial descontada la inflación—), a los {medad} "
               f"podrías rondar los <b>{_eur(m65)}</b>. La palabra clave es empezar: el primer euro invertido es el que "
               f"pone en marcha todo lo demás. Orientativo, no una promesa.")
     elif modo=="3":
@@ -2538,7 +2538,7 @@ def cuadro_financiero(p, datos, fi):
               f"<b>3 · Ejecutar el plan completo</b>: <b>{_eur(m65)}</b> — <b>{_eur(m65-f65)}</b> más que sin hacer nada. "
               f"La lección es brutal: invertir mejor ayuda, pero lo que multiplica tu patrimonio es <b>ejecutar el plan</b>. "
               f"Eso no es suerte ni mercado: es el coste de no decidir. (Inacción: tu rentabilidad declarada. Plan: ingresos "
-              f"+10%/año los primeros años, estilo de vida contenido y un 7 % real —media histórica de la bolsa mundial descontada la inflación—. Orientativo, no "
+              f"+10%/año los primeros años, estilo de vida contenido y un 7% real —media histórica de la bolsa mundial descontada la inflación—. Orientativo, no "
               f"una promesa.)")
     else:
         narr=(f"Si mantienes tu ritmo actual, a los {medad} rondarías los <b>{_eur(f65)}</b>. Subiendo tu ahorro cinco "
@@ -2569,7 +2569,7 @@ def cuadro_financiero(p, datos, fi):
               Paragraph(f"Esos <b>{_eur(m65-f65)}</b> de diferencia son, literalmente, el precio de no decidir.",
                         St("cmg2",fontSize=10.5,leading=15,textColor=INK)),
               Spacer(1,3*mm)]
-    out+=[Paragraph(narr,body), PageBreak()]
+    out+=[Paragraph(narr,body)]
     return out
 
 def laboratorio_individual(p, datos, fi, salud, resp):
@@ -2870,7 +2870,7 @@ def seccion_extras(extras, datos=None):
     for _pp in ["Primero el colchón, después invertir: nunca inviertas el dinero que podrías necesitar en 6 meses.",
                 "Aporta de forma periódica y automática: la constancia bate al cronómetro (nadie acierta el momento exacto).",
                 "Diversifica por clases de activo: no dependas de una sola pieza, por buena que parezca hoy.",
-                "Vigila las comisiones: un punto al año se come cerca de un 18 % de lo que habrías acumulado en 20 años, y un tercio en 40.",
+                "Vigila las comisiones: un punto al año se come cerca de un 18% de lo que habrías acumulado en 20 años, y un tercio en 40.",
                 "Piensa en décadas y no vendas por miedo: el peor enemigo de tu rentabilidad eres tú en un mal día."]:
         out.append(Paragraph("<font color='#0F766E'>&#8226;</font>  %s"%_pp,St("miv",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=2)))
     for blk in (extras.get("energia"), extras.get("conciliacion"), extras.get("asesor"), extras.get("herencia")):
@@ -2895,7 +2895,7 @@ def seccion_compromiso(extras):
     """Cierre: protocolo de revisión a 6 meses + Contrato contigo mismo (firma presente/futuro)."""
     if not extras: return []
     cmp=extras.get("compromiso")
-    out=[PageBreak()]   # "revision a 6 meses" eliminada (compresion); el contrato sigue debajo
+    out=[CondPageBreak(170*mm)]   # el contrato entra en la misma pagina si cabe entero
     if cmp:
         if cmp.get("crisis"):
             out+=[Spacer(1,7*mm), Paragraph("Tu compromiso: primero, recuperar el aire",h_sec),
@@ -2909,7 +2909,7 @@ def seccion_compromiso(extras):
         if cmp.get("objetivo_ingresos"):
             # Vivir con X y ahorrar el 20% exige ingresar X/0,8: si no, el contrato pide ahorrar cero.
             _oi=round(float(cmp["objetivo_ingresos"])/0.8/50.0)*50
-            metas.append("Mis ingresos medios llegarán, como mínimo, a <b>%s/mes</b>: lo que pide la vida que quiero (%s) más un 20 %% de ahorro."%(_eur(_oi),_eur(cmp["objetivo_ingresos"])))
+            metas.append("Mis ingresos medios llegarán, como mínimo, a <b>%s/mes</b>: lo que pide la vida que quiero (%s) más un 20%% de ahorro."%(_eur(_oi),_eur(cmp["objetivo_ingresos"])))
         if cmp.get("numero_libertad"):
             pl=(" — a mi ritmo de hoy llegaría en <b>%d años</b>, y mi plan es acortarlos"%cmp["plazo_anios"]) if cmp.get("plazo_anios") else ""
             metas.append("Mi número de libertad <b>para la vida que quiero</b> es <b>%s</b>%s. Cada decisión me acerca o me aleja de él."%(_eur(cmp["numero_libertad"]),pl))
@@ -2943,7 +2943,7 @@ def seccion_coste_inaccion(extras):
     if extras.get("conciliacion"):
         items.append("Y el coste que no aparece en ninguna cuenta: cada semana sin cambiar el sistema es tiempo de presencia con los tuyos — el único capital que no se reconstruye.")
     if not items: return []
-    out=[PageBreak(), Paragraph("El coste de no hacer nada",h_sec),
+    out=[CondPageBreak(140*mm), Spacer(1,8*mm), Paragraph("El coste de no hacer nada",h_sec),
          Paragraph("Un diagnóstico sin acción es solo información cara. Esto es lo que te cuesta, en concreto, cada mes que el cuadro sigue igual:",body)]
     for it in items:
         out.append(Paragraph("<font color='#9A3B2E'>&#8226;</font>  "+it,St("ci",fontSize=10.5,leading=15,leftIndent=6,spaceAfter=7)))
@@ -3406,7 +3406,7 @@ def seccion_dictamen_comportamiento(resp):
         else: etiq=etiq_crit; col="#9A3B2E"
         filas.append((titulo,etiq,col,dict_crit))
     if not filas: return []
-    out=[PageBreak(), tracker_sistema(2), Spacer(1,3*mm),
+    out=[CondPageBreak(150*mm), Spacer(1,6*mm), tracker_sistema(2), Spacer(1,3*mm),
          Paragraph("Conclusión: tus hábitos te frenan.",St("ihd_dc",fontSize=18,leading=22,textColor=ACCDK,fontName=SB,spaceAfter=2)),
          Spacer(1,3*mm),
          Paragraph("El dictamen de tu comportamiento financiero", h_sec),
@@ -3520,7 +3520,7 @@ def seccion_dictamen_empresa(resp, datos=None, extras=None):
 
     if not bloques:
         return []
-    out = [PageBreak(), tracker_sistema(4), Spacer(1,3*mm),
+    out = [CondPageBreak(150*mm), Spacer(1,6*mm), tracker_sistema(4), Spacer(1,3*mm),
            Paragraph("Tu empresa: activo y riesgo.",St("ihd_de",fontSize=18,leading=22,textColor=ACCDK,fontName=SB,spaceAfter=2)),
            Spacer(1,3*mm),
            Paragraph("El dictamen de tu empresa", h_sec),
@@ -3643,7 +3643,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     if _Nc and _pc is not None:
         _l.append(Paragraph("En estas páginas vas a ver tu vida en números, y alguno te va a remover. Tu Número de Libertad es "
                             "<b>%s</b>: la cifra que, el día que la tengas trabajando para ti, convierte tu trabajo en una elección. "
-                            "Hoy llevas el <b>%s %%</b> del camino. No es una nota: es tu punto de partida, y desde aquí se construye."%(_Nc,_pc),_carta))
+                            "Hoy llevas el <b>%s%%</b> del camino. No es una nota: es tu punto de partida, y desde aquí se construye."%(_Nc,_pc),_carta))
     _l+=[Paragraph("Léelo con calma y en orden. Subraya lo que te incomode: casi siempre ahí está tu palanca. Y quédate con una idea: "
                    "<b>lo que cambia tu vida no es leer este libro, es lo que hagas en los próximos siete días.</b>",_carta),
          Paragraph("Cuando quieras recorrerlo con alguien al lado, aquí estamos.",_carta),
@@ -3911,7 +3911,13 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             except Exception:
                 pass
             cab.append(Spacer(1,2*mm))
-            S.extend(cab); S.append(KeepTogether(_tail)); S.append(PageBreak())
+            # Sin paginas medio vacias: si queda sitio de sobra, el siguiente capitulo empieza aqui mismo,
+            # separado por un filete; si no, salta de pagina. Antes cada capitulo dejaba media hoja en blanco.
+            S.extend(cab); S.append(KeepTogether(_tail))
+            S.append(CondPageBreak(125*mm))
+            S.append(Spacer(1,9*mm))
+            S.append(Table([[""]],colWidths=[160*mm],style=[("LINEABOVE",(0,0),(-1,-1),0.6,LINE)]))
+            S.append(Spacer(1,5*mm))
     # transversales
     if depth!="esencial": S+=[Paragraph("Lo que cruza todas las capas",h_sec),
         Paragraph("Hay tres corrientes que no viven en un solo capítulo: recorren todo tu perfil. Verlas juntas "
@@ -3958,7 +3964,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     for ti,tx in insights(p,tr,fi):
         S+=[Paragraph(f"<font color='#0284C7'>&#8226;</font>  <b>{ti}</b>",body),
             Paragraph(tx,St("ix",fontSize=9.6,leading=14,leftIndent=12,spaceAfter=9))]
-    S+=[PageBreak()]
+    S+=[Paragraph("Son, por este orden, las que pondríamos sobre la mesa en tu sesión con Adapta.",St("ixs",fontSize=9.6,leading=13,textColor=GREY,fontName="Lora-Italic",spaceBefore=2)),
+        CondPageBreak(130*mm), Spacer(1,8*mm)]
     # retrato en tus palabras (sintesis IA de las preguntas abiertas)
     if sintesis and str(sintesis).strip():
         S+=[Paragraph("Tu retrato, en tus palabras",h_sec),
@@ -4262,7 +4269,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                # con punto anglosajon, en la tabla mas leida del informe.
                ["Progreso hacia la libertad",("%s%%"%("%.0f"%float(fi[1])).replace(".",",")) if fi[1] is not None else "—"],
                ["Tasa de ahorro actual",("%s%%"%("%.1f"%float(fi[2])).replace(".",",")) if fi[2] is not None else "—"],
-               ["Años a la libertad (tu ritmo, 5 % real)","más de 100" if fi[3] is None else ("+40 años (a este ritmo)" if fi[3]>40 else f"{fi[3]:.0f} años")]],
+               ["Años a la libertad (tu ritmo, 5% real)","más de 100" if fi[3] is None else ("+40 años (a este ritmo)" if fi[3]>40 else f"{fi[3]:.0f} años")]],
               colWidths=[105*mm,55*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
               ("FONTNAME",(1,0),(1,-1),FB),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
               ("ALIGN",(1,0),(1,-1),"RIGHT"),
@@ -4461,7 +4468,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 Paragraph(f"<font color='#6B7280'>{defn}</font>",St("gd",fontSize=9.4,leading=13)),
                 Paragraph(f"<b>En tu caso:</b> {prati}",St("gp",fontSize=9.6,leading=13)),
                 Paragraph(f"<b>Por qu\u00e9 importa:</b> {impacto}",St("gi",fontSize=9.6,leading=13,textColor=colors.HexColor("#9A3412"),spaceAfter=7))]))
-        S+=[PageBreak()]
+        S+=[CondPageBreak(130*mm), Spacer(1,8*mm)]
     if depth!="esencial":
         pass  # cuaderno de trabajo eliminado (compresion)
     # cierre

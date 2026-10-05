@@ -262,7 +262,7 @@ def _apertura(salud, fi, datos, extras, p):
                       ROJO if falta > 0 else VERDE),
                 texto("Tu Número de Libertad es <b>%s</b> y hoy tienes <b>%s</b> entre lo invertido y lo líquido "
                       "(tu vivienda no cuenta: no paga tus gastos). "
-                      "Lo tienes cubierto al <b>%s %%</b>."
+                      "Lo tienes cubierto al <b>%s%%</b>."
                       % (eur(N), eur(cap), exp.get("pct_cubierto", 0)))]
         if br_anual > 0:
             out += [Spacer(1, 5 * mm),
@@ -290,11 +290,11 @@ def _apertura(salud, fi, datos, extras, p):
         pass
     if exp and exp.get("numero_libertad"):
         kpis.append(("NÚMERO DE LIBERTAD", eur(exp["numero_libertad"]), "#1A1A17"))
-        kpis.append(("YA CUBIERTO", "%s %%" % exp.get("pct_cubierto", 0), "#1A1A17"))
+        kpis.append(("YA CUBIERTO", "%s%%" % exp.get("pct_cubierto", 0), "#1A1A17"))
     try:
         tasa = float(fi[2]) if fi and fi[2] is not None else None
         if tasa is not None and len(kpis) < 3:
-            kpis.append(("TASA DE AHORRO", "%.0f %%" % tasa,
+            kpis.append(("TASA DE AHORRO", "%.0f%%" % tasa,
                          VERDE if tasa >= 20 else (AMBAR if tasa >= 10 else ROJO)))
     except Exception:
         pass

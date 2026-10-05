@@ -938,7 +938,11 @@ def seccion_one_pager(nA, nB, dA, dB, compat, saludA, saludB):
              "ahorro_mensual":a["ahorro_mensual"]+b["ahorro_mensual"],
              "patrimonio":a["patrimonio"]+b["patrimonio"],
              "inversiones_liquidas":(a.get("inversiones_liquidas") or 0)+(b.get("inversiones_liquidas") or 0),
-             "colchon_liquido":(a.get("colchon_liquido") or 0)+(b.get("colchon_liquido") or 0)}
+             "colchon_liquido":(a.get("colchon_liquido") or 0)+(b.get("colchon_liquido") or 0),
+             # MISMOS datos de hogar que la tabla "Vuestros numeros del hogar": con pensiones y edad.
+             # Sin ellos esta pagina decia "progreso 16,9%" y la tabla "cubierto": dos cifras para lo mismo.
+             "pension_estimada":(a.get("pension_estimada") or 0)+(b.get("pension_estimada") or 0),
+             "edad":(a["edad"]+b["edad"])/2}
         fih=rb.fi_metrics(hog)
         cells=[]
         try:
@@ -951,7 +955,7 @@ def seccion_one_pager(nA, nB, dA, dB, compat, saludA, saludB):
         except Exception: pass
         try:
             prog=float(fih[1]) if fih and fih[1] is not None else None
-            if prog is not None: cells.append(_kpi_celda_par("PROGRESO","%.1f%%"%prog,"#1A1A17","Hacia vuestra libertad"))
+            if prog is not None: cells.append(_kpi_celda_par("PROGRESO",("Cubierto" if prog>=100 else "%.0f%%"%prog),"#1A1A17",("Con vuestras pensiones, a los 67" if prog>=100 else "Hacia vuestra libertad")))
         except Exception: pass
         try:
             pat=float(hog.get("patrimonio") or 0)
@@ -961,7 +965,7 @@ def seccion_one_pager(nA, nB, dA, dB, compat, saludA, saludB):
             tasa=float(fih[2]) if fih and fih[2] is not None else None
             if tasa is not None:
                 tcol="#1D6F42" if tasa>=20 else ("#C2710C" if tasa>=10 else "#9A3B2E")
-                cells.append(_kpi_celda_par("TASA DE AHORRO","%.1f%%"%tasa,tcol,"De cada euro que entra al hogar"))
+                cells.append(_kpi_celda_par("TASA DE AHORRO",("%.1f%%"%tasa).replace(".",","),tcol,"De cada euro que entra al hogar"))
         except Exception: pass
         try:
             cells.append(_kpi_celda_par("SALUD MEDIA","%d<font size=10 color='#6B7280'>/100</font>"%round((rb._sal100(saludA)+rb._sal100(saludB))/2),"#1A1A17","Vuestra media psicofinanciera"))
@@ -2390,9 +2394,9 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         Paragraph("Estas cifras son <b>conjuntas</b>: describen vuestra econom\u00eda como hogar, no a uno ni a otro por "
                   "separado. Donde de verdad difer\u00eds es en c\u00f3mo las vive cada uno por dentro.",small),
         Table([["N\u00famero de libertad del hogar (neto de pensiones)",("%s \u20ac"%format(fi_h[0],",.0f")).replace(",",".")],
-               ["Progreso hacia la libertad","%s %%"%fi_h[1]],
-               ["Tasa de ahorro conjunta","%s %%"%fi_h[2]],
-               ["A\u00f1os a la libertad","m\u00e1s de 100" if fi_h[3] is None else "%s a\u00f1os"%fi_h[3]]],
+               ["Progreso hacia la libertad",("Cubierto (con vuestras pensiones, a los 67)" if (fi_h[1] or 0)>=100 else ("%.0f%%"%float(fi_h[1] or 0)))],
+               ["Tasa de ahorro conjunta",("%.1f%%"%float(fi_h[2] or 0)).replace(".",",")],
+               ["A\u00f1os a la libertad","m\u00e1s de 100" if fi_h[3] is None else ("Ya cubierta a los 67" if float(fi_h[3])<0.5 else "%.0f a\u00f1os"%float(fi_h[3]))]],
               colWidths=[105*mm,51*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
               ("FONTNAME",(1,0),(1,-1),"Helvetica-Bold"),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
               ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)]))]
@@ -2414,7 +2418,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                     Paragraph("<font color='#9CA3AF'>●</font> Ilíquido: %s · %s"%(rb._eur(_h_ili),_pf(_h_ili)),small)]],
                    colWidths=[54*mm,53*mm,53*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0),("VALIGN",(0,0),(-1,-1),"TOP")]),
             Spacer(1,2*mm)]
-        if _h_pat > (_h_inv+_h_par)*1.5+20000:
+        if _h_pat > (_h_inv+_h_par)*1.5+20000 and float(fi_h[1] or 0) < 100:
             _cobp=round(100*_h_pat/fi_h[0]) if fi_h[0] else 0   # potencial movilizando todo (incluida la vivienda, llegado el momento)
             _lt=" — con eso quedaríais en <b>libertad financiera</b>" if _cobp>=100 else ""
             S+=[Paragraph("<b>Patrimonio no es renta — y es vuestra mayor oportunidad:</b> tenéis %s de patrimonio, pero hoy solo %s está invertido o líquido generando renta (la cobertura del %s%% de arriba). Si movilizarais lo ilíquido —rentabilizando lo parado y, llegado el momento de simplificar, vendiendo o reduciendo la vivienda que ya no necesitéis—, vuestra cobertura pasaría del %s%% al <b>%s%%</b>%s. Convertir patrimonio dormido en renta es donde más mueve la aguja un family office."%(rb._eur(_h_pat),rb._eur(_h_inv+_h_par),("%.1f"%fi_h[1]),("%.1f"%fi_h[1]),("%.0f"%_cobp),_lt),small),Spacer(1,2*mm)]

@@ -519,7 +519,7 @@ def acelerador_tabla(out, ing_m, gas_m, pat, num, accent=GOLD, vos=False):
     fig,ax=_canvas(); _bg(ax,(0.84,0.20),tint="#13202A")
     _vbar(ax,0.085,0.91,("Vuestro" if vos else "Tu")+" acelerador, año a año",accent,sz=20)
     ax.text(0.107,0.862,_spaced("PROYECCIÓN A 10 AÑOS",1),ha="left",va="center",color=MUTE,fontproperties=P(9),transform=ax.transAxes)
-    ax.text(0.107,0.832,"Si cumples las 4 palancas: ingresos +10 %/año · gasto −10 % una vez · rentabilidad ~7 % real (bolsa mundial, histórico) · todo reinvertido.",
+    ax.text(0.107,0.832,"Si cumples las 4 palancas: ingresos +10%/año · gasto −10% una vez · rentabilidad ~7% real (bolsa mundial, histórico) · todo reinvertido.",
             ha="left",va="center",color=FAINT,fontproperties=P(7.6),transform=ax.transAxes)
     _ser=plan10_serie(pat, ing_m, gas_m, 10)
     rows=[]; ig=float(ing_m or 0)*12.0; gs=float(gas_m or 0)*12.0; y_lib=None
@@ -546,7 +546,7 @@ def acelerador_tabla(out, ing_m, gas_m, pat, num, accent=GOLD, vos=False):
         ax.text(0.47,yy,_e(gm),ha="right",va="center",color=MUTE,fontproperties=P(8.4),transform=ax.transAxes)
         ax.text(0.67,yy,_e(ah),ha="right",va="center",color=WHITE,fontproperties=P(8.4),transform=ax.transAxes)
         ax.text(0.86,yy,_ek(pw),ha="right",va="center",color=accent,fontproperties=Pm(9),transform=ax.transAxes)
-        ax.text(0.965,yy,("%d %%"%pc if pc<100 else "100 %"),ha="right",va="center",color=(accent if pc>=100 else MUTE),fontproperties=P(8.4),transform=ax.transAxes)
+        ax.text(0.965,yy,("%d%%"%pc if pc<100 else "100%"),ha="right",va="center",color=(accent if pc>=100 else MUTE),fontproperties=P(8.4),transform=ax.transAxes)
     final=rows[-1]
     if y_lib:
         head=(("Con las 4 palancas, vuestra" if vos else "Con las 4 palancas, tu")+" libertad llegaría en el año %d.") % y_lib
