@@ -883,7 +883,7 @@ def _tiers_html():
         "<div style=\"margin:24px 0 4px;border-top:1px solid #2a2a30;padding-top:20px\">"
         "<div style=\"font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8b8b90;font-weight:700;margin-bottom:14px\">Elige c&oacute;mo mirarte</div>"
         "<p style=\"font-size:14.5px;line-height:1.5;color:#c3c3bd;margin:0 0 10px\"><b style=\"color:#fff\">R&aacute;pido &middot; 19&nbsp;&euro;</b> &mdash; tu foto psicofinanciera y tu cifra de libertad.</p>"
-        "<p style=\"font-size:14.5px;line-height:1.5;color:#c3c3bd;margin:0 0 10px\"><b style=\"color:#fdd731\">Avanzado &middot; 39&nbsp;&euro;</b> &mdash; tu auditor&iacute;a completa: brecha, palancas, punto ciego y plan de 100 d&iacute;as. <span style=\"color:#8b8b90\">(el m&aacute;s elegido)</span></p>"
+        "<p style=\"font-size:14.5px;line-height:1.5;color:#c3c3bd;margin:0 0 10px\"><b style=\"color:#fdd731\">Avanzado &middot; 39&nbsp;&euro;</b> &mdash; tu auditor&iacute;a completa: brecha, palancas, punto ciego y hoja de ruta a 90 d&iacute;as. <span style=\"color:#8b8b90\">(el m&aacute;s elegido)</span></p>"
         "<p style=\"font-size:14.5px;line-height:1.5;color:#c3c3bd;margin:0 0 4px\"><b style=\"color:#fff\">Pareja &middot; 54&nbsp;&euro;</b> &mdash; vuestro dinero cruzado: fricciones, reparto real y el gui&oacute;n para hablarlo.</p>"
         "</div>"
     )
@@ -1728,7 +1728,22 @@ def _enviar_copia_impl(session_id):
                     html_cli="<div style='font-family:Helvetica,Arial;color:#222;max-width:560px'><h2>Tu Libro Financiero esta en camino</h2><p>Hola %s, tu pago se recibio correctamente. Tu informe se esta terminando de generar y te llegara a este mismo correo en unos minutos. Si en una hora no lo tienes, escribenos a info@adaptafamilyoffice.com y te lo entregamos al instante.</p><p style='color:#888;font-size:12px'>Adapta Family Office</p></div>"%cliente
                     cli_ok=_enviar_resend("Tu Libro Financiero esta en camino - Adapta", html_cli, pdf_bytes, "Adapta_en_preparacion.pdf", to=[email_cli])
         else:
-            html_cli="<div style='font-family:Helvetica,Arial;color:#222;max-width:560px'><h2 style='color:#0a0a0b'>Tu Libro Financiero</h2><p>Hola %s,</p><p>Aqui tienes tu <b>diagnostico psicofinanciero completo</b>, en el PDF adjunto. Guardalo: es tu mapa de los proximos 100 dias.</p><p>Gracias por confiar en Adapta Family Office.</p><p style='color:#888;font-size:12px'>Adapta Family Office</p></div>"%cliente
+            # Email de entrega: le habla a la persona, le dice por donde empezar y le ofrece la sesion
+            # (con el descuento del importe). Es el momento de maxima atencion: no puede ser un acuse de recibo.
+            _nom1=((cliente or "").strip().split() or [""])[0]
+            html_cli=("<div style='font-family:Helvetica,Arial,sans-serif;color:#1a1a17;max-width:560px;line-height:1.6'>"
+                      "<div style='font-weight:800;font-size:18px;letter-spacing:.5px'>ADAPTA <span style='color:#b8860b;font-size:11px'>family office</span></div>"
+                      "<h2 style='font-family:Georgia,serif;font-size:22px;margin:22px 0 6px'>Tu Libro Financiero ya es tuyo</h2>"
+                      "<p>Hola %s,</p>"
+                      "<p>En el PDF adjunto tienes tu diagn&oacute;stico completo. Has hecho algo que casi nadie hace: mirarte de frente con el dinero.</p>"
+                      "<p><b>C&oacute;mo leerlo:</b> empieza por las cuatro primeras p&aacute;ginas de texto. En ellas est&aacute;n tu cifra, tu cuadro, las tres decisiones que m&aacute;s mueven tu n&uacute;mero y <b>tu primer paso</b>. Hazlo esta semana: es lo que convierte un informe en un cambio.</p>"
+                      "<p>Gu&aacute;rdalo: es tu hoja de ruta a 90 d&iacute;as.</p>"
+                      "<div style='margin:20px 0;padding:16px 18px;background:#fbf6e6;border-left:3px solid #c9962b;border-radius:8px'>"
+                      "<b>&iquest;Lo ponemos en marcha juntos?</b><br>En una sesi&oacute;n estrat&eacute;gica de 30 minutos convertimos tu diagn&oacute;stico en decisiones con n&uacute;meros y fechas. "
+                      "<b>Te descontamos el importe de este informe.</b><br>"
+                      "<a href='https://www.adaptafamilyoffice.com/informe' style='color:#0284c7'>Reservar mi sesi&oacute;n</a> &middot; "
+                      "<a href='https://wa.me/34683343531' style='color:#0284c7'>WhatsApp +34 683 34 35 31</a></div>"
+                      "<p>Gracias por confiar en nosotros.<br>Javier M&eacute;ndez &middot; Adapta Family Office</p></div>") % (_nom1 or "")
             cli_ok=_enviar_resend("Tu Libro Financiero - Adapta Family Office", html_cli, pdf_bytes, "Tu_Libro_Financiero_Adapta.pdf", to=[email_cli], extra=_card_extra)
     # 2b) Pareja (tier 3): el segundo miembro recibe TAMBIEN el Libro de Pareja conjunto, en envio SEPARADO (privacidad)
     if (not fallback) and row["tier"]==3 and row["pareja_de"]:
