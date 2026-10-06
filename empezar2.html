@@ -1424,7 +1424,11 @@ async function pagar(){
       try{ const _d=await r.json(); if(_d && _d.detail) _m=_d.detail; }catch(_e){}
       return _fin(_m);
     }
-    if(!r.ok){ return _fin('El servidor respondió con un error ('+r.status+'). Vuelve a intentarlo; si sigue igual, escríbenos.'); }
+    if(!r.ok){
+      /* Si el servidor explica el motivo (p.ej. un codigo promocional), se muestra tal cual. */
+      try{ const _d=await r.json(); if(_d && _d.detail && /c[oó]digo/i.test(_d.detail)) return _fin(String(_d.detail).replace(/^No se pudo crear el pago:\s*422:\s*/,'')); }catch(_e){}
+      return _fin('El servidor respondió con un error ('+r.status+'). Vuelve a intentarlo; si sigue igual, escríbenos.');
+    }
     const d=await r.json();
     if(d.url){ location.href=d.url; return; }
     if(d.ya_pagado){ descargarSid(sid); return; }

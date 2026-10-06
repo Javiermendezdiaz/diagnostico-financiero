@@ -1407,6 +1407,10 @@ def checkout(session_id: str, consent: int = 0, codigo: str = ""):
             _kwargs["allow_promotion_codes"] = True
         cs = stripe.checkout.Session.create(**_kwargs)
         return {"url": cs.url, "_prod": nombre_prod, "_li": ("price" if "price" in line_item else "inline"), "_cod": bool(_discount)}
+    except HTTPException:
+        # Los errores YA explicados (codigo invalido -> 422) se devuelven tal cual. Antes este
+        # except general los convertia en 502 y el cliente veia "error 502" en vez del motivo.
+        raise
     except Exception as e:
         raise HTTPException(502, "No se pudo crear el pago: %s" % e)
 
