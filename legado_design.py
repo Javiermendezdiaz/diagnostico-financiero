@@ -3,6 +3,18 @@
 import os, numpy as np, matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import gc as _gc, ctypes as _ct
+try: _LIBC=_ct.CDLL("libc.so.6")
+except Exception: _LIBC=None
+def _cerrar(fig):
+    # Memoria: cerrar la figura no basta; matplotlib y numpy dejan bloques retenidos y el
+    # proceso crecia ~40 MB por pagina oscura. gc + malloc_trim devuelven esa memoria al sistema.
+    try: plt.close(fig)
+    except Exception: pass
+    _gc.collect()
+    try:
+        if _LIBC is not None: _LIBC.malloc_trim(0)
+    except Exception: pass
 plt.rcParams['svg.fonttype']='path'   # glifos como trazos vectoriales: nitidez total, sin depender de fuentes del visor
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import FancyBboxPatch, Rectangle
@@ -37,7 +49,7 @@ def _bg(ax, glow_xy=(0.78,0.84), tint=GLOW):
     ax.imshow(np.clip(img,0,1),extent=[0,1,0,1],origin="lower",zorder=0,aspect="auto")
 
 def _canvas():
-    fig=plt.figure(figsize=A4,dpi=200); ax=fig.add_axes([0,0,1,1]); ax.set_xlim(0,1); ax.set_ylim(0,1); ax.axis("off")
+    fig=plt.figure(figsize=A4,dpi=100); ax=fig.add_axes([0,0,1,1]); ax.set_xlim(0,1); ax.set_ylim(0,1); ax.axis("off")
     return fig,ax
 
 def _emblem(ax,x,y,s=0.030):
@@ -58,7 +70,7 @@ def cover(out, cliente, fecha, tier_txt="Informe Avanzado", ref="ITAP"):
     ax.text(0.5,0.15,"Una lectura honesta de tu relación con el dinero",ha="center",va="center",color=FAINT,fontproperties=P(10),transform=ax.transAxes)
     ax.text(0.5,0.075,_spaced("DOCUMENTO CONFIDENCIAL · %s · USO PRIVADO"%ref,0).replace("  "," "),ha="center",va="center",color=FAINT,fontproperties=P(7),transform=ax.transAxes)
     ax.text(0.5,0.05,fecha,ha="center",va="center",color=FAINT,fontproperties=P(7.5),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def divider(out, seccion, titulo_lines, subtitle, tint=GLOW, accent=BLUE):
     fig,ax=_canvas(); _bg(ax,(0.82,0.80),tint)
@@ -73,7 +85,7 @@ def divider(out, seccion, titulo_lines, subtitle, tint=GLOW, accent=BLUE):
     wl=textwrap.wrap(subtitle,46)
     for i,ln in enumerate(wl):
         ax.text(0.5,ry-0.05-i*0.034,ln,ha="center",va="center",color=MUTE,fontproperties=P(11.5),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def bignum(out, titulo, numero, sufijo, caption, side_head, side_body, bullets, accent=BLUE):
     fig,ax=_canvas(); _bg(ax,(0.85,0.82))
@@ -104,7 +116,7 @@ def bignum(out, titulo, numero, sufijo, caption, side_head, side_body, bullets, 
         for j,ln in enumerate(textwrap.wrap(b,38)):
             ax.text(x+0.022,yy,ln,ha="left",va="top",color=WHITE if j==0 else MUTE,fontproperties=P(10),transform=ax.transAxes); yy-=0.030
         yy-=0.012
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 if __name__=="__main__":
     O="/sessions/jolly-beautiful-cray/mnt/outputs/"
@@ -140,7 +152,7 @@ def efecto_espejo(out, kicker, frase, dato_num, dato_txt, cierre, accent=BLUE):
     for ln in _tw.wrap(dato_txt,52):
         ax.text(0.10,yy,ln,ha="left",va="top",color=MUTE,fontproperties=P(11),transform=ax.transAxes); yy-=0.034
     ax.text(0.10,0.10,cierre,ha="left",va="center",color=WHITE,fontproperties=L(20),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def guion_dinero(out, arq_nombre, arq_lema, parrafos, cierre, accent=GOLD):
     """Raíz emocional del Pasado: el 'guion del dinero' derivado del arquetipo. Página editorial narrativa."""
@@ -157,7 +169,7 @@ def guion_dinero(out, arq_nombre, arq_lema, parrafos, cierre, accent=GOLD):
             ax.text(0.10,yy,ln,ha="left",va="top",color=MUTE,fontproperties=P(11.5),transform=ax.transAxes); yy-=0.0345
         yy-=0.028
     ax.text(0.10,0.115,cierre,ha="left",va="center",color=WHITE,fontproperties=L(19),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def el_salto(out, arq_nombre, hoy, manana, cierre, accent=GOLD):
     """El salto: misma identidad, sin el punto ciego. HOY (apagado) -> EN 12 MESES (vivo)."""
@@ -180,7 +192,7 @@ def el_salto(out, arq_nombre, hoy, manana, cierre, accent=GOLD):
     for ln in _tw.wrap(manana,58):
         ax.text(0.10,yy,ln,ha="left",va="top",color="#E6E1D5",fontproperties=P(11.5),transform=ax.transAxes); yy-=0.0345
     ax.text(0.10,0.10,cierre,ha="left",va="center",color=WHITE,fontproperties=Li(18),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def termometro(out, titulo, indice, etiqueta, drivers, accent=BLUE):
     # indice 0..100 (vulnerabilidad). gauge semicircular verde->ambar->rojo
@@ -213,7 +225,7 @@ def termometro(out, titulo, indice, etiqueta, drivers, accent=BLUE):
     _ey=0.155
     for _ln in _tw2.wrap(_expv,90):
         ax.text(0.085,_ey,_ln,ha="left",va="top",color=MUTE,fontproperties=P(9),transform=ax.transAxes); _ey-=0.028
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def constitucion(out, reglas, subtit, accent=GOLD, titulo="TU CONSTITUCIÓN", kicker="TU LIBRO FINANCIERO · EL CIERRE"):
     fig,ax=_canvas(); _bg(ax,(0.80,0.82),tint="#14202E")
@@ -228,7 +240,7 @@ def constitucion(out, reglas, subtit, accent=GOLD, titulo="TU CONSTITUCIÓN", ki
             ax.text(0.20,yy-j*0.030,ln,ha="left",va="top",color=WHITE if j==0 else MUTE,fontproperties=(Lr(12.5) if j==0 else P(10.5)),transform=ax.transAxes)
         yy-=0.030*(len(_tw.wrap(r,58)))+0.028
     ax.text(0.5,0.06,subtit,ha="center",va="center",color=FAINT,fontproperties=Li(11),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 # ============ joyas adicionales ============
 def matriz_tiempo(out, pct_pasivo, ing_activo, ing_pasivo, accent=BLUE):
@@ -261,7 +273,7 @@ def matriz_tiempo(out, pct_pasivo, ing_activo, ing_pasivo, accent=BLUE):
     ax.text(0.10,0.225,"Nadie ha logrado nada grande dependiendo solo de su esfuerzo.",ha="left",va="center",color=WHITE,fontproperties=Lr(12.5),transform=ax.transAxes)
     ax.text(0.10,0.185,"La libertad empieza cuando tu dinero trabaja sin ti.",ha="left",va="center",color=accent,fontproperties=Lr(12.5),transform=ax.transAxes)
     ax.text(0.10,0.10,"Donde tu dinero pierde el tiempo.",ha="left",va="center",color=accent,fontproperties=Li(15),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def mapa_100(out, hitos, accent=GOLD):
     """Tu mapa de escape: los próximos 90 días. hitos=[(dia,titulo,detalle),...]"""
@@ -283,7 +295,7 @@ def mapa_100(out, hitos, accent=GOLD):
         for j,ln in enumerate(textwrap.wrap(det,58)):
             ax.text(xline+0.04,_dy-j*0.026,ln,ha="left",va="top",color=MUTE,fontproperties=P(10),transform=ax.transAxes)
     ax.text(0.10,0.10,"No es una lista de deseos. Son tres movimientos con fecha.",ha="left",va="center",color=accent,fontproperties=Li(14),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def qr_golden(out, url, titulo, sub, accent=GOLD):
     """Golden Ticket: QR al simulador, sobre panel claro para escaneo."""
@@ -305,7 +317,7 @@ def qr_golden(out, url, titulo, sub, accent=GOLD):
     for ln in textwrap.wrap(sub,60):
         ax.text(0.5,yy,ln,ha="center",va="top",color=MUTE,fontproperties=P(10.5),transform=ax.transAxes); yy-=0.034
     ax.text(0.5,0.08,_spaced("ADAPTA FAMILY OFFICE",1),ha="center",va="center",color=FAINT,fontproperties=P(8),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def sistema_scorecard(out, items, weakest, accent=BLUE):
     """Scorecard del método S.I.S.T.E.M.A. items=[(letra,nombre,health|None,status),...]; weakest=idx."""
@@ -334,7 +346,7 @@ def sistema_scorecard(out, items, weakest, accent=BLUE):
             ax.text(barx+barw+0.03,y-0.020,"« tu eslabón más débil",ha="left",va="center",color="#D9534F",fontproperties=Li(9),transform=ax.transAxes)
     ax.text(0.10,0.075,"Una cadena se rompe por su eslabón más débil. Ahí empieza tu plan.",
             ha="left",va="center",color=accent,fontproperties=Li(13),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 _SIS_SUB=["Limpiar deuda cara y fugas","Cuántas fuentes te sostienen","Proteger el suelo antes de optimizar",
           "La capa fiscal de cada decisión","Asignar el excedente, no dejarlo parado","Revisar, reequilibrar, repensar",
@@ -362,7 +374,7 @@ def blood_money(out, eur_hora, coste_items, mensaje, accent="#C0473B"):
         ax.text(0.10,yy,ln,ha="left",va="top",color=MUTE,fontproperties=P(10.5),transform=ax.transAxes); yy-=0.034
     ax.text(0.10,0.075,"Cambias salud por un capital que luego gastas en recuperar la salud.",
             ha="left",va="center",color=accent,fontproperties=Li(13),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def escudo(out, escenarios, accent=BLUE):
     """escenarios=[(nombre,detalle,salud 0..1),...] 3 elementos. Escudo dividido en bandas."""
@@ -404,7 +416,7 @@ def escudo(out, escenarios, accent=BLUE):
             ax.text(lx,ys[i]-0.008-j*0.026,ln,ha="left",va="top",color=MUTE,fontproperties=P(9.3),transform=ax.transAxes)
     ax.text(0.10,0.085,"Un escudo no se forja en la tormenta. Se forja antes.",
             ha="left",va="center",color=accent,fontproperties=Li(13),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def coste_ego(out, gasto_mes, anos, capital, n_anos=25, accent=GOLD):
     fig,ax=_canvas(); _bg(ax,(0.84,0.82),tint="#16151A")
@@ -424,7 +436,7 @@ def coste_ego(out, gasto_mes, anos, capital, n_anos=25, accent=GOLD):
     for ln in textwrap.wrap(msg,74):
         ax.text(0.10,yy,ln,ha="left",va="top",color=MUTE,fontproperties=P(10.5),transform=ax.transAxes); yy-=0.034
     ax.text(0.10,0.085,"No pagas por el objeto. Pagas por los años.",ha="left",va="center",color=accent,fontproperties=Li(13),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def arrepentimiento(out, findes, edad_hijo, accent=GOLD):
     fig,ax=_canvas(); _bg(ax,(0.82,0.80),tint="#14202A")
@@ -447,7 +459,7 @@ def arrepentimiento(out, findes, edad_hijo, accent=GOLD):
     for ln in textwrap.wrap(msg,30):
         ax.text(0.55,yy,ln,ha="left",va="top",color=MUTE,fontproperties=P(10.5),transform=ax.transAxes); yy-=0.036
     ax.text(0.10,0.085,"Tu libertad financiera no es para ti: es para estar.",ha="left",va="center",color=accent,fontproperties=Li(13),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def acelerador_10x10(out, cilindros, anos_delta, enemy_nombre, enemy_motivo, accent=GOLD, y_plan=None, inalcanzable=False, topado=False):
     """4 cilindros (panel de control) + payoff en años. cilindros=[(nombre,actual,objetivo,signo),...]"""
@@ -493,7 +505,7 @@ def acelerador_10x10(out, cilindros, anos_delta, enemy_nombre, enemy_motivo, acc
     for ln in _lineas:
         ax.text(0.5,yy,ln,ha="center",va="top",color=MUTE,fontproperties=P(9.5),transform=ax.transAxes); yy-=0.028
     ax.text(0.5,0.035,"Objetivo de rentabilidad ilustrativo; no es una garantía.",ha="center",va="center",color=FAINT,fontproperties=P(7.5),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 PLAN_R = 0.07   # rentabilidad REAL del plan, la misma en todo el libro
 
@@ -559,7 +571,7 @@ def acelerador_tabla(out, ing_m, gas_m, pat, num, accent=GOLD, vos=False):
             % (_ek(float(pat or 0)),_ek(final[4])),ha="left",va="top",color=MUTE,fontproperties=P(9),transform=ax.transAxes)
     ax.text(0.11,0.034,"Proyección ilustrativa con objetivos exigentes; no es una garantía. La rentabilidad real varía cada año.",
             ha="left",va="center",color=FAINT,fontproperties=P(7),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def barrera_100k(out, p0, aho_m, r, valle_caption, accent=GOLD):
     """El gráfico de la inflexión cruzada: aportaciones (esfuerzo) vs interés (tu dinero)."""
@@ -575,7 +587,7 @@ def barrera_100k(out, p0, aho_m, r, valle_caption, accent=GOLD):
     infl=aho_y/rr if rr>0 else None
     # año en que se alcanza 100k
     y100=next((t for t in range(YRS+1) if total[t]>=100000),None)
-    fig=plt.figure(figsize=A4,dpi=200); axm=fig.add_axes([0,0,1,1]); axm.set_xlim(0,1); axm.set_ylim(0,1); axm.axis("off")
+    fig=plt.figure(figsize=A4,dpi=100); axm=fig.add_axes([0,0,1,1]); axm.set_xlim(0,1); axm.set_ylim(0,1); axm.axis("off")
     _bg(axm,(0.84,0.20),tint="#141417")
     _vbar(axm,0.085,0.90,"El nacimiento de tu empleado invisible",accent,sz=18)
     axm.text(0.107,0.85,_spaced("LA BARRERA DE LOS 100.000 €",1),ha="left",va="center",color=MUTE,fontproperties=P(9),transform=axm.transAxes)
@@ -649,7 +661,7 @@ def barrera_100k(out, p0, aho_m, r, valle_caption, accent=GOLD):
         axm.text(x,0.056,_yrtxt(yr),ha="left",va="center",color=MUTE,fontproperties=P(8.5),transform=axm.transAxes)
     axm.text(0.11,0.024,"Cada empleado aporta ~%s/año (lo que ahorras tú) a un ~%d%% anual. Ilustrativo, no garantizado."
              % (_aho_fmt,round(r)),ha="left",va="center",color=FAINT,fontproperties=P(7),transform=axm.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def mapa_friccion(out, nA, nB, zonas, accent=BLUE):
     """Zonas €-exactas de conflicto de la pareja. zonas=[(titulo,a_stance,b_stance,trigger),...]"""
@@ -681,7 +693,7 @@ def mapa_friccion(out, nA, nB, zonas, accent=BLUE):
                 color="#C9756A",fontproperties=Pm(8),transform=ax.transAxes)
     ax.text(0.10,0.06,"Ver la grieta no la abre: la desactiva. Lo que se nombra, se puede negociar.",
             ha="left",va="center",color=accent,fontproperties=Li(12),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def _eur0(n):
     try: return "{:,.0f} €".format(float(n)).replace(",",".")
@@ -716,7 +728,7 @@ def esfuerzo_vital(out, nA, nB, pctA, pctB, modelo, micro, accent=BLUE, capA=Non
         ax.text(0.10,yy,ln,ha="left",va="top",color=MUTE,fontproperties=P(10),transform=ax.transAxes); yy-=0.030
     ax.text(0.10,0.075,"Un reparto justo de dinero puede ser un reparto injusto de futuro.",
             ha="left",va="center",color=accent,fontproperties=Li(13),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def balanza_aportacion(out, nA, nB, econA, econB, hogarA, hogarB, verdict, accent=BLUE):
     """Las dos monedas: aportación económica (%) y aportación al hogar (%). econA+econB=100, idem hogar."""
@@ -744,7 +756,7 @@ def balanza_aportacion(out, nA, nB, econA, econB, hogarA, hogarB, verdict, accen
         ax.text(0.12,yy,ln,ha="left",va="top",color=WHITE,fontproperties=P(10),transform=ax.transAxes); yy-=0.030
     ax.text(0.10,0.10,"Antes de repartir el dinero, reconoced las dos monedas. Ahí empieza la justicia real.",
             ha="left",va="center",color=accent,fontproperties=Li(12),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def anzuelo(out, items, url, accent=GOLD):
     """Página-anzuelo T1: lo que espera en el Libro completo (T2)."""
@@ -761,7 +773,7 @@ def anzuelo(out, items, url, accent=GOLD):
                  facecolor="#17171B",edgecolor=accent,lw=1.2,transform=ax.transAxes,zorder=2))
     ax.text(0.5,0.175,"Desbloquea El Libro Financiero completo",ha="center",va="center",color=accent,fontproperties=L(15),transform=ax.transAxes)
     ax.text(0.5,0.135,url,ha="center",va="center",color=MUTE,fontproperties=P(9),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
 
 def cover_pareja(out, nA, nB, fecha, ref="ITAP"):
     fig,ax=_canvas(); _bg(ax,(0.80,0.86))
@@ -777,4 +789,4 @@ def cover_pareja(out, nA, nB, fecha, ref="ITAP"):
     ax.text(0.5,0.17,"Edición de Pareja",ha="center",va="center",color=FAINT,fontproperties=P(9.5),transform=ax.transAxes)
     ax.text(0.5,0.075,"DOCUMENTO CONFIDENCIAL · %s · USO PRIVADO"%ref,ha="center",va="center",color=FAINT,fontproperties=P(7),transform=ax.transAxes)
     ax.text(0.5,0.05,fecha,ha="center",va="center",color=FAINT,fontproperties=P(7.5),transform=ax.transAxes)
-    fig.savefig(out,dpi=130); plt.close(fig); return out
+    fig.savefig(out,dpi=130); _cerrar(fig); return out
