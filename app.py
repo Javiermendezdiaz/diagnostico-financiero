@@ -124,6 +124,10 @@ def _liberar_memoria():
         gc.collect()
     except Exception:
         pass
+    try:   # devolver al sistema la memoria liberada (glibc la retiene si no se le pide)
+        import ctypes as _ct; _ct.CDLL("libc.so.6").malloc_trim(0)
+    except Exception:
+        pass
 
 def _build_isolated(fn, *a, **k):
     """Genera el PDF en un proceso HIJO que muere al terminar -> devuelve TODA la RAM al sistema (anti-OOM Render).
@@ -1637,6 +1641,7 @@ def enviar_copia(session_id):
     finally:
         with _ENVIO_LOCK:
             _ENVIANDO.discard(session_id)
+        _liberar_memoria()   # la tarjeta PNG y los adjuntos en base64 no se quedan en RAM
 
 def _enviar_copia_impl(session_id):
     """Entrega DURABLE y multicanal. notificado: 0=nada, 2=respaldo enviado (real pendiente), 1=real entregado.
