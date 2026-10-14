@@ -91,6 +91,30 @@ _seed_tally_from_leads()
 
 import threading, gc
 _GEN_LOCK = threading.Lock()   # una sola generacion de PDF a la vez (la de pareja es pesada en RAM)
+def _hijo_generar(nombre, args):
+    """Se ejecuta en un PROCESO HIJO: genera el PDF y muere. Al terminar, el sistema recupera
+    TODA su memoria. (En el proceso principal la memoria de cada informe no se devolvia del todo,
+    se iba acumulando y el 14-oct-2026 el servidor de 512 MB se reinicio por falta de memoria.)"""
+    import app as _a
+    getattr(_a, nombre)(*args)
+
+def _en_proceso(fn, *args):
+    """Genera en un proceso aparte (spawn) y espera. Si no se puede lanzar, genera aqui mismo."""
+    try:
+        import multiprocessing as _mp
+        _ctx = _mp.get_context("spawn")
+        _p = _ctx.Process(target=_hijo_generar, args=(fn.__name__, args), daemon=True)
+        _p.start()
+    except Exception as _e:
+        print("[gen] no se pudo lanzar el proceso hijo (%r): genero en el principal" % _e, flush=True)
+        return fn(*args)
+    _p.join(600)
+    if _p.is_alive():
+        _p.terminate(); _p.join(5)
+        raise RuntimeError("la generacion del informe supero 10 minutos")
+    if _p.exitcode != 0:
+        raise RuntimeError("la generacion del informe fallo (codigo %s)" % _p.exitcode)
+
 def _liberar_memoria():
     try:
         import matplotlib.pyplot as _plt; _plt.close("all")
@@ -1484,14 +1508,14 @@ def report(session_id: str, background_tasks: BackgroundTasks):
                 _tmp = path + ".building"
                 # El INICIADOR (es_inic) va primero en el libro de pareja.
                 if row["es_inic"]:
-                    generar_couple(_tmp, row, prow)
+                    _en_proceso(generar_couple, _tmp, dict(row), dict(prow))
                 else:
-                    generar_couple(_tmp, prow, row)
+                    _en_proceso(generar_couple, _tmp, dict(prow), dict(row))
                 os.replace(_tmp, path)   # escritura atomica: nadie lee un PDF a medias
             else:
                 _resp = json.loads(row["respuestas"])
                 _salud = _guardar_salud(session_id, _resp)
-                generar_pdf(session_id, row["email"], row["nombre"], _resp, json.loads(row["datos"]), row["tier"], baremo(_salud), row["sexo"])
+                _en_proceso(generar_pdf, session_id, row["email"], row["nombre"], _resp, json.loads(row["datos"]), row["tier"], baremo(_salud), row["sexo"])
           except HTTPException:
             raise
           except Exception as e:
@@ -1527,12 +1551,12 @@ def _asegurar_pdf(session_id):
                     return None
                 _tmp = path + ".building"
                 if row["es_inic"]:
-                    generar_couple(_tmp, row, prow)
+                    _en_proceso(generar_couple, _tmp, dict(row), dict(prow))
                 else:
-                    generar_couple(_tmp, prow, row)
+                    _en_proceso(generar_couple, _tmp, dict(prow), dict(row))
                 os.replace(_tmp, path)
             else:
-                generar_pdf(session_id, row["email"], row["nombre"], json.loads(row["respuestas"]), json.loads(row["datos"]), row["tier"])
+                _en_proceso(generar_pdf, session_id, row["email"], row["nombre"], json.loads(row["respuestas"]), json.loads(row["datos"]), row["tier"])
             return path if os.path.exists(path) else None
         except Exception:
             return None
