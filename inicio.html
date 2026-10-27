@@ -5,7 +5,7 @@
 @font-face{font-family:'Poppins';font-weight:300;font-display:swap;src:url('fonts/Poppins-Light.ttf') format('truetype')}
 @font-face{font-family:'Poppins';font-weight:400;font-display:swap;src:url('fonts/Poppins-Regular.ttf') format('truetype')}
 @font-face{font-family:'Poppins';font-weight:500;font-display:swap;src:url('fonts/Poppins-Medium.ttf') format('truetype')}
-@font-face{font-family:'Poppins';font-weight:600 800;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:600 900;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
 @font-face{font-family:'Lora';font-weight:400;font-display:swap;src:url('fonts/Lora-Regular.ttf') format('truetype')}
 @font-face{font-family:'Lora';font-weight:600;font-display:swap;src:url('fonts/Lora-SemiBold.ttf') format('truetype')}
 @font-face{font-family:'Lora';font-weight:700;font-display:swap;src:url('fonts/Lora-Bold.ttf') format('truetype')}
@@ -21,244 +21,304 @@
 <meta property="og:image" content="https://diagnostico.adaptafamilyoffice.com/informe-p1.jpg">
 <meta name="theme-color" content="#06070d">
 <style>
-:root{--am:#FDD731;--am2:#ffe25a;--ng:#06070d;--pa:#0d0f1a;--pa2:#131624;--bd:#23252e;--tx:#f4f4f5;--gr:#94a3b8;--gr2:#64748b;--ro:#ff4d5e;--ve:#22c55e;--papel:#f6f3ec;--tinta:#16181f}
+:root{--am:#FDD731;--am2:#ffe25a;--ng:#05060b;--pa:#0d0f1a;--bd:#22253a;--tx:#f5f5f6;--gr:#9aa3b5;--gr2:#667085;--ro:#ff4d5e;--ve:#2ee59d;--papel:#f4efe4;--tinta:#14161d}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--ng);color:var(--tx);font-family:'Poppins',system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
-.serif{font-family:'Lora',Georgia,serif}
-.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
-.kick{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--am);font-weight:700}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:18px 30px;border-radius:14px;font-weight:700;font-size:15px;cursor:pointer;border:none;font-family:inherit;transition:.2s;text-align:center}
-.btn-am{background:var(--am);color:#000;box-shadow:0 18px 40px -16px rgba(253,215,49,.7)}
-.btn-am:hover{background:var(--am2);transform:translateY(-2px)}
-.btn-gh{background:transparent;color:var(--tx);border:1px solid #3a3d48}.btn-gh:hover{border-color:var(--am)}
-.btn small{font-weight:500;opacity:.75;font-size:12.5px}
-.pulse{animation:pulse 2.4s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 18px 40px -16px rgba(253,215,49,.7),0 0 0 0 rgba(253,215,49,.45)}50%{box-shadow:0 18px 40px -16px rgba(253,215,49,.7),0 0 0 12px rgba(253,215,49,0)}}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px;position:relative}
+.kick{display:inline-flex;align-items:center;gap:10px;font-size:11px;letter-spacing:3.5px;text-transform:uppercase;color:var(--am);font-weight:700}
+.kick::before{content:'';width:28px;height:1px;background:currentColor}
+em{font-family:'Lora',serif;font-weight:600}
+/* grano */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:100;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+/* botones */
+.btn{position:relative;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:19px 34px;border-radius:16px;font-weight:800;font-size:16px;cursor:pointer;border:none;font-family:inherit;transition:transform .2s,box-shadow .2s,background .2s;text-align:center;overflow:hidden}
+.btn small{font-weight:500;opacity:.72;font-size:12.5px}
+.btn-am{background:var(--am);color:#000;box-shadow:0 20px 50px -18px rgba(253,215,49,.85)}
+.btn-am:hover{transform:translateY(-3px);box-shadow:0 28px 60px -18px rgba(253,215,49,1)}
+.btn-am::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);transform:skewX(-20deg);animation:brillo 3.6s infinite}
+@keyframes brillo{0%,60%{left:-60%}100%{left:130%}}
+.btn-gh{background:rgba(255,255,255,.03);color:var(--tx);border:1px solid #363a50;backdrop-filter:blur(6px)}.btn-gh:hover{border-color:var(--am)}
+.btn-ng{background:#000;color:var(--am);box-shadow:0 20px 50px -20px rgba(0,0,0,.7)}.btn-ng:hover{transform:translateY(-3px)}
 /* header */
-.head{position:sticky;top:0;z-index:40;background:rgba(6,7,13,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd)}
-.head .wrap{height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.logo{display:flex;flex-direction:column;line-height:1}
-.logo b{font-weight:800;letter-spacing:2px;font-size:19px;color:var(--am)}
-.logo small{font-size:8.5px;letter-spacing:3px;color:var(--gr);text-transform:uppercase;font-weight:600;margin-top:4px}
-.hd-r{display:flex;align-items:center;gap:16px}
+.head{position:fixed;top:0;left:0;right:0;z-index:60;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
+.head.sc{background:rgba(5,6,11,.78);backdrop-filter:blur(14px);border-color:rgba(255,255,255,.06)}
+.head .wrap{height:68px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{display:flex;align-items:center;gap:11px;line-height:1}
+.logo .mk{width:34px;height:34px;border-radius:9px;background:var(--am);color:#000;font-weight:900;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo b{display:block;font-weight:800;letter-spacing:3px;font-size:16px}
+.logo small{display:block;font-size:8.5px;letter-spacing:3.2px;color:var(--gr);text-transform:uppercase;font-weight:600;margin-top:4px}
+.hd-r{display:flex;align-items:center;gap:22px}
 .hd-l{color:var(--gr);font-size:13px}.hd-l:hover{color:var(--tx)}
-.btn-head{background:var(--am);color:#000;font-weight:700;font-size:13px;padding:10px 16px;border-radius:10px;white-space:nowrap}
-@media(max-width:620px){.hd-l{display:none}}
+.btn-head{background:var(--am);color:#000;font-weight:800;font-size:13px;padding:11px 18px;border-radius:11px;white-space:nowrap}
+@media(max-width:680px){.hd-l{display:none}}
 /* HERO */
-.hero{position:relative;padding:58px 0 70px;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:-20% -10% auto;height:120%;background:radial-gradient(ellipse at 75% 10%,rgba(253,215,49,.16),transparent 55%),radial-gradient(ellipse at 10% 80%,rgba(255,77,94,.08),transparent 50%);pointer-events:none}
-.hero-g{position:relative;display:grid;grid-template-columns:1.02fr 1fr;gap:46px;align-items:start}
-@media(max-width:940px){.hero-g{grid-template-columns:1fr;gap:26px}.hero .pains,.hero .trust{display:none}.hero{padding:34px 0 56px}.hero .sub{font-size:16px;margin-top:16px}}
-.hero h1{font-size:clamp(34px,5.6vw,62px);line-height:1.04;font-weight:800;letter-spacing:-1.4px;margin:16px 0 0}
-.hero h1 em{font-family:'Lora',serif;font-weight:600;color:var(--am)}
-.hero .sub{color:#cbd5e1;font-size:17px;font-weight:300;line-height:1.6;margin-top:22px;max-width:520px}
-.hero .sub b{color:var(--tx);font-weight:600}
-.pains{margin-top:28px;display:flex;flex-direction:column;gap:12px;max-width:520px}
-.pain{display:flex;gap:14px;align-items:flex-start;font-size:14.5px;color:#cbd5e1;font-weight:300}
-.pain i{flex:none;width:26px;height:26px;border-radius:8px;background:rgba(255,77,94,.12);color:var(--ro);display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:800;font-size:13px}
-.pain b{color:var(--tx);font-weight:600}
-.trust{margin-top:30px;display:flex;flex-wrap:wrap;gap:8px 18px;font-size:12px;color:var(--gr)}
-.trust b{color:var(--am)}
-/* calculadora */
-.calc{position:relative;background:linear-gradient(180deg,#121522,#0b0d17);border:1px solid #2c2f3b;border-radius:22px;padding:26px 24px 22px;box-shadow:0 40px 90px -40px rgba(0,0,0,.9),0 0 0 1px rgba(253,215,49,.08) inset}
-.calc::before{content:'';position:absolute;top:-1px;left:30px;right:30px;height:2px;background:linear-gradient(90deg,transparent,var(--am),transparent)}
-.calc-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:16px}
-.calc-h h2{font-size:17px;font-weight:700}
-.calc-h span{font-size:11px;color:var(--gr);letter-spacing:1px;text-transform:uppercase;font-weight:600}
-.f{margin-bottom:13px}
-.f label{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--gr);font-weight:500;margin-bottom:7px}
-.f label .v{color:var(--tx);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
-.f .h{font-size:11px;color:var(--gr2);margin-top:4px}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:#22253a;outline:none;cursor:pointer}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--am);border:3px solid #0b0d17;box-shadow:0 0 0 1px var(--am),0 0 14px rgba(253,215,49,.5)}
-input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--am);border:3px solid #0b0d17}
+.hero{position:relative;min-height:100vh;padding:120px 0 80px;overflow:hidden;isolation:isolate}
+.mesh{position:absolute;inset:0;z-index:-2;overflow:hidden}
+.mesh i{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;animation:flota 18s ease-in-out infinite alternate}
+.mesh i:nth-child(1){width:620px;height:620px;background:#FDD731;top:-260px;right:-120px;opacity:.28}
+.mesh i:nth-child(2){width:520px;height:520px;background:#ff4d5e;bottom:-260px;left:-160px;opacity:.18;animation-delay:-6s}
+.mesh i:nth-child(3){width:460px;height:460px;background:#4f46e5;top:30%;left:35%;opacity:.16;animation-delay:-11s}
+@keyframes flota{0%{transform:translate(0,0) scale(1)}100%{transform:translate(60px,40px) scale(1.15)}}
+.gridbg{position:absolute;inset:0;z-index:-1;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse at 50% 30%,#000 30%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at 50% 30%,#000 30%,transparent 75%)}
+.hero-g{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center}
+@media(max-width:980px){.hero-g{grid-template-columns:1fr;gap:34px}.hero{padding:96px 0 60px;min-height:0}}
+.hero h1{font-size:clamp(40px,6.6vw,84px);line-height:.98;font-weight:900;letter-spacing:-2px;margin-top:22px}
+.hero h1 .w{display:inline-block;margin-right:.12em;opacity:0;transform:translateY(40px) rotate(2deg);animation:sube .9s cubic-bezier(.2,.8,.2,1) forwards}
+.hero h1 em{color:var(--am);font-style:italic;letter-spacing:-1.5px;position:relative}
+.hero h1 em.sub::after{content:'';position:absolute;left:0;right:0;bottom:.04em;height:.09em;background:var(--am);transform:scaleX(0);transform-origin:left;animation:raya .8s 1.3s cubic-bezier(.7,0,.2,1) forwards;border-radius:4px}
+@keyframes sube{to{opacity:1;transform:none}}
+@keyframes raya{to{transform:scaleX(1)}}
+.hero .lead{color:#cfd5e1;font-size:18px;font-weight:300;line-height:1.6;margin-top:26px;max-width:540px;opacity:0;animation:sube .9s .9s forwards}
+.hero .lead b{color:var(--tx);font-weight:600}
+.hero .proof{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px;opacity:0;animation:sube .9s 1.1s forwards}
+.pill{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:#d5dae4;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:99px;padding:8px 14px;backdrop-filter:blur(6px)}
+.pill b{color:var(--am)}
+.scrollhint{margin-top:38px;display:flex;align-items:center;gap:12px;color:var(--gr);font-size:12.5px;opacity:0;animation:sube .9s 1.4s forwards}
+.scrollhint span{width:22px;height:36px;border:1.5px solid #4a4f66;border-radius:12px;position:relative}
+.scrollhint span::after{content:'';position:absolute;left:50%;top:7px;width:3px;height:7px;border-radius:2px;background:var(--am);transform:translateX(-50%);animation:rueda 1.6s infinite}
+@keyframes rueda{0%{opacity:0;transform:translate(-50%,0)}40%{opacity:1}100%{opacity:0;transform:translate(-50%,12px)}}
+@media(max-width:980px){.hero .proof,.scrollhint{display:none}}
+/* CALCULADORA */
+.calc{position:relative;border-radius:26px;padding:1.5px;background:linear-gradient(140deg,rgba(253,215,49,.9),rgba(253,215,49,.08) 30%,rgba(255,255,255,.06) 60%,rgba(255,77,94,.55));box-shadow:0 60px 120px -50px rgba(0,0,0,1),0 0 80px -30px rgba(253,215,49,.35);opacity:0;animation:sube 1s .5s forwards}
+.calc-in{background:linear-gradient(180deg,rgba(17,20,33,.94),rgba(9,10,18,.97));backdrop-filter:blur(20px);border-radius:25px;padding:26px 24px 22px}
+.calc-h{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}
+.calc-h h2{font-size:17px;font-weight:800;display:flex;align-items:center;gap:9px}
+.calc-h h2 i{width:9px;height:9px;border-radius:50%;background:var(--ve);box-shadow:0 0 0 4px rgba(46,229,157,.2);animation:latido 1.6s infinite}
+@keyframes latido{50%{box-shadow:0 0 0 8px rgba(46,229,157,0)}}
+.calc-h span{font-size:10.5px;color:var(--gr);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;border:1px solid var(--bd);border-radius:99px;padding:4px 10px}
+.f{margin-bottom:14px}
+.f label{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--gr);font-weight:500;margin-bottom:8px}
+.f label .v{color:var(--tx);font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13.5px}
+.f .h{font-size:11px;color:var(--gr2);margin-top:5px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;outline:none;cursor:pointer;background:linear-gradient(90deg,var(--am) var(--p,50%),#23273b var(--p,50%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;border:5px solid var(--am);box-shadow:0 0 0 6px rgba(253,215,49,.15),0 4px 14px rgba(0,0,0,.5);transition:transform .15s}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.18)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:5px solid var(--am)}
 .f2{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
 @media(max-width:460px){.f2{grid-template-columns:1fr}}
-/* resultado */
-.res{margin-top:10px;border-top:1px dashed #2c2f3b;padding-top:18px}
-.res-top{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.rbox{background:#090b14;border:1px solid var(--bd);border-radius:14px;padding:14px 14px 12px}
-.rbox .l{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gr);font-weight:700}
-.rbox .n{font-family:'Lora',serif;font-weight:700;font-size:clamp(24px,2.7vw,34px);white-space:nowrap;line-height:1.05;margin-top:6px;font-variant-numeric:tabular-nums}
-.rbox .d{font-size:11.5px;color:var(--gr);margin-top:3px}
-.n.ro{color:var(--ro)}.n.am{color:var(--am)}.n.ve{color:var(--ve)}
-.verdict{margin-top:14px;font-size:15px;line-height:1.5;color:#e2e8f0}
-.verdict b{color:var(--tx)}.verdict .ro{color:var(--ro);font-weight:700}.verdict .ve{color:var(--ve);font-weight:700}
-/* barra de vida */
+.res{margin-top:6px;border-top:1px dashed #2c3046;padding-top:18px}
+.res-top{display:grid;grid-template-columns:1.25fr 1fr;gap:12px}
+@media(max-width:480px){.res-top{grid-template-columns:1fr}}
+.rbox{position:relative;background:rgba(0,0,0,.35);border:1px solid var(--bd);border-radius:16px;padding:14px 14px 13px;overflow:hidden}
+.rbox .l{font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gr);font-weight:700}
+.rbox .n{font-family:'Lora',serif;font-weight:700;font-size:clamp(24px,2.7vw,34px);line-height:1.05;margin-top:7px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rbox .d{font-size:11.5px;color:var(--gr);margin-top:4px;line-height:1.4}
+.n.ro{color:var(--ro);text-shadow:0 0 28px rgba(255,77,94,.45)}.n.am{color:var(--am)}.n.ve{color:var(--ve)}
+.rbox.ring{display:flex;gap:12px;align-items:center}
+.rg{position:relative;flex:none;width:62px;height:62px}.ring svg{width:62px;height:62px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:7}
+.ring .bgc{stroke:#22263a}.ring .fgc{stroke:var(--am);stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)}
+.ring .pt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.verdict{margin-top:16px;font-size:15.5px;line-height:1.5;color:#e4e8f0}
+.verdict b{color:var(--tx)}.verdict .ro{color:var(--ro);font-weight:800}.verdict .ve{color:var(--ve);font-weight:800}
+/* vida en años */
 .vida{margin-top:16px}
-.vida .bar{position:relative;height:16px;border-radius:8px;background:#1b1e2c;overflow:hidden;display:flex}
-.vida .bar .w{background:linear-gradient(90deg,#7f1d2d,var(--ro));transition:width .5s}
-.vida .bar .fr{background:linear-gradient(90deg,#b99a12,var(--am));transition:width .5s}
-.vida .mk{position:relative;height:18px;font-size:10.5px;color:var(--gr)}
-.vida .mk span{position:absolute;top:3px;transform:translateX(-50%);white-space:nowrap}
-.vida .leg{display:flex;gap:14px;font-size:11px;color:var(--gr);margin-top:2px;flex-wrap:wrap}
+.vida-h{display:flex;justify-content:space-between;font-size:11px;color:var(--gr);margin-bottom:8px}
+.vida-h b{color:var(--tx)}
+.yrs{display:grid;grid-template-columns:repeat(auto-fill,minmax(13px,1fr));gap:4px}
+.yrs i{aspect-ratio:1;border-radius:3px;background:#1d2133;transition:background .35s,transform .35s,box-shadow .35s}
+.yrs i.w{background:var(--ro);box-shadow:0 0 10px -2px rgba(255,77,94,.7)}
+.yrs i.f{background:var(--am)}
+.yrs i.t{outline:2px solid #fff;outline-offset:1px}
+.vida .leg{display:flex;gap:14px;font-size:11px;color:var(--gr);margin-top:9px;flex-wrap:wrap}
 .vida .leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-.lever{margin-top:14px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.3);border-radius:12px;padding:11px 14px;font-size:13.5px;color:#d1fae5}
-.lever b{color:var(--ve)}
-.wait{margin-top:10px;background:rgba(255,77,94,.07);border:1px solid rgba(255,77,94,.3);border-radius:12px;padding:11px 14px;font-size:13.5px;color:#ffe4e6}
-.wait b{color:var(--ro)}
-/* bloqueados */
-.lock{margin-top:16px;border:1px solid rgba(253,215,49,.35);border-radius:14px;overflow:hidden}
-.lock-h{background:rgba(253,215,49,.08);padding:10px 14px;font-size:12px;font-weight:700;color:var(--am);letter-spacing:.4px;display:flex;justify-content:space-between}
-.lr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--bd);font-size:13px;color:#cbd5e1}
+.lever,.wait{margin-top:12px;border-radius:13px;padding:11px 14px;font-size:13.5px;line-height:1.5}
+.lever{background:rgba(46,229,157,.07);border:1px solid rgba(46,229,157,.3);color:#d6fbe9}.lever b{color:var(--ve)}
+.wait{background:rgba(255,77,94,.07);border:1px solid rgba(255,77,94,.3);color:#ffe4e6}.wait b{color:var(--ro)}
+.lock{margin-top:14px;border-radius:15px;overflow:hidden;border:1px solid rgba(253,215,49,.35);background:linear-gradient(180deg,rgba(253,215,49,.06),transparent)}
+.lock-h{padding:10px 14px;font-size:12px;font-weight:800;color:var(--am);display:flex;justify-content:space-between;gap:8px}
+.lr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.06);font-size:13px;color:#cdd3df}
 .lr .bl{filter:blur(6px);user-select:none;color:var(--tx);font-weight:700;font-family:'Lora',serif;font-size:16px;white-space:nowrap}
-.lr .bl.t{font-family:'Poppins';font-size:12.5px;font-weight:500}
-.calc .btn{width:100%;margin-top:16px;flex-direction:column;gap:2px}
+.calc .btn{width:100%;margin-top:16px}
 .calc-n{font-size:10.5px;color:var(--gr2);margin-top:12px;line-height:1.5;text-align:center}
 .calc-n a{text-decoration:underline}
+/* marquee */
+.marq{background:var(--am);color:#000;overflow:hidden;white-space:nowrap;border-top:1px solid #000;border-bottom:1px solid #000;transform:rotate(-1.2deg) scale(1.02);margin:10px 0 -10px;position:relative;z-index:3}
+.marq div{display:inline-block;padding:16px 0;animation:corre 38s linear infinite;font-weight:900;font-size:clamp(15px,2vw,22px);letter-spacing:.5px;text-transform:uppercase}
+.marq span{margin:0 22px}.marq em{font-style:italic;text-transform:none;font-size:1.1em}
+@keyframes corre{to{transform:translateX(-50%)}}
 /* secciones */
-.band{padding:90px 0;border-top:1px solid var(--bd);position:relative}
-@media(max-width:700px){.band{padding:62px 0}.pg,.cg,.roi,.prod,.steps,.af{margin-top:32px}.quote{margin-top:40px}}
-.sh{max-width:760px;margin:0 auto;text-align:center}
-.sh h2{font-size:clamp(28px,4.4vw,46px);line-height:1.1;font-weight:800;letter-spacing:-.8px;margin-top:12px}
-.sh h2 em{font-family:'Lora',serif;font-weight:600;color:var(--am)}
-.sh p{color:var(--gr);font-size:16px;font-weight:300;line-height:1.7;margin:18px auto 0;max-width:620px}
+.band{padding:120px 0;position:relative;overflow:hidden}
+@media(max-width:700px){.band{padding:76px 0}}
+.sh{max-width:840px}
+.sh.c{margin:0 auto;text-align:center}
+.sh h2{font-size:clamp(34px,5.4vw,66px);line-height:1.02;font-weight:900;letter-spacing:-2px;margin-top:18px}
+.sh h2 em{color:var(--am);font-style:italic;letter-spacing:-1px}
+.sh p{color:var(--gr);font-size:17px;font-weight:300;line-height:1.7;margin-top:20px;max-width:640px}
+.sh.c p{margin-left:auto;margin-right:auto}
 .sh p b{color:var(--tx);font-weight:600}
 /* dolor */
-.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:46px}
-@media(max-width:860px){.pg{grid-template-columns:1fr}}
-.pc3{background:var(--pa);border:1px solid var(--bd);border-radius:20px;padding:30px 26px;position:relative;overflow:hidden}
-.pc3::after{content:'';position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(255,77,94,.18),transparent 70%)}
-.pc3 .big{font-family:'Lora',serif;font-weight:700;font-size:clamp(44px,5.6vw,60px);line-height:1;color:var(--ro)}
-.pc3 .big small{font-size:.42em;color:var(--gr);font-weight:400}
-.pc3 h3{font-size:17px;font-weight:700;margin:16px 0 8px}
-.pc3 p{font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.6}
-.pc3 .src{font-size:10.5px;color:var(--gr2);margin-top:12px}
-.quote{max-width:780px;margin:56px auto 0;text-align:center;font-family:'Lora',serif;font-style:italic;font-size:clamp(21px,2.8vw,28px);line-height:1.4}
-.quote b{font-style:normal;color:var(--am);font-weight:600}
-/* curiosidad: lo que no ve */
-.cg{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:46px;max-width:980px;margin-left:auto;margin-right:auto}
-@media(max-width:820px){.cg{grid-template-columns:1fr}}
-.cc{display:flex;gap:16px;background:var(--pa);border:1px solid var(--bd);border-radius:18px;padding:22px}
-.cc .ic{flex:none;width:44px;height:44px;border-radius:12px;background:rgba(253,215,49,.1);border:1px solid rgba(253,215,49,.3);display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-weight:700;color:var(--am);font-size:18px}
-.cc h3{font-size:15.5px;font-weight:700}
-.cc p{font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.55;margin-top:4px}
-.cc .tease{margin-top:10px;font-size:12.5px;color:var(--tx);background:#090b14;border:1px dashed #33364a;border-radius:9px;padding:8px 11px}
+.dolor{background:radial-gradient(ellipse at 85% 20%,rgba(255,77,94,.16),transparent 55%),var(--ng)}
+.big3{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:64px;border-top:1px solid rgba(255,255,255,.08)}
+@media(max-width:860px){.big3{grid-template-columns:1fr}}
+.b3{padding:40px 30px 10px 0;border-right:1px solid rgba(255,255,255,.08)}
+.b3:last-child{border-right:none}
+.b3+.b3{padding-left:30px}
+@media(max-width:860px){.b3,.b3+.b3{padding:34px 0 10px;border-right:none;border-bottom:1px solid rgba(255,255,255,.08)}}
+.b3 .num{font-family:'Lora',serif;font-weight:700;font-size:clamp(66px,8vw,112px);line-height:.9;letter-spacing:-3px;color:var(--ro);text-shadow:0 0 60px rgba(255,77,94,.4);font-variant-numeric:tabular-nums}
+.b3 .num small{font-size:.3em;color:var(--gr);letter-spacing:0;font-weight:400;text-shadow:none}
+.b3 h3{font-size:18px;font-weight:800;margin:20px 0 8px}
+.b3 p{font-size:14px;color:var(--gr);font-weight:300;line-height:1.65}
+.b3 .src{font-size:10.5px;color:var(--gr2);margin-top:12px}
+.manif{margin-top:90px;font-size:clamp(30px,4.8vw,62px);line-height:1.08;font-weight:900;letter-spacing:-1.8px;max-width:1000px}
+.manif .dim{color:#3a3f55}
+.manif em{color:var(--am)}
+/* curiosidad */
+.curio{background:linear-gradient(180deg,#05060b,#0b0d1a 50%,#05060b)}
+.cg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:60px}
+@media(max-width:960px){.cg{grid-template-columns:1fr 1fr}}@media(max-width:640px){.cg{grid-template-columns:1fr}}
+.cc{position:relative;border-radius:22px;padding:28px 24px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);overflow:hidden;transition:transform .3s,border-color .3s}
+.cc::before{content:'';position:absolute;inset:0;background:radial-gradient(380px circle at var(--x,50%) var(--y,0%),rgba(253,215,49,.13),transparent 45%);opacity:0;transition:opacity .3s}
+.cc:hover{transform:translateY(-4px);border-color:rgba(253,215,49,.35)}.cc:hover::before{opacity:1}
+.cc .ic{font-family:'Lora',serif;font-weight:700;font-size:44px;line-height:1;color:var(--am);opacity:.9}
+.cc h3{font-size:18px;font-weight:800;margin-top:18px;position:relative}
+.cc p{font-size:14px;color:var(--gr);font-weight:300;line-height:1.6;margin-top:8px;position:relative}
+.cc .tease{position:relative;margin-top:16px;font-size:12.5px;color:#e5e7eb;background:rgba(0,0,0,.4);border:1px dashed #3a3f55;border-radius:10px;padding:9px 12px}
 .cc .tease span{filter:blur(5px);user-select:none}
-/* informe por dentro (papel) */
-.papel{background:var(--papel);color:var(--tinta);border-top:none}
-.papel .kick{color:#9a7b00}
-.papel .sh p{color:#4b5563}
-.papel .sh p b{color:var(--tinta)}
+.cc .lk{position:absolute;top:22px;right:22px;font-size:15px;opacity:.7}
+@media(max-width:640px){.cc{padding:22px 20px}.cc .ic{font-size:32px}.cc h3{margin-top:10px}.cg{gap:12px}}
+/* informe (papel) */
+.papel{background:var(--papel);color:var(--tinta)}
+.papel .kick{color:#8a6d00}
+.papel .sh p{color:#4b5563}.papel .sh p b{color:var(--tinta)}
 .papel .sh h2 em{color:#b8860b}
-.fan{position:relative;height:560px;max-width:1000px;margin:50px auto 0}
-.fan img{position:absolute;top:0;left:50%;width:300px;height:auto;border-radius:6px;box-shadow:0 30px 60px -20px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.06);transition:transform .35s,box-shadow .35s;background:#fff;cursor:zoom-in}
-.fan img.lo{transform:translateX(-50%) translateX(-330px) rotate(-9deg) translateY(50px);z-index:1}
-.fan img.li{transform:translateX(-50%) translateX(-170px) rotate(-4.5deg) translateY(16px);z-index:2}
-.fan img.c{transform:translateX(-50%) scale(1.06);z-index:5}
-.fan img.ri{transform:translateX(-50%) translateX(170px) rotate(4.5deg) translateY(16px);z-index:2}
-.fan img.ro{transform:translateX(-50%) translateX(330px) rotate(9deg) translateY(50px);z-index:1}
-.fan img:hover{z-index:9!important;box-shadow:0 40px 80px -20px rgba(0,0,0,.6)}
+.fan{position:relative;height:600px;max-width:1080px;margin:60px auto 0;perspective:1600px}
+.fan img{position:absolute;top:20px;left:50%;width:310px;height:auto;border-radius:8px;background:#fff;cursor:zoom-in;box-shadow:0 40px 80px -24px rgba(20,22,29,.55),0 0 0 1px rgba(0,0,0,.05);transition:transform 1.1s cubic-bezier(.2,.8,.2,1),opacity .8s,box-shadow .3s;transform:translateX(-50%) translateY(120px) rotateX(35deg) scale(.85);opacity:0}
+.fan.in img{opacity:1}
+.fan.in img.c{transform:translateX(-50%) scale(1.08);z-index:5;transition-delay:.1s}
+.fan.in img.li{transform:translateX(-50%) translateX(-185px) rotate(-5deg) translateY(22px);z-index:3;transition-delay:.25s}
+.fan.in img.ri{transform:translateX(-50%) translateX(185px) rotate(5deg) translateY(22px);z-index:3;transition-delay:.25s}
+.fan.in img.lo{transform:translateX(-50%) translateX(-360px) rotate(-10deg) translateY(70px);z-index:1;transition-delay:.4s}
+.fan.in img.ro{transform:translateX(-50%) translateX(360px) rotate(10deg) translateY(70px);z-index:1;transition-delay:.4s}
+.fan img:hover{z-index:9!important;box-shadow:0 50px 90px -20px rgba(20,22,29,.7)}
 @media(max-width:860px){
- .fan{height:auto;display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 4px 26px;margin-top:36px}
- .fan img{position:static;transform:none!important;flex:none;width:76vw;max-width:330px;scroll-snap-align:center}
+ .fan{height:auto;display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 4px 30px;margin-top:40px;perspective:none}
+ .fan img{position:static;transform:none!important;opacity:1;flex:none;width:78vw;max-width:340px;scroll-snap-align:center}
 }
-.caps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;max-width:1000px;margin:26px auto 0}
+.caps{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;max-width:1080px;margin:34px auto 0}
 @media(max-width:860px){.caps{grid-template-columns:1fr 1fr}}
-.cap{font-size:12.5px;color:#374151;line-height:1.45;border-top:3px solid var(--am);padding-top:10px}
-.cap b{display:block;color:var(--tinta);font-size:13.5px;margin-bottom:2px}
-.papel .row-c{text-align:center;margin-top:40px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
-.papel .btn-gh{color:var(--tinta);border-color:#cfc8b8}.papel .btn-gh:hover{border-color:#9a7b00}
-.papel .note{text-align:center;font-size:11.5px;color:#6b7280;margin-top:14px}
-/* inversión */
-.roi{display:grid;grid-template-columns:1.1fr 1fr;gap:22px;max-width:1000px;margin:46px auto 0;align-items:stretch}
-@media(max-width:860px){.roi{grid-template-columns:1fr}}
-.roi-l{background:var(--pa);border:1px solid var(--bd);border-radius:20px;padding:30px}
-.roi-l h3{font-size:18px;font-weight:700;margin-bottom:16px}
-.eq{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--bd);font-size:14px;color:#cbd5e1}
-.eq:last-child{border-bottom:none}
-.eq b{font-family:'Lora',serif;font-size:22px;color:var(--tx);white-space:nowrap}
-.eq.tot b{color:var(--am);font-size:30px}
-.roi-r{background:linear-gradient(160deg,rgba(253,215,49,.14),rgba(253,215,49,.02));border:1px solid rgba(253,215,49,.45);border-radius:20px;padding:30px;display:flex;flex-direction:column;justify-content:center}
-.roi-r .x{font-family:'Lora',serif;font-weight:700;font-size:clamp(64px,9vw,104px);line-height:.9;color:var(--am)}
-.roi-r p{color:#e2e8f0;font-size:15px;line-height:1.6;margin-top:14px;font-weight:300}
-.roi-r p b{font-weight:600;color:var(--tx)}
-.roi-r .src{font-size:11px;color:var(--gr);margin-top:14px}
-/* productos */
-.prod{display:grid;grid-template-columns:1fr 1.12fr 1fr;gap:16px;max-width:1000px;margin:46px auto 0;align-items:stretch}
-@media(max-width:860px){.prod{grid-template-columns:1fr}.pk.star{order:-1}}
-.pk{position:relative;display:flex;flex-direction:column;background:var(--pa);border:1px solid var(--bd);border-radius:20px;padding:28px 24px;transition:.2s}
-.pk:hover{border-color:#4a4d5a;transform:translateY(-3px)}
-.pk.star{border:1.5px solid var(--am);background:linear-gradient(180deg,#17160e,#0d0f1a 40%);box-shadow:0 30px 70px -30px rgba(253,215,49,.5)}
-.pk .badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--am);color:#000;font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;padding:5px 12px;border-radius:99px;white-space:nowrap}
-.pk .k{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--gr)}
+.cap{font-size:13px;color:#4b5563;line-height:1.45;border-top:3px solid var(--tinta);padding-top:12px}
+.cap b{display:block;color:var(--tinta);font-size:15px;margin-bottom:3px;font-weight:800}
+.papel .row-c{text-align:center;margin-top:48px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.papel .btn-gh{color:var(--tinta);border-color:#cbbfa6;background:transparent}.papel .btn-gh:hover{border-color:var(--tinta)}
+.papel .btn-am{box-shadow:0 20px 40px -18px rgba(184,134,11,.7)}
+.papel .note{text-align:center;font-size:11.5px;color:#6b7280;margin-top:16px}
+/* inversión (amarillo) */
+.amar{background:var(--am);color:#000}
+.amar .kick{color:#000}
+.amar .sh h2 em{color:#000}
+.amar .sh p{color:#3b3200}
+.roi{display:grid;grid-template-columns:1fr 1.05fr;gap:40px;align-items:center;margin-top:50px}
+@media(max-width:900px){.roi{grid-template-columns:1fr}}
+.x15{font-family:'Lora',serif;font-weight:700;font-size:clamp(140px,22vw,300px);line-height:.8;letter-spacing:-10px;color:#000}
+.x15 small{font-size:.3em;letter-spacing:0}
+.roi-r{background:#000;color:var(--tx);border-radius:24px;padding:30px 30px 26px;box-shadow:0 40px 80px -40px rgba(0,0,0,.6)}
+.eq{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0;border-bottom:1px solid #22253a;font-size:14.5px;color:#cfd5e1}
+.eq b{font-family:'Lora',serif;font-size:24px;color:var(--tx);white-space:nowrap}
+.eq.tot{border-bottom:none}.eq.tot b{color:var(--am);font-size:34px}
+.roi-r .src{font-size:11px;color:var(--gr);margin-top:12px;line-height:1.5}
+.amar .cta{margin-top:40px}
+/* precios */
+.precios{background:radial-gradient(ellipse at 50% 0%,rgba(253,215,49,.12),transparent 55%),var(--ng)}
+.prod{display:grid;grid-template-columns:1fr 1.14fr 1fr;gap:18px;margin-top:60px;align-items:center}
+@media(max-width:900px){.prod{grid-template-columns:1fr}.pk.star{order:-1}}
+.pk{position:relative;display:flex;flex-direction:column;border-radius:24px;padding:30px 26px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.08);transition:transform .25s}
+.pk:hover{transform:translateY(-4px)}
+.pk.star{padding:38px 30px;background:#0c0d16;border:none;isolation:isolate}
+.pk.star::before{content:'';position:absolute;inset:-2px;border-radius:26px;z-index:-2;background:conic-gradient(from var(--a,0deg),var(--am),#ff4d5e,#4f46e5,var(--am));animation:gira 5s linear infinite}
+.pk.star::after{content:'';position:absolute;inset:0;border-radius:24px;z-index:-1;background:linear-gradient(180deg,#17160c,#0c0d16 45%)}
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes gira{to{--a:360deg}}
+.pk .badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--am);color:#000;font-size:11px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;padding:6px 14px;border-radius:99px;white-space:nowrap}
+.pk .k{font-size:11px;letter-spacing:2.4px;text-transform:uppercase;font-weight:800;color:var(--gr)}
 .pk.star .k{color:var(--am)}
-.pk h3{font-size:21px;font-weight:700;margin:6px 0 2px}
-.pk .pr{font-family:'Lora',serif;font-size:46px;font-weight:700;line-height:1.1;margin:8px 0 4px}
-.pk .pr small{font-family:'Poppins';font-size:12px;color:var(--gr);font-weight:400}
-.pk ul{list-style:none;margin:14px 0 20px;flex:1}
-.pk li{font-size:13.5px;color:#cbd5e1;padding:6px 0 6px 22px;position:relative;font-weight:300;line-height:1.45}
-.pk li::before{content:'✓';position:absolute;left:0;color:var(--am);font-weight:700}
-.pk .btn{width:100%;padding:15px}
-.pk .btn-gh{border-color:#3a3d48}
-.mini{text-align:center;color:var(--gr);font-size:13px;margin-top:22px}
+.pk h3{font-size:22px;font-weight:800;margin:6px 0 2px}
+.pk .pr{font-family:'Lora',serif;font-size:58px;font-weight:700;line-height:1.05;margin:10px 0 2px;letter-spacing:-2px}
+.pk.star .pr{font-size:76px;color:var(--am)}
+.pk .pr small{font-family:'Poppins';font-size:12.5px;color:var(--gr);font-weight:400;letter-spacing:0}
+.pk ul{list-style:none;margin:16px 0 24px;flex:1}
+.pk li{font-size:14px;color:#cfd5e1;padding:7px 0 7px 26px;position:relative;font-weight:300;line-height:1.45}
+.pk li::before{content:'';position:absolute;left:0;top:11px;width:14px;height:14px;border-radius:50%;background:rgba(253,215,49,.15);box-shadow:inset 0 0 0 1.5px var(--am)}
+.pk li::after{content:'';position:absolute;left:4.5px;top:14.5px;width:5px;height:3px;border-left:1.5px solid var(--am);border-bottom:1.5px solid var(--am);transform:rotate(-45deg)}
+.pk .btn{width:100%;padding:16px}
+.mini{text-align:center;color:var(--gr);font-size:13.5px;margin-top:30px}
 .mini a{color:var(--tx);border-bottom:1px solid rgba(253,215,49,.5)}
 /* pasos */
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1000px;margin:46px auto 0}
-@media(max-width:820px){.steps{grid-template-columns:1fr}}
-.st{background:var(--pa);border:1px solid var(--bd);border-radius:18px;padding:24px}
-.st .n{font-family:'Lora',serif;font-size:42px;font-weight:700;color:var(--am);line-height:1}
-.st h3{font-size:16px;font-weight:700;margin:12px 0 6px}
-.st p{font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.6}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:60px;position:relative}
+.steps::before{content:'';position:absolute;top:40px;left:8%;right:8%;height:2px;background:linear-gradient(90deg,var(--am),rgba(253,215,49,.1))}
+@media(max-width:820px){.steps{grid-template-columns:1fr;gap:30px}.steps::before{display:none}}
+.st{padding:0 24px;text-align:center;position:relative}
+.st .n{width:80px;height:80px;margin:0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-size:38px;font-weight:700;color:#000;background:var(--am);box-shadow:0 0 0 10px var(--ng),0 0 50px rgba(253,215,49,.45)}
+.st h3{font-size:19px;font-weight:800;margin:24px 0 8px}
+.st p{font-size:14px;color:var(--gr);font-weight:300;line-height:1.65;max-width:300px;margin:0 auto}
 /* adapta */
-.af{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:1000px;margin:46px auto 0}
-@media(max-width:820px){.af{grid-template-columns:1fr}}
-.af-b{background:var(--pa);border:1px solid var(--bd);border-radius:20px;padding:28px}
-.af-b h3{font-size:16px;font-weight:700;margin-bottom:14px}
-.af-b li{list-style:none;font-size:14px;color:#cbd5e1;padding:7px 0 7px 26px;position:relative;font-weight:300;line-height:1.5}
-.af-b.si li::before{content:'✓';position:absolute;left:0;color:var(--ve);font-weight:800}
-.af-b.no li::before{content:'✕';position:absolute;left:0;color:var(--ro);font-weight:800}
-.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:30px}
-.chip{font-size:13px;background:var(--pa);border:1px solid var(--bd);border-radius:99px;padding:9px 16px;color:#cbd5e1}
-.chip b{color:var(--am)}
+.adapta{background:linear-gradient(180deg,var(--ng),#0b0d1a)}
+.ad-g{display:grid;grid-template-columns:1.1fr 1fr;gap:50px;align-items:start;margin-top:10px}
+@media(max-width:900px){.ad-g{grid-template-columns:1fr;gap:34px}}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:40px}
+.stat .v{font-family:'Lora',serif;font-weight:700;font-size:clamp(44px,5vw,64px);line-height:1;color:var(--am);letter-spacing:-2px}
+.stat .l{font-size:12.5px;color:var(--gr);margin-top:8px;line-height:1.4}
+.isno{border-radius:24px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.isno .bk{padding:24px 26px;background:rgba(255,255,255,.02)}
+.isno .bk+.bk{border-top:1px solid rgba(255,255,255,.08);background:rgba(255,77,94,.04)}
+.isno h3{font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:800;margin-bottom:12px}
+.isno .si h3{color:var(--ve)}.isno .no h3{color:var(--ro)}
+.isno li{list-style:none;font-size:14.5px;color:#cfd5e1;padding:6px 0 6px 26px;position:relative;font-weight:300;line-height:1.5}
+.isno li b{color:var(--tx);font-weight:600}
+.isno .si li::before{content:'✓';position:absolute;left:0;color:var(--ve);font-weight:900}
+.isno .no li::before{content:'✕';position:absolute;left:0;color:var(--ro);font-weight:900}
 /* faq */
-.faq{max-width:760px;margin:40px auto 0}
-.faq details{border:1px solid var(--bd);border-radius:14px;background:var(--pa);margin-bottom:10px}
-.faq summary{cursor:pointer;list-style:none;padding:18px 20px;font-size:15px;font-weight:600;display:flex;justify-content:space-between;gap:12px}
+.faq{max-width:820px;margin:50px auto 0}
+.faq details{border-bottom:1px solid rgba(255,255,255,.09)}
+.faq summary{cursor:pointer;list-style:none;padding:24px 4px;font-size:17px;font-weight:700;display:flex;justify-content:space-between;gap:16px;align-items:center}
 .faq summary::-webkit-details-marker{display:none}
-.faq summary::after{content:'+';color:var(--am);font-weight:700;font-size:20px;line-height:1}
-.faq details[open] summary::after{content:'−'}
-.faq details p{padding:0 20px 20px;font-size:14px;color:var(--gr);font-weight:300;line-height:1.7}
+.faq summary::after{content:'+';flex:none;width:34px;height:34px;border-radius:50%;border:1px solid #363a50;color:var(--am);font-weight:500;font-size:20px;display:flex;align-items:center;justify-content:center;transition:transform .3s}
+.faq details[open] summary::after{transform:rotate(45deg);background:var(--am);color:#000;border-color:var(--am)}
+.faq details p{padding:0 4px 24px;font-size:15px;color:var(--gr);font-weight:300;line-height:1.75;max-width:700px}
 /* final */
-.final{text-align:center;padding:110px 0 120px;border-top:1px solid var(--bd);background:radial-gradient(ellipse at 50% 0,rgba(253,215,49,.12),transparent 60%)}
-.final h2{font-size:clamp(32px,5.2vw,58px);font-weight:800;line-height:1.06;letter-spacing:-1px;max-width:17ch;margin:0 auto}
-.final h2 em{font-family:'Lora',serif;color:var(--am);font-weight:600}
-.final p{color:var(--gr);font-size:16px;margin:22px auto 0;max-width:540px;font-weight:300}
-.final .row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:34px}
-.wa{display:inline-flex;align-items:center;gap:8px;margin-top:26px;font-size:13.5px;color:var(--gr)}
-.wa b{color:var(--ve)}
+.final{text-align:center;padding:150px 0 150px;position:relative;overflow:hidden;isolation:isolate}
+.final .mesh i:nth-child(1){top:auto;bottom:-300px;right:20%;opacity:.3}
+.final h2{font-size:clamp(40px,7vw,96px);font-weight:900;line-height:.98;letter-spacing:-3px;max-width:15ch;margin:0 auto}
+.final h2 em{color:var(--am);font-style:italic}
+.final p{color:#cfd5e1;font-size:18px;margin:26px auto 0;max-width:560px;font-weight:300}
+.final .row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:40px}
+.wa{display:inline-flex;align-items:center;gap:9px;margin-top:30px;font-size:14px;color:var(--gr)}
+.wa i{width:8px;height:8px;border-radius:50%;background:var(--ve);box-shadow:0 0 10px var(--ve)}
+.wa b{color:var(--tx)}
 /* legal */
-.legal{border-top:1px solid var(--bd);padding:48px 22px 120px;text-align:center;color:var(--gr)}
-.legal .nm{font-family:'Lora',serif;font-size:21px;color:var(--tx);font-weight:600}
-.legal .ds{max-width:820px;margin:20px auto 0;font-size:11.5px;line-height:1.7;color:#7c8597;font-weight:300;text-align:left;border:1px solid var(--bd);border-radius:12px;padding:16px 18px}
-.legal .ds b{color:#a3acbd;font-weight:600}
+.legal{border-top:1px solid rgba(255,255,255,.07);padding:56px 24px 130px;text-align:center;color:var(--gr)}
+.legal .nm{font-family:'Lora',serif;font-size:22px;color:var(--tx);font-weight:600}
+.legal .ds{max-width:860px;margin:22px auto 0;font-size:11.5px;line-height:1.75;color:#7d8699;font-weight:300;text-align:left;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:18px 20px}
+.legal .ds b{color:#aab3c4;font-weight:600}
 .legal .lk{margin-top:16px;font-size:12px}.legal .lk a{text-decoration:underline}
 /* barra fija */
-#bar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(9,11,20,.96);backdrop-filter:blur(10px);border-top:1px solid #2c2f3b;transform:translateY(110%);transition:transform .3s}
+#bar{position:fixed;left:12px;right:12px;bottom:12px;z-index:70;background:rgba(12,13,22,.92);backdrop-filter:blur(14px);border:1px solid rgba(253,215,49,.35);border-radius:18px;transform:translateY(140%);transition:transform .4s cubic-bezier(.2,.8,.2,1);box-shadow:0 20px 50px -10px rgba(0,0,0,.8)}
 #bar.on{transform:none}
-#bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:68px}
-#bar .t{font-size:13px;color:#cbd5e1;line-height:1.3}
+#bar .in{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px 10px 18px}
+#bar .t{font-size:13px;color:#cfd5e1;line-height:1.35}
 #bar .t b{color:var(--tx)}
-#bar .btn{padding:12px 20px;font-size:14px;white-space:nowrap}
-@media(max-width:520px){#bar .t{font-size:11.5px}#bar .btn{padding:11px 14px;font-size:13px}}
+#bar .btn{padding:13px 22px;font-size:14px;white-space:nowrap;flex-direction:row}
+@media(max-width:520px){#bar .t{font-size:11.5px}#bar .btn{padding:12px 14px;font-size:13px}}
 /* lightbox */
-#lb{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
+#lb{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
 #lb.on{display:flex}
-#lb img{max-width:min(720px,94vw);max-height:92vh;height:auto;width:auto;border-radius:6px}
-.rv{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}
+#lb img{max-width:min(760px,94vw);max-height:92vh;width:auto;height:auto;border-radius:8px}
+/* revelado */
+.rv{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
 .rv.in{opacity:1;transform:none}
-@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}.pulse{animation:none}}
+.rv.d1{transition-delay:.12s}.rv.d2{transition-delay:.24s}.rv.d3{transition-delay:.36s}.rv.d4{transition-delay:.48s}.rv.d5{transition-delay:.6s}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv,.hero h1 .w,.hero .lead,.hero .proof,.calc,.scrollhint{opacity:1!important;transform:none!important}.fan img{opacity:1}}
 </style>
 <script src="ev.js" defer></script>
 </head>
 <body>
 
-<header class="head"><div class="wrap">
-  <a class="logo" href="#" aria-label="Adapta Family Office"><b>ADAPTA</b><small>Family Office</small></a>
+<header class="head" id="head"><div class="wrap">
+  <a class="logo" href="#" aria-label="Adapta Family Office"><span class="mk">A</span><span><b>ADAPTA</b><small>Family Office</small></span></a>
   <div class="hd-r">
-    <a class="hd-l" href="#dentro">Ver el informe por dentro</a>
+    <a class="hd-l" href="#dentro">El informe por dentro</a>
     <a class="hd-l" href="#precios">Precios</a>
     <a class="btn-head" href="empezar2.html?tier=2">Mi diagnóstico · 39 €</a>
   </div>
@@ -266,103 +326,106 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 
 <!-- HERO + CALCULADORA -->
 <section class="hero" id="calc">
+  <div class="mesh"><i></i><i></i><i></i></div><div class="gridbg"></div>
   <div class="wrap hero-g">
     <div>
-      <p class="kick">Adapta Family Office · Diagnóstico financiero personal</p>
-      <h1>¿A qué edad dejas de <em>trabajar por dinero?</em></h1>
-      <p class="sub">La mayoría lo descubre <b>cuando ya no hay tiempo de corregirlo</b>. Tú puedes saberlo en 30 segundos. Mueve las barras y mira tu número.</p>
-      <div class="pains">
-        <div class="pain"><i>!</i><span>Ganar más no te acerca si <b>tu gasto sube al mismo ritmo</b>.</span></div>
-        <div class="pain"><i>!</i><span>El dinero parado en la cuenta <b>pierde poder de compra cada año</b>.</span></div>
-        <div class="pain"><i>!</i><span>Nadie te ha hecho <b>la cuenta completa</b>: con tus cifras, tu pensión y tu forma de decidir.</span></div>
-      </div>
-      <div class="trust"><span><b>★ 5,0</b> en Google</span><span><b>25 años</b> en patrimonio</span><span>Autor de <b>2 libros</b></span><span>Pago único · Sin suscripción</span></div>
+      <p class="kick">Adapta Family Office · Diagnóstico financiero</p>
+      <h1><span class="w" style="animation-delay:.05s">¿A</span> <span class="w" style="animation-delay:.12s">qué</span> <span class="w" style="animation-delay:.19s">edad</span> <span class="w" style="animation-delay:.26s">dejas</span> <span class="w" style="animation-delay:.33s">de</span> <span class="w" style="animation-delay:.45s"><em class="sub">trabajar</em></span> <span class="w" style="animation-delay:.55s"><em>por dinero?</em></span></h1>
+      <p class="lead">La mayoría lo descubre <b>cuando ya no hay tiempo de corregirlo</b>. Tú puedes verlo ahora, en 30 segundos. <b>Mueve las barras.</b></p>
+      <div class="proof"><span class="pill"><b>★ 5,0</b> en Google</span><span class="pill"><b>25 años</b> en patrimonio</span><span class="pill">Autor de <b>2 libros</b></span></div>
+      <div class="scrollhint"><span></span>Debajo: lo que la calculadora no puede ver</div>
     </div>
 
-    <div class="calc" id="calcbox">
-      <div class="calc-h"><h2>Tu calculadora de libertad</h2><span>30 segundos</span></div>
+    <div class="calc" id="calcbox"><div class="calc-in">
+      <div class="calc-h"><h2><i></i>Tu calculadora de libertad</h2><span>En directo</span></div>
       <div class="f2">
         <div class="f"><label>Tu edad <span class="v" id="v-ed"></span></label><input type="range" id="i-ed" min="22" max="66" step="1" value="40"></div>
-        <div class="f"><label>Quiero dejar de depender a los <span class="v" id="v-ep"></span></label><input type="range" id="i-ep" min="40" max="70" step="1" value="60"></div>
+        <div class="f"><label>Quiero parar a los <span class="v" id="v-ep"></span></label><input type="range" id="i-ep" min="40" max="70" step="1" value="60"></div>
       </div>
       <div class="f"><label>La vida que quieres, al mes <span class="v" id="v-go"></span></label><input type="range" id="i-go" min="1000" max="10000" step="100" value="2800"></div>
       <div class="f"><label>Pensión pública que esperas (neta/mes) <span class="v" id="v-pe"></span></label><input type="range" id="i-pe" min="0" max="3200" step="50" value="1000"><div class="h">Si no lo sabes, déjalo así. Se cobra a partir de los 67.</div></div>
-      <div class="f"><label>Lo que tienes ahorrado e invertido <span class="v" id="v-ca"></span></label><input type="range" id="i-ca" min="0" max="1500000" step="5000" value="60000"><div class="h">Sin contar tu vivienda.</div></div>
-      <div class="f"><label>Lo que apartas cada mes <span class="v" id="v-ah"></span></label><input type="range" id="i-ah" min="0" max="5000" step="50" value="400"></div>
+      <div class="f2">
+        <div class="f"><label>Ahorrado e invertido <span class="v" id="v-ca"></span></label><input type="range" id="i-ca" min="0" max="1500000" step="5000" value="60000"><div class="h">Sin tu vivienda.</div></div>
+        <div class="f"><label>Apartas al mes <span class="v" id="v-ah"></span></label><input type="range" id="i-ah" min="0" max="5000" step="50" value="400"></div>
+      </div>
 
       <div class="res" id="res">
         <div class="res-top">
-          <div class="rbox"><div class="l">Tu Número de Libertad</div><div class="n am" id="o-n">—</div><div class="d" id="o-nd">Lo que necesitas para vivir sin sueldo</div></div>
+          <div class="rbox ring"><div class="rg"><svg viewBox="0 0 62 62"><circle class="bgc" cx="31" cy="31" r="26"/><circle class="fgc" id="o-ring" cx="31" cy="31" r="26" stroke-dasharray="163.4" stroke-dashoffset="163.4"/></svg><span class="pt" id="o-pct">0%</span></div>
+            <div><div class="l">Tu Número de Libertad</div><div class="n am" id="o-n">—</div><div class="d" id="o-nd"></div></div></div>
           <div class="rbox"><div class="l">A tu ritmo llegas a los</div><div class="n ro" id="o-ed">—</div><div class="d" id="o-edd"></div></div>
         </div>
         <p class="verdict" id="o-ver"></p>
         <div class="vida">
-          <div class="mk" id="o-mk"></div>
-          <div class="bar"><div class="w" id="o-bw"></div><div class="fr" id="o-bf"></div></div>
-          <div class="leg"><span><i style="background:var(--ro)"></i>Años trabajando por dinero</span><span><i style="background:var(--am)"></i>Años libres (hasta los 95)</span></div>
+          <div class="vida-h"><span><b>Tu vida, año a año</b> · hasta los 95</span><span id="o-vh"></span></div>
+          <div class="yrs" id="o-yrs"></div>
+          <div class="leg"><span><i style="background:var(--ro)"></i>Trabajando por dinero</span><span><i style="background:var(--am)"></i>Libre</span><span><i style="background:#1d2133;outline:2px solid #fff;outline-offset:1px"></i>Cuando quieres parar</span></div>
         </div>
         <div class="lever" id="o-lev"></div>
         <div class="wait" id="o-wait"></div>
         <div class="lock">
           <div class="lock-h"><span>🔒 Lo que esta calculadora no puede ver</span><span>En tu diagnóstico</span></div>
           <div class="lr"><span>Lo que te cuesta no actuar, en euros</span><span class="bl">−•••.••• €</span></div>
-          <div class="lr"><span>Tu punto ciego (de 12 dimensiones)</span><span class="bl t">El precio de tu ••••••</span></div>
+          <div class="lr"><span>Tu punto ciego (de 12 dimensiones)</span><span class="bl">El precio de tu ••••••</span></div>
           <div class="lr"><span>Las 3 decisiones que más mueven tu número</span><span class="bl">•• años antes</span></div>
-          <div class="lr"><span>Tu hoja de ruta a 90 días</span><span class="bl t">Fase 1 · 72 horas</span></div>
         </div>
-        <a class="btn btn-am pulse" href="empezar2.html?tier=2" data-ev="cta_calc" data-evv="2">Ver lo que me falta y cómo adelantarlo →<small>Diagnóstico completo · 39 € · 15-20 minutos</small></a>
+        <a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_calc" data-evv="2">Ver lo que me falta y cómo adelantarlo →<small>Diagnóstico completo · 39 € · 15-20 minutos</small></a>
         <p class="calc-n">Cálculo orientativo con supuestos generales: rentabilidad real del 5 % anual, tasa de retirada del 3–3,5 % según los años que deba durar, horizonte hasta los 95 y pensión desde los 67. <b>No es una recomendación ni asesoramiento.</b> <a href="#legal">Más</a></p>
       </div>
-    </div>
+    </div></div>
   </div>
 </section>
 
+<div class="marq" aria-hidden="true"><div>
+  <span>Tu Número de Libertad</span><span>✦</span><span>Lo que te cuesta no actuar</span><span>✦</span><span>Tu punto ciego</span><span>✦</span><span>12 dimensiones</span><span>✦</span><span>Las 3 decisiones que más te mueven</span><span>✦</span><span>Hoja de ruta a 90 días</span><span>✦</span>
+  <span>Tu Número de Libertad</span><span>✦</span><span>Lo que te cuesta no actuar</span><span>✦</span><span>Tu punto ciego</span><span>✦</span><span>12 dimensiones</span><span>✦</span><span>Las 3 decisiones que más te mueven</span><span>✦</span><span>Hoja de ruta a 90 días</span><span>✦</span>
+</div></div>
+
 <!-- DOLOR -->
-<section class="band">
+<section class="band dolor">
   <div class="wrap">
     <div class="sh rv">
       <p class="kick">La cuenta que nadie te hace</p>
       <h2>No es que ganes poco. <em>Es que nadie te ha hecho la cuenta.</em></h2>
-      <p>Mientras no la haces, el tiempo trabaja en tu contra. En silencio, cada mes.</p>
     </div>
-    <div class="pg">
-      <div class="pc3 rv"><div class="big" id="p-anios">—<small> años</small></div><h3>Que podrías trabajar de más</h3><p>Es la distancia entre la edad a la que quieres parar y la edad a la que llegas a tu ritmo actual, según lo que has puesto arriba.</p><p class="src">Calculado con tus datos de la calculadora.</p></div>
-      <div class="pc3 rv"><div class="big">−3.594<small> €</small></div><h3>Lo que pierden 20.000 € parados en 10 años</h3><p>Con una inflación del 2 % anual, 20.000 € en la cuenta compran dentro de 10 años lo que hoy 16.406 €. Nadie te lo cobra. Simplemente desaparece.</p><p class="src">Supuesto: inflación del 2 % anual (objetivo del BCE). Cálculo: 20.000 × (1 − 1/1,02¹⁰).</p></div>
-      <div class="pc3 rv"><div class="big">1<small> de cada 3</small></div><h3>Euros de poder de compra que se lleva la inflación en 20 años</h3><p>Al 2 % anual, en 20 años tu dinero compra un 33 % menos. Tu plan de jubilación tiene que ganarle a eso antes de empezar a sumar.</p><p class="src">Supuesto: inflación del 2 % anual. Cálculo: 1 − 1/1,02²⁰ = 32,7 %.</p></div>
+    <div class="big3">
+      <div class="b3 rv d1"><div class="num"><span id="p-anios">0</span><small> años</small></div><h3>Que podrías trabajar de más</h3><p>La distancia entre la edad a la que quieres parar y la edad a la que llegas a tu ritmo. Con los datos que has puesto arriba.</p><p class="src">Calculado con tu calculadora.</p></div>
+      <div class="b3 rv d2"><div class="num"><span class="cu" data-to="3594" data-pre="−">−3.594</span><small> €</small></div><h3>Pierden 20.000 € parados en 10 años</h3><p>Con un 2 % de inflación, dentro de 10 años esos 20.000 € compran lo que hoy 16.406 €. Nadie te lo cobra. Simplemente desaparece.</p><p class="src">Supuesto: inflación del 2 % (objetivo del BCE). 20.000 × (1 − 1/1,02¹⁰).</p></div>
+      <div class="b3 rv d3"><div class="num"><span class="cu" data-to="33">33</span><small> %</small></div><h3>Menos poder de compra en 20 años</h3><p>Al 2 % anual, tu dinero compra un tercio menos en 20 años. Tu plan tiene que ganarle a eso antes de empezar a sumar.</p><p class="src">Supuesto: inflación del 2 %. 1 − 1/1,02²⁰ = 32,7 %.</p></div>
     </div>
-    <p class="quote rv">Tu patrimonio ya está tomando decisiones cada mes.<br><b>La pregunta es si las estás tomando tú.</b></p>
+    <p class="manif rv">Tu patrimonio ya está tomando decisiones cada mes. <span class="dim">La pregunta es</span> <em>si las estás tomando tú.</em></p>
   </div>
 </section>
 
 <!-- CURIOSIDAD -->
-<section class="band" style="background:linear-gradient(180deg,var(--pa),var(--ng))">
+<section class="band curio">
   <div class="wrap">
-    <div class="sh rv">
+    <div class="sh c rv">
       <p class="kick">Lo que la calculadora no ve</p>
       <h2>Seis datos te dan una edad. <em>Doce dimensiones te dan el porqué.</em></h2>
-      <p>El diagnóstico cruza <b>tus cifras reales</b> con <b>tu forma de decidir con el dinero</b>. Y ahí aparecen cosas que ninguna calculadora te va a enseñar.</p>
+      <p>El diagnóstico cruza <b>tus cifras reales</b> con <b>tu forma de decidir con el dinero</b>. Y ahí aparece lo que ninguna calculadora te va a enseñar.</p>
     </div>
     <div class="cg">
-      <div class="cc rv"><div class="ic">€</div><div><h3>Lo que te cuesta no actuar</h3><p>En euros, no en porcentajes. La distancia entre quedarte quieto y ejecutar tu plan.</p><div class="tease">Quieto vs. tu plan: <span>304.068 € frente a 3.503.417 €</span></div></div></div>
-      <div class="cc rv"><div class="ic">◎</div><div><h3>Tu punto ciego</h3><p>De 12 dimensiones medidas, la que más te está costando sin que lo sepas.</p><div class="tease">Tu dimensión más frágil: <span>El precio de tu estatus</span></div></div></div>
-      <div class="cc rv"><div class="ic">3</div><div><h3>Las 3 decisiones que más mueven tu número</h3><p>Ordenadas por euros, no por lo que suena mejor. Con cuántos años te devuelve cada una.</p><div class="tease">Decisión 1: <span>recortar el gasto un 10 % → −133.848 €</span></div></div></div>
-      <div class="cc rv"><div class="ic">!</div><div><h3>Qué pasa si llega un golpe</h3><p>Un despido, una enfermedad, una caída del mercado. Cuánto aguantas y qué se rompe primero.</p><div class="tease">Tu colchón objetivo: <span>6 meses de gastos</span></div></div></div>
-      <div class="cc rv"><div class="ic">↗</div><div><h3>Tus 4 vías para llegar</h3><p>Ahorrar más, rentar mejor, ajustar el objetivo o tu plan completo. Con la cifra exacta de cada una.</p><div class="tease">Camino 1 · ahorra más: <span>+714 €/mes</span></div></div></div>
-      <div class="cc rv"><div class="ic">90</div><div><h3>Tu hoja de ruta a 90 días</h3><p>Qué hacer en las primeras 72 horas, en 30 días y en 90. Con casillas, no con consejos.</p><div class="tease">Primer paso: <span>monta un presupuesto de tres cajas</span></div></div></div>
+      <div class="cc rv d1"><span class="lk">🔒</span><div class="ic">€</div><h3>Lo que te cuesta no actuar</h3><p>En euros. La distancia entre quedarte quieto y ejecutar tu plan.</p><div class="tease">Quieto vs. tu plan: <span>304.068 € frente a 3.503.417 €</span></div></div>
+      <div class="cc rv d2"><span class="lk">🔒</span><div class="ic">◎</div><h3>Tu punto ciego</h3><p>De 12 dimensiones medidas, la que más te está costando sin que lo sepas.</p><div class="tease">Tu dimensión más frágil: <span>El precio de tu estatus</span></div></div>
+      <div class="cc rv d3"><span class="lk">🔒</span><div class="ic">3</div><h3>Tus 3 decisiones</h3><p>Las que más mueven tu número, ordenadas por euros. Y cuántos años te devuelve cada una.</p><div class="tease">Decisión 1: <span>recortar el gasto un 10 % → −133.848 €</span></div></div>
+      <div class="cc rv d1"><span class="lk">🔒</span><div class="ic">!</div><h3>Qué pasa si llega un golpe</h3><p>Un despido, una enfermedad, una caída del mercado. Cuánto aguantas y qué se rompe primero.</p><div class="tease">Tu colchón objetivo: <span>6 meses de gastos</span></div></div>
+      <div class="cc rv d2"><span class="lk">🔒</span><div class="ic">↗</div><h3>Tus 4 vías para llegar</h3><p>Ahorrar más, rentar mejor, ajustar el objetivo o tu plan completo. Con la cifra de cada una.</p><div class="tease">Camino 1 · ahorra más: <span>+714 €/mes</span></div></div>
+      <div class="cc rv d3"><span class="lk">🔒</span><div class="ic">90</div><h3>Tu hoja de ruta a 90 días</h3><p>Qué hacer en las primeras 72 horas, a 30 días y a 90. Con casillas, no con consejos.</p><div class="tease">Primer paso: <span>monta un presupuesto de tres cajas</span></div></div>
     </div>
-    <div style="text-align:center;margin-top:40px" class="rv"><a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_curiosidad">Quiero ver los míos →<small>Diagnóstico completo · 39 €</small></a></div>
+    <div style="text-align:center;margin-top:50px" class="rv"><a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_curiosidad">Desbloquear los míos →<small>Diagnóstico completo · 39 €</small></a></div>
   </div>
 </section>
 
 <!-- EL INFORME POR DENTRO -->
 <section class="band papel" id="dentro">
   <div class="wrap">
-    <div class="sh rv">
+    <div class="sh c rv">
       <p class="kick">Así es por dentro</p>
       <h2>Esto es lo que vas a tener <em>en tus manos</em></h2>
       <p>Páginas reales de un diagnóstico de ejemplo (perfil ficticio). El tuyo llevará <b>tus cifras, tu nombre y tu plan</b>. Toca una página para verla en grande.</p>
     </div>
-    <div class="fan" id="fan">
+    <div class="fan rv" id="fan">
       <img class="c" src="informe-p1.jpg" alt="Esto es lo que te separa de no depender de un sueldo" loading="lazy" width="827" height="1170">
       <img class="li" src="informe-p2.jpg" alt="Las tres decisiones que más mueven tu número" loading="lazy" width="827" height="1170">
       <img class="ri" src="informe-p3.jpg" alt="Tu cuadro completo de 12 dimensiones" loading="lazy" width="827" height="1170">
@@ -370,11 +433,11 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
       <img class="ro" src="informe-p5.jpg" alt="Tu hoja de ruta a 90 días" loading="lazy" width="827" height="1170">
     </div>
     <div class="caps">
-      <div class="cap"><b>Tu número</b>Lo que te separa de no depender de un sueldo, y cuánto tienes ya.</div>
-      <div class="cap"><b>3 decisiones</b>Las que más años te devuelven, en euros.</div>
-      <div class="cap"><b>12 dimensiones</b>Tu cuadro completo, de la más frágil a la más sólida.</div>
-      <div class="cap"><b>4 vías</b>Ahorrar más, rentar mejor, ajustar el objetivo o tu plan.</div>
-      <div class="cap"><b>90 días</b>Tu hoja de ruta con fechas y casillas.</div>
+      <div class="cap rv d1"><b>Tu número</b>Lo que te separa de no depender de un sueldo, y cuánto tienes ya.</div>
+      <div class="cap rv d2"><b>3 decisiones</b>Las que más años te devuelven, en euros.</div>
+      <div class="cap rv d3"><b>12 dimensiones</b>Tu cuadro completo, de la más frágil a la más sólida.</div>
+      <div class="cap rv d4"><b>4 vías</b>Ahorrar más, rentar mejor, ajustar el objetivo o tu plan.</div>
+      <div class="cap rv d5"><b>90 días</b>Tu hoja de ruta con fechas y casillas.</div>
     </div>
     <div class="row-c rv">
       <a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_informe">Quiero el mío →</a>
@@ -384,8 +447,8 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
   </div>
 </section>
 
-<!-- LA INVERSIÓN -->
-<section class="band">
+<!-- LA INVERSIÓN (amarillo) -->
+<section class="band amar">
   <div class="wrap">
     <div class="sh rv">
       <p class="kick">La inversión</p>
@@ -393,45 +456,42 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
       <p>No te pedimos que confíes. Te pedimos que hagas una multiplicación.</p>
     </div>
     <div class="roi">
-      <div class="roi-l rv">
-        <h3>Un ejemplo sencillo</h3>
-        <div class="eq"><span>Si el diagnóstico te hace ver <b style="font-family:Poppins;font-size:14px">una sola</b> fuga de</span><b>50 €/mes</b></div>
-        <div class="eq"><span>En un año son</span><b>600 €</b></div>
+      <div class="x15 rv">×15<small>+</small></div>
+      <div class="roi-r rv d2">
+        <div class="eq"><span>Una sola fuga que el diagnóstico te haga ver</span><b>50 €/mes</b></div>
+        <div class="eq"><span>En un año</span><b>600 €</b></div>
         <div class="eq"><span>En 10 años, solo apartándolos</span><b>6.000 €</b></div>
-        <div class="eq tot"><span>Lo que cuesta el diagnóstico</span><b>39 €</b></div>
-      </div>
-      <div class="roi-r rv">
-        <div class="x">×15</div>
-        <p>Una sola decisión de 50 € al mes multiplica <b>por más de 15</b> lo que pagas, solo el primer año. Y la calculadora de arriba te enseña cuántos <b>años de tu vida</b> mueve apartar 200 € más al mes.</p>
+        <div class="eq tot"><span>Lo que cuesta tu diagnóstico</span><b>39 €</b></div>
         <p class="src">Ejemplo aritmético ilustrativo, no una promesa de ahorro ni de rentabilidad. El resultado depende de lo que decidas hacer tú.</p>
       </div>
     </div>
+    <div class="cta rv"><a class="btn btn-ng" href="empezar2.html?tier=2" data-ev="cta_inversion">Hacer mi diagnóstico · 39 € →</a></div>
   </div>
 </section>
 
 <!-- PRECIOS -->
-<section class="band" id="precios" style="background:linear-gradient(180deg,var(--pa),var(--ng))">
+<section class="band precios" id="precios">
   <div class="wrap">
-    <div class="sh rv">
+    <div class="sh c rv">
       <p class="kick">Elige tu diagnóstico</p>
       <h2>Pago único. <em>Tu informe al terminar.</em></h2>
-      <p>Sin suscripción. Respondes desde el móvil y lo recibes en tu correo al terminar.</p>
+      <p>Sin suscripción. Respondes desde el móvil y lo recibes en tu correo.</p>
     </div>
     <div class="prod">
-      <div class="pk rv">
+      <div class="pk rv d1">
         <div class="k">Rápido</div><h3>Tu foto en claro</h3>
         <div class="pr">19 €<small> pago único</small></div>
         <ul><li>Tus 12 dimensiones, en un vistazo</li><li>Tu Número de Libertad y cuándo llegas</li><li>Las 3 decisiones que más lo mueven</li><li>Hoja de ruta a 90 días</li><li>~50 páginas · 10-12 minutos</li></ul>
         <a class="btn btn-gh" href="empezar2.html?tier=1">Empezar el rápido</a>
       </div>
       <div class="pk star rv">
-        <div class="badge">El más elegido</div>
+        <div class="badge">★ El más elegido</div>
         <div class="k">Avanzado</div><h3>Tu diagnóstico completo</h3>
         <div class="pr">39 €<small> pago único</small></div>
         <ul><li><b>Todo lo del rápido</b></li><li>Tus 12 dimensiones, una a una, con su plan</li><li>Lo que te cuesta no actuar, en euros</li><li>Riesgos: qué pasa si llega un golpe</li><li>Tablero de operaciones por fases</li><li>~90 páginas · 15-20 minutos</li></ul>
-        <a class="btn btn-am pulse" href="empezar2.html?tier=2">Hacer mi diagnóstico →</a>
+        <a class="btn btn-am" href="empezar2.html?tier=2">Hacer mi diagnóstico →</a>
       </div>
-      <div class="pk rv">
+      <div class="pk rv d2">
         <div class="k">En pareja</div><h3>Vuestro informe</h3>
         <div class="pr">54 €<small> los dos</small></div>
         <ul><li>Dos perfiles, un libro conjunto</li><li>El reparto justo: cuánto le cuesta a cada uno</li><li>Dónde no estáis de acuerdo sin saberlo</li><li>Guion para hablarlo sin discutir</li><li>~90 páginas · 15-20 min cada uno</li></ul>
@@ -445,31 +505,37 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 <!-- CÓMO -->
 <section class="band">
   <div class="wrap">
-    <div class="sh rv"><p class="kick">Cómo funciona</p><h2>Tres pasos. <em>El primero lo das hoy.</em></h2></div>
+    <div class="sh c rv"><p class="kick">Cómo funciona</p><h2>Tres pasos. <em>El primero, hoy.</em></h2></div>
     <div class="steps">
-      <div class="st rv"><div class="n">1</div><h3>Respondes</h3><p>Entre 10 y 20 minutos, desde el móvil. Tus cifras aproximadas y cómo decides con el dinero. Puedes parar y seguir.</p></div>
-      <div class="st rv"><div class="n">2</div><h3>Recibes tu informe</h3><p>Al terminar, en tu correo. Tu número, lo que te cuesta no actuar, tus 3 decisiones y tu hoja de ruta a 90 días.</p></div>
-      <div class="st rv"><div class="n">3</div><h3>Tú decides</h3><p>Lo aplicas por tu cuenta o, si quieres, lo revisas con el equipo de Adapta. Sin compromiso.</p></div>
+      <div class="st rv d1"><div class="n">1</div><h3>Respondes</h3><p>Entre 10 y 20 minutos, desde el móvil. Tus cifras aproximadas y cómo decides con el dinero. Puedes parar y seguir.</p></div>
+      <div class="st rv d2"><div class="n">2</div><h3>Recibes tu informe</h3><p>Al terminar, en tu correo. Tu número, lo que te cuesta no actuar, tus 3 decisiones y tu hoja de ruta a 90 días.</p></div>
+      <div class="st rv d3"><div class="n">3</div><h3>Tú decides</h3><p>Lo aplicas por tu cuenta o, si quieres, lo revisas con el equipo de Adapta. Sin compromiso.</p></div>
     </div>
   </div>
 </section>
 
 <!-- ADAPTA -->
-<section class="band" style="background:linear-gradient(180deg,var(--pa),var(--ng))">
-  <div class="wrap">
-    <div class="sh rv">
-      <p class="kick">Quién está detrás</p>
-      <h2>Adapta Family Office. <em>El rigor de un family office, para tu caso.</em></h2>
-      <p>Llevamos 25 años trabajando con patrimonios. Este diagnóstico es la puerta de entrada que usamos con nuestros propios clientes, ahora abierta a cualquiera.</p>
+<section class="band adapta">
+  <div class="wrap ad-g">
+    <div class="rv">
+      <div class="sh">
+        <p class="kick">Quién está detrás</p>
+        <h2>Adapta Family Office. <em>El rigor de un family office, para tu caso.</em></h2>
+        <p>Llevamos 25 años trabajando con patrimonios. Este diagnóstico es la puerta de entrada que usamos con nuestros clientes, ahora abierta a cualquiera.</p>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="v">5,0★</div><div class="l">Valoración en Google</div></div>
+        <div class="stat"><div class="v"><span class="cu" data-to="25">25</span></div><div class="l">Años de experiencia en patrimonio</div></div>
+        <div class="stat"><div class="v">2</div><div class="l">Libros publicados</div></div>
+      </div>
     </div>
-    <div class="chips rv"><span class="chip"><b>★ 5,0</b> en Google</span><span class="chip"><b>25 años</b> de experiencia</span><span class="chip">Autor de <b>2 libros</b></span><span class="chip">Supuestos <b>a la vista</b></span></div>
-    <div class="af">
-      <div class="af-b si rv"><h3>Lo que es</h3><ul>
+    <div class="isno rv d2">
+      <div class="bk si"><h3>Lo que es</h3><ul>
         <li>Una herramienta <b>educativa y orientativa</b> para ver tu situación con claridad.</li>
-        <li>Calculado con <b>tus datos</b> y con supuestos explicados, para que puedas juzgarlo.</li>
+        <li>Calculado con <b>tus datos</b> y con los supuestos a la vista, para que puedas juzgarlo.</li>
         <li>Un mapa para que <b>tú</b> tomes mejores decisiones.</li>
       </ul></div>
-      <div class="af-b no rv"><h3>Lo que no es</h3><ul>
+      <div class="bk no"><h3>Lo que no es</h3><ul>
         <li><b>No es una recomendación</b> de inversión ni de ningún producto financiero.</li>
         <li>No es asesoramiento financiero, fiscal ni jurídico personalizado.</li>
         <li>No es una promesa de rentabilidad ni una previsión garantizada.</li>
@@ -479,29 +545,30 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 </section>
 
 <!-- FAQ -->
-<section class="band">
+<section class="band" style="padding-top:60px">
   <div class="wrap">
-    <div class="sh rv"><p class="kick">Dudas rápidas</p><h2>Antes de empezar</h2></div>
-    <div class="faq">
+    <div class="sh c rv"><p class="kick">Dudas rápidas</p><h2>Antes de empezar</h2></div>
+    <div class="faq rv">
       <details data-evv="que_recibo"><summary>¿Qué recibo exactamente?</summary><p>Un informe personal en PDF en tu correo al terminar: tu Número de Libertad y cuándo llegas, lo que te cuesta no actuar, tu punto ciego, las 3 decisiones que más mueven tu número y tu hoja de ruta a 90 días. Puedes ver un <a href="muestra-avanzado.pdf" target="_blank" rel="noopener" style="text-decoration:underline">ejemplo completo aquí</a>.</p></details>
       <details data-evv="asesoramiento"><summary>¿Esto es asesoramiento o una recomendación?</summary><p>No. Es un marco educativo y orientativo de Adapta Family Office. No constituye recomendación de inversión ni de ningún producto, ni asesoramiento financiero, fiscal o jurídico personalizado. Las decisiones son siempre tuyas.</p></details>
       <details data-evv="cifras"><summary>¿Necesito tener mis cifras exactas?</summary><p>No. Con aproximaciones basta para empezar: ingresos, gastos, lo que tienes ahorrado e invertido y tus deudas. Cuanto más reales, más útil el resultado.</p></details>
       <details data-evv="datos"><summary>¿Qué hacéis con mis datos?</summary><p>Solo los usamos para elaborar tu informe. No los vendemos ni los cedemos. Más detalle en la <a href="privacidad.html" style="text-decoration:underline">política de privacidad</a>.</p></details>
-      <details data-evv="diferencia"><summary>¿En qué se diferencia de la calculadora de arriba?</summary><p>La calculadora usa seis datos y te da una edad. El diagnóstico usa tus cifras completas y tu forma de decidir para decirte <b>por qué</b> llegas a esa edad y <b>qué hacer</b> para adelantarla.</p></details>
+      <details data-evv="diferencia"><summary>¿En qué se diferencia de la calculadora?</summary><p>La calculadora usa seis datos y te da una edad. El diagnóstico usa tus cifras completas y tu forma de decidir para decirte <b>por qué</b> llegas a esa edad y <b>qué hacer</b> para adelantarla.</p></details>
     </div>
   </div>
 </section>
 
 <!-- FINAL -->
 <section class="final">
+  <div class="mesh"><i></i><i></i><i></i></div>
   <div class="wrap">
-    <h2>Ya sabes a qué edad llegas. <em>Ahora descubre cómo adelantarla.</em></h2>
-    <p>Entre 15 y 20 minutos hoy. Un mapa claro para los próximos años.</p>
-    <div class="row">
-      <a class="btn btn-am pulse" href="empezar2.html?tier=2">Hacer mi diagnóstico · 39 € →</a>
+    <h2 class="rv">Ya sabes a qué edad llegas. <em>Ahora descubre cómo adelantarla.</em></h2>
+    <p class="rv d1">Entre 15 y 20 minutos hoy. Un mapa claro para los próximos años.</p>
+    <div class="row rv d2">
+      <a class="btn btn-am" href="empezar2.html?tier=2">Hacer mi diagnóstico · 39 € →</a>
       <a class="btn btn-gh" href="#calc" data-ev="volver_calc">Volver a mi calculadora</a>
     </div>
-    <a class="wa" href="https://wa.me/34683343531?text=Hola%2C%20tengo%20una%20duda%20sobre%20el%20diagn%C3%B3stico" target="_blank" rel="noopener">¿Una duda antes de empezar? <b>Escríbenos por WhatsApp</b></a>
+    <a class="wa rv d3" href="https://wa.me/34683343531?text=Hola%2C%20tengo%20una%20duda%20sobre%20el%20diagn%C3%B3stico" target="_blank" rel="noopener"><i></i>¿Una duda antes de empezar? <b>Escríbenos por WhatsApp</b></a>
   </div>
 </section>
 
@@ -514,7 +581,7 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
   <div class="lk"><a href="privacidad.html">Privacidad</a> · Medición propia y anónima de visitas, sin cookies ni datos personales.</div>
 </footer>
 
-<div id="bar"><div class="wrap">
+<div id="bar"><div class="in">
   <div class="t" id="bar-t"><b>Tu diagnóstico completo</b><br>Lo que la calculadora no ve · 39 €</div>
   <a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_barra">Hacerlo ahora →</a>
 </div></div>
@@ -543,14 +610,17 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
   var corto=function(n){ return n>=1e6 ? (Math.round(n/1e4)/100).toFixed(2).replace('.',',')+' M€' : eur(n); };
   var ids=['ed','ep','go','pe','ca','ah'], usado=false, tRes=null;
   function lee(k){return +$('i-'+k).value}
+  function pinta(el){ var mn=+el.min,mx=+el.max; el.style.setProperty('--p',(100*(el.value-mn)/(mx-mn))+'%'); }
   function calc(){
+    ids.forEach(function(k){pinta($('i-'+k))});
     var ed=lee('ed'), ep=lee('ep'), go=lee('go'), pe=lee('pe'), ca=lee('ca'), ah=lee('ah');
-    if(ep<=ed){ ep=ed+1; $('i-ep').value=ep; }
+    if(ep<=ed){ ep=ed+1; $('i-ep').value=ep; pinta($('i-ep')); }
     $('v-ed').textContent=ed+' años'; $('v-ep').textContent=ep+' años';
     $('v-go').textContent=eur(go); $('v-pe').textContent=eur(pe); $('v-ca').textContent=eur(ca); $('v-ah').textContent=eur(ah);
     var N=capNec(go,pe,ep), pct=N>0?Math.min(100,Math.round(100*ca/N)):100, falta=Math.max(0,N-ca);
     $('o-n').textContent=corto(N);
-    $('o-nd').textContent= N>0 ? ('Tienes cubierto el '+pct+' %. Te faltan '+corto(falta)+'.') : 'Tu pensión ya cubre esa vida.';
+    $('o-nd').textContent= N>0 ? ('Te faltan '+corto(falta)) : 'Tu pensión ya cubre esa vida.';
+    $('o-pct').textContent=pct+'%'; $('o-ring').style.strokeDashoffset=(163.4*(1-pct/100)).toFixed(1);
     var a=anios(N,ca,ah), llega = a===null ? null : ed+a, ver=$('o-ver'), dif=null;
     if(N<=0){ $('o-ed').textContent='Ya'; $('o-ed').className='n ve'; $('o-edd').textContent='Con tu pensión llega'; ver.innerHTML='Con la pensión que esperas cubres esa vida desde los 67. La pregunta es <b>qué pasa hasta entonces</b>.'; }
     else if(llega===null || llega>FIN){ $('o-ed').textContent='No llegas'; $('o-ed').className='n ro'; $('o-edd').textContent='antes de los 95, a este ritmo';
@@ -559,11 +629,12 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
       $('o-ed').className='n '+(dif>0?'ro':'ve'); $('o-edd').textContent= a===0?'Ya lo tienes':('dentro de '+a+' años');
       ver.innerHTML = dif>0 ? 'Quieres parar a los <b>'+ep+'</b>. A tu ritmo llegas a los <b>'+llega+'</b>: <span class="ro">'+dif+' año'+(dif===1?'':'s')+' más trabajando por dinero</span> de lo que te gustaría.'
                             : 'Vas por delante: llegas a los <b>'+llega+'</b>, antes de los '+ep+'. Ahora toca <span class="ve">protegerlo</span> y saber qué puede torcerlo.'; }
-    // barra de vida
-    var fin=FIN, hasta=(llega===null||llega>fin)?fin:Math.max(ed,llega), tot=fin-ed;
-    $('o-bw').style.width=(100*(hasta-ed)/tot)+'%'; $('o-bf').style.width=(100*(fin-hasta)/tot)+'%';
-    var pos=function(x){return Math.max(4,Math.min(96,100*(x-ed)/tot))+'%'};
-    $('o-mk').innerHTML='<span style="left:'+pos(ed)+'">Hoy '+ed+'</span><span style="left:'+pos(ep)+';color:var(--am)">▼ quieres '+ep+'</span><span style="left:'+pos(fin)+'">95</span>';
+    // tu vida, año a año
+    var hasta=(N<=0)?ed:((llega===null||llega>FIN)?FIN:Math.max(ed,llega)), g=$('o-yrs'), n=FIN-ed;
+    if(g.children.length!==n){ g.innerHTML=''; for(var i=0;i<n;i++){ var s=document.createElement('i'); g.appendChild(s);} }
+    for(var j=0;j<n;j++){ var y=ed+j, el=g.children[j]; el.className=(y<hasta?'w':'f')+(y===ep?' t':''); el.title=y+' años'; }
+    var tw=Math.max(0,hasta-ed), tf=Math.max(0,FIN-hasta);
+    $('o-vh').innerHTML='<b style="color:var(--ro)">'+tw+'</b> trabajando · <b style="color:var(--am)">'+tf+'</b> libres';
     // palanca: +200 €/mes (escenario del informe)
     var lev=$('o-lev'), wait=$('o-wait');
     if(N>0 && a!==0){
@@ -574,25 +645,30 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
       } else lev.style.display='none';
       var meses=(ep-ed)*12, hoy=ahorroNec(N,ca,meses), tras=ahorroNec(N,fv(ca,ah,RR,12),meses-12);
       if(hoy!==null && tras!==null && hoy>ah && meses>12){ wait.style.display='';
-        wait.innerHTML='Para parar a los '+ep+' tendrías que apartar <b>'+eur(hoy)+'/mes</b> desde hoy. Si lo dejas un año más, serán <b>'+eur(tras)+'/mes</b>. <b>Esperar también cuesta.</b>';
+        wait.innerHTML='Para parar a los '+ep+' tendrías que apartar <b>'+eur(hoy)+'/mes</b> desde hoy. Si lo dejas un año, serán <b>'+eur(tras)+'/mes</b>. <b>Esperar también cuesta.</b>';
       } else wait.style.display='none';
     } else { lev.style.display='none'; wait.style.display='none'; }
-    // dolor: años de más
-    var pa=$('p-anios'); if(pa){ pa.innerHTML = (dif===null||dif<=0) ? '0<small> años</small>' : (llega===null||llega>FIN ? '+'+dif : dif)+'<small> años</small>'; }
+    var pa=$('p-anios'); if(pa){ pa.textContent = (dif===null||dif<=0) ? '0' : (llega===null||llega>FIN ? '+'+dif : String(dif)); }
     var bt=$('bar-t'); if(bt && dif!==null && dif>0) bt.innerHTML='<b>'+(llega===null||llega>FIN?'No llegas antes de los 95':'Llegas a los '+llega+', no a los '+ep)+'</b><br>Descubre cómo adelantarlo · 39 €';
     clearTimeout(tRes); tRes=setTimeout(function(){ if(usado && window.adaptaEv) adaptaEv('calc_resultado', (dif===null?'na':dif)+'|'+ed+'|'+pct+'%'); },1500);
   }
   ids.forEach(function(k){ $('i-'+k).addEventListener('input',function(){ if(!usado){usado=true; window.adaptaEv&&adaptaEv('calc_uso',k);} calc(); }); });
   calc();
 })();
-/* barra fija, revelado, lightbox */
+/* cabecera, barra fija, revelado, contadores, foco en tarjetas, lightbox */
 (function(){
-  var bar=document.getElementById('bar'), cb=document.getElementById('calcbox');
+  var head=document.getElementById('head'), bar=document.getElementById('bar'), cb=document.getElementById('calcbox');
   addEventListener('scroll',function(){
-    var r=cb.getBoundingClientRect(); bar.classList.toggle('on', r.bottom<0 && (innerHeight+scrollY)<(document.body.scrollHeight-260));
+    head.classList.toggle('sc', scrollY>20);
+    var r=cb.getBoundingClientRect(); bar.classList.toggle('on', r.bottom<0 && (innerHeight+scrollY)<(document.body.scrollHeight-300));
   },{passive:true});
-  var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}})},{threshold:.12});
+  function cuenta(el){ var to=+el.getAttribute('data-to'), pre=el.getAttribute('data-pre')||'', t0=null;
+    function f(t){ if(!t0)t0=t; var p=Math.min(1,(t-t0)/1400), e=1-Math.pow(1-p,3), v=Math.round(to*e);
+      el.textContent=pre+String(v).replace(/\B(?=(\d{3})+(?!\d))/g,'.'); if(p<1) requestAnimationFrame(f); }
+    requestAnimationFrame(f); }
+  var io=new IntersectionObserver(function(es){es.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add('in'); x.target.querySelectorAll('.cu').forEach(cuenta); io.unobserve(x.target);} })},{threshold:.15});
   document.querySelectorAll('.rv').forEach(function(el){io.observe(el)});
+  document.querySelectorAll('.cc').forEach(function(c){ c.addEventListener('mousemove',function(e){ var r=c.getBoundingClientRect(); c.style.setProperty('--x',(e.clientX-r.left)+'px'); c.style.setProperty('--y',(e.clientY-r.top)+'px'); }); });
   var lb=document.getElementById('lb'), li=lb.querySelector('img');
   document.querySelectorAll('#fan img').forEach(function(im){ im.addEventListener('click',function(){ li.src=im.src; li.alt=im.alt; lb.classList.add('on'); window.adaptaEv&&adaptaEv('zoom_pagina',im.getAttribute('src')); }); });
   lb.addEventListener('click',function(){lb.classList.remove('on')});
