@@ -215,8 +215,8 @@ def _fv(P, A, r, n):
 # rebajan la tasa segura cuanto mas largo es el horizonte. Rango de trabajo: 25x-33x.
 # CALIBRACION PARA UN INVERSOR ESPANOL CON CARTERA GLOBAL.
 # No usamos el 4% de Bengen (1994): sale solo de la bolsa de EE.UU. del siglo XX
-# (sesgo de supervivencia). Para carteras globales, Pfau (2010, 20 paises) situa el
-# maximo seguro a 30 anos en el 3,5%. A mayor horizonte, menor tasa: el propio Bengen
+# (sesgo de supervivencia). Para carteras globales, Pfau (2010, 17 paises): el 4% solo
+# habria sido seguro en 4 de ellos; Morningstar 2026: 3,9% a 30 anos. A mayor horizonte, menor tasa: el propio Bengen
 # admite que el 4% falla ~15% a 40 anos y ~30% a 50 anos.
 # Nota Espana: con activos ESPANOLES el 4% habria agotado la cartera en mas de la
 # mitad de los escenarios historicos -> la cartera global no es estilo, es necesidad.
@@ -242,7 +242,7 @@ def _cargar_parametros():
         "edad_jubilacion": float(r.get("edad_jubilacion", 67)),
         "edad_plan_fin": float(r.get("edad_plan_fin", 95)),
         "tasa_optimista": float(e.get("tasa_optimista", 4.70)),
-        "tasa_exigente": float(e.get("tasa_exigente", 2.26)),
+        "tasa_exigente": float(e.get("tasa_exigente", 2.31)),
     }
 
 

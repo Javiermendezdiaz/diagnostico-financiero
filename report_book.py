@@ -2088,15 +2088,12 @@ def seccion_cuatro_caminos(datos, fi, extras=None):
             out.append(Paragraph("Calculado con una tasa de retirada del <b>%s%%</b> para la renta que necesitar\u00e1s "
                                  "<b>desde los 67</b>, m\u00e1s el capital que cubre los <b>%s a\u00f1os</b> en los que a\u00fan no "
                                  "cobrar\u00e1s pensi\u00f3n. En conjunto equivale a <b>%s\u00d7 tu gasto anual</b>. "
-                                 "<b>No usamos el 4%% de manual</b>: ese dato sale solo de la bolsa de EE.UU. del siglo XX; para "
-                                 "una cartera global la evidencia de 20 pa\u00edses sit\u00faa el m\u00e1ximo seguro en el 3,5%%."%(
+                                 "<b>No usamos el 4%% de manual</b>: sale solo de la bolsa de EE.UU. (Bengen, 1994). Con 17 pa\u00edses, ese 4%% solo habr\u00eda sido seguro en 4 (Pfau, 2010), y Morningstar lo sit\u00faa hoy en el 3,9%% a 30 a\u00f1os (2026). Por eso usamos del 3,5%% al 3%%, seg\u00fan cu\u00e1ntos a\u00f1os tenga que aguantar tu cartera."%(
                                  _c(_tasa), exp.get("puente_anios"), _c(_mef)), body))
         else:
             out.append(Paragraph("Calculado con una tasa de retirada del <b>%s%%</b> (%s\u00d7 tu gasto anual), la que corresponde "
                                  "a un retiro de <b>%s a\u00f1os</b> si dejas de depender del sueldo a los <b>%s</b>. "
-                                 "<b>No usamos el 4%% de manual</b>: ese dato sale solo de la bolsa de EE.UU. del siglo XX. Para una "
-                                 "cartera global \u2014la que te corresponde invirtiendo desde Espa\u00f1a\u2014 la evidencia de 20 pa\u00edses "
-                                 "sit\u00faa el m\u00e1ximo seguro en el 3,5%%."%(_c(_tasa), _c(_mult),
+                                 "<b>No usamos el 4%% de manual</b>: sale solo de la bolsa de EE.UU. (Bengen, 1994). Con 17 pa\u00edses, ese 4%% solo habr\u00eda sido seguro en 4 (Pfau, 2010), y Morningstar lo sit\u00faa hoy en el 3,9%% a 30 a\u00f1os (2026). Por eso usamos del 3,5%% al 3%%, seg\u00fan cu\u00e1ntos a\u00f1os tenga que aguantar tu cartera."%(_c(_tasa), _c(_mult),
                                  exp.get("dur_retiro_anios"), exp.get("edad_parada")), body))
     _pu=exp.get("puente_anios") or 0
     if _pu>0:
@@ -4650,7 +4647,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     S=_B["fin"]
     S+=[PageBreak(), DarkPage(titulo="ADAPTA  ·  family office",
         sub="Tu Libro Financiero · Documento confidencial",
-        legal="Adapta Family Office · Herramienta de autoconocimiento financiero; no constituye asesoramiento personalizado regulado. Las estimaciones son orientativas. © 2026.")]
+        legal="Adapta Family Office · Herramienta de autoconocimiento financiero; no constituye asesoramiento personalizado regulado. Las estimaciones son orientativas. Metodología y fuentes: diagnostico.adaptafamilyoffice.com/metodologia.html · © 2026.")]
     global CLIENTE_NOMBRE; CLIENTE_NOMBRE=(cli.get("nombre") or "")
     # --- ensamblado en 3 partes ---
     _sep2=[]; _sep3=[]

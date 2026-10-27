@@ -75,24 +75,20 @@ def seccion_numero_caminos(exp):
         _com = lambda v: str(v).replace(".", ",")
         S.append(Paragraph(
             "Calculado con una tasa de retirada del <b>%s%%</b> (%sx tu gasto anual), la que corresponde a un retiro de "
-            "<b>%s a\u00f1os</b> si dejas de depender del sueldo a los <b>%s</b>. <b>No usamos el 4%% de manual</b>: ese dato "
-            "sale solo de la bolsa de EE.UU. del siglo XX. Para una cartera global \u2014la que te corresponde invirtiendo "
-            "desde Espa\u00f1a\u2014 la evidencia de 20 pa\u00edses sit\u00faa el m\u00e1ximo seguro en el 3,5%%, y baja hacia el 3%% si "
-            "tu retiro llega a durar 50 a\u00f1os." % (
+            "<b>%s a\u00f1os</b> si dejas de depender del sueldo a los <b>%s</b>. <b>No usamos el 4%% de manual</b>: sale solo de la bolsa de EE.UU. (Bengen, 1994). Con 17 pa\u00edses, ese 4%% solo habr\u00eda sido seguro en 4 (Pfau, 2010), y Morningstar lo sit\u00faa hoy en el 3,9%% a 30 a\u00f1os (2026). Por eso usamos del 3,5%% al 3%%, seg\u00fan cu\u00e1ntos a\u00f1os tenga que aguantar tu cartera." % (
                 _com(exp.get("tasa_retirada_pct")), _com(exp.get("multiplo")),
                 exp.get("dur_retiro_anios"), exp.get("edad_parada")), BODY))
         rg = exp.get("rango_libertad") or {}
         if rg.get("min") and rg.get("max"):
             S.append(Paragraph(
                 "Para que veas la incertidumbre real que hay detr\u00e1s: con el criterio m\u00e1s optimista publicado (4,7%%, "
-                "Bengen 2025) tu n\u00famero ser\u00eda <b>%s \u20ac</b>; con el m\u00e1s exigente (2,26%%, estudio de 38 pa\u00edses) "
+                "Bengen 2025) tu n\u00famero ser\u00eda <b>%s \u20ac</b>; con el m\u00e1s exigente (2,31%%, estudio de 38 pa\u00edses, 2025) "
                 "ser\u00edan <b>%s \u20ac</b>. No elegimos el m\u00e1s c\u00f3modo ni el m\u00e1s alarmista." % (
                     _eur(rg["min"]), _eur(rg["max"])), SM))
         _es = [Paragraph("Un apunte espa\u00f1ol", ParagraphStyle("esp", fontName="Helvetica-Bold", fontSize=9,
                                                               textColor=GOLD, spaceAfter=3)),
-               Paragraph("Con activos <b>espa\u00f1oles</b>, retirar el 4% habr\u00eda agotado la cartera en <b>m\u00e1s de la mitad "
-                         "de los escenarios hist\u00f3ricos</b>. Diversificar fuera de Espa\u00f1a no es una preferencia de estilo: "
-                         "es lo que hace que tu n\u00famero sea alcanzable.", SM)]
+               Paragraph("Las tasas seguras m\u00e1s altas salen de un solo pa\u00eds, EE.UU.; con muchos pa\u00edses, bajan. "
+                         "Diversificar fuera de Espa\u00f1a no es una preferencia de estilo: es lo que hace que tu n\u00famero sea alcanzable.", SM)]
         S += [Spacer(1, 4), _box(_es)]
         S.append(Spacer(1, 4))
     if exp.get("pension_cubre"):

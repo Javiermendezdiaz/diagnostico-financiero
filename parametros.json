@@ -11,15 +11,15 @@
     "dur_max": 50,
     "edad_jubilacion": 67,
     "edad_plan_fin": 95,
-    "fuente_tasa": "Pfau (2010, 20 paises): cartera global agregada 3,5%. Bengen (1994/2025) EE.UU. Morningstar 2026: 3,9%."
+    "fuente_tasa": "Calibracion Adapta 3,5% (30 años) a 3,0% (50 años). Bengen (1994) 4% EE.UU.; Pfau (2010, 17 paises): el 4% solo seguro en 4; Morningstar 2026: 3,9% a 30 años (90% exito); Morningstar 2024: 3,1% a 40 años."
   },
 
   "extremos_publicados": {
     "_doc": "Solo para mostrar al cliente la incertidumbre real del sector. No se usan para calcular su numero.",
     "tasa_optimista": 4.70,
     "tasa_optimista_fuente": "Bengen 2025, cartera muy diversificada",
-    "tasa_exigente": 2.26,
-    "tasa_exigente_fuente": "Cederburg et al. 2025, 38 paises, 5% de probabilidad de ruina"
+    "tasa_exigente": 2.31,
+    "tasa_exigente_fuente": "Anarkulova, Cederburg, O'Doherty y Sias (2025), Journal of Pension Economics and Finance, 38 paises, 5% de probabilidad de ruina"
   },
 
   "fiscal_espana": {

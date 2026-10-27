@@ -2629,7 +2629,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     S=_B["fin"]
     S+=[PageBreak(), rb.DarkPage(titulo="ADAPTA  ·  family office",
         sub="Vuestro Libro Financiero · Documento confidencial",
-        legal="Adapta Family Office · Herramienta de autoconocimiento financiero; no constituye asesoramiento personalizado regulado ni terapia de pareja. Las estimaciones son orientativas. © 2026.")]
+        legal="Adapta Family Office · Herramienta de autoconocimiento financiero; no constituye asesoramiento personalizado regulado ni terapia de pareja. Las estimaciones son orientativas. Metodología y fuentes: diagnostico.adaptafamilyoffice.com/metodologia.html · © 2026.")]
     # --- ensamblado en 3 partes ---
     try:
         rb.portadilla("_pa_parte2p.png", "Parte 2", 'VUESTRO\nDIAGNÓSTICO', 'Dónde chocáis, lo que os cuesta callarlo y cómo repartir sin discutir.')

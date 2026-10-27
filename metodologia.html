@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cómo calculamos tu diagnóstico · Metodología y fuentes · Adapta Family Office</title>
+<meta name="description" content="Cada cifra de tu diagnóstico sale de tus respuestas y de fuentes públicas que puedes comprobar: Banco de España, Morningstar, estudios internacionales de tasa de retirada y la legislación española.">
+<meta property="og:title" content="Cómo calculamos tu diagnóstico · Adapta Family Office">
+<meta property="og:description" content="Metodología, hipótesis y fuentes públicas detrás de cada cifra de tu informe.">
+<style>
+@font-face{font-family:'Poppins';font-weight:400;font-display:swap;src:url('fonts/Poppins-Regular.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:500;font-display:swap;src:url('fonts/Poppins-Medium.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:700;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:400;font-display:swap;src:url('fonts/Lora-Regular.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:700;font-display:swap;src:url('fonts/Lora-Bold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-style:italic;font-display:swap;src:url('fonts/Lora-Italic.ttf') format('truetype')}
+:root{--bg:#FBF8F1;--pa:#F3EEE2;--ink:#17181C;--gr:#5F6168;--ln:#E4DECF;--am:#FDD731;--oro:#B8860B;--ve:#1D6F42}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Poppins',system-ui,sans-serif;font-size:16px;line-height:1.65}
+a{color:inherit}
+.top{position:sticky;top:0;z-index:5;background:rgba(17,18,22,.96);color:#fff}
+.top .in{max-width:880px;margin:0 auto;padding:12px 20px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:700;letter-spacing:2px;font-size:15px;text-decoration:none}.logo small{display:block;font-size:8px;letter-spacing:3px;color:#9aa3b5}
+.btn{display:inline-block;background:var(--am);color:#000;font-weight:700;font-size:14px;padding:11px 18px;border-radius:10px;text-decoration:none}
+.wrap{max-width:880px;margin:0 auto;padding:0 20px}
+.hero{padding:64px 0 30px;border-bottom:1px solid var(--ln)}
+.kick{font-size:12px;letter-spacing:2px;font-weight:700;color:var(--oro);text-transform:uppercase}
+h1{font-family:'Lora',serif;font-size:clamp(30px,5vw,46px);line-height:1.15;margin:10px 0 14px}
+.lead{font-size:18px;color:var(--gr);max-width:680px}
+.prin{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:28px 0 10px}
+.prin div{background:#fff;border:1px solid var(--ln);border-left:3px solid var(--am);border-radius:10px;padding:14px 16px;font-size:14px}
+.prin b{display:block;font-size:15px}
+section{padding:42px 0 8px}
+h2{font-family:'Lora',serif;font-size:27px;line-height:1.25;margin-bottom:6px}
+h2 .n{color:var(--oro);font-family:'Poppins';font-size:14px;font-weight:700;letter-spacing:1px;display:block;margin-bottom:4px}
+.uno{font-size:17px;margin:8px 0 14px}
+.dato{display:flex;gap:14px;align-items:baseline;background:#fff;border:1px solid var(--ln);border-radius:12px;padding:14px 18px;margin:8px 0}
+.dato .v{font-family:'Lora',serif;font-weight:700;font-size:26px;white-space:nowrap}
+.dato .t{font-size:14px;color:var(--gr)}
+details{background:var(--pa);border-radius:10px;margin:10px 0;padding:0 16px}
+summary{cursor:pointer;font-weight:500;font-size:15px;padding:12px 0;list-style:none}
+summary::before{content:"+ ";color:var(--oro);font-weight:700}
+details[open] summary::before{content:"− "}
+details p,details li{font-size:14.5px;color:#2b2d33;margin-bottom:10px}
+details ul{padding-left:18px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;border-radius:10px;overflow:hidden;margin:8px 0 6px}
+th,td{padding:10px 14px;border-bottom:1px solid var(--ln);text-align:left}
+th{background:var(--ink);color:#fff;font-weight:500;font-size:13px}
+td:last-child,th:last-child{text-align:right}
+.fu{font-size:12.5px;color:var(--gr)}
+.fuentes ol{padding-left:20px}
+.fuentes li{font-size:14px;margin-bottom:8px;color:#2b2d33}
+.no{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:18px 20px}
+.no li{font-size:15px;margin:6px 0 6px 18px}
+.firma{margin:46px 0 30px;background:#fff;border:1px solid var(--ln);border-radius:14px;padding:26px 26px 22px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end}
+.firma p{font-size:15.5px;color:#2b2d33;margin-bottom:12px}
+.firma .nom{font-family:'Lora',serif;font-style:italic;font-size:30px;line-height:1.1;margin-top:8px}
+.firma .car{font-size:13px;color:var(--gr)}
+.cta{text-align:center;padding:24px 0 60px}
+.cta p{color:var(--gr);font-size:14px;margin-top:10px}
+footer{border-top:1px solid var(--ln);padding:22px 0 40px;font-size:12px;color:var(--gr)}
+@media(max-width:600px){.firma{grid-template-columns:1fr}.dato{flex-direction:column;gap:2px}}
+</style>
+<script src="ev.js" defer></script>
+</head>
+<body>
+<div class="top"><div class="in">
+  <a class="logo" href="inicio.html">ADAPTA<small>FAMILY OFFICE</small></a>
+  <a class="btn" href="empezar2.html" data-ev="cta_metodologia">Empezar gratis →</a>
+</div></div>
+
+<div class="wrap">
+  <header class="hero">
+    <p class="kick">Metodología y fuentes</p>
+    <h1>Cómo calculamos tu diagnóstico</h1>
+    <p class="lead">Cada cifra de tu informe sale de dos sitios: <b>tus respuestas</b> y <b>fuentes públicas que puedes comprobar</b>. Aquí tienes las hipótesis, por qué las elegimos y de dónde vienen.</p>
+    <div class="prin">
+      <div><b>Un solo motor</b>Todas las páginas de tu informe usan el mismo cálculo. Si una cifra cambia, cambia en todas.</div>
+      <div><b>Prudente, no alarmista</b>Elegimos hipótesis conservadoras y te enseñamos el rango, no solo el número cómodo.</div>
+      <div><b>Hecho para España</b>Tu pensión pública, la fiscalidad del ahorro y la edad de jubilación española.</div>
+    </div>
+  </header>
+
+  <section id="numero">
+    <h2><span class="n">01</span>Tu Número de Libertad</h2>
+    <p class="uno">El capital que, invertido, sostiene tu vida sin depender de un sueldo. <b>Ya descuenta tu pensión pública.</b></p>
+    <div class="dato"><span class="v">3,5 % → 3 %</span><span class="t">Lo que puedes retirar cada año: 3,5 % si tu cartera debe durar 30 años, bajando hasta el 3 % si debe durar 50.</span></div>
+    <details><summary>Por qué no usamos el famoso 4 %</summary>
+      <p>El 4 % nace de un estudio de William Bengen (1994) con la bolsa de EE.UU.: el mejor mercado del siglo XX. Cuando se repite con más países, la cifra baja:</p>
+      <ul>
+        <li>Wade Pfau (2010), con 17 países desarrollados y 109 años de datos: ese 4 % solo habría sido seguro en 4 de ellos.</li>
+        <li>Morningstar (informe para 2026): 3,9 % a 30 años, con un 90 % de probabilidad de no quedarse sin dinero. En su estudio de 2024, la tasa a 40 años era del 3,1 %.</li>
+        <li>Anarkulova, Cederburg, O'Doherty y Sias (2025), con 38 países: 2,31 % para una pareja de 65 años que acepta un 5 % de riesgo de ruina.</li>
+      </ul>
+      <p>Nuestra calibración, del 3,5 % al 3 % según la duración, queda entre la referencia actual de Morningstar y el estudio más exigente. En tu informe te enseñamos además el número con el criterio más optimista publicado (4,7 %, Bengen 2025) y con el más exigente (2,31 %), para que veas la incertidumbre real.</p>
+    </details>
+    <details><summary>Si quieres dejar de trabajar antes de los 67</summary>
+      <p>Hasta que cobres la pensión, tu cartera tiene que pagar tu gasto completo. Ese «puente» va sumado a tu número. Casi ninguna calculadora lo tiene en cuenta.</p>
+    </details>
+  </section>
+
+  <section id="rentabilidad">
+    <h2><span class="n">02</span>Cuánto crece tu dinero</h2>
+    <p class="uno">Usamos un <b>5 % real anual</b> (ya descontada la inflación), la misma hipótesis en todo el libro.</p>
+    <div class="dato"><span class="v">5,2 %</span><span class="t">Rentabilidad real anual de la bolsa mundial de 1900 a 2024 (UBS Global Investment Returns Yearbook 2025). Desde el año 2000, ha sido del 3,5 %.</span></div>
+    <details><summary>Por qué te damos un rango y no una fecha</summary>
+      <p>Nadie conoce la rentabilidad futura. Por eso, junto a tu edad de libertad al 5 %, te mostramos qué pasaría al 3,5 % (como la bolsa mundial desde 2000) y al 6,5 %. Verás que <b>tus decisiones mueven tu fecha mucho más que el mercado</b>.</p>
+    </details>
+    <details><summary>Qué son «tus 3 decisiones»</summary>
+      <p>Recortar un 10 % tu gasto, ahorrar 200 € más al mes y dejar de depender del sueldo 2 años después. Las aplicamos con el mismo motor y la misma rentabilidad, así que los años que ganas son comparables con tu situación actual.</p>
+    </details>
+  </section>
+
+  <section id="lunes">
+    <h2><span class="n">03</span>Tus lunes y tu edad</h2>
+    <p class="uno">Un lunes es una semana de trabajo: <b>años hasta tu libertad × 52</b>. Así de simple, para que la cifra se entienda sin fórmulas.</p>
+    <div class="dato"><span class="v">67 años</span><span class="t">Edad ordinaria de jubilación en España desde 2027 (Ley 27/2011). Planificamos tu dinero hasta los 95 años.</span></div>
+  </section>
+
+  <section id="edad">
+    <h2><span class="n">04</span>Tú frente a los hogares de tu edad</h2>
+    <p class="uno">Comparamos tu patrimonio neto con el del <b>hogar típico</b> de tu edad según el Banco de España.</p>
+    <table>
+      <tr><th>Edad del cabeza de familia</th><th>Riqueza neta mediana (2024)</th></tr>
+      <tr><td>Menos de 35 años</td><td>22.900 €</td></tr>
+      <tr><td>De 35 a 44 años</td><td>80.200 €</td></tr>
+      <tr><td>De 45 a 54 años</td><td>145.900 €</td></tr>
+      <tr><td>De 55 a 64 años</td><td>214.500 €</td></tr>
+      <tr><td>De 65 a 74 años</td><td>249.200 €</td></tr>
+      <tr><td>Más de 74 años</td><td>214.500 €</td></tr>
+    </table>
+    <p class="fu">Fuente: Banco de España, Encuesta Financiera de las Familias 2024 (Documento Ocasional 2610). La mediana es el hogar del medio: la mitad tiene más y la mitad, menos.</p>
+  </section>
+
+  <section id="dimensiones">
+    <h2><span class="n">05</span>Tus 12 dimensiones</h2>
+    <p class="uno">El cuestionario mide <b>cómo vives el dinero por dentro</b>, no solo cuánto tienes: estrés, gasto, protección, deuda, inversión y siete áreas más.</p>
+    <details><summary>Cómo se puntúan</summary>
+      <p>Cada dimensión agrupa varias preguntas. Las respuestas se puntúan de 0 a 100 y se contrastan con tus propias cifras: si dices que ahorras mucho pero tus números dicen lo contrario, el informe te lo señala. Cuando respondéis en pareja, comparamos pregunta a pregunta para encontrar dónde chocáis.</p>
+    </details>
+    <details><summary>La fiscalidad que tenemos en cuenta</summary>
+      <p>Lo que sacas de tu cartera tributa en la base del ahorro del IRPF (del 19 % al 30 %, según la cantidad). Por eso tu informe distingue entre vivir de dividendos y vender participaciones de fondos, que solo tributan por la ganancia, y recuerda que los fondos españoles permiten traspasar sin tributar (art. 94 de la Ley del IRPF).</p>
+    </details>
+  </section>
+
+  <section id="limites">
+    <h2><span class="n">06</span>Lo que tu informe no es</h2>
+    <div class="no"><ul>
+      <li>No es una recomendación de inversión ni asesoramiento personalizado.</li>
+      <li>No es una promesa: las proyecciones son orientativas y la rentabilidad pasada no garantiza la futura.</li>
+      <li>Es tan bueno como tus respuestas: con cifras aproximadas, el resultado es aproximado.</li>
+    </ul></div>
+    <p class="fu" style="margin-top:10px">Parámetros vigentes: septiembre de 2026. Los revisamos cuando cambian las fuentes o la normativa, y la fecha va impresa en cada informe.</p>
+  </section>
+
+  <section class="fuentes" id="fuentes">
+    <h2><span class="n">07</span>Fuentes</h2>
+    <ol>
+      <li>Banco de España (2026). <i>Encuesta Financiera de las Familias (EFF) 2024: métodos, resultados y cambios desde 2022</i>. Documentos Ocasionales, n.º 2610. <a href="https://www.bde.es/wbe/es/publicaciones/analisis-economico-investigacion/documentos-ocasionales/encuesta-financiera-de-las-familias-eff-2024-metodos-resultados-y-cambios-desde-2022.html" target="_blank" rel="noopener">Ver</a></li>
+      <li>Bengen, W. (1994). «Determining Withdrawal Rates Using Historical Data». <i>Journal of Financial Planning</i>, octubre de 1994.</li>
+      <li>Pfau, W. (2010). «An International Perspective on Safe Withdrawal Rates: The Demise of the 4 Percent Rule?». <i>Journal of Financial Planning</i>, diciembre de 2010. <a href="https://www.financialplanningassociation.org/article/journal/DEC10-international-perspective-safe-withdrawal-rates-demise-4-percent-rule" target="_blank" rel="noopener">Ver</a></li>
+      <li>Morningstar. <i>The State of Retirement Income</i> (informes 2024 y para 2026). <a href="https://www.morningstar.com/business/insights/research/the-state-of-retirement-income" target="_blank" rel="noopener">Ver</a></li>
+      <li>Anarkulova, A., Cederburg, S., O'Doherty, M. y Sias, R. (2025). «The Safe Withdrawal Rate: Evidence from a Broad Sample of Developed Markets». <i>Journal of Pension Economics and Finance</i>, vol. 24. <a href="https://experts.arizona.edu/en/publications/the-safe-withdrawal-rate-evidence-from-a-broad-sample-of-develope/" target="_blank" rel="noopener">Ver</a></li>
+      <li>UBS / Dimson, Marsh y Staunton (2025). <i>Global Investment Returns Yearbook 2025</i>. <a href="https://www.ubs.com/global/en/media/display-page-ndp/en-20250304-global-investment-returns-yearbook-2025.html" target="_blank" rel="noopener">Ver</a></li>
+      <li>Ley 27/2011, de actualización, adecuación y modernización del sistema de Seguridad Social (edad ordinaria de jubilación).</li>
+      <li>Ley 35/2006 del IRPF, art. 94 (traspasos entre fondos) y escala de la base del ahorro vigente.</li>
+    </ol>
+  </section>
+
+  <div class="firma">
+    <div>
+      <p>He pasado más de 25 años en banca personal y privada viendo a familias tomar decisiones de dinero con cifras incompletas. Este diagnóstico existe para que tú decidas con las tuyas, completas y bien calculadas. Cada hipótesis de esta página la puedes comprobar; si alguna cifra de tu informe no te encaja, escríbeme y la revisamos.</p>
+      <div class="nom">Javier Méndez</div>
+      <div class="car">Fundador · Adapta Family Office · Autor de <i>Método G.A.N.A.R.</i> (2019) y <i>Hablar de dinero es de buena educación</i> (2024)</div>
+    </div>
+  </div>
+
+  <div class="cta">
+    <a class="btn" href="empezar2.html" data-ev="cta_metodologia_fin">Descubrir mi número →</a>
+    <p>Empiezas gratis. Solo pagas si quieres tu informe completo.</p>
+  </div>
+
+  <footer>
+    © 2026 Adapta Family Office S.L. · Herramienta de autoconocimiento financiero; no constituye asesoramiento personalizado ni recomendación de inversión. · <a href="privacidad.html">Privacidad</a> · <a href="inicio.html">Inicio</a>
+  </footer>
+</div>
+</body>
+</html>
