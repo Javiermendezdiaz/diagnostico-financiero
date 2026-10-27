@@ -81,7 +81,7 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 .res-top{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .rbox{background:#090b14;border:1px solid var(--bd);border-radius:14px;padding:14px 14px 12px}
 .rbox .l{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gr);font-weight:700}
-.rbox .n{font-family:'Lora',serif;font-weight:700;font-size:clamp(28px,4vw,40px);line-height:1.05;margin-top:6px;font-variant-numeric:tabular-nums}
+.rbox .n{font-family:'Lora',serif;font-weight:700;font-size:clamp(24px,2.7vw,34px);white-space:nowrap;line-height:1.05;margin-top:6px;font-variant-numeric:tabular-nums}
 .rbox .d{font-size:11.5px;color:var(--gr);margin-top:3px}
 .n.ro{color:var(--ro)}.n.am{color:var(--am)}.n.ve{color:var(--ve)}
 .verdict{margin-top:14px;font-size:15px;line-height:1.5;color:#e2e8f0}
@@ -144,7 +144,7 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 .papel .sh p b{color:var(--tinta)}
 .papel .sh h2 em{color:#b8860b}
 .fan{position:relative;height:560px;max-width:1000px;margin:50px auto 0}
-.fan img{position:absolute;top:0;left:50%;width:300px;border-radius:6px;box-shadow:0 30px 60px -20px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.06);transition:transform .35s,box-shadow .35s;background:#fff;cursor:zoom-in}
+.fan img{position:absolute;top:0;left:50%;width:300px;height:auto;border-radius:6px;box-shadow:0 30px 60px -20px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.06);transition:transform .35s,box-shadow .35s;background:#fff;cursor:zoom-in}
 .fan img.lo{transform:translateX(-50%) translateX(-330px) rotate(-9deg) translateY(50px);z-index:1}
 .fan img.li{transform:translateX(-50%) translateX(-170px) rotate(-4.5deg) translateY(16px);z-index:2}
 .fan img.c{transform:translateX(-50%) scale(1.06);z-index:5}
@@ -246,7 +246,7 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 /* lightbox */
 #lb{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
 #lb.on{display:flex}
-#lb img{max-width:min(720px,94vw);max-height:92vh;border-radius:6px}
+#lb img{max-width:min(720px,94vw);max-height:92vh;height:auto;width:auto;border-radius:6px}
 .rv{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}
 .rv.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}.pulse{animation:none}}
