@@ -205,6 +205,50 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .papel .btn-gh{color:var(--tinta);border-color:#cbbfa6;background:transparent}.papel .btn-gh:hover{border-color:var(--tinta)}
 .papel .btn-am{box-shadow:0 20px 40px -18px rgba(184,134,11,.7)}
 .papel .note{text-align:center;font-size:11.5px;color:#6b7280;margin-top:16px}
+/* PAREJA */
+.pareja{background:radial-gradient(ellipse at 10% 30%,rgba(253,215,49,.13),transparent 50%),radial-gradient(ellipse at 90% 60%,rgba(139,92,246,.2),transparent 50%),#07070f}
+.pj-g{display:grid;grid-template-columns:1fr 1.1fr;gap:50px;align-items:center;margin-top:60px}
+@media(max-width:940px){.pj-g{grid-template-columns:1fr;gap:36px}}
+.gauge{position:relative;max-width:440px;margin:0 auto;text-align:center}
+.gauge svg{width:100%;height:auto;overflow:visible}
+.gauge .trk{fill:none;stroke:#1d2133;stroke-width:22;stroke-linecap:round}
+.gauge .val{fill:none;stroke:url(#gfric);stroke-width:22;stroke-linecap:round;stroke-dasharray:440;stroke-dashoffset:440;transition:stroke-dashoffset 2s cubic-bezier(.2,.8,.2,1)}
+.pareja .in .val{stroke-dashoffset:233}
+.gauge .gv{position:absolute;left:0;right:0;bottom:0;font-family:'Lora',serif;font-weight:700;font-size:clamp(70px,9vw,110px);line-height:1;letter-spacing:-3px}
+.gauge .gv small{font-size:.3em;color:var(--gr);letter-spacing:0;font-weight:400}
+.gauge .gl{margin-top:4px;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:#f5a524;font-weight:800}
+.gauge .gd{font-size:13.5px;color:var(--gr);margin-top:10px;line-height:1.5}
+.pj-st{display:grid;gap:14px}
+.pjs{display:flex;gap:18px;align-items:center;padding:20px 22px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
+.pjs .v{flex:none;min-width:118px;font-family:'Lora',serif;font-weight:700;font-size:clamp(30px,3.6vw,44px);line-height:1;letter-spacing:-1px;color:var(--am)}
+.pjs .v.vi{color:#a78bfa}.pjs .v.ro{color:var(--ro)}
+.pjs p{font-size:14.5px;color:#cfd5e1;line-height:1.5;font-weight:300}
+.pjs p b{color:var(--tx);font-weight:600}
+.esf{margin-top:70px;display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+@media(max-width:940px){.esf{grid-template-columns:1fr;gap:30px}}
+.esf h3{font-size:clamp(28px,3.6vw,44px);font-weight:900;line-height:1.05;letter-spacing:-1.2px}
+.esf h3 em{color:var(--am)}
+.esf .t{font-size:15px;color:var(--gr);line-height:1.7;margin-top:14px;font-weight:300}
+.esf .t b{color:var(--tx);font-weight:600}
+.bars{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:26px}
+.br{margin-bottom:22px}.br:last-of-type{margin-bottom:10px}
+.br .h{display:flex;justify-content:space-between;font-size:13px;color:#cfd5e1;margin-bottom:9px}
+.br .h b{font-family:'Lora',serif;font-size:22px;color:var(--tx)}
+.br .tr{height:16px;border-radius:9px;background:#1d2133;overflow:hidden}
+.br .fl{height:100%;width:0;border-radius:9px;transition:width 1.6s cubic-bezier(.2,.8,.2,1)}
+.br.a .fl{background:linear-gradient(90deg,#b99a12,var(--am))}.br.b .fl{background:linear-gradient(90deg,#7f1d2d,var(--ro));box-shadow:0 0 18px rgba(255,77,94,.5)}
+.bars.in .br.a .fl{width:30%}.bars.in .br.b .fl{width:60%}
+.bars .note{font-size:11.5px;color:var(--gr2);margin-top:12px}
+.pj-pages{display:flex;justify-content:center;gap:22px;margin-top:80px;perspective:1400px}
+.pj-pages img{width:250px;height:auto;border-radius:8px;box-shadow:0 40px 70px -25px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.06);cursor:zoom-in;transition:transform .9s cubic-bezier(.2,.8,.2,1),opacity .8s;opacity:0;transform:translateY(60px) rotateX(25deg)}
+.pj-pages.in img{opacity:1}
+.pj-pages.in img:nth-child(1){transform:rotate(-5deg) translateY(20px)}
+.pj-pages.in img:nth-child(2){transform:translateY(-10px) scale(1.06);transition-delay:.15s}
+.pj-pages.in img:nth-child(3){transform:rotate(5deg) translateY(20px);transition-delay:.3s}
+@media(max-width:860px){.pj-pages{justify-content:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 4px 30px}.pj-pages img{flex:none;width:72vw;max-width:320px;transform:none!important;opacity:1;scroll-snap-align:center}}
+.pj-inc{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:40px}
+.pj-inc span{font-size:13px;color:#e5e7eb;border:1px solid rgba(167,139,250,.35);background:rgba(139,92,246,.08);border-radius:99px;padding:9px 16px}
+.pareja .cta{text-align:center;margin-top:44px}
 /* inversión (amarillo) */
 .amar{background:var(--am);color:#000}
 .amar .kick{color:#000}
@@ -319,6 +363,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   <a class="logo" href="#" aria-label="Adapta Family Office"><span class="mk">A</span><span><b>ADAPTA</b><small>Family Office</small></span></a>
   <div class="hd-r">
     <a class="hd-l" href="#dentro">El informe por dentro</a>
+    <a class="hd-l" href="#pareja">En pareja</a>
     <a class="hd-l" href="#precios">Precios</a>
     <a class="btn-head" href="empezar2.html?tier=2">Mi diagnóstico · 39 €</a>
   </div>
@@ -370,6 +415,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
           <div class="lr"><span>Las 3 decisiones que más mueven tu número</span><span class="bl">•• años antes</span></div>
         </div>
         <a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_calc" data-evv="2">Ver lo que me falta y cómo adelantarlo →<small>Diagnóstico completo · 39 € · 15-20 minutos</small></a>
+        <a href="#pareja" data-ev="ir_pareja" style="display:block;text-align:center;margin-top:12px;font-size:13px;color:#c4b5fd">¿Lo hacéis en pareja? Mirad lo que descubre el informe conjunto →</a>
         <p class="calc-n">Cálculo orientativo con supuestos generales: rentabilidad real del 5 % anual, tasa de retirada del 3–3,5 % según los años que deba durar, horizonte hasta los 95 y pensión desde los 67. <b>No es una recomendación ni asesoramiento.</b> <a href="#legal">Más</a></p>
       </div>
     </div></div>
@@ -444,6 +490,52 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
       <a class="btn btn-gh" href="muestra-avanzado.pdf" target="_blank" rel="noopener">Ver el ejemplo completo (PDF)</a>
     </div>
     <p class="note">Ejemplo ilustrativo con datos ficticios. No es una recomendación.</p>
+  </div>
+</section>
+
+<!-- PAREJA -->
+<section class="band pareja" id="pareja">
+  <div class="wrap">
+    <div class="sh c rv">
+      <p class="kick">En pareja</p>
+      <h2>El dinero no se discute por dinero. <em>Se discute por lo que nadie dice.</em></h2>
+      <p>Cada uno responde por separado, desde su móvil. Después, el informe os pone <b>frente a frente</b>: dónde coincidís, dónde chocáis sin saberlo y cuánto os está costando no hablarlo.</p>
+    </div>
+    <div class="pj-g">
+      <div class="gauge rv"><div style="position:relative">
+        <svg viewBox="0 0 320 180"><defs><linearGradient id="gfric" x1="0" x2="1"><stop offset="0" stop-color="#2ee59d"/><stop offset=".5" stop-color="#FDD731"/><stop offset="1" stop-color="#ff4d5e"/></linearGradient></defs>
+          <path class="trk" d="M20 160 A140 140 0 0 1 300 160"/><path class="val" d="M20 160 A140 140 0 0 1 300 160"/></svg>
+        <div class="gv">47<small>/100</small></div></div>
+        <div class="gl">Temperatura de fricción · moderada</div>
+        <p class="gd">De 112 puntos donde os comparamos, <b style="color:var(--tx)">60 chocan de frente</b>. No mide quién tiene razón: mide cuánto tenéis por hablar.</p>
+      </div>
+      <div class="pj-st">
+        <div class="pjs rv d1"><div class="v ro">60/112</div><p><b>Puntos donde respondisteis en extremos opuestos.</b> Uno lo vive como un tabú; el otro, con total naturalidad.</p></div>
+        <div class="pjs rv d2"><div class="v">321.000 €</div><p><b>Parados o ilíquidos, sin generar renta.</b> El coste en dinero de una conversación que no ocurre.</p></div>
+        <div class="pjs rv d3"><div class="v vi">2.400 vs 1.200 €</div><p><b>La vida ideal de cada uno, al mes.</b> Y quién marca el listón del gasto del hogar sin que nadie lo haya decidido.</p></div>
+      </div>
+    </div>
+    <div class="esf">
+      <div class="rv">
+        <h3>50/50 no siempre es <em>justo.</em></h3>
+        <p class="t">Si uno gana 5.000 € y el otro 2.500 €, y los dos ponen 1.500 € al común, el reparto es igual en euros… pero <b>a uno le cuesta el doble de esfuerzo</b>. Vuestro informe calcula el reparto justo con vuestras cifras y os da <b>un guion para hablarlo sin discutir</b>.</p>
+      </div>
+      <div class="bars rv d1">
+        <div class="br a"><div class="h"><span>Persona A · gana 5.000 € · pone 1.500 €</span><b>30 %</b></div><div class="tr"><div class="fl"></div></div></div>
+        <div class="br b"><div class="h"><span>Persona B · gana 2.500 € · pone 1.500 €</span><b>60 %</b></div><div class="tr"><div class="fl"></div></div></div>
+        <p class="note">Porcentaje de sus ingresos que aporta cada uno. Ejemplo ilustrativo.</p>
+      </div>
+    </div>
+    <div class="pj-pages rv" id="pjfan">
+      <img src="pareja-p1.jpg" alt="Vuestra temperatura de fricción financiera" loading="lazy" width="827" height="1170">
+      <img src="pareja-p2.jpg" alt="La línea de vuestros choques" loading="lazy" width="827" height="1170">
+      <img src="pareja-p3.jpg" alt="El coste de no hablarlo" loading="lazy" width="827" height="1170">
+    </div>
+    <div class="pj-inc rv">
+      <span>Vuestra temperatura de fricción</span><span>Dónde no estáis de acuerdo sin saberlo</span><span>El coste de no hablarlo</span><span>Quién decide cuánto se gasta</span><span>El reparto justo</span><span>Guion para hablarlo sin discutir</span><span>Vuestra Constitución del Hogar</span><span>Hoja de ruta a 12 meses</span>
+    </div>
+    <div class="cta rv"><a class="btn btn-am" href="empezar2.html?tier=3" data-ev="cta_pareja" data-evv="3">Hacer nuestro diagnóstico en pareja →<small>54 € los dos · cada uno desde su móvil</small></a>
+      <p style="font-size:11.5px;color:var(--gr2);margin-top:14px">Cifras de un informe de ejemplo con perfiles ficticios. No es una recomendación.</p></div>
   </div>
 </section>
 
@@ -670,7 +762,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   document.querySelectorAll('.rv').forEach(function(el){io.observe(el)});
   document.querySelectorAll('.cc').forEach(function(c){ c.addEventListener('mousemove',function(e){ var r=c.getBoundingClientRect(); c.style.setProperty('--x',(e.clientX-r.left)+'px'); c.style.setProperty('--y',(e.clientY-r.top)+'px'); }); });
   var lb=document.getElementById('lb'), li=lb.querySelector('img');
-  document.querySelectorAll('#fan img').forEach(function(im){ im.addEventListener('click',function(){ li.src=im.src; li.alt=im.alt; lb.classList.add('on'); window.adaptaEv&&adaptaEv('zoom_pagina',im.getAttribute('src')); }); });
+  document.querySelectorAll('#fan img,#pjfan img').forEach(function(im){ im.addEventListener('click',function(){ li.src=im.src; li.alt=im.alt; lb.classList.add('on'); window.adaptaEv&&adaptaEv('zoom_pagina',im.getAttribute('src')); }); });
   lb.addEventListener('click',function(){lb.classList.remove('on')});
   document.querySelectorAll('.faq details').forEach(function(d){ d.addEventListener('toggle',function(){ if(d.open&&window.adaptaEv) adaptaEv('faq',d.getAttribute('data-evv')); }); });
 })();
