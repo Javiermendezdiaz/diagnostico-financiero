@@ -310,6 +310,30 @@ def costes_por_area(datos):
     return out
 
 
+# ------------------------------------------------------------------ TU FRENTE A LOS DEMAS
+# Banco de España, Encuesta Financiera de las Familias 2024 (Documento Ocasional 2610, cuadro 1.B):
+# riqueza neta MEDIANA de los hogares por edad del cabeza de familia, en euros de 2024.
+EFF2024_RIQUEZA_MEDIANA = [(0, 34, "menos de 35 años", 22900), (35, 44, "35 a 44 años", 80200),
+                           (45, 54, "45 a 54 años", 145900), (55, 64, "55 a 64 años", 214500),
+                           (65, 74, "65 a 74 años", 249200), (75, 200, "más de 74 años", 214500)]
+EFF_FUENTE = "Banco de España, Encuesta Financiera de las Familias 2024 (riqueza neta mediana por edad)"
+
+
+def frente_a_tu_edad(datos):
+    """Tu patrimonio neto frente al del hogar típico (mediana) de tu edad. Solo afirma lo que la mediana permite."""
+    d = datos or {}
+    try:
+        edad = int(float(d.get("edad") or 0)); pat = float(d.get("patrimonio") or 0)
+    except Exception:
+        return None
+    if not (18 <= edad < 100) or pat <= 0:
+        return None
+    for lo, hi, tramo, med in EFF2024_RIQUEZA_MEDIANA:
+        if lo <= edad <= hi:
+            return {"tramo": tramo, "mediana": med, "pat": pat, "ratio": pat / med, "encima": pat >= med}
+    return None
+
+
 # ------------------------------------------------------------------ SECCION
 def apertura(salud, fi, datos, extras=None, p=None):
     """Devuelve los flowables de las paginas de apertura. [] si no hay datos."""
@@ -465,7 +489,7 @@ def _apertura(salud, fi, datos, extras, p):
                                       textColor=colors.HexColor(col), fontName=FB, spaceBefore=3))])
         while len(fila) < 3:
             fila.append([Paragraph("", rb.small)])
-        out += [Spacer(1, 12 * mm),
+        out += [Spacer(1, 6 * mm),
                 Table([fila], colWidths=[53 * mm, 53 * mm, 54 * mm],
                       style=[("VALIGN", (0, 0), (-1, -1), "TOP"),
                              ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F3EFE4")),
@@ -474,10 +498,23 @@ def _apertura(salud, fi, datos, extras, p):
                              ("TOPPADDING", (0, 0), (-1, -1), 12),
                              ("BOTTOMPADDING", (0, 0), (-1, -1), 14),
                              ("LINEABOVE", (0, 0), (-1, 0), 2.2, rb.AMARILLO)])]
-    out += [Spacer(1, 10 * mm),
+    _fe = frente_a_tu_edad(d)
+    if _fe:
+        if _fe["encima"]:
+            _ft = ("<b>Frente a los hogares de tu edad:</b> tu patrimonio neto (%s) es <b>%s veces</b> el del hogar típico "
+                   "de %s (%s). Más de la mitad de esos hogares tiene menos que tú."
+                   % (eur(_fe["pat"]), ("%.1f" % _fe["ratio"]).replace(".", ","), _fe["tramo"], eur(_fe["mediana"])))
+        else:
+            _ft = ("<b>Frente a los hogares de tu edad:</b> tu patrimonio neto (%s) está por debajo del hogar típico "
+                   "de %s (%s). Es justo la distancia que tu plan está pensado para cerrar."
+                   % (eur(_fe["pat"]), _fe["tramo"], eur(_fe["mediana"])))
+        out += [Spacer(1, 3.5 * mm), texto(_ft, 10, INK),
+                Paragraph("Fuente: " + EFF_FUENTE + ". Datos por hogar: si compartes patrimonio en pareja, compara el del hogar.",
+                          St("ap_eff", fontSize=7.8, leading=10, textColor=GREY, spaceBefore=2))]
+    out += [Spacer(1, 5 * mm),
             cta_sesion("¿Quieres bajar esta cifra con alguien al lado?",
                        "En 30 minutos convertimos tu diagnóstico en tus primeras decisiones, con números y fechas. "
-                       "Te descontamos el importe íntegro de este informe.", qr_mm=22),
+                       "Te descontamos el importe íntegro de este informe.", qr_mm=18),
             PageBreak()]
 
     H1 = St("ap_h1g", fontSize=24, leading=29, textColor=INK, fontName="Lora-Bold", spaceAfter=6)

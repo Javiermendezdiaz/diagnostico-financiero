@@ -79,6 +79,12 @@ async function carga(){
   h+='<h2>Últimos recorridos (qué hizo cada visitante)</h2>';
   (d.recorridos||[]).forEach(r=>{ h+='<div class="rec"><div class="h"><b>'+r.inicio.replace('T',' ').slice(0,16)+' UTC</b> · '+r.origen+(r.ref?' · ref '+r.ref:'')+' · '+(r.movil?'móvil':'ordenador')+' · '+r.seg+' s · lee '+r.scroll+'%</div><div class="p">'+
     r.recorrido.map(p=>'<span class="'+(/^(cta_|pago_click|test_)/.test(p)?'c':(/pago_ok/.test(p)?'ok':''))+'">'+p+'</span>').join('')+'</div></div>'; });
+  try{ const rl=await fetch(API+'/api/lecturas?key='+encodeURIComponent(k)+'&dias='+$('dias').value); if(rl.ok){ const L=await rl.json();
+    h+='<h2>Lectura de informes en la web (antes de llamar a un cliente)</h2>';
+    if(!L.lecturas.length) h+='<p class="note">Aún no hay lecturas registradas.</p>';
+    L.lecturas.forEach(x=>{ h+='<div class="rec"><div class="h"><b>'+(x.nombre||'—')+'</b> · '+(x.email||'')+' · informe '+({1:'rápido',2:'avanzado',3:'pareja'}[x.tier]||'')+' · última lectura '+String(x.ultima).replace('T',' ').slice(0,16)+' UTC</div><div class="p">'+
+      '<span>'+x.paginas_leidas+' páginas</span><span>hasta la página '+x.pagina_mas_lejana+'</span><span>'+x.minutos+' min</span>'+
+      x.mas_tiempo.map(m=>'<span class="c">p.'+m.pagina+' · '+m.seg+' s</span>').join('')+'</div></div>'; }); } }catch(e){}
   $('out').innerHTML=h;
 }
 if($('key').value) carga();

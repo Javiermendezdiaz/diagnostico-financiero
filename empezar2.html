@@ -1531,6 +1531,7 @@ async function descargarConAnalisis(sid){
     const tb=document.getElementById('teaserBox'); if(tb) tb.style.display='none';
     const pb=document.getElementById('payBox'); if(pb) pb.style.display='none';
     const dl=document.getElementById('dl'); dl.style.display='inline-block'; dl.textContent='Volver a descargar';
+    try{ var _lw=document.getElementById('leerWeb'); if(!_lw){ _lw=document.createElement('a'); _lw.id='leerWeb'; _lw.className='btn'; _lw.style.cssText='display:inline-block;margin:10px auto 0;max-width:380px'; dl.parentNode.insertBefore(_lw, dl.nextSibling); } _lw.href='informe.html?id='+encodeURIComponent(sid); _lw.textContent='Leerlo aquí, en el móvil →'; }catch(_e){}
     document.getElementById('doneTxt').textContent='Lo hemos guardado en tu dispositivo. Búscalo en tu carpeta de descargas.';
     var _sp1=document.getElementById('spamTip'); if(_sp1)_sp1.style.display='block';
   }catch(e){

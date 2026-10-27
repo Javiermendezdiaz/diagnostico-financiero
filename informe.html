@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Tu Libro Financiero · Adapta Family Office</title>
+<style>
+@font-face{font-family:'Poppins';font-weight:400;src:url('fonts/Poppins-Regular.ttf')}
+@font-face{font-family:'Poppins';font-weight:700;src:url('fonts/Poppins-Bold.ttf')}
+:root{--am:#FDD731;--ng:#0b0b0f;--tx:#f5f5f6;--gr:#9aa3b5}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1a1b22;color:var(--tx);font-family:'Poppins',system-ui,sans-serif}
+.top{position:sticky;top:0;z-index:10;background:rgba(11,11,15,.95);backdrop-filter:blur(10px);border-bottom:1px solid #26283a}
+.top .in{max-width:920px;margin:0 auto;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo{font-weight:800;letter-spacing:2px;font-size:15px}.logo small{display:block;font-size:8px;letter-spacing:3px;color:var(--gr);font-weight:600}
+.acc{display:flex;gap:8px;align-items:center}
+.b{display:inline-flex;align-items:center;gap:6px;font:700 12.5px 'Poppins',sans-serif;padding:9px 13px;border-radius:10px;text-decoration:none;white-space:nowrap}
+.b-am{background:var(--am);color:#000}.b-gh{border:1px solid #3a3d50;color:var(--tx)}
+.pg-n{font-size:12px;color:var(--gr);min-width:62px;text-align:center}
+#hojas{max-width:920px;margin:0 auto;padding:16px 10px 90px}
+.hoja{position:relative;margin:0 auto 14px;background:#fff;border-radius:4px;box-shadow:0 18px 40px -20px rgba(0,0,0,.8);overflow:hidden}
+.hoja canvas{display:block;width:100%;height:auto}
+.hoja .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px}
+#estado{max-width:520px;margin:80px auto;text-align:center;color:var(--gr);font-size:15px;line-height:1.6;padding:0 20px}
+#estado b{color:var(--tx)}
+.nota{max-width:920px;margin:0 auto;padding:0 14px 30px;color:#7d8699;font-size:11px;text-align:center}
+@media(max-width:560px){.b-gh{display:none}.b{padding:8px 11px;font-size:12px}}
+</style>
+</head>
+<body>
+<div class="top"><div class="in">
+  <div class="logo">ADAPTA<small>FAMILY OFFICE</small></div>
+  <span class="pg-n" id="pgn"></span>
+  <div class="acc">
+    <a class="b b-gh" id="dlb" href="#" download>Descargar PDF</a>
+    <a class="b b-am" id="wab" target="_blank" rel="noopener" href="https://wa.me/34683343531?text=Hola%2C%20he%20recibido%20mi%20diagn%C3%B3stico%20y%20quiero%20reservar%20mi%20sesi%C3%B3n%20estrat%C3%A9gica%20de%2030%20minutos">Reservar sesión</a>
+  </div>
+</div></div>
+<div id="estado">Abriendo tu libro…<br><small>Si es la primera vez, puede tardar unos segundos en prepararse.</small></div>
+<div id="hojas"></div>
+<p class="nota">Documento confidencial. Para ayudarte mejor en tu sesión, registramos qué páginas consultas en esta versión web (sin cookies). Si lo prefieres, descarga el PDF.</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+(function(){
+  var API="https://diagnostico-financiero-app.onrender.com";
+  var id=(new URLSearchParams(location.search).get('id')||'').replace(/[^0-9a-fA-F-]/g,'').slice(0,40);
+  var est=document.getElementById('estado'), hojas=document.getElementById('hojas'), pgn=document.getElementById('pgn');
+  if(!id){ est.innerHTML='<b>Falta el enlace de tu informe.</b><br>Ábrelo desde el email que te enviamos o escríbenos a info@adaptafamilyoffice.com.'; return; }
+  var url=API+'/api/report/'+id;
+  document.getElementById('dlb').href=url;
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  /* Lectura: segundos que cada página está a la vista (mínimo 2 s para contar). */
+  var vis={}, acum={}, enviado={};
+  function manda(p){ var s=Math.round(acum[p]||0)-(enviado[p]||0); if(s<2) return; enviado[p]=(enviado[p]||0)+s;
+    var b=JSON.stringify({id:id,p:p,s:s});
+    try{ if(navigator.sendBeacon && navigator.sendBeacon(API+'/api/lectura', new Blob([b],{type:'text/plain'}))) return; }catch(e){}
+    fetch(API+'/api/lectura',{method:'POST',body:b,headers:{'Content-Type':'text/plain'},keepalive:true}).catch(function(){}); }
+  setInterval(function(){ var t=Date.now(); Object.keys(vis).forEach(function(p){ if(vis[p]){ acum[p]=(acum[p]||0)+(t-vis[p])/1000; vis[p]=t; } }); },1000);
+  setInterval(function(){ Object.keys(acum).forEach(manda); },15000);
+  function cierra(){ Object.keys(acum).forEach(manda); }
+  addEventListener('pagehide',cierra); document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden'){ cierra(); Object.keys(vis).forEach(function(p){vis[p]=0}); } });
+
+  function carga(intento){
+    pdfjsLib.getDocument({url:url}).promise.then(function(pdf){
+      est.style.display='none';
+      var n=pdf.numPages;
+      var io=new IntersectionObserver(function(es){ es.forEach(function(e){
+        var p=+e.target.dataset.p;
+        if(e.isIntersecting){ if(!render[p]){ render[p]=1; pinta(pdf,p,e.target); } }
+        else if(render[p]){ render[p]=0; e.target.innerHTML='<div class="ph">Página '+p+'</div>'; e.target.style.aspectRatio='595/842'; }  /* libera memoria en móviles */
+        if(e.intersectionRatio>=0.5){ if(!vis[p]) vis[p]=Date.now(); pgn.textContent=p+' / '+n; }
+        else if(vis[p]){ acum[p]=(acum[p]||0)+(Date.now()-vis[p])/1000; vis[p]=0; }
+      }); },{threshold:[0,0.5],rootMargin:'600px 0px'});
+      for(var i=1;i<=n;i++){ var d=document.createElement('div'); d.className='hoja'; d.dataset.p=i; d.style.aspectRatio='595/842';
+        d.innerHTML='<div class="ph">Página '+i+'</div>'; hojas.appendChild(d); io.observe(d); }
+      pgn.textContent='1 / '+n;
+    }).catch(function(){
+      if(intento<6){ est.innerHTML='Preparando tu libro…<br><small>Un momento más.</small>'; setTimeout(function(){carga(intento+1)},6000); }
+      else est.innerHTML='<b>No hemos podido abrir tu informe ahora.</b><br>Prueba de nuevo en un minuto o escríbenos a info@adaptafamilyoffice.com.';
+    });
+  }
+  var render={};
+  function pinta(pdf,p,el){
+    pdf.getPage(p).then(function(pg){
+      var w=el.clientWidth||800, dpr=Math.min(1.6,window.devicePixelRatio||1);
+      var v1=pg.getViewport({scale:1}), sc=(w*dpr)/v1.width, v=pg.getViewport({scale:sc});
+      var c=document.createElement('canvas'); c.width=v.width; c.height=v.height;
+      pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise.then(function(){ if(!render[p]) return; el.innerHTML=''; el.style.aspectRatio=''; el.appendChild(c); });
+    });
+  }
+  carga(0);
+})();
+</script>
+</body>
+</html>

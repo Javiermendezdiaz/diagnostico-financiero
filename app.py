@@ -819,6 +819,62 @@ def visitas(key: str = "", dias: int = 30):
             "calculadora_anios_de_mas": dict(brecha), "por_dia": dict(sorted(por_dia.items())),
             "linkedin_por_dia": dict(sorted(li_dia.items())), "recorridos": rec}
 
+# ---------- LECTURA DEL INFORME EN LA WEB (informe.html): que paginas lee cada cliente ----------
+_SID_RX = _re_ev.compile(r"^[0-9a-fA-F-]{8,40}$")
+
+def _ensure_lect(c):
+    c.execute("CREATE TABLE IF NOT EXISTS lecturas (sid TEXT, pagina INTEGER, seg INTEGER, ts TEXT)")
+    c.execute("CREATE INDEX IF NOT EXISTS ix_lect_sid ON lecturas(sid)")
+
+@app.post("/api/lectura")
+async def lectura_informe(request: Request):
+    """Registra segundos de lectura de una pagina del informe web. Failsafe y acotado."""
+    try:
+        d = json.loads(((await request.body())[:500]).decode("utf-8", "ignore") or "{}")
+        sid = str(d.get("id") or "")
+        p = int(d.get("p") or 0); sg = int(d.get("s") or 0)
+        if not _SID_RX.match(sid) or not (1 <= p <= 400) or not (1 <= sg <= 3600):
+            return {"ok": False}
+        with db() as c:
+            if not c.execute("SELECT 1 FROM sesiones WHERE id=?", (sid,)).fetchone():
+                return {"ok": False}
+            _ensure_lect(c)
+            if c.execute("SELECT COUNT(*) FROM lecturas WHERE sid=?", (sid,)).fetchone()[0] >= 4000:
+                return {"ok": False}
+            c.execute("INSERT INTO lecturas VALUES (?,?,?,?)", (sid, p, sg, datetime.datetime.utcnow().isoformat(timespec="seconds")))
+        return {"ok": True}
+    except Exception as e:
+        print("[lectura] no registrada:", repr(e))
+        return {"ok": False}
+
+@app.get("/api/lecturas")
+def lecturas_informe(key: str = "", dias: int = 90):
+    """Panel privado: que ha leido cada cliente de su informe web. Requiere ?key=ADMIN_KEY."""
+    if not ADMIN_KEY or key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="no autorizado")
+    desde = (datetime.datetime.utcnow() - datetime.timedelta(days=max(1, min(int(dias or 90), 400)))).isoformat()
+    out = []
+    with db() as c:
+        _ensure_lect(c)
+        filas = c.execute("SELECT sid, pagina, SUM(seg) AS s, MIN(ts) AS t0, MAX(ts) AS t1 FROM lecturas WHERE ts>=? GROUP BY sid, pagina", (desde,)).fetchall()
+        por = {}
+        for r in filas:
+            v = por.setdefault(r["sid"], {"paginas": {}, "t0": r["t0"], "t1": r["t1"]})
+            v["paginas"][r["pagina"]] = r["s"]
+            v["t0"] = min(v["t0"], r["t0"]); v["t1"] = max(v["t1"], r["t1"])
+        for sid, v in por.items():
+            ses = c.execute("SELECT email, nombre, tier, pagado FROM sesiones WHERE id=?", (sid,)).fetchone()
+            pg = v["paginas"]
+            top = sorted(pg.items(), key=lambda kv: -kv[1])[:6]
+            out.append({"sid": sid, "email": ses["email"] if ses else "", "nombre": ses["nombre"] if ses else "",
+                        "tier": ses["tier"] if ses else None, "pagado": bool(ses["pagado"]) if ses else False,
+                        "primera": v["t0"], "ultima": v["t1"], "paginas_leidas": len(pg),
+                        "pagina_mas_lejana": max(pg) if pg else 0, "minutos": round(sum(pg.values()) / 60.0, 1),
+                        "mas_tiempo": [{"pagina": a, "seg": b} for a, b in top]})
+    out.sort(key=lambda x: x["ultima"], reverse=True)
+    return {"clientes": len(out), "lecturas": out}
+
+
 @app.post("/api/complete")
 def complete(payload: CompletePayload, background_tasks: BackgroundTasks):
     with db() as c:
@@ -2008,13 +2064,13 @@ def _enviar_copia_impl(session_id):
                       "<h2 style='font-family:Georgia,serif;font-size:22px;margin:22px 0 6px'>Tu Libro Financiero ya es tuyo</h2>"
                       "<p>Hola %s,</p>"
                       "<p>En el PDF adjunto tienes tu diagn&oacute;stico completo. Has hecho algo que casi nadie hace: mirarte de frente con el dinero.</p>"
-                      "<p><b>C&oacute;mo leerlo:</b> empieza por las cuatro primeras p&aacute;ginas de texto. En ellas est&aacute;n tu cifra, tu cuadro, las tres decisiones que m&aacute;s mueven tu n&uacute;mero y <b>tu primer paso</b>. Hazlo esta semana: es lo que convierte un informe en un cambio.</p>"
+                      "<p><b>C&oacute;mo leerlo:</b> empieza por la <b>Parte 1 &middot; Lo esencial</b>, las cinco primeras p&aacute;ginas. En ellas est&aacute;n tu cifra, tu cuadro, las tres decisiones que m&aacute;s mueven tu n&uacute;mero, tus lunes y <b>tu primer paso</b>. Hazlo esta semana: es lo que convierte un informe en un cambio.</p>"
+                      "<p style='margin:18px 0'><a href='https://diagnostico.adaptafamilyoffice.com/informe.html?id=" + session_id + "' style='display:inline-block;background:#1a1a17;color:#fdd731;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:10px'>Leerlo en el m&oacute;vil &rarr;</a></p>"
                       "<p>Gu&aacute;rdalo: es tu hoja de ruta a 90 d&iacute;as.</p>"
                       "<div style='margin:20px 0;padding:16px 18px;background:#fbf6e6;border-left:3px solid #c9962b;border-radius:8px'>"
                       "<b>&iquest;Lo ponemos en marcha juntos?</b><br>En una sesi&oacute;n estrat&eacute;gica de 30 minutos convertimos tu diagn&oacute;stico en decisiones con n&uacute;meros y fechas. "
                       "<b>Te descontamos el importe de este informe.</b><br>"
-                      "<a href='https://www.adaptafamilyoffice.com/informe' style='color:#0284c7'>Reservar mi sesi&oacute;n</a> &middot; "
-                      "<a href='https://wa.me/34683343531' style='color:#0284c7'>WhatsApp +34 683 34 35 31</a></div>"
+                      "<a href='https://wa.me/34683343531?text=Hola%%2C%%20he%%20recibido%%20mi%%20diagn%%C3%%B3stico%%20y%%20quiero%%20reservar%%20mi%%20sesi%%C3%%B3n%%20estrat%%C3%%A9gica%%20de%%2030%%20minutos' style='color:#0284c7'>Reservar mi sesi&oacute;n por WhatsApp</a> &middot; +34 683 34 35 31</div>"
                       "<p>Gracias por confiar en nosotros.<br>Javier M&eacute;ndez &middot; Adapta Family Office</p></div>") % (_nom1 or "")
             cli_ok=_enviar_resend("Tu Libro Financiero - Adapta Family Office", html_cli, pdf_bytes, "Tu_Libro_Financiero_Adapta.pdf", to=[email_cli], extra=_card_extra)
     # 2b) Pareja (tier 3): el segundo miembro recibe TAMBIEN el Libro de Pareja conjunto, en envio SEPARADO (privacidad)
