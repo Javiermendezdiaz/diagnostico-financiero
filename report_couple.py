@@ -277,7 +277,8 @@ def seccion_dinero_trabaja(dA, dB):
 
 def seccion_caminos_hogar(dA, dB):
     a=_fill(dA); b=_fill(dB)
-    hog={"edad":int(round((a["edad"]+b["edad"])/2)),
+    hog={"edad":(a["edad"]+b["edad"])/2,
+         "pension_estimada":(a.get("pension_estimada") or 0)+(b.get("pension_estimada") or 0),
          "patrimonio":a["patrimonio"]+b["patrimonio"],
          "ahorro_mensual":a["ahorro_mensual"]+b["ahorro_mensual"],
          "ingreso_mensual":a["ingreso_mensual"]+b["ingreso_mensual"],
@@ -294,24 +295,24 @@ def seccion_caminos_hogar(dA, dB):
         rb.panel_proyeccion("_proyhogarpanel.png", hog,
             titulo="EL MAPA DE VUESTRO FUTURO",
             subtitulo="Tres caminos parten del mismo punto. La distancia la decidís vosotros, cada mes.",
-            brecha_cap="Lo que separa actuar de no hacerlo, juntos, a los %d años.")
+            brecha_cap="Lo que separa actuar de no hacerlo, juntos, a los %d años.", vos=True)
         out += [PageBreak(), rb.FullBleedImage(rb._claro("_proyhogarpanel.png")), PageBreak()]
         return out   # el panel ya cuenta los tres caminos y la brecha: la pagina de texto los repetia
     except Exception:
         pass
     out += [PageBreak(), Paragraph("Vuestros tres caminos",h_sec),
          Paragraph("El patrimonio del hogar a la jubilación, según lo que decidáis juntos: dejarlo como está, invertirlo "
-                   "bien, o ejecutar vuestro plan conjunto. La distancia entre las líneas no la decide el mercado — la decidís vosotros.",body),
+                   "bien, o aplicar vuestras 3 decisiones. La distancia entre las líneas no la decide el mercado — la decidís vosotros.",body),
          Image("_proyhogar.png",width=160*mm,height=75*mm,hAlign="CENTER")]
     if modo=="3":
         _cl=St("chl",fontSize=8.5,leading=11,textColor=colors.HexColor("#6B7280"))
         def cn(lab,val,col):
             return [Paragraph(lab,_cl),Paragraph("<b>%s</b>"%rb._eur(val),St("cnh"+col,fontSize=18,leading=22,textColor=colors.HexColor(col),fontName=rb.FB))]
         out+=[Spacer(1,3*mm),
-              Table([[cn("Sin hacer nada",f65,"#9A3B2E"),cn("Invirtiendo bien",mid65,"#B8860B"),cn("Ejecutando vuestro plan",m65,"#1D6F42")]],
+              Table([[cn("Sin hacer nada",f65,"#9A3B2E"),cn("Invirtiendo bien",mid65,"#B8860B"),cn("Con vuestras 3 decisiones",m65,"#1D6F42")]],
                     colWidths=[53*mm,53*mm,54*mm],style=[("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),0),("TOPPADDING",(0,0),(-1,-1),2)]),
               Spacer(1,2*mm),
-              Paragraph(f"Entre quedaros quietos y ejecutar vuestro plan hay <b>{rb._eur(m65-f65)}</b>. Esa cifra es vuestra "
+              Paragraph(f"Entre quedaros quietos y aplicar vuestras 3 decisiones hay <b>{rb._eur(m65-f65)}</b>. Esa cifra es vuestra "
                         f"decisión conjunta, repetida cada mes que empezáis — o que aplazáis.",St("chg",fontSize=10.5,leading=15,textColor=INK))]
     out+=[PageBreak()]
     return out

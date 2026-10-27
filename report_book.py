@@ -1377,9 +1377,32 @@ def panel_capas(path, p, titulo="TUS 12 DIMENSIONES",
     ax.text(92,12.5,"0 = crítico   ·   100 = sólido",color=MUT,fontsize=8,ha="right",va="center",zorder=4)
     fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
 
+def _plan_decisiones(datos, cap0, anos):
+    """'Ejecutar el plan' = TUS 3 decisiones del motor (recortar un 10% el gasto, ahorrar 200 EUR mas al mes
+    y parar 2 años despues), todo invertido al 5% real: la MISMA hipotesis de todo el libro.
+    Antes era un 'plan 10x10' (ingresos +10%/año diez años y 7% real) que llevaba a hogares modestos
+    a ~10 M EUR y contradecia la edad de libertad de 'Tus lunes'. Devuelve (serie anual, meta_plan, años_plan)."""
+    aho_m=float(datos.get("ahorro_mensual") or 0)
+    meta=None; a1=None
+    try:
+        import seccion_apertura as _sa
+        _exp=_sa.datos_expectativas(datos)
+        for _e in ((_exp or {}).get("escenarios") or []):
+            _l=(_e.get("escenario") or "").lower()
+            if "recortas" in _l and "ahorras" in _l:
+                meta=_e.get("numero"); a1=_e.get("anios")
+    except Exception:
+        pass
+    rm=0.05/12.0; v=float(cap0); out=[v]; ap=aho_m+200.0
+    for _ in range(anos):
+        for _m in range(12): v=v*(1+rm)+ap
+        out.append(v)
+    return out, meta, a1
+
+
 def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
                      subtitulo="Tres caminos parten del mismo punto. La distancia entre ellos es lo que decides hoy.",
-                     brecha_cap=None):
+                     brecha_cap=None, vos=False):
     """Pagina cinematografica a sangre: tres caminos del patrimonio + LA BRECHA + hito de libertad."""
     import matplotlib.pyplot as plt
     from matplotlib.patches import FancyBboxPatch, Rectangle
@@ -1400,17 +1423,9 @@ def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
         # Mismo punto de partida que el resto del libro: invertido + liquido (el capital que rinde).
         inv=inv or 0; parado=colch; aport_opt=max(aho,superavit)
         e1=[v+parado for v in grow(inv,aho,_rr)]
-        try:
-            import legado_design as _LD
-            e3=_LD.plan10_serie(inv+parado, ing, gas, anos)
-        except Exception:
-            _ig=ing*12.0;_gs=gas*12.0;_cap=float(inv+parado);e3=[_cap]
-            for _y in range(anos):
-                if _y<10:_ig*=1.10
-                if _y==0:_gs*=0.90
-                _cap=_cap*1.07+max(0.0,_ig-_gs);e3.append(_cap)
-        e2=grow(inv+parado,aport_opt,_r2)
-        series=[("Inacción · como hoy",e1,RED,"-"),("Invertir bien",e2,GOLD,"--"),("Ejecutar el plan 10×10",e3,GREEN,"-")]
+        e3,_meta_plan,_a_plan=_plan_decisiones(datos, inv+parado, anos)
+        e2=grow(inv+parado,aho,_r2)
+        series=[("Inacción · como hoy",e1,RED,"-"),("Invertir bien",e2,GOLD,"--"),(("Con vuestras 3 decisiones" if vos else "Con tus 3 decisiones"),e3,GREEN,"-")]
         lo,hi=e1[-1],e3[-1]
     else:
         e1=grow(pat,aho,0.05); e3=grow(pat,aho+0.05*ing*12,0.05)
@@ -1420,16 +1435,20 @@ def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
     # META = el NUMERO CANONICO (motor, neto de pension). Antes se dibujaba aqui un
     # gas*12*25 propio, asi que la linea de meta del grafico -y la "edad de libertad"
     # que sale de ella- no coincidian con el numero impreso en el resto del libro.
-    objetivo=None
-    try:
-        objetivo=fi_metrics(datos)[0] or None
-    except Exception:
-        objetivo=None
-    if not objetivo: objetivo=gas*12*25 if gas>0 else None   # failsafe
-    edad_libre=None
-    if objetivo:
-        for i,v in enumerate(e3):
-            if v>=objetivo: edad_libre=edad+i; break
+    objetivo=None; edad_libre=None
+    if inv is not None and _meta_plan:
+        # Meta y edad del plan = las del motor con tus 3 decisiones (las mismas de "Tus lunes").
+        objetivo=float(_meta_plan)
+        if _a_plan is not None and edad+_a_plan<=meta_edad: edad_libre=int(edad+_a_plan)
+    else:
+        try:
+            objetivo=fi_metrics(datos)[0] or None
+        except Exception:
+            objetivo=None
+        if not objetivo: objetivo=gas*12*25 if gas>0 else None   # failsafe
+        if objetivo:
+            for i,v in enumerate(e3):
+                if v>=objetivo: edad_libre=edad+i; break
 
     fig=plt.figure(figsize=(8.27,11.69),dpi=200); fig.patch.set_facecolor(BG)
     bg=fig.add_axes([0,0,1,1]); bg.set_xlim(0,100); bg.set_ylim(0,141.6); bg.axis("off")
@@ -1453,9 +1472,9 @@ def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
     # linea objetivo de libertad
     if objetivo and objetivo<=ymax:
         cx.axhline(objetivo,color=GOLD,lw=1.0,ls=(0,(4,3)),alpha=0.55,zorder=3)
-        cx.annotate("Libertad financiera  "+_eur(objetivo),(xs[0],objetivo),xytext=(2,4),textcoords="offset points",ha="left",va="bottom",color=GOLD,fontsize=8.5,alpha=0.9,zorder=7)
+        cx.annotate(((("Vuestra" if vos else "Tu")+" libertad con las 3 decisiones  ") if (inv is not None and _meta_plan) else "Libertad financiera  ")+_eur(objetivo),(xs[0],objetivo),xytext=(2,4),textcoords="offset points",ha="left",va="bottom",color=GOLD,fontsize=8.5,alpha=0.9,zorder=7)
         if edad_libre:
-            iy=e3[edad_libre-edad]
+            iy=max(e3[edad_libre-edad],objetivo) if objetivo else e3[edad_libre-edad]
             cx.scatter([edad_libre],[iy],s=120,facecolor=GOLD,edgecolor=BG,linewidth=1.6,zorder=8,marker="*")
             cx.annotate("a los %d"%edad_libre,(edad_libre,iy),xytext=(0,10),textcoords="offset points",ha="center",va="bottom",color=GOLD,fontsize=8.5,fontweight="bold",zorder=8)
     cx.set_xlim(xs[0],xs[-1]); cx.set_ylim(ymin,ymax)
@@ -1483,7 +1502,7 @@ def panel_proyeccion(path, datos, titulo="EL MAPA DE TU FUTURO",
     bg.text(64.8,27.2,"−"+_eur(coste_ano),color=RED,fontsize=18,fontweight="bold",va="center",zorder=4)
     bg.text(64.8,21.2,"de patrimonio futuro,\nde media.",color=MUT,fontsize=8.2,va="center",zorder=4,linespacing=1.25)
     # pie
-    bg.text(8,9.2,"Proyección orientativa, no una promesa. Interés compuesto sobre tu liquidez invertible.",color="#5C6470",fontsize=7.6,va="center",zorder=4)
+    bg.text(8,9.2,"Orientativo, no una promesa. 5% real anual. Decisiones: −10% de gasto, +200 €/mes de ahorro, parar 2 años después.",color="#5C6470",fontsize=7.6,va="center",zorder=4)
     bg.text(8,5.6,"ADAPTA FAMILY OFFICE",color=GOLD,fontsize=8.2,fontweight="bold",va="center",zorder=4)
     fig.savefig(path,dpi=200,facecolor=BG); plt.close(fig); gc.collect()
     return brecha, edad_libre
@@ -1505,22 +1524,12 @@ def proyeccion_chart(datos, path, r=0.05, titulo_override=None):
     fig,ax=plt.subplots(figsize=(6.4,3.2))
     if inv is not None:
         inv=inv or 0; parado=colch      # mismo punto de partida que el grafico oscuro y que el motor
-        aport_opt=max(aho,superavit)
         e1=[v+parado for v in grow(inv,aho,_rr)]          # Inaccion: TU rentabilidad real actual
-        e2=grow(inv+parado,aport_opt,_r2)                 # Invertir bien: todo trabajando, a mercado
-        # Ejecutar el plan: el MISMO modelo unico de las 4 palancas (7% real) que la tabla y el mapa.
-        try:
-            import legado_design as _LD
-            e3=_LD.plan10_serie(inv+parado, ing, gas, anos)
-        except Exception:
-            _ig=ing*12.0; _gs=gas*12.0; _cap=float(inv+parado); e3=[_cap]
-            for _y in range(anos):
-                if _y<10: _ig*=1.10
-                if _y==0: _gs*=0.90
-                _cap=_cap*1.07+max(0.0,_ig-_gs); e3.append(_cap)
+        e2=grow(inv+parado,aho,_r2)                       # Invertir bien: tu mismo ahorro, todo trabajando
+        e3,_mp,_ap=_plan_decisiones(datos, inv+parado, anos)   # tus 3 decisiones, al 5% real
         ax.plot(xs,e1,color="#9A3B2E",lw=2.0,label="Inacción (como hoy, al %g%%)"%round(_rr*100))
         ax.plot(xs,e2,color="#B8860B",lw=2.0,ls="--",label="Invertir bien (al %g%%)"%round(_r2*100))
-        ax.plot(xs,e3,color="#1D6F42",lw=2.4,label="Ejecutar el plan (10×10)")
+        ax.plot(xs,e3,color="#1D6F42",lw=2.4,label="Con tus 3 decisiones (al 5%)")
         ax.fill_between(xs,e1,e3,color="#1D6F42",alpha=0.06)
         for ser,col,va in [(e1,"#9A3B2E","top"),(e3,"#1D6F42","bottom")]:
             ax.scatter([meta_edad],[ser[-1]],color=col,zorder=5)
@@ -2548,8 +2557,8 @@ def cuadro_financiero(p, datos, fi):
         # Sin liquidez invertible las dos primeras vias salen ~0 EUR y parecen un error: reencuadre honesto al plan
         narr=(f"Hoy tu liquidez invertible es casi cero, así que las dos primeras vías —seguir igual o solo invertir "
               f"mejor— apenas mueven la aguja: sin capital que crezca, el interés compuesto no tiene de dónde partir. "
-              f"Lo que de verdad cambia tu futuro es <b>construir ese capital cada mes</b>: ejecutando el plan (ahorro "
-              f"sistemático, ingresos +10%/año los primeros años y un 7% real —media histórica de la bolsa mundial descontada la inflación—), a los {medad} "
+              f"Lo que de verdad cambia tu futuro es <b>construir ese capital cada mes</b>: aplicando tus 3 decisiones "
+              f"(recortar un 10% el gasto, ahorrar 200 € más al mes y parar 2 años después, todo invertido al 5% real), a los {medad} "
               f"podrías rondar los <b>{_eur(m65)}</b>. La palabra clave es empezar: el primer euro invertido es el que "
               f"pone en marcha todo lo demás. Orientativo, no una promesa.")
     elif modo=="3":
@@ -2557,11 +2566,10 @@ def cuadro_financiero(p, datos, fi):
         _rctxt=("tu rentabilidad real, ~%g%%"%_rc) if _rc>0 else "tu dinero casi parado"
         narr=(f"Tres caminos, a los {medad}. <b>1 · Inacción</b> (como hoy, con {_rctxt}): <b>{_eur(f65)}</b>. "
               f"<b>2 · Invertir bien</b>: <b>{_eur(mid65)}</b>. "
-              f"<b>3 · Ejecutar el plan completo</b>: <b>{_eur(m65)}</b> — <b>{_eur(m65-f65)}</b> más que sin hacer nada. "
-              f"La lección es brutal: invertir mejor ayuda, pero lo que multiplica tu patrimonio es <b>ejecutar el plan</b>. "
-              f"Eso no es suerte ni mercado: es el coste de no decidir. (Inacción: tu rentabilidad declarada. Plan: ingresos "
-              f"+10%/año los primeros años, estilo de vida contenido y un 7% real —media histórica de la bolsa mundial descontada la inflación—. Orientativo, no "
-              f"una promesa.)")
+              f"<b>3 · Con tus 3 decisiones</b>: <b>{_eur(m65)}</b> — <b>{_eur(m65-f65)}</b> más que sin hacer nada. "
+              f"Invertir mejor ayuda; lo que de verdad cambia tu futuro son <b>tus decisiones</b>, no el mercado. "
+              f"(Inacción: tu rentabilidad declarada. Invertir bien y decisiones: 5% real anual, la misma hipótesis de todo el libro; "
+              f"decisiones: −10% de gasto, +200 €/mes de ahorro y parar 2 años después. Orientativo, no una promesa.)")
     else:
         narr=(f"Si mantienes tu ritmo actual, a los {medad} rondarías los <b>{_eur(f65)}</b>. Subiendo tu ahorro cinco "
               f"puntos, esa cifra sube a <b>{_eur(m65)}</b>: la diferencia entre ambas líneas es, literalmente, el precio de "
@@ -2574,11 +2582,11 @@ def cuadro_financiero(p, datos, fi):
     if modo=="3":
         out+=[Spacer(1,3*mm),
               Table([[_cn("Sin hacer nada",f65,"#9A3B2E"),_cn("Invirtiendo bien",mid65,"#B8860B"),
-                      _cn("Ejecutando tu plan",m65,"#1D6F42")]],colWidths=[53*mm,53*mm,54*mm],
+                      _cn("Con tus 3 decisiones",m65,"#1D6F42")]],colWidths=[53*mm,53*mm,54*mm],
                     style=[("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),0),
                            ("TOPPADDING",(0,0),(-1,-1),2),("BOTTOMPADDING",(0,0),(-1,-1),0)]),
               Spacer(1,2*mm),
-              Paragraph(f"La distancia entre quedarte quieto y ejecutar tu plan es <b>{_eur(m65-f65)}</b>{_tt(m65-f65,datos,' — o, en lo unico que no se recupera, <b>≈%s</b>')}. No la decide "
+              Paragraph(f"La distancia entre quedarte quieto y aplicar tus 3 decisiones es <b>{_eur(m65-f65)}</b>{_tt(m65-f65,datos,' — o, en lo unico que no se recupera, <b>≈%s</b>')}. No la decide "
                         f"el mercado ni la suerte: la decides tú, cada mes que empiezas — o que aplazas.",
                         St("cmg",fontSize=10.5,leading=15,textColor=INK)),
               Spacer(1,3*mm)]
