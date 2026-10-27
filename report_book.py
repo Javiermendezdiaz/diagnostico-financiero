@@ -3585,7 +3585,11 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         _pct_frase="una lectura objetiva de tu relaci\u00f3n con el dinero a trav\u00e9s de 12 dimensiones psicofinancieras"
         _pct_nota=""
     bi,bl=banda(CAPAS["C1"],salud); S=[]
-    S+=[Anchor("sec_apertura")]
+    # === ESTRUCTURA EN 3 PARTES (como un informe de consultora, sin quitar contenido) ===
+    # El codigo va en el orden de siempre, pero cada bloque cae en su parte:
+    #   p0 portada · p1 LO ESENCIAL · mapa · p2 TU DIAGNOSTICO (una idea por pagina) · p3 ANEXOS · fin
+    _B={"p0":[],"p1":[],"mapa":[],"p2":[],"p3":[],"fin":[]}; _hero_rest=[]
+    S=_B["p0"]
     coh=coherencia(salud,fi,datos)
     arq_code = arq_override if arq_override is not None else arquetipo(resp)[0]
     # cover + apertura cinematográfica (Legado: navy + azul eléctrico, datos reales)
@@ -3595,7 +3599,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     except Exception:
         _hero=None
     if _hero:
-        for _pg in _hero: S+=[FullBleedImage(_pg), PageBreak()]
+        S+=[FullBleedImage(_hero[0]), PageBreak()]
+        for _pg in _hero[1:]: _hero_rest+=[FullBleedImage(_pg), PageBreak()]
     if not _hero: S+=[Spacer(1,34*mm),
         Paragraph("TU LIBRO FINANCIERO",St("cv0",fontSize=12,textColor=GREY,fontName=FB)),
         Spacer(1,3*mm),
@@ -3612,6 +3617,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         Paragraph(f"DOCUMENTO CONFIDENCIAL · REF {report_id(cli.get('email') or 'ITAP',cli['fecha'])} · USO PRIVADO",
                   St("cvr",fontSize=7.5,textColor=GREY,fontName="Helvetica")),
         PageBreak()]
+    S=_B["p1"]; S+=[Anchor("sec_apertura","PARTE 1 · LO ESENCIAL")]
     # === APERTURA EJECUTIVA (lo primero tras la portada): el dinero delante ===
     # 4 paginas: la cifra / el cuadro semaforo / las 3 palancas / el foco y el cierre.
     # No calcula nada nuevo: saca al principio cifras que ya estaban enterradas al final.
@@ -3628,6 +3634,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     # hace que un informe se lea como relleno y no como decision.
     if not _ap_ok:
         S+=_secsafe(seccion_one_pager, salud, fi, datos, extras)
+    S=_B["p2"]
     # carta de apertura
     # CARTA: le habla a la persona, con SUS cifras, y le empuja a actuar. Es la primera pagina
     # de texto que lee: tiene que sonar a alguien que le ha leido entero, no a un manual.
@@ -3662,15 +3669,14 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                   "individualizado ni atención psicológica. Si el dinero te genera un malestar que te desborda, "
                   "apóyate también en un profesional de confianza.",small),
         PageBreak()]
-    # === Indice: el mapa de los 5 actos ===
-    _ix=[("APERTURA","Tu cifra, tu semáforo, tus tres decisiones y tu cuadro financiero","sec_apertura"),
-         ("ACTO 1 · DIAGNÓSTICO","Tu foto de hoy: radar, las 12 capas y tu síntesis financiera","sec_acto1"),
-         ("ACTO 2 · LA BRECHA","Vida ideal vs actual · palancas · el coste de no hacer nada","sec_acto2"),
-         ("ACTO 3 · EL PLAN","Tu Constitución financiera: hoja de ruta a 72 h / 30 / 90 días","sec_acto3"),
-         ("ACTO 4 · ADAPTA","El siguiente paso: ejecución con tu family office","sec_acto4"),
-         ("ANEXOS","Glosario · tus respuestas · metodología","sec_anexos")]
+    S+=_hero_rest
+    # === Indice: el mapa del libro en 3 partes ===
+    S=_B["mapa"]
+    _ix=[("PARTE 1 · LO ESENCIAL","Tu número, a qué edad llegas, tus 3 decisiones, tus lunes y tu primer paso. Lo que acabas de leer","sec_apertura"),
+         ("PARTE 2 · TU DIAGNÓSTICO","Una idea por página: tu foto, tus 12 dimensiones, lo que te cuesta no actuar, tu plan a 90 días y tu sesión con Adapta","sec_parte2"),
+         ("PARTE 3 · ANEXOS","El detalle de cada dimensión, tus respuestas, la metodología y el glosario, para profundizar","sec_anexos")]
     S+=[Paragraph("El mapa de tu libro",h_sec),
-        Paragraph("Seis tramos, un solo recorrido: del diagnóstico a la acción. Lo esencial ya lo has visto en la apertura; a partir de aquí, el porqué, el cuánto y el cómo.",body),Spacer(1,5*mm)]
+        Paragraph("Tres partes. Si solo lees la primera, ya sabes lo importante. La segunda es tu diagnóstico, página a página. La tercera, el detalle para quien quiera ir al fondo.",body),Spacer(1,5*mm)]
     _clickable = (depth != "esencial")  # #8 · en T1 no hay p\u00e1ginas de acto: enlaces solo cuando el destino existe
     for _t,_d,_anc in _ix:
         _ttl = ("<a href=\"#%s\"><font color=\"#1A1A17\"><b>%s</b></font></a>"%(_anc,_t)) if _clickable else ("<b>%s</b>"%_t)
@@ -3681,6 +3687,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                         ("LINEBEFORE",(0,0),(0,-1),2.6,AMARILLO),("LEFTPADDING",(0,0),(0,-1),10),
                         ("TOPPADDING",(0,0),(-1,-1),9),("BOTTOMPADDING",(0,0),(-1,-1),9)]))
     S+=[PageBreak()]
+    S=_B["p2"]
     # === PANEL FINANCIERO ===
     try:
         _inv=float(datos.get("inversiones_liquidas") or 0); _par=float(datos.get("colchon_liquido") or 0)
@@ -3701,6 +3708,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             S+=[FullBleedImage("_capas.png"), PageBreak()]
     except Exception:
         pass
+    S=_B["p3"]
     if extras: S+=_secsafe(seccion_resumen_ejecutivo,extras,datos,_ap_ok)
     if extras: S+=_secsafe(seccion_como_medimos,extras)
     if extras: S+=_secsafe(seccion_paradoja,extras)
@@ -3723,7 +3731,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 pass
             portadilla("_pa_t2_1.png", "Acto 1", 'TU FOTO\nDE HOY', 'El diagnóstico completo: radar, las 12 capas y tu cuadro financiero.',
                        dato=_d1, dato_lbl=(_dl1 or ""), dato_col=_c1)
-            S+=[PageBreak(), Anchor("sec_acto1","ACTO I · DIAGNÓSTICO"), FullBleedImage("_pa_t2_1.png")]
+            S+=[PageBreak()]
         except Exception:
             pass
     S+=[Paragraph("El mapa completo",h_sec)]
@@ -3886,8 +3894,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             # encabezado con un solo paso al final de una pagina y los otros dos en la
             # siguiente, que quedaba casi vacia. Un plan de tres pasos partido en dos
             # paginas deja de leerse como un plan.
-            _plan=[Paragraph("Tu plan de acci\u00f3n",h_sub),
-                   Paragraph("Tres pasos, en orden. Empieza por el primero y no pases al siguiente hasta tenerlo en marcha:",small)]
+            _plan=[Paragraph("Para mejorar esta dimensi\u00f3n",h_sub),
+                   Paragraph("Tres pasos, en orden, para cuando le llegue el turno. Tu primer paso sigue siendo el de la Parte 1:",small)]
             for a in ACCIONES[code]:
                 _a=(a[:1].upper()+a[1:]) if a else a     # cada paso empieza en mayuscula
                 _plan.append(Paragraph(f"<font face='ZapfDingbats' size='9' color='#9CA3AF'>o</font>&nbsp;&nbsp;{_a}",St("pa",fontSize=10,leading=14,textColor=INK,leftIndent=14,firstLineIndent=-14,spaceAfter=4)))
@@ -3982,7 +3990,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         S+=[PageBreak()]
     # === ACTO 1 (cierre): sintesis financiera (FODA + flujo + proyeccion) ANTES de planificar ===
     S+=_secsafe(cuadro_financiero,p,datos,fi)
-    S+=_secsafe(seccion_cuatro_caminos,datos,fi,extras)
+    _B["p2"]+=_secsafe(seccion_cuatro_caminos,datos,fi,extras)
     S+=_secsafe(seccion_estructura_sucesion,datos,p)
     S+=_secsafe(seccion_rentabilidad_alquiler,datos)
     S+=_secsafe(seccion_familia,datos)
@@ -4141,12 +4149,12 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 pass
             portadilla("_pa_t2_2.png", "Acto 2", 'LA BRECHA', 'Tu vida ideal frente a la real, tus palancas, y el coste de no hacer nada.',
                        dato=_d2, dato_lbl=(_dl2 or ""), dato_col=_c2)
-            S+=[PageBreak(), Anchor("sec_acto2","ACTO II · LA BRECHA"), FullBleedImage("_pa_t2_2.png")]
+            S+=[PageBreak()]
         except Exception:
             pass
     # === ACTO 2: la brecha y las palancas (vida ideal vs actual + coste de no hacer nada) ===
     if extras: S+=_secsafe(seccion_extras,extras,datos)
-    if extras and depth!="esencial": S+=_secsafe(seccion_coste_inaccion,extras)
+    if extras and depth!="esencial": _B["p2"]+=_secsafe(seccion_coste_inaccion,extras)
     if depth!="esencial":
         # Diagnostico condicional: Gasto Anestesico (solo si estres alto Y gasto sin sentido alto)
         _c1s=p.get("C1",{}).get("score",0) or 0; _c6s=p.get("C6",{}).get("score",0) or 0
@@ -4197,6 +4205,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                                 "actualizar tu habilidad más difícil de automatizar, antes de que el mercado decida por ti.",
                                 St("dv2",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
                     "#FBF4E4","#B45309",ancho=160*mm), Spacer(1,4*mm)]
+    S=_B["p2"]
     # === ACTO 3: el plan ===
     if depth!="esencial":
         try:
@@ -4218,7 +4227,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 pass
             portadilla("_pa_t2_3.png", "Acto 3", 'TU PLAN', 'De la foto a los hechos: tu constitución financiera y hoja de ruta.',
                        dato=_d3, dato_lbl=(_dl3 or ""))
-            S+=[PageBreak(), Anchor("sec_acto3","ACTO III · EL PLAN"), FullBleedImage("_pa_t2_3.png")]
+            S+=[PageBreak()]
         except Exception:
             pass
     S+=[Paragraph("Tu plan de acción",h_sec),
@@ -4448,11 +4457,18 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
             _cp=[Paragraph("<b>Tu plan, en cifras</b>",St("cif0",fontSize=11,leading=15,textColor=ACCDK,fontName=FB))]
             for _x in _cif: _cp.append(Paragraph("<font color='#B45309'>&#8226;</font>  "+_x,St("cifx",fontSize=9.8,leading=14,textColor=INK,leftIndent=4,spaceBefore=3)))
             S+=[_box(_cp,"#FBF4E4","#B45309",ancho=160*mm), Spacer(1,4*mm)]
-        S+=[_box([Paragraph("<b>No haces esto solo.</b>",St("ej1",fontSize=11,leading=15,textColor=ACCDK,fontName=FB)),
-                  Paragraph("Las tareas de hábito y decisión son tuyas. Pero el trabajo pesado —mover el capital a vehículos "
-                            "eficientes, ordenar la fiscalidad, redactar el blindaje legal— lo ejecuta el equipo de Adapta por ti. "
-                            "Tú decides; nosotros operamos.",St("ej2",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
-                "#FBF9EC","#C9962B",ancho=160*mm), Spacer(1,4*mm)]
+        try:
+            import seccion_apertura as _sa
+            S+=[_sa.cta_sesion("No haces esto solo",
+                               "Las tareas de hábito y decisión son tuyas. Pero el trabajo pesado —mover el capital a vehículos "
+                               "eficientes, ordenar la fiscalidad, redactar el blindaje legal— lo ejecuta el equipo de Adapta por ti. "
+                               "Empieza por una sesión de 30 minutos: te descontamos el importe de este informe.", qr_mm=24), Spacer(1,4*mm)]
+        except Exception:
+            S+=[_box([Paragraph("<b>No haces esto solo.</b>",St("ej1",fontSize=11,leading=15,textColor=ACCDK,fontName=FB)),
+                      Paragraph("Las tareas de hábito y decisión son tuyas. Pero el trabajo pesado —mover el capital a vehículos "
+                                "eficientes, ordenar la fiscalidad, redactar el blindaje legal— lo ejecuta el equipo de Adapta por ti. "
+                                "Tú decides; nosotros operamos.",St("ej2",fontSize=10,leading=14,textColor=INK,spaceBefore=3))],
+                    "#FBF9EC","#C9962B",ancho=160*mm), Spacer(1,4*mm)]
         # Regla de contingencia (kill-switch sano)
         col6=datos.get("gasto_mensual",0)*3
         S+=[_box([Paragraph("<font color='#B45309'><b>Tu regla de contingencia</b></font><br/>"
@@ -4461,6 +4477,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                 f"y vuelca todo el excedente a reconstruir ese colch\u00f3n antes de seguir. Proteger la base va siempre "
                 f"primero; crecer puede esperar unas semanas.</font>",St("kc",fontSize=10.5,leading=15))],
                 "#FBF4E4","#B45309",ancho=160*mm)]
+        S=_B["p3"]
         S+=[PageBreak(),
             Paragraph("Tu glosario, a tu medida",h_sec),
             Paragraph("No es un diccionario gen\u00e9rico: hemos incluido solo los conceptos que tus respuestas han activado. "
@@ -4474,8 +4491,9 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         S+=[CondPageBreak(130*mm), Spacer(1,8*mm)]
     if depth!="esencial":
         pass  # cuaderno de trabajo eliminado (compresion)
+    S=_B["p2"]
     # cierre
-    S+=[Paragraph("Cómo seguir",h_sec),
+    S+=[PageBreak(), Paragraph("Cómo seguir",h_sec),
         Paragraph("Este libro es una foto de hoy, no una condena. La mayoría de las cifras que más te incomodan "
                   "se mueven con uno o dos hábitos bien elegidos. Empieza por el primer punto de tu plan, sostenlo "
                   "y, en seis meses, vuelve a hacer el diagnóstico: verás el movimiento en negro sobre blanco.",body),
@@ -4502,7 +4520,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         try:
             portadilla("_pa_t2_4.png", "Acto 4", 'EL SIGUIENTE\nPASO', 'Ejecutar el plan, contigo, con tu family office.',
                        dato="Ejecutar", dato_lbl="Tienes el diagnóstico. Falta lo difícil")
-            S+=[PageBreak(), Anchor("sec_acto4","ACTO IV · ADAPTA"), FullBleedImage("_pa_t2_4.png")]
+            S+=[PageBreak()]
         except Exception:
             pass
     S+=_secsafe(seccion_adapta,p,datos)
@@ -4550,6 +4568,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
               "quieras llevarla— es lo que cambia la realidad de tus finanzas, de tu tiempo y, con ellos, de tu vida.",
               St("debc",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,rightIndent=10,leftIndent=10,spaceBefore=2))]
         S+=[PageBreak()]+_dp
+    S=_B["p3"]
     if extras: S+=_secsafe(seccion_conclusion,extras)
     # DICTAMEN de comportamiento (convierte el test en prosa ejecutiva, antes del anexo crudo)
     S+=_secsafe(seccion_dictamen_comportamiento,resp)
@@ -4557,7 +4576,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     S+=_secsafe(seccion_dictamen_empresa,resp,datos,extras)
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
-    S+=[PageBreak(), Anchor("sec_anexos","ANEXOS"), Paragraph("Anexo \u2014 Tus respuestas",h_sec),
+    S+=[PageBreak(), Paragraph("Anexo \u2014 Tus respuestas",h_sec),
         Paragraph("Para total transparencia: estas son las preguntas que respondiste y lo que elegiste. "
                   "Tu diagn\u00f3stico se basa exactamente en esto, ni m\u00e1s ni menos.",body)]
     for capa in INST["capas"]:
@@ -4590,13 +4609,24 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         if _LEGADO_OK and extras: _const=_legado_pages.hero_close(extras,depth=depth)
     except Exception:
         _const=None
-    if _const: S+=[PageBreak(), FullBleedImage(_const)]
+    if _const: _B["p2"]+=[PageBreak(), FullBleedImage(_const)]
     # === GLOSARIO EJECUTIVO (cierre de anexos) ===
     S+=_secsafe(seccion_glosario)
+    S=_B["fin"]
     S+=[PageBreak(), DarkPage(titulo="ADAPTA  ·  family office",
         sub="Tu Libro Financiero · Documento confidencial",
         legal="Adapta Family Office · Herramienta de autoconocimiento financiero; no constituye asesoramiento personalizado regulado. Las estimaciones son orientativas. © 2026.")]
     global CLIENTE_NOMBRE; CLIENTE_NOMBRE=(cli.get("nombre") or "")
+    # --- ensamblado en 3 partes ---
+    _sep2=[]; _sep3=[]
+    try:
+        portadilla("_pa_parte2.png", "Parte 2", 'TU\nDIAGNÓSTICO', 'Una idea por página: tu foto, tu plan a 90 días y tu siguiente paso.')
+        _sep2=[PageBreak(), Anchor("sec_parte2","PARTE 2 · TU DIAGNÓSTICO"), FullBleedImage("_pa_parte2.png"), PageBreak()]
+        portadilla("_pa_parte3.png", "Parte 3", 'ANEXOS', 'El detalle de cada dimensión, tus respuestas y la metodología.')
+        _sep3=[PageBreak(), Anchor("sec_anexos","PARTE 3 · ANEXOS"), FullBleedImage("_pa_parte3.png"), PageBreak()]
+    except Exception:
+        _sep2=[PageBreak(), Anchor("sec_parte2","PARTE 2 · TU DIAGNÓSTICO")]; _sep3=[PageBreak(), Anchor("sec_anexos","PARTE 3 · ANEXOS")]
+    S=(_B["p0"]+_B["p1"]+[PageBreak()]+_B["mapa"]+_sep2+_B["p2"]+_sep3+_B["p3"]+_B["fin"])
     # --- saneador: colapsa PageBreaks consecutivos (evita paginas en blanco) ---
     _clean=[]
     for _f in S:
