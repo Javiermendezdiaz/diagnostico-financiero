@@ -120,9 +120,9 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .vida-h b{color:var(--tx)}
 .yrs{display:grid;grid-template-columns:repeat(19,minmax(0,1fr));gap:4px}
 .yrs i{aspect-ratio:1;border-radius:3px;background:#1d2133;transition:background .35s,transform .35s,box-shadow .35s}
-.yrs i.w{background:var(--ro);box-shadow:0 0 10px -2px rgba(255,77,94,.7)}
-.yrs i.f{background:var(--am)}
-.yrs i.t{outline:2px solid #fff;outline-offset:1px}
+.yrs i.yw{background:var(--ro);box-shadow:0 0 10px -2px rgba(255,77,94,.7)}
+.yrs i.yf{background:var(--am)}
+.yrs i.yt{outline:2px solid #fff;outline-offset:1px}
 .vida .leg{display:flex;gap:14px;font-size:11px;color:var(--gr);margin-top:9px;flex-wrap:wrap}
 .vida .leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 .lever,.wait{margin-top:12px;border-radius:13px;padding:11px 14px;font-size:13.5px;line-height:1.5}
@@ -137,16 +137,16 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .calc-n a{text-decoration:underline}
 /* vida en 95 casillas */
 .hero .lead b.tr{color:var(--ro)}.hero .lead b.ta{color:var(--am)}
-.life{display:flex;flex-wrap:wrap;align-content:flex-start;gap:9px;width:100%;max-width:470px;margin:0 auto}
+.life{display:flex;flex-wrap:wrap;align-content:flex-start;align-items:flex-start;gap:9px;width:100%;max-width:470px;margin:0 auto}
 .hero-g>div{min-width:0}
 .life i{position:relative;flex:none;width:calc((100% - 81px)/10);aspect-ratio:1;border-radius:8px;background:#14172a;opacity:0;transform:scale(.2) rotate(-20deg);transition:opacity .45s,transform .6s cubic-bezier(.2,.8,.2,1),background .45s,box-shadow .45s}
 .life.on i{opacity:1;transform:none}
-.life i.v{background:#262a3c}
-.life i.w{background:var(--ro);box-shadow:0 0 22px -6px rgba(255,77,94,.9)}
-.life i.f{background:var(--am);box-shadow:0 0 22px -8px rgba(253,215,49,.8)}
-.life i.t{outline:3px solid #fff;outline-offset:2px;z-index:2;animation:latidoh 1.6s infinite}
-.life i.t::after{content:'HOY';position:absolute;left:50%;top:-22px;transform:translateX(-50%);font-size:9.5px;font-weight:900;letter-spacing:1.5px;color:#fff;font-style:normal}
-.life i.j::after{content:'67';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:900;color:#000;font-style:normal}
+.life i.cv{background:#262a3c}
+.life i.cw{background:var(--ro);box-shadow:0 0 22px -6px rgba(255,77,94,.9)}
+.life i.cf{background:var(--am);box-shadow:0 0 22px -8px rgba(253,215,49,.8)}
+.life i.ct{outline:3px solid #fff;outline-offset:2px;z-index:2;animation:latidoh 1.6s infinite}
+.life i.ct::after{content:'HOY';position:absolute;left:50%;top:-22px;transform:translateX(-50%);font-size:9.5px;font-weight:900;letter-spacing:1.5px;color:#fff;font-style:normal}
+.life i.cj::after{content:'67';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:900;color:#000;font-style:normal}
 @keyframes latidoh{50%{outline-offset:6px;outline-color:rgba(255,255,255,.35)}}
 .lifeleg{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:18px;font-size:12px;color:var(--gr)}
 .lifeleg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
@@ -164,7 +164,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .calcsec{background:radial-gradient(ellipse at 50% 0%,rgba(253,215,49,.1),transparent 50%),#07080f}
 .calcsec .calc{max-width:1120px;margin:50px auto 0}
 @media(min-width:981px){.calcsec .calc-in{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;padding:32px}.calcsec .calc-h{grid-column:1/-1;margin-bottom:0}.calcsec .res{margin-top:0;border-top:none;padding-top:0}}
-.yrs i.v{background:#2a2e40}
+.yrs i.yv{background:#2a2e40}
 /* texto que se ilumina */
 .lit{height:260vh;position:relative;background:var(--ng)}
 .lit .stick{position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden}
@@ -779,7 +779,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
     // tu vida, año a año
     var hasta=(N<=0)?ed:((llega===null||llega>FIN)?FIN:Math.max(ed,llega)), g=$('o-yrs'), n=FIN;
     if(g.children.length!==n){ g.innerHTML=''; for(var i=0;i<n;i++){ var s=document.createElement('i'); g.appendChild(s);} }
-    for(var j=0;j<n;j++){ var el=g.children[j]; el.className=(j<ed?'v':(j<hasta?'w':'f'))+(j===ep?' t':''); el.title=j+' años'; }
+    for(var j=0;j<n;j++){ var el=g.children[j]; el.className=(j<ed?'yv':(j<hasta?'yw':'yf'))+(j===ep?' yt':''); el.title=j+' años'; }
     var tw=Math.max(0,hasta-ed), tf=Math.max(0,FIN-hasta);
     $('o-vh').innerHTML='<b style="color:var(--ro)">'+tw+'</b> trabajando · <b style="color:var(--am)">'+tf+'</b> libres';
     // palanca: +200 €/mes (escenario del informe)
@@ -805,7 +805,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   for(var q=0;q<95;q++){ var c=document.createElement('i'); c.style.transitionDelay=(q*14)+'ms'; life.appendChild(c); }
   function vida(ed){
     $('ag-v').textContent=ed;
-    for(var k=0;k<95;k++){ life.children[k].className=(k<ed?'v':(k<JUB?'w':'f'))+(k===ed?' t':'')+(k===JUB?' j':''); }
+    for(var k=0;k<95;k++){ life.children[k].className=(k<ed?'cv':(k<JUB?'cw':'cf'))+(k===ed?' ct':'')+(k===JUB?' cj':''); }
     var r=JUB-ed;
     $('hmsg').innerHTML='Con <b>'+ed+'</b> años, si trabajas hasta los 67 te quedan <span class="r">'+r+' casillas rojas</span>. Y eso, <b>solo si tu dinero llega a tiempo</b>.';
   }
