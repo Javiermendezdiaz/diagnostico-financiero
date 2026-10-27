@@ -187,7 +187,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .gk:first-child p{color:#2b2400;font-weight:400}
 .gana .fin{margin-top:40px;text-align:center;font-size:12px;color:var(--gr2)}
 /* marquee */
-.marq{background:var(--am);color:#000;overflow:hidden;white-space:nowrap;border-top:1px solid #000;border-bottom:1px solid #000;transform:rotate(-1.2deg) scale(1.02);margin:10px 0 -10px;position:relative;z-index:3}
+.marq{background:#0b0b0f;color:var(--am);overflow:hidden;white-space:nowrap;border-top:1px solid #000;border-bottom:1px solid #000;transform:rotate(-1.2deg) scale(1.02);margin:10px 0 -10px;position:relative;z-index:3}
 .marq div{display:inline-block;padding:16px 0;animation:corre 38s linear infinite;font-weight:900;font-size:clamp(15px,2vw,22px);letter-spacing:.5px;text-transform:uppercase}
 .marq span{margin:0 22px}.marq em{font-style:italic;text-transform:none;font-size:1.1em}
 @keyframes corre{to{transform:translateX(-50%)}}
@@ -447,6 +447,26 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .pf b{display:flex;width:40px;height:40px;border-radius:50%;align-items:center;justify-content:center;background:#a78bfa;color:#0b0b14;font-family:'Lora',serif;font-size:20px;font-weight:700}
 .pf h4{font-size:16px;font-weight:800;margin:14px 0 6px}
 .pf p{font-size:13.5px;color:#cfd5e1;line-height:1.5;font-weight:300}
+/* TUS LUNES (amarillo, gigante) */
+.lunes{background:var(--am);color:#0b0b0f;padding:110px 0 100px;position:relative;overflow:hidden}
+@media(max-width:700px){.lunes{padding:70px 0}}
+.lunes .kick{color:#0b0b0f}
+.lu-g{display:grid;grid-template-columns:.85fr 1.15fr;gap:50px;align-items:center;margin-top:22px}
+@media(max-width:940px){.lu-g{grid-template-columns:1fr;gap:28px}}
+.lunes h2{font-weight:900;letter-spacing:-2px;line-height:.92;font-size:clamp(38px,5vw,64px)}
+.lu-n{display:inline-block;font-family:'Lora',serif;font-weight:700;font-size:clamp(96px,15vw,200px);letter-spacing:-6px;line-height:.85;color:#0b0b0f;font-variant-numeric:tabular-nums}
+.lu-w{font-family:'Lora',serif;font-style:italic;font-weight:600}
+.lu-s{font-size:17px;line-height:1.55;margin-top:18px;color:#2b2400;max-width:440px}
+.lunes .age{background:#0b0b0f;border-color:#0b0b0f;color:#e5e7eb;margin-top:26px}
+.lunes .age b{color:#fff}
+.lunes .age button{background:#1d1f2b;border-color:#2c2f3b}
+#lu-cv{width:100%;display:block}
+.lu-leg{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px;font-size:13px;font-weight:700}
+.lu-twist{margin-top:46px;text-align:center}
+.lunes .hmsg{color:#0b0b0f;font-size:clamp(18px,2.2vw,24px);max-width:760px;margin:0 auto 24px;font-weight:500;line-height:1.4}
+.lunes .hmsg b{color:#0b0b0f;font-weight:900}
+.lunes .hmsg .r{color:#b0001e;font-weight:900}
+.lunes .hnote{color:#5c4d00;margin-top:14px}
 /* ===== SECCIONES CLARAS ===== */
 .claro{background:#f6f1e7!important;color:#14161d}
 .claro.alt{background:#fffdf8!important}
@@ -576,21 +596,25 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   </div>
 </section>
 
-<!-- TUS PRÓXIMOS AÑOS -->
-<section class="band anios claro alt" id="anios">
+<!-- TUS LUNES -->
+<section class="lunes" id="anios">
   <div class="wrap">
-    <div class="sh c rv">
-      <p class="kick">Gratis · 10 segundos</p>
-      <h2>¿Cuántos de tus próximos años serán <em>tuyos?</em></h2>
-      <p>Cada casilla es un año, desde hoy. <b style="color:#e11d48">Las rojas</b> las pasas trabajando por dinero. <b style="color:#b8860b">Las amarillas</b> son tuyas: tiempo para hacer lo que quieras. El diagnóstico existe para ayudarte a ganar más amarillas.</p>
+    <p class="kick rv">Gratis · 10 segundos</p>
+    <div class="lu-g">
+      <div class="lu-l rv">
+        <h2>Te quedan<br><span class="lu-n" id="lunes">1.508</span><br><span class="lu-w">lunes.</span></h2>
+        <p class="lu-s">Lunes de despertador, yendo a trabajar por dinero, si paras a los 67. <b>Cada punto es uno de ellos.</b></p>
+        <div class="age"><span>Tengo</span><button type="button" id="ag-m" aria-label="Menos">−</button><b id="ag-v">40</b><button type="button" id="ag-p" aria-label="Más">+</button><span>años</span></div>
+      </div>
+      <div class="lu-r rv d1">
+        <canvas id="lu-cv" aria-label="Un punto por cada lunes de trabajo que te queda"></canvas>
+        <div class="lu-leg"><span id="lu-a"></span><span id="lu-b"></span></div>
+      </div>
     </div>
-    <div class="anios-in">
-      <div class="life" id="life" aria-label="Tus próximos años"></div>
-      <div class="lifeleg"><span><i class="lw"></i>Trabajando por dinero</span><span><i class="lf"></i>Años tuyos</span><span><i class="lt"></i>Hoy</span></div>
-      <div class="age"><span>Tengo</span><button type="button" id="ag-m" aria-label="Menos">−</button><b id="ag-v">40</b><button type="button" id="ag-p" aria-label="Más">+</button><span>años</span></div>
+    <div class="lu-twist rv">
       <p class="hmsg" id="hmsg"></p>
-      <div class="hcta"><a class="btn btn-am" href="#calc" data-ev="hero_calc">¿Cuántos años amarillos puedes ganar? →<small>Calcúlalo con tus números · 30 segundos</small></a></div>
-      <p class="hnote">Horizonte de planificación: hasta los 95 años, el mismo que usa tu diagnóstico. Jubilación ordinaria a los 67.</p>
+      <a class="btn btn-ng" href="#calc" data-ev="hero_calc">¿Cuántos lunes me puedo quitar? →<small>Calcúlalo con tus números · 30 segundos</small></a>
+      <p class="hnote">Lunes que quedan hasta la jubilación ordinaria (67): años × 52. Es aritmética, no una previsión.</p>
     </div>
   </div>
 </section>
@@ -953,7 +977,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
       ver.innerHTML='Quieres parar a los <b>'+ep+'</b>. A tu ritmo actual <span class="ro">no reúnes ese capital en toda tu vida</span>. No es una condena: es que <b>falta un plan</b>.'; dif=FIN-ep; }
     else { $('o-ed').textContent=llega+' años'; dif=llega-ep;
       $('o-ed').className='n '+(dif>0?'ro':'ve'); $('o-edd').textContent= a===0?'Ya lo tienes':('dentro de '+a+' años');
-      ver.innerHTML = dif>0 ? 'Quieres parar a los <b>'+ep+'</b>. A tu ritmo llegas a los <b>'+llega+'</b>: <span class="ro">'+dif+' año'+(dif===1?'':'s')+' más trabajando por dinero</span> de lo que te gustaría.'
+      ver.innerHTML = dif>0 ? 'Quieres parar a los <b>'+ep+'</b>. A tu ritmo llegas a los <b>'+llega+'</b>: <span class="ro">'+dif+' año'+(dif===1?'':'s')+' más trabajando por dinero</span> de lo que te gustaría: <b>'+miles(dif*52)+' lunes</b> de más.'
                             : 'Vas por delante: llegas a los <b>'+llega+'</b>, antes de los '+ep+'. Ahora toca <span class="ve">protegerlo</span> y saber qué puede torcerlo.'; }
     // tu vida, año a año
     var hasta=(N<=0)?ed:((llega===null||llega>FIN)?FIN:Math.max(ed,llega)), g=$('o-yrs'), n=FIN-ed;
@@ -967,7 +991,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
       var a2=anios(N,ca,ah+200);
       if(a2!==null && (a===null || a2<a)){ lev.style.display='';
         lev.innerHTML = a===null ? 'Apartando <b>200 € más al mes</b> llegarías a los <b>'+(ed+a2)+'</b>. Pequeños cambios mueven años enteros.'
-                                 : 'Apartando <b>200 € más al mes</b> llegarías a los <b>'+(ed+a2)+'</b>: <b>'+(a-a2)+' año'+((a-a2)===1?'':'s')+' antes</b>. Y es solo una de las palancas.';
+                                 : 'Apartando <b>200 € más al mes</b> llegarías a los <b>'+(ed+a2)+'</b>: <b>'+(a-a2)+' año'+((a-a2)===1?'':'s')+' antes</b>: '+miles((a-a2)*52)+' lunes menos. Y es solo una de las palancas.';
       } else lev.style.display='none';
       var meses=(ep-ed)*12, hoy=ahorroNec(N,ca,meses), tras=ahorroNec(N,fv(ca,ah,RR,12),meses-12);
       if(hoy!==null && tras!==null && hoy>ah && meses>12){ wait.style.display='';
@@ -981,16 +1005,27 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   }
   ids.forEach(function(k){ $('i-'+k).addEventListener('input',function(){ if(!usado){usado=true; window.adaptaEv&&adaptaEv('calc_uso',k);} calc(); if(k==='ed') vida(lee('ed')); }); });
   /* HERO: tu vida en 95 casillas (hasta la jubilación ordinaria, 67) */
-  var life=$('life'), inicial=true;
+  /* TUS LUNES: un punto por cada lunes de trabajo que queda (hasta los 67) */
+  var cv=$('lu-cv'), ctx=cv.getContext('2d'), lunesAct=0, visto=false, anim=null;
+  function fmt(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'.')}
+  function dibuja(total,hasta){
+    var dpr=window.devicePixelRatio||1, W=cv.clientWidth||600, cols=52, gap=W<500?1.6:2.4, d=(W-gap*(cols-1))/cols, filas=Math.ceil(Math.max(total,52)/cols), H=Math.ceil(filas*(d+gap));
+    cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+    for(var i=0;i<total;i++){ var x=(i%cols)*(d+gap), y=Math.floor(i/cols)*(d+gap);
+      ctx.fillStyle = i<hasta ? '#0b0b0f' : 'rgba(11,11,15,.12)'; ctx.beginPath(); ctx.arc(x+d/2,y+d/2,d/2,0,6.2832); ctx.fill(); }
+  }
   function vida(ed){
     $('ag-v').textContent=ed;
-    var n=FIN-ed;
-    while(life.children.length<n){ var c=document.createElement('i'); if(inicial) c.style.transitionDelay=(life.children.length*18)+'ms'; life.appendChild(c); }
-    while(life.children.length>n){ life.removeChild(life.lastChild); }
-    for(var k=0;k<n;k++){ var y=ed+k; life.children[k].className=(y<JUB?'cw':'cf')+(k===0?' ct':'')+(y===JUB?' cj':''); life.children[k].title=y+' años'; }
-    var r=Math.max(0,JUB-ed), am=FIN-Math.max(ed,JUB);
-    $('hmsg').innerHTML='Con <b>'+ed+'</b> años y trabajando hasta los 67: <span class="r">'+r+' años rojos</span> y <span class="a">'+am+' amarillos</span>. ¿Quieres más amarillos? Depende de <b>si tu dinero llega a tiempo</b>.';
+    var r=Math.max(0,JUB-ed), total=r*52, am=FIN-Math.max(ed,JUB);
+    $('lu-a').textContent=r+' años trabajando por dinero'; $('lu-b').textContent=am+' años tuyos después (hasta los 95)';
+    $('hmsg').innerHTML='Con <b>'+ed+'</b> años te quedan <span class="r">'+fmt(total)+' lunes</span> de trabajo. Y eso, <b>solo si tu dinero llega a tiempo a los 67.</b> Tu diagnóstico calcula cuántos te puedes quitar.';
+    var desde=lunesAct, t0=null; lunesAct=total; cancelAnimationFrame(anim);
+    (function paso(t){ if(!t0)t0=t; var p=Math.min(1,(t-t0)/(visto?500:1600)), e=1-Math.pow(1-p,3), v=Math.round(desde+(total-desde)*e);
+      $('lunes').textContent=fmt(v); dibuja(total, visto?total:Math.round(total*e)); if(p<1) anim=requestAnimationFrame(paso); })(performance.now());
   }
+  var ioL=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting && !visto){ lunesAct=0; vida(lee('ed')); visto=true; ioL.disconnect(); } }); },{threshold:.35});
+  ioL.observe(cv);
+  addEventListener('resize',function(){ dibuja(lunesAct,lunesAct); });
   function ponEdad(v){ v=Math.max(22,Math.min(66,v)); $('i-ed').value=v; calc(); vida(v); }
   var tAg=null;
   function paso(d){ ponEdad(lee('ed')+d); clearTimeout(tAg); tAg=setTimeout(function(){ window.adaptaEv&&adaptaEv('hero_edad',lee('ed')); },1200); }
@@ -999,7 +1034,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
     if(qc.length===6 && qc.every(function(x){return isFinite(x)&&x>=0})){ ids.forEach(function(k,i){ var el=$('i-'+k); el.value=Math.max(+el.min,Math.min(+el.max,qc[i])); }); usado=true; }
   }catch(e){}
   calc(); vida(lee('ed'));
-  setTimeout(function(){ life.classList.add('on'); setTimeout(function(){ inicial=false; for(var q=0;q<life.children.length;q++) life.children[q].style.transitionDelay='0ms'; },life.children.length*18+700); },700);
 })();
 
 /* libro 3D: se hojea solo; flechas y toque para ampliar */
