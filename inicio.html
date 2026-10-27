@@ -401,6 +401,51 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 #lb{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
 #lb.on{display:flex}
 #lb img{max-width:min(760px,94vw);max-height:92vh;width:auto;height:auto;border-radius:8px}
+/* hero con libro */
+.h1in{opacity:0;animation:sube .9s .1s forwards}
+.hero h1.h1in{font-size:clamp(34px,4.1vw,62px);line-height:1.05;letter-spacing:-1.6px}
+.hbtns{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;margin-top:30px;opacity:0;animation:sube .9s .9s forwards}
+.hsec{color:#cfd5e1;font-size:14.5px;border-bottom:1px solid rgba(253,215,49,.5);padding-bottom:2px}.hsec:hover{color:#fff}
+.libro{opacity:0;animation:sube 1s .4s forwards}
+.lb-stage{position:relative;padding:10px 0 30px}
+.lb-book{position:relative;width:min(600px,94vw);aspect-ratio:1654/1170;margin:0 auto;perspective:2400px;transform:translateX(-25%);transition:transform .9s cubic-bezier(.6,.05,.3,1)}
+.lb-book.open{transform:none}
+.leaf{position:absolute;left:50%;top:0;width:50%;height:100%;transform-origin:left center;transform-style:preserve-3d;transition:transform 1.15s cubic-bezier(.6,.05,.3,1);cursor:zoom-in}
+.leaf img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px 7px 7px 2px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.leaf .bk{transform:rotateY(180deg);border-radius:7px 2px 2px 7px}
+.leaf::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.28),transparent 9%);border-radius:2px 7px 7px 2px;backface-visibility:hidden}
+.leaf.flip{transform:rotateY(-180deg)}
+.lb-end{position:absolute;left:50%;top:0;width:50%;height:100%;border-radius:2px 7px 7px 2px;background:linear-gradient(160deg,#FDD731,#e9bf12);display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;color:#000}
+.lb-end b{display:block;font-family:'Lora',serif;font-size:clamp(22px,3vw,34px);line-height:1.1}
+.lb-end span{display:block;font-size:12.5px;margin:8px 0 16px;line-height:1.4}
+.lb-end .btn{background:#000;color:var(--am);padding:12px 16px;font-size:13px;box-shadow:none}
+.lb-end .btn::after{display:none}
+.lb-sombra{position:absolute;left:12%;right:12%;bottom:6px;height:30px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.75),transparent 70%);filter:blur(8px)}
+.lb-ctrl{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:4px}
+.lb-ctrl button{width:42px;height:42px;border-radius:50%;border:1px solid #3a3f55;background:rgba(255,255,255,.04);color:var(--am);font-size:24px;line-height:1;cursor:pointer}
+.lb-ctrl button:hover{border-color:var(--am)}
+.lb-ctrl span{font-size:13px;color:#cfd5e1;min-width:190px;text-align:center}
+.lb-note{text-align:center;font-size:11.5px;color:var(--gr2);margin-top:10px}.lb-note a{text-decoration:underline;color:var(--gr)}
+@media(max-width:980px){.libro{order:-1}.lb-book{width:min(560px,96vw)}}
+/* sección años (clara) */
+.anios-in{max-width:620px;margin:46px auto 0;text-align:center}
+.anios .life i.ct{outline-color:#14161d}
+.anios .life i.ct::after{color:#14161d}
+.anios .life i.cw{box-shadow:0 8px 18px -10px rgba(225,29,72,.8)}
+.anios .life i.cf{box-shadow:0 8px 18px -12px rgba(184,134,11,.8)}
+.anios .lifeleg{color:#4b5563}.anios .lt{outline-color:#14161d}
+.anios .age{background:#fff;border-color:rgba(0,0,0,.1);color:#374151;box-shadow:0 20px 40px -30px rgba(0,0,0,.4)}
+.anios .age button{background:#14161d;border-color:#14161d}
+.anios .age b{color:#14161d}
+.anios .hmsg{color:#1f2937}.anios .hmsg b{color:#14161d}.anios .hmsg .r{color:#e11d48}.anios .hmsg .a{color:#b8860b}
+.anios .hnote{color:#6b7280}
+/* pareja: flujo */
+.pj-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:50px;counter-reset:pf}
+@media(max-width:900px){.pj-flow{grid-template-columns:1fr 1fr}}
+.pf{position:relative;padding:24px 20px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(167,139,250,.3)}
+.pf b{display:flex;width:40px;height:40px;border-radius:50%;align-items:center;justify-content:center;background:#a78bfa;color:#0b0b14;font-family:'Lora',serif;font-size:20px;font-weight:700}
+.pf h4{font-size:16px;font-weight:800;margin:14px 0 6px}
+.pf p{font-size:13.5px;color:#cfd5e1;line-height:1.5;font-weight:300}
 /* ===== SECCIONES CLARAS ===== */
 .claro{background:#f6f1e7!important;color:#14161d}
 .claro.alt{background:#fffdf8!important}
@@ -472,24 +517,53 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 <header class="head" id="head"><div class="wrap">
   <a class="logo" href="#" aria-label="Adapta Family Office"><span class="mk">A</span><span><b>ADAPTA</b><small>Family Office</small></span></a>
   <div class="hd-r">
-    <a class="hd-l" href="#dentro">El informe por dentro</a>
+    <a class="hd-l" href="#libro">El informe por dentro</a>
     <a class="hd-l" href="#pareja">En pareja</a>
     <a class="hd-l" href="#precios">Precios</a>
     <a class="btn-head" href="empezar2.html?tier=2">Mi diagnóstico · 39 €</a>
   </div>
 </div></header>
 
-<!-- HERO: TU VIDA EN 95 CASILLAS -->
+<!-- HERO: PROMESA + EL INFORME EN LA MANO -->
 <section class="hero" id="top">
   <div class="mesh"><i></i><i></i><i></i></div><div class="gridbg"></div>
   <div class="wrap hero-g">
     <div class="hl">
       <p class="kick">Adapta Family Office · Diagnóstico financiero</p>
-      <h1><span class="w" style="animation-delay:.05s">¿Cuántos</span> <span class="w" style="animation-delay:.12s">de</span> <span class="w" style="animation-delay:.19s">tus</span> <span class="w" style="animation-delay:.26s">próximos</span> <span class="w" style="animation-delay:.33s">años</span> <span class="w" style="animation-delay:.40s">serán</span> <span class="w" style="animation-delay:.52s"><em class="sub">tuyos?</em></span></h1>
-      <p class="lead">Cada casilla es un año, desde hoy. <b class="tr">Las rojas</b> las pasas trabajando por dinero. <b class="ta">Las amarillas</b> son tuyas: tiempo para hacer lo que quieras. Tu diagnóstico existe para una cosa: <b>ayudarte a ganar más amarillas.</b></p>
+      <h1 class="h1in">Descubre a qué edad podrás vivir sin depender de tu sueldo, <em class="sub">y qué te está retrasando.</em></h1>
+      <p class="lead">Tu diagnóstico, con tus cifras reales, en 15 minutos. <b>Pago único de 39 €.</b></p>
+      <div class="hbtns">
+        <a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_hero" data-evv="2">Hacer mi diagnóstico · 39 € →</a>
+        <a class="hsec" href="#anios" data-ev="hero_gratis">o calcula gratis tus años libres ↓</a>
+      </div>
       <div class="proof"><span class="pill"><b>★ 5,0</b> en Google</span><span class="pill"><b>25 años</b> en patrimonio</span><span class="pill">Autor de <b>2 libros</b></span></div>
     </div>
-    <div class="hr">
+    <div class="hr libro" id="libro">
+      <div class="lb-stage">
+        <div class="lb-book" id="lbBook">
+          <div class="lb-end"><div><b>El tuyo</b><span>con tus cifras, tu nombre y tu plan</span><a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_libro">Quiero el mío · 39 €</a></div></div>
+          <div class="leaf"><img class="fr" src="libro-0a.jpg" alt="Portada del diagnóstico"><img class="bk" src="libro-0b.jpg" alt="Una carta antes de empezar"></div>
+          <div class="leaf"><img class="fr" src="libro-1a.jpg" alt="Tu número de libertad"><img class="bk" src="libro-1b.jpg" alt="Las tres decisiones que más mueven tu número"></div>
+          <div class="leaf"><img class="fr" src="libro-2a.jpg" alt="Tu cuadro de 12 dimensiones"><img class="bk" src="libro-2b.jpg" alt="Hacia dónde vas y las 4 vías"></div>
+          <div class="leaf"><img class="fr" src="libro-3a.jpg" alt="Tu hoja de ruta a 90 días"><img class="bk" src="libro-3b.jpg" alt="Contraportada"></div>
+        </div>
+        <div class="lb-sombra"></div>
+      </div>
+      <div class="lb-ctrl"><button type="button" id="lbPrev" aria-label="Página anterior">‹</button><span id="lbLbl">Hojea un informe real</span><button type="button" id="lbNext" aria-label="Página siguiente">›</button></div>
+      <p class="lb-note">Ejemplo con perfil ficticio y cifras ocultas. Toca una página para verla en grande · <a href="muestra-avanzado.pdf" target="_blank" rel="noopener">ver el ejemplo completo</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- TUS PRÓXIMOS AÑOS -->
+<section class="band anios claro alt" id="anios">
+  <div class="wrap">
+    <div class="sh c rv">
+      <p class="kick">Gratis · 10 segundos</p>
+      <h2>¿Cuántos de tus próximos años serán <em>tuyos?</em></h2>
+      <p>Cada casilla es un año, desde hoy. <b style="color:#e11d48">Las rojas</b> las pasas trabajando por dinero. <b style="color:#b8860b">Las amarillas</b> son tuyas: tiempo para hacer lo que quieras. El diagnóstico existe para ayudarte a ganar más amarillas.</p>
+    </div>
+    <div class="anios-in">
       <div class="life" id="life" aria-label="Tus próximos años"></div>
       <div class="lifeleg"><span><i class="lw"></i>Trabajando por dinero</span><span><i class="lf"></i>Años tuyos</span><span><i class="lt"></i>Hoy</span></div>
       <div class="age"><span>Tengo</span><button type="button" id="ag-m" aria-label="Menos">−</button><b id="ag-v">40</b><button type="button" id="ag-p" aria-label="Más">+</button><span>años</span></div>
@@ -609,43 +683,22 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   </div>
 </section>
 
-<!-- EL INFORME POR DENTRO -->
-<section class="band papel" id="dentro">
-  <div class="wrap">
-    <div class="sh c rv">
-      <p class="kick">Así es por dentro</p>
-      <h2>Esto es lo que vas a tener <em>en tus manos</em></h2>
-      <p>Páginas reales de un diagnóstico de ejemplo (perfil ficticio). El tuyo llevará <b>tus cifras, tu nombre y tu plan</b>. Toca una página para verla en grande.</p>
-    </div>
-    <div class="fan rv" id="fan">
-      <img class="c" src="informe-p1.jpg" alt="Esto es lo que te separa de no depender de un sueldo" loading="lazy" width="827" height="1170">
-      <img class="li" src="informe-p2.jpg" alt="Las tres decisiones que más mueven tu número" loading="lazy" width="827" height="1170">
-      <img class="ri" src="informe-p3.jpg" alt="Tu cuadro completo de 12 dimensiones" loading="lazy" width="827" height="1170">
-      <img class="lo" src="informe-p4.jpg" alt="Tu número y las 4 vías para llegar a él" loading="lazy" width="827" height="1170">
-      <img class="ro" src="informe-p5.jpg" alt="Tu hoja de ruta a 90 días" loading="lazy" width="827" height="1170">
-    </div>
-    <div class="caps">
-      <div class="cap rv d1"><b>Tu número</b>Lo que te separa de no depender de un sueldo, y cuánto tienes ya.</div>
-      <div class="cap rv d2"><b>3 decisiones</b>Las que más años te devuelven, en euros.</div>
-      <div class="cap rv d3"><b>12 dimensiones</b>Tu cuadro completo, de la más frágil a la más sólida.</div>
-      <div class="cap rv d4"><b>4 vías</b>Ahorrar más, rentar mejor, ajustar el objetivo o tu plan.</div>
-      <div class="cap rv d5"><b>90 días</b>Tu hoja de ruta con fechas y casillas.</div>
-    </div>
-    <div class="row-c rv">
-      <a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_informe">Quiero el mío →</a>
-      <a class="btn btn-gh" href="muestra-avanzado.pdf" target="_blank" rel="noopener">Ver el ejemplo completo (PDF)</a>
-    </div>
-    <p class="note">Ejemplo ilustrativo con datos ficticios. No es una recomendación.</p>
-  </div>
-</section>
-
 <!-- PAREJA -->
 <section class="band pareja" id="pareja">
   <div class="wrap">
     <div class="sh c rv">
       <p class="kick">En pareja</p>
-      <h2>¿En qué no estáis de acuerdo con el dinero? <em>Vuestro informe lo pone sobre la mesa.</em></h2>
-      <p>Cada uno responde por separado, desde su móvil. Después, el informe os pone <b>frente a frente</b>: dónde coincidís, dónde chocáis sin saberlo y cuánto os está costando no hablarlo.</p>
+      <h2>Organizad vuestro dinero <em>sin discutir.</em></h2>
+      <p>Cada uno responde por separado, desde su móvil. Vuestro informe os dice <b>dónde estáis de acuerdo, dónde no y cómo repartir de forma justa</b>, con un guion para hablarlo con calma.</p>
+    </div>
+    <div class="pj-flow">
+      <div class="pf rv d1"><b>1</b><h4>Tú respondes</h4><p>Desde tu móvil, 15-20 minutos.</p></div>
+      <div class="pf rv d2"><b>2</b><h4>Desbloqueáis el informe</h4><p>54 € los dos, pago único.</p></div>
+      <div class="pf rv d3"><b>3</b><h4>Tu pareja responde</h4><p>Le envías un enlace. Responde por separado, desde su móvil.</p></div>
+      <div class="pf rv d4"><b>4</b><h4>Recibís vuestro informe</h4><p>Acuerdos, desacuerdos, reparto justo y guion para hablarlo.</p></div>
+    </div>
+    <div class="sh c rv" style="margin-top:70px">
+      <p class="kick">Lo que os descubre · ejemplo</p>
     </div>
     <div class="pj-g">
       <div class="gauge rv"><div style="position:relative">
@@ -908,6 +961,30 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   $('ag-m').addEventListener('click',function(){paso(-1)}); $('ag-p').addEventListener('click',function(){paso(1)});
   calc(); vida(lee('ed'));
   setTimeout(function(){ life.classList.add('on'); setTimeout(function(){ inicial=false; for(var q=0;q<life.children.length;q++) life.children[q].style.transitionDelay='0ms'; },life.children.length*18+700); },700);
+})();
+
+/* libro 3D: se hojea solo; flechas y toque para ampliar */
+(function(){
+  var book=document.getElementById('lbBook'); if(!book) return;
+  var L=[].slice.call(book.querySelectorAll('.leaf')), n=L.length, pos=0, auto=null, parado=false;
+  var lbl=document.getElementById('lbLbl');
+  var nombres=['Portada','Una carta para ti · Tu número','Tus 3 decisiones · Tus 12 dimensiones','Hacia dónde vas · Hoja de ruta a 90 días','El tuyo te espera'];
+  function z(){ L.forEach(function(l,i){ l.style.zIndex = i<pos ? (10+i) : (n-i); }); }
+  function ir(p){ p=Math.max(0,Math.min(n,p)); if(p===pos) return;
+    var i = p>pos ? pos : p; L[i].style.zIndex=60; L[i].classList.toggle('flip', p>pos);
+    pos=p; book.classList.toggle('open', pos>0 && pos<n+1); lbl.textContent=nombres[pos]||'';
+    setTimeout(z,1150); }
+  function sig(){ if(pos>=n){ cerrar(); return; } ir(pos+1); }
+  function cerrar(){ (function paso(){ if(pos>0){ ir(pos-1); setTimeout(paso,260);} })(); }
+  function arranca(){ clearInterval(auto); auto=setInterval(function(){ if(!parado) sig(); },2600); }
+  z(); 
+  var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ setTimeout(sig,900); arranca(); io.disconnect(); } }); },{threshold:.4});
+  io.observe(book);
+  document.getElementById('lbNext').addEventListener('click',function(){ parado=true; sig(); window.adaptaEv&&adaptaEv('libro_pasa','sig'); });
+  document.getElementById('lbPrev').addEventListener('click',function(){ parado=true; ir(pos-1); window.adaptaEv&&adaptaEv('libro_pasa','ant'); });
+  book.addEventListener('mouseenter',function(){ parado=true; }); book.addEventListener('mouseleave',function(){ parado=false; });
+  var lb=document.getElementById('lb'), li=lb.querySelector('img');
+  book.addEventListener('click',function(e){ var im=e.target.closest('img'); if(!im) return; parado=true; li.src=im.src; li.alt=im.alt; lb.classList.add('on'); window.adaptaEv&&adaptaEv('zoom_pagina',im.getAttribute('src')); });
 })();
 /* cabecera, barra fija, revelado, contadores, foco en tarjetas, lightbox */
 (function(){
