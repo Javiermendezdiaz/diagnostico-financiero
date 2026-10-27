@@ -67,6 +67,7 @@ a{color:var(--am)}
 .scan h4{font-size:15px;font-weight:700;text-align:center}.scan .vd{font-size:13px;text-align:center;margin-top:10px;line-height:1.45;font-weight:600}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:80;padding:20px}
 .modal.on{display:flex}
+.hito-box{border-color:var(--am)}.hito-pct{font-family:Lora,Georgia,serif;font-size:46px;font-weight:700;color:var(--am);line-height:1}.hito-bar{height:6px;border-radius:3px;background:#22253a;margin:12px 0 16px;overflow:hidden}.hito-bar i{display:block;height:100%;background:var(--am);border-radius:3px;transition:width .9s ease}
 .modal .box{background:var(--pa);border:1px solid var(--am);border-radius:16px;max-width:420px;padding:26px;text-align:center;animation:pop .25s ease}
 @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
 .modal h3{font-size:17px;font-weight:700;margin-bottom:10px}.modal p{color:var(--gr);font-size:14px;line-height:1.5;margin-bottom:18px}.modal b{color:var(--am)}
@@ -150,6 +151,13 @@ a{color:var(--am)}
 </head>
 <body>
 <div class="toast" id="toast"></div>
+<div class="modal" id="hito"><div class="box hito-box">
+  <div class="hito-pct" id="hitoPct">25%</div>
+  <div class="hito-bar"><i id="hitoBar"></i></div>
+  <h3 id="hitoT"></h3>
+  <p id="hitoP"></p>
+  <button class="btn" id="hitoBtn">Seguir →</button>
+</div></div>
 <div class="modal" id="modal"><div class="box">
   <div style="font-size:30px;margin-bottom:6px">🛡️</div>
   <h3>Estamos viendo puntos de tensión</h3>
@@ -544,8 +552,9 @@ const REFLEX=["La respuesta cómoda y la verdadera casi nunca son la misma. Marc
 
 function construirCola(){
   st.cola=[]; st.abierta=new Set(); st.insertados=new Set(); st.inyectados=0; st.motorLog=[]; st._prog=0; st._lastIdx=null;
-  INST.sociodemografico.forEach(q=>st.cola.push({...q,_b:'Sobre ti',_cap:'SD'}));
+  // Empieza por la emocion (tu vida ideal), no por el formulario. El sexo va al final y es opcional.
   INST.vision_brecha.forEach(q=>st.cola.push({...q,_b:'Tu vida ideal',_cap:'VIS'}));
+  INST.sociodemografico.filter(q=>q.campo!=='sexo' && ['SD-14','SD-15'].indexOf(q.id)<0).forEach(q=>st.cola.push({...q,_b:'Sobre ti',_cap:'SD'}));
   INST.numericas_financieras.forEach(q=>{
     if(st.tier===1 && (/^NUM-F/.test(q.id||'') || q.campo==='horas_semana' || q.campo==='pension_estimada')) return; // T1 (vistazo rápido): sin desglose de fuentes ni números de profundidad
     st.cola.push({...q,tipo:'numerica',_b:'Tus números',_cap:'NUM'});
@@ -554,6 +563,7 @@ function construirCola(){
   (INST.arquetipo||[]).forEach(q=>st.cola.push({...q,tipo:'opcion',_b:'Tu arquetipo del dinero',_cap:'ARQ'}));
   if(INST.prioridades) st.cola.push({...INST.prioridades,_b:'Lo que más te importa',_cap:'PRIO'});
   (INST._abiertas||[]).forEach(q=>st.cola.push({...q,tipo:'abierta',_b:'En tus palabras',_cap:'OPEN',ayuda:'Sin filtro y sin prisa. Esto es lo que se analiza para escribir tu retrato.'}));
+  INST.sociodemografico.filter(q=>q.campo==='sexo').forEach(q=>st.cola.push({...q,_b:'Sobre ti',_cap:'SD'}));
 }
 function emostrar(ms){
   if(!ms)return true; const v=st.perfil[ms.campo];
@@ -1244,6 +1254,33 @@ function popupEstres(cb){
   const m=document.getElementById('modal'); m.classList.add('on');
   document.getElementById('modalBtn').onclick=()=>{ m.classList.remove('on'); cb(); };
 }
+// Recompensas por el camino: en el 25 %, 50 % y 75 %, una revelación con TUS datos y lo que viene.
+function _hitoDatos(){
+  var d=st.datos||{}, r=[], ing=+d.ingreso_mensual||0, aho=+d.ahorro_mensual, gas=+d.gasto_mensual||0, col=+d.colchon_liquido||0, ed=+d.edad||0;
+  var f=function(n){return Math.round(n).toLocaleString('es-ES');};
+  if(ing>0 && isFinite(aho) && aho>=0) r.push('Ya tenemos tu <b>tasa de ahorro: '+Math.round(100*aho/ing)+' %</b> de lo que ingresas.');
+  if(gas>0 && col>0) r.push('Tu colchón cubre <b>'+(col/gas).toFixed(1).replace('.',',')+' meses</b> de tus gastos.');
+  if(ed>=18 && ed<67) r.push('Si paras a los 67, te quedan <b>'+f((67-ed)*52)+' lunes</b> de trabajo. Tu informe calculará cuántos te puedes quitar.');
+  return r;
+}
+function hito(cb){
+  var tot=st.cola.length||1, pct=Math.round(100*st.i/tot), marca=null;
+  st._hitos=st._hitos||{};
+  [75,50,25].some(function(m){ if(pct>=m && !st._hitos[m]){ marca=m; return true; } return false; });
+  if(!marca || st.tier===1 && marca===75) return cb();
+  [25,50,75].forEach(function(m){ if(m<=marca) st._hitos[m]=1; });
+  var datos=_hitoDatos(), sig={25:'Lo siguiente son <b>tus números</b>: lo que más mueve tu resultado.',
+    50:'Ya tenemos tus cifras. Ahora, <b>cómo decides con el dinero</b>: ahí suele estar el punto ciego.',
+    75:'Último tramo. <b>Tu informe ya se está escribiendo</b> con todo lo que nos has contado.'}[marca];
+  var rev = datos.length ? datos[Math.min(datos.length-1, marca===25?0:(marca===50?Math.min(1,datos.length-1):datos.length-1))] : '';
+  document.getElementById('hitoPct').textContent=marca+' %';
+  document.getElementById('hitoT').textContent= marca===25?'Buen arranque':(marca===50?'Vas por la mitad':'Casi lo tienes');
+  document.getElementById('hitoP').innerHTML=(rev?rev+'<br><br>':'')+sig;
+  var m=document.getElementById('hito'), b=document.getElementById('hitoBar'); b.style.width='0%'; m.classList.add('on');
+  setTimeout(function(){ b.style.width=marca+'%'; },60);
+  try{ window.adaptaEv&&adaptaEv('test_hito',marca); }catch(e){}
+  document.getElementById('hitoBtn').onclick=function(){ m.classList.remove('on'); cb(); };
+}
 function avanzar(q){
   let scanCapa=null;
   if(q._cap && q._cap[0]==='C'){
@@ -1256,7 +1293,7 @@ function avanzar(q){
     }
   }
   st.i++;
-  const next=()=>{ if(scanCapa) escaner(scanCapa, pintar); else pintar(); };
+  const next=()=>hito(()=>{ if(scanCapa) escaner(scanCapa, pintar); else pintar(); });
   if(scanCapa && !st.avisoEstres && capaMean(scanCapa)>=51){ st.avisoEstres=true; return popupEstres(next); }
   next();
 }

@@ -3861,7 +3861,7 @@
       }
      ],
      "tier1": true,
-     "ayuda": "Marca todas las que apliquen: Opus las pondrá en portada como tus prioridades de crecimiento a 90 días. Las tres últimas opciones son para perfil empresa/autónomo."
+     "ayuda": "Marca todas las que apliquen: Las pondremos en portada como tus prioridades de crecimiento a 90 días. Las tres últimas opciones son para perfil empresa/autónomo."
     },
     {
      "id": "C11-03",
@@ -3912,7 +3912,7 @@
        "score": 100
       }
      ],
-     "ayuda": "Opus te dará la hoja de ruta exacta para configurarlo en 15 minutos.",
+     "ayuda": "Tu diagnóstico te dará la hoja de ruta exacta para configurarlo en 15 minutos.",
      "activa_si": {
       "capa": "C11",
       "min_score": 35
@@ -4531,8 +4531,8 @@
    "id": "SD-1",
    "tipo": "opcion",
    "campo": "sexo",
-   "texto": "Para empezar, ¿con qué sexo te identificas?",
-   "ayuda": "Solo se usa para compararte con tu grupo real.",
+   "texto": "Por último, ¿con qué sexo te identificas? (opcional)",
+   "ayuda": "Opcional. Solo se usa para compararte con personas de tu mismo perfil.",
    "opciones": [
     "Hombre",
     "Mujer",
@@ -5189,8 +5189,8 @@
    "tipo": "opcion",
    "faceta": "vida_ideal",
    "dimensiones": "PSIQUE",
-   "texto": "Imagínate dentro de 10 años viviendo tu vida ideal, sin restricciones de dinero. ¿Qué es lo que de verdad estás haciendo?",
-   "ayuda": "Esto marca el norte con el que Opus contrastará todo tu diagnóstico.",
+   "texto": "Para empezar, imagina tu vida dentro de 10 años, sin depender del dinero. ¿Qué estás haciendo?",
+   "ayuda": "Elige lo que más se parezca. Esto marca el norte con el que contrastaremos todo tu diagnóstico.",
    "opciones": [
     {
      "texto": "Libertad de tiempo: mi nivel de hoy, pero trabajando solo por placer, con agenda totalmente libre.",
