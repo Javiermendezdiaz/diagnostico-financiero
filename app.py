@@ -1193,6 +1193,79 @@ def _build_indice_email(arq, nombre="", unsub=""):
             "subject": "Tu nota: %s/100 \u2014 y tu punto m\u00e1s d\u00e9bil \u00b7 Adapta" % (nota or "?"),
             "html": _lead_wrap(cuerpo, unsub, "el \u00cdndice de Salud Financiera"), "headers": hdrs}
 
+def _calc_params(arq):
+    """'calc:ed-ep-go-pe-ca-ah[:origen]' -> dict con las 6 cifras (o None si no son validas)."""
+    try:
+        v = [float(x) for x in (arq or "").split(":")[1].split("-")]
+        if len(v) != 6:
+            return None
+        ed, ep, go, pe, ca, ah = v
+        if not (18 <= ed <= 80 and ed < ep <= 80 and 0 < go <= 100000 and 0 <= pe <= 20000 and 0 <= ca <= 1e8 and 0 <= ah <= 1e6):
+            return None
+        return {"ed": int(ed), "ep": int(ep), "go": go, "pe": pe, "ca": ca, "ah": ah}
+    except Exception:
+        return None
+
+def _miles(n):
+    try:
+        return "{:,.0f}".format(float(n)).replace(",", ".")
+    except Exception:
+        return str(n)
+
+def _build_calc_email(arq, nombre="", unsub=""):
+    """Email con los resultados de la calculadora de la portada. Recalcula con el MISMO motor del informe."""
+    saludo = ("Hola %s," % nombre.strip().split()[0]) if (nombre or "").strip() else "Hola,"
+    pr = _calc_params(arq)
+    bloque = ""
+    enlace = "https://diagnostico.adaptafamilyoffice.com/inicio.html?de=email-calc#anios"
+    if pr:
+        enlace = ("https://diagnostico.adaptafamilyoffice.com/inicio.html?c=%d-%d-%d-%d-%d-%d&de=email-calc#calc"
+                  % (pr["ed"], pr["ep"], pr["go"], pr["pe"], pr["ca"], pr["ah"]))
+        try:
+            ex = mfv3.analizar_expectativas(pr["go"], pr["pe"], pr["ca"], pr["ah"], pr["ep"] - pr["ed"], 5.0, edad=pr["ed"]) or {}
+        except Exception:
+            ex = {}
+        N = ex.get("numero_libertad") or 0
+        if N:
+            an = ex.get("anios_reales")
+            llega = (pr["ed"] + an) if an is not None else None
+            if llega is None or llega > 95:
+                frase = "A tu ritmo actual <b style=\"color:#ff6b7a\">no reúnes ese capital antes de los 95</b>. No es una condena: es que falta un plan."
+            elif llega > pr["ep"]:
+                frase = ("Quieres parar a los <b>%d</b>. A tu ritmo llegas a los <b>%d</b>: <b style=\"color:#ff6b7a\">%d años más trabajando por dinero</b> de lo que te gustaría."
+                         % (pr["ep"], llega, llega - pr["ep"]))
+            else:
+                frase = "Vas por delante: llegas a los <b>%d</b>, antes de los %d. Ahora toca protegerlo." % (llega, pr["ep"])
+            bloque = (
+                "<div style=\"margin:18px 0 4px;padding:18px;background:#16161c;border-left:3px solid #fdd731;border-radius:10px\">"
+                "<div style=\"font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#fdd731;font-weight:700\">Tu Número de Libertad</div>"
+                "<div style=\"font-size:30px;font-weight:800;color:#fff;margin:6px 0 4px\">%s &euro;</div>"
+                "<div style=\"font-size:13px;color:#a9a9a4\">Lo tienes cubierto al %s %% &middot; te faltan %s &euro;</div>"
+                "<p style=\"font-size:15px;line-height:1.6;color:#e9e9e6;margin:12px 0 0\">%s</p></div>"
+                "<p style=\"font-size:12px;color:#8b8b90;margin:8px 0 0\">Con lo que pusiste: %d años, quieres parar a los %d, vida de %s &euro;/mes, pensión %s &euro;/mes, "
+                "%s &euro; ahorrados e invertidos y %s &euro;/mes de ahorro.</p>"
+            ) % (_miles(N), ex.get("pct_cubierto", 0), _miles(ex.get("brecha_renta", 0)), frase,
+                 pr["ed"], pr["ep"], _miles(pr["go"]), _miles(pr["pe"]), _miles(pr["ca"]), _miles(pr["ah"]))
+    cuerpo = (
+        "<h1 style=\"font-size:22px;line-height:1.3;margin:24px 0 8px\">%s</h1>"
+        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd;margin:0\">Aquí tienes lo que calculaste en nuestra web.</p>"
+        "%s"
+        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd;margin:18px 0 0\">"
+        "La calculadora te da <b style=\"color:#fff\">una edad</b>. Tu diagnóstico te da <b style=\"color:#fff\">el porqué y el cómo</b>: "
+        "lo que te cuesta no actuar, tu punto ciego, las 3 decisiones que más mueven tu número y tu hoja de ruta a 90 días.</p>"
+        "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd;margin:12px 0 0\">Empiezas gratis y ves un adelanto con tus cifras. "
+        "Solo pagas si quieres tu informe completo.</p>"
+        "<p style=\"text-align:center;margin:20px 0 0\"><a href=\"%s\" style=\"color:#fdd731;font-size:14px\">Volver a mi cálculo &rarr;</a></p>"
+        "<p style=\"font-size:11px;color:#6b6b66;margin:14px 0 0\">Cálculo orientativo con supuestos generales (rentabilidad real del 5 %%, retirada del 3–3,5 %%, horizonte hasta los 95, pensión desde los 67). No es una recomendación ni asesoramiento.</p>"
+    ) % (saludo, bloque, enlace)
+    cuerpo += _tiers_html()
+    fe = _from_email(RESEND_FROM)
+    hdrs = ({"List-Unsubscribe": "<%s/api/baja?t=%s>" % (_BAJA_BASE, unsub), "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"}
+            if unsub else {"List-Unsubscribe": "<mailto:%s?subject=BAJA>" % fe})
+    return {"from": RESEND_FROM, "to": None, "reply_to": fe,
+            "subject": "Tus resultados: tu Número de Libertad · Adapta",
+            "html": _lead_wrap(cuerpo, unsub, "la calculadora de libertad"), "headers": hdrs}
+
 @app.post("/api/lead")
 def lead(payload: LeadPayload):
     """Captura de lead del test de arquetipo gratuito. Todo failsafe: nunca lanza excepcion al cliente.
@@ -1222,6 +1295,7 @@ def lead(payload: LeadPayload):
     if RESEND_API_KEY:
         try:
             msg = (_build_indice_email(arquetipo, nombre, unsub_token) if arquetipo.startswith("indice:")
+                   else _build_calc_email(arquetipo, nombre, unsub_token) if arquetipo.startswith("calc:")
                    else _build_lead_email(arquetipo, nombre, unsub_token))
             msg["to"] = [email]
             status, _body = _resend_post(msg)
@@ -1235,7 +1309,7 @@ def lead(payload: LeadPayload):
     if RESEND_API_KEY:
         try:
             _resend_post({"from": RESEND_FROM, "to": [NOTIFY_EMAIL],
-                          "subject": ("Nuevo lead (Indice de salud): %s" if arquetipo.startswith("indice:") else "Nuevo lead (test arquetipo): %s") % (arquetipo or "-"),
+                          "subject": ("Nuevo lead (Indice de salud): %s" if arquetipo.startswith("indice:") else "Nuevo lead (calculadora portada): %s" if arquetipo.startswith("calc:") else "Nuevo lead (test arquetipo): %s") % (arquetipo or "-"),
                           "html": "<p><b>Nuevo lead del test gratuito</b></p><p>Email: <b>%s</b><br>Arquetipo: %s<br>Nombre: %s</p>" % (email, arquetipo or "-", nombre or "-")})
         except Exception as e:
             print("[lead] aviso interno fallo:", repr(e))
@@ -1313,7 +1387,37 @@ def _build_lead_followup(arquetipo, nombre, paso, unsub=""):
     arq = (arquetipo or "").strip() or "tu arquetipo"
     saludo = ("Hola %s," % nombre.strip().split()[0]) if (nombre or "").strip() else "Hola,"
     _es_idx = arq.startswith("indice:")
-    if paso == 2 and _es_idx:
+    _es_calc = arq.startswith("calc:")
+    if paso == 2 and _es_calc:
+        asunto = "Laura ten\u00eda 57.000 \u20ac ahorrados. Le faltaban 31 a\u00f1os"
+        cuerpo = (
+            "<h1 style=\"font-size:22px;line-height:1.3;margin:24px 0 8px\">%s</h1>"
+            "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">Te cuento qu&eacute; descubri&oacute; Laura, el <b style=\"color:#fff\">perfil de ejemplo</b> "
+            "de nuestro informe de muestra, porque se parece a lo que le pasa a mucha gente.</p>"
+            "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">Su N&uacute;mero de Libertad era <b style=\"color:#fff\">909.480 &euro;</b>. "
+            "Ten&iacute;a 57.000 &euro;: un 6 %%. A su ritmo, <b style=\"color:#ff6b7a\">31 a&ntilde;os</b> para llegar.</p>"
+            "<div style=\"margin:16px 0;padding:16px 18px;background:#16161c;border-left:3px solid #fdd731;border-radius:10px;font-size:15px;line-height:1.7;color:#e9e9e6\">"
+            "<b style=\"color:#fdd731\">Sus 3 decisiones, ordenadas por euros:</b><br>"
+            "1. Recortar el gasto un 10 %%: su n&uacute;mero bajaba 133.848 &euro;.<br>"
+            "2. Recortar, ahorrar m&aacute;s y parar 2 a&ntilde;os despu&eacute;s: <b>5 a&ntilde;os antes</b>.<br>"
+            "3. Ahorrar 200 &euro; m&aacute;s al mes: <b>3 a&ntilde;os antes</b>.</div>"
+            "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">Su punto ciego no era cu&aacute;nto ganaba: era <b style=\"color:#fff\">el precio de su estatus</b>, "
+            "gasto que crec&iacute;a con el sueldo sin que nadie lo decidiera.</p>"
+            "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">Tus cifras no son las suyas. Tu diagn&oacute;stico te dice cu&aacute;les son tus 3 decisiones. "
+            "Empiezas gratis y ves un adelanto antes de pagar nada.</p>") % saludo
+    elif paso == 3 and _es_calc:
+        asunto = "Lo que Laura hizo en sus primeras 72 horas"
+        cuerpo = (
+            "<h1 style=\"font-size:22px;line-height:1.3;margin:24px 0 8px\">%s</h1>"
+            "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">Seguimos con Laura, el perfil de ejemplo de nuestro informe. "
+            "Su hoja de ruta a 90 d&iacute;as no era una lista de buenos prop&oacute;sitos, sino tres fases con casillas:</p>"
+            "<div style=\"margin:16px 0;padding:16px 18px;background:#16161c;border-left:3px solid #fdd731;border-radius:10px;font-size:15px;line-height:1.7;color:#e9e9e6\">"
+            "<b style=\"color:#fdd731\">72 horas &middot; cortafuegos:</b> presupuesto simple de tres cajas (fijos, variables y ahorro).<br>"
+            "<b style=\"color:#fdd731\">D&iacute;as 4&ndash;30 &middot; estructura:</b> automatizar el reparto el d&iacute;a que cobra y probar un mes sin un gasto de imagen.<br>"
+            "<b style=\"color:#fdd731\">D&iacute;as 31&ndash;90 &middot; expansi&oacute;n:</b> completar su colch&oacute;n de 6 meses (17.400 &euro;) y poner a trabajar el resto.</div>"
+            "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">Nada de eso es complicado. Lo dif&iacute;cil es saber <b style=\"color:#fff\">qu&eacute; toca primero en tu caso</b>. "
+            "Eso es lo que te da tu diagn&oacute;stico: respondes gratis, ves un adelanto con tus cifras y solo pagas si quieres el informe completo.</p>") % saludo
+    elif paso == 2 and _es_idx:
         asunto = "Tu nota es el s\u00edntoma. Esto es la causa"
         cuerpo = (
             "<h1 style=\"font-size:22px;line-height:1.3;margin:24px 0 8px\">%s</h1>"
@@ -1344,9 +1448,8 @@ def _build_lead_followup(arquetipo, nombre, paso, unsub=""):
             "He visto a gente ganar mucho y vivir con angustia. Y a familias normales conquistar la vida que "
             "planificaron, el dia que dejaron de huir de sus numeros.</p>"
             "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
-            "Una auditoria psicofinanciera como esta se cobra entre <b>150&nbsp;&euro; y 600&nbsp;&euro;</b>. "
-            "Gracias a IA + la experiencia de Adapta, tu diagnostico completo arranca <b style=\"color:#fdd731\">desde 19&nbsp;&euro;</b> "
-            "&mdash; y empiezas viendo tu adelanto gratis, con tus cifras. Solo pagas si quieres el libro entero.</p>"
+            "Tu diagnostico completo arranca <b style=\"color:#fdd731\">desde 19&nbsp;&euro;</b> "
+            "&mdash; y empiezas gratis, viendo un adelanto con tus cifras. Solo pagas si quieres el libro entero.</p>"
             "<p style=\"font-size:15px;line-height:1.6;color:#c3c3bd\">"
             "Hoy te toca a ti: dar el primer paso, o seguir huyendo.</p>") % saludo
     if paso != 2:
@@ -1355,7 +1458,7 @@ def _build_lead_followup(arquetipo, nombre, paso, unsub=""):
     hdrs = ({"List-Unsubscribe": "<%s/api/baja?t=%s>" % (_BAJA_BASE, unsub), "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"}
             if unsub else {"List-Unsubscribe": "<mailto:%s?subject=BAJA>" % fe})
     return {"from": RESEND_FROM, "to": None, "reply_to": fe, "subject": asunto,
-            "html": _lead_wrap(cuerpo, unsub, ("el \u00cdndice de Salud Financiera" if _es_idx else "el test del arquetipo del dinero")), "headers": hdrs}
+            "html": _lead_wrap(cuerpo, unsub, ("el \u00cdndice de Salud Financiera" if _es_idx else "la calculadora de libertad" if _es_calc else "el test del arquetipo del dinero")), "headers": hdrs}
 
 
 @app.get("/api/leads")

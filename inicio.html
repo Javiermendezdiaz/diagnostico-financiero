@@ -405,6 +405,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .h1in{opacity:0;animation:sube .9s .1s forwards}
 .hero h1.h1in{font-size:clamp(34px,4.1vw,62px);line-height:1.05;letter-spacing:-1.6px}
 .hbtns{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;margin-top:30px;opacity:0;animation:sube .9s .9s forwards}
+.hpay{margin-top:16px;font-size:13.5px;color:#cfd5e1;opacity:0;animation:sube .9s 1s forwards}.hpay b{color:var(--tx)}
 .hsec{color:#cfd5e1;font-size:14.5px;border-bottom:1px solid rgba(253,215,49,.5);padding-bottom:2px}.hsec:hover{color:#fff}
 .libro{opacity:0;animation:sube 1s .4s forwards}
 .lb-stage{position:relative;padding:10px 0 30px}
@@ -504,6 +505,25 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .claro .faq summary::after{border-color:#cbbfa6;color:#b8860b}
 .claro .faq details[open] summary::after{color:#000}
 .claro .faq details p{color:#4b5563}
+/* modal de salida */
+#xm{position:fixed;inset:0;z-index:95;background:rgba(5,6,11,.72);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:18px}
+#xm.on{display:flex;animation:sube .35s both}
+.xm-in{position:relative;width:100%;max-width:460px;background:#fffdf8;color:#14161d;border-radius:22px;padding:30px 26px 24px;box-shadow:0 40px 90px -30px rgba(0,0,0,.8)}
+.xm-in .kick{color:#8a6d00}
+.xm-in h3{font-size:26px;font-weight:900;line-height:1.1;margin-top:10px;letter-spacing:-.5px}
+.xm-p{font-size:14.5px;color:#4b5563;margin-top:10px;line-height:1.55}
+.xm-res{margin-top:14px;background:#14161d;color:#f5f5f6;border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.5;display:none}
+.xm-res b{color:var(--am)}.xm-res .r{color:#ff6b7a;font-weight:800}
+#xm-f{margin-top:16px}
+#xm-e{width:100%;font-family:inherit;font-size:16px;padding:14px 14px;border-radius:12px;border:1.5px solid #d8cdb5;background:#fff;color:#14161d;outline:none}
+#xm-e:focus{border-color:#b8860b}
+.xm-c{display:flex;gap:9px;align-items:flex-start;font-size:11.5px;color:#4b5563;margin-top:12px;line-height:1.45;cursor:pointer}
+.xm-c input{margin-top:2px;flex:none;width:16px;height:16px;accent-color:#14161d}
+.xm-c a{text-decoration:underline}
+#xm-b{width:100%;margin-top:14px;padding:15px}
+.xm-x{position:absolute;top:12px;right:14px;width:36px;height:36px;border-radius:50%;border:none;background:#efe9dc;color:#14161d;font-size:22px;cursor:pointer}
+.xm-ok{display:none;margin-top:16px;font-size:15px;font-weight:700;color:#059669}
+.xm-err{border-color:#e11d48!important}
 /* revelado */
 .rv{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
 .rv.in{opacity:1;transform:none}
@@ -520,7 +540,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
     <a class="hd-l" href="#libro">El informe por dentro</a>
     <a class="hd-l" href="#pareja">En pareja</a>
     <a class="hd-l" href="#precios">Precios</a>
-    <a class="btn-head" href="empezar2.html?tier=2">Mi diagnóstico · 39 €</a>
+    <a class="btn-head" href="empezar2.html?tier=2">Empezar gratis</a>
   </div>
 </div></header>
 
@@ -531,17 +551,18 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
     <div class="hl">
       <p class="kick">Adapta Family Office · Diagnóstico financiero</p>
       <h1 class="h1in">Descubre a qué edad podrás vivir sin depender de tu sueldo, <em class="sub">y qué te está retrasando.</em></h1>
-      <p class="lead">Tu diagnóstico, con tus cifras reales, en 15 minutos. <b>Pago único de 39 €.</b></p>
+      <p class="lead">Tu diagnóstico, con tus cifras reales, en 15 minutos.</p>
       <div class="hbtns">
-        <a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_hero" data-evv="2">Hacer mi diagnóstico · 39 € →</a>
-        <a class="hsec" href="#anios" data-ev="hero_gratis">o calcula gratis tus años libres ↓</a>
+        <a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_hero" data-evv="2">Empezar gratis →</a>
+        <a class="hsec" href="#anios" data-ev="hero_gratis">o calcula tus años libres ↓</a>
       </div>
+      <p class="hpay">✓ Respondes gratis y ves un adelanto con tus cifras. <b>Pagas 39 € solo si quieres tu informe completo.</b></p>
       <div class="proof"><span class="pill"><b>★ 5,0</b> en Google</span><span class="pill"><b>25 años</b> en patrimonio</span><span class="pill">Autor de <b>2 libros</b></span></div>
     </div>
     <div class="hr libro" id="libro">
       <div class="lb-stage">
         <div class="lb-book" id="lbBook">
-          <div class="lb-end"><div><b>El tuyo</b><span>con tus cifras, tu nombre y tu plan</span><a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_libro">Quiero el mío · 39 €</a></div></div>
+          <div class="lb-end"><div><b>El tuyo</b><span>con tus cifras, tu nombre y tu plan</span><a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_libro">Empieza gratis →</a></div></div>
           <div class="leaf"><img class="fr" src="libro-0a.jpg" alt="Portada del diagnóstico"><img class="bk" src="libro-0b.jpg" alt="Una carta antes de empezar"></div>
           <div class="leaf"><img class="fr" src="libro-1a.jpg" alt="Tu número de libertad"><img class="bk" src="libro-1b.jpg" alt="Las tres decisiones que más mueven tu número"></div>
           <div class="leaf"><img class="fr" src="libro-2a.jpg" alt="Tu cuadro de 12 dimensiones"><img class="bk" src="libro-2b.jpg" alt="Hacia dónde vas y las 4 vías"></div>
@@ -616,7 +637,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
           <div class="lr"><span>Tu punto ciego (de 12 dimensiones)</span><span class="bl">El precio de tu ••••••</span></div>
           <div class="lr"><span>Las 3 decisiones que más mueven tu número</span><span class="bl">•• años antes</span></div>
         </div>
-        <a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_calc" data-evv="2">Ver lo que me falta y cómo adelantarlo →<small>Diagnóstico completo · 39 € · 15-20 minutos</small></a>
+        <a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_calc" data-evv="2">Ver lo que me falta y cómo adelantarlo →<small>Empiezas gratis · informe completo 39 € · 15-20 min</small></a>
         <a href="#pareja" data-ev="ir_pareja" style="display:block;text-align:center;margin-top:12px;font-size:13px;color:#c4b5fd">¿Lo hacéis en pareja? Mirad lo que descubre el informe conjunto →</a>
         <p class="calc-n">Cálculo orientativo con supuestos generales: rentabilidad real del 5 % anual, tasa de retirada del 3–3,5 % según los años que deba durar, horizonte hasta los 95 y pensión desde los 67. <b>No es una recomendación ni asesoramiento.</b> <a href="#legal">Más</a></p>
       </div>
@@ -679,7 +700,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
       <div class="cc rv d2"><span class="lk">🔒</span><div class="ic">↗</div><h3>Tus 4 vías para llegar</h3><p>Ahorrar más, rentar mejor, ajustar el objetivo o tu plan completo. Con la cifra de cada una.</p><div class="tease">Camino 1 · ahorra más: <span>+714 €/mes</span></div></div>
       <div class="cc rv d3"><span class="lk">🔒</span><div class="ic">90</div><h3>Tu hoja de ruta a 90 días</h3><p>Qué hacer en las primeras 72 horas, a 30 días y a 90. Con casillas, no con consejos.</p><div class="tease">Primer paso: <span>monta un presupuesto de tres cajas</span></div></div>
     </div>
-    <div style="text-align:center;margin-top:50px" class="rv"><a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_curiosidad">Desbloquear los míos →<small>Diagnóstico completo · 39 €</small></a></div>
+    <div style="text-align:center;margin-top:50px" class="rv"><a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_curiosidad">Descubrir los míos →<small>Empiezas gratis · informe completo 39 €</small></a></div>
   </div>
 </section>
 
@@ -733,7 +754,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
     <div class="pj-inc rv">
       <span>Vuestra temperatura de fricción</span><span>Dónde no estáis de acuerdo sin saberlo</span><span>El coste de no hablarlo</span><span>Quién decide cuánto se gasta</span><span>El reparto justo</span><span>Guion para hablarlo sin discutir</span><span>Vuestra Constitución del Hogar</span><span>Hoja de ruta a 12 meses</span>
     </div>
-    <div class="cta rv"><a class="btn btn-am" href="empezar2.html?tier=3" data-ev="cta_pareja" data-evv="3">Hacer nuestro diagnóstico en pareja →<small>54 € los dos · cada uno desde su móvil</small></a>
+    <div class="cta rv"><a class="btn btn-am" href="empezar2.html?tier=3" data-ev="cta_pareja" data-evv="3">Hacer nuestro diagnóstico en pareja →<small>Empezáis gratis · informe conjunto 54 € los dos</small></a>
       <p style="font-size:11.5px;color:var(--gr2);margin-top:14px">Cifras de un informe de ejemplo con perfiles ficticios. No es una recomendación.</p></div>
   </div>
 </section>
@@ -756,7 +777,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
         <p class="src">Ejemplo aritmético ilustrativo, no una promesa de ahorro ni de rentabilidad. El resultado depende de lo que decidas hacer tú.</p>
       </div>
     </div>
-    <div class="cta rv"><a class="btn btn-ng" href="empezar2.html?tier=2" data-ev="cta_inversion">Hacer mi diagnóstico · 39 € →</a></div>
+    <div class="cta rv"><a class="btn btn-ng" href="empezar2.html?tier=2" data-ev="cta_inversion">Empezar gratis →</a></div>
   </div>
 </section>
 
@@ -766,27 +787,27 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
     <div class="sh c rv">
       <p class="kick">Elige tu diagnóstico</p>
       <h2>Pago único. <em>Tu informe al terminar.</em></h2>
-      <p>Sin suscripción. Respondes desde el móvil y lo recibes en tu correo.</p>
+      <p><b>En los tres empiezas gratis:</b> respondes, ves un adelanto con tus cifras y solo pagas si quieres tu informe completo. Sin suscripción.</p>
     </div>
     <div class="prod">
       <div class="pk rv d1">
         <div class="k">Rápido</div><h3>Tu foto en claro</h3>
         <div class="pr">19 €<small> pago único</small></div>
         <ul><li>Tus 12 dimensiones, en un vistazo</li><li>Tu Número de Libertad y cuándo llegas</li><li>Las 3 decisiones que más lo mueven</li><li>Hoja de ruta a 90 días</li><li>~50 páginas · 10-12 minutos</li></ul>
-        <a class="btn btn-gh" href="empezar2.html?tier=1">Empezar el rápido</a>
+        <a class="btn btn-gh" href="empezar2.html?tier=1">Empezar gratis</a>
       </div>
       <div class="pk star rv">
         <div class="badge">★ El más elegido</div>
         <div class="k">Avanzado</div><h3>Tu diagnóstico completo</h3>
         <div class="pr">39 €<small> pago único</small></div>
         <ul><li><b>Todo lo del rápido</b></li><li>Tus 12 dimensiones, una a una, con su plan</li><li>Lo que te cuesta no actuar, en euros</li><li>Riesgos: qué pasa si llega un golpe</li><li>Tablero de operaciones por fases</li><li>~90 páginas · 15-20 minutos</li></ul>
-        <a class="btn btn-am" href="empezar2.html?tier=2">Hacer mi diagnóstico →</a>
+        <a class="btn btn-am" href="empezar2.html?tier=2">Empezar gratis →</a>
       </div>
       <div class="pk rv d2">
         <div class="k">En pareja</div><h3>Vuestro informe</h3>
         <div class="pr">54 €<small> los dos</small></div>
         <ul><li>Dos perfiles, un libro conjunto</li><li>El reparto justo: cuánto le cuesta a cada uno</li><li>Dónde no estáis de acuerdo sin saberlo</li><li>Guion para hablarlo sin discutir</li><li>~90 páginas · 15-20 min cada uno</li></ul>
-        <a class="btn btn-gh" href="empezar2.html?tier=3">Empezar en pareja</a>
+        <a class="btn btn-gh" href="empezar2.html?tier=3">Empezar gratis en pareja</a>
       </div>
     </div>
     <p class="mini">¿Prefieres tantear antes? <a href="indice.html">Tu nota de salud financiera gratis (2 min)</a> · <a href="planes.html#precios">Comparar qué incluye cada uno</a></p>
@@ -798,9 +819,9 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   <div class="wrap">
     <div class="sh c rv"><p class="kick">Cómo funciona</p><h2>Tres pasos. <em>El primero, hoy.</em></h2></div>
     <div class="steps">
-      <div class="st rv d1"><div class="n">1</div><h3>Respondes</h3><p>Entre 10 y 20 minutos, desde el móvil. Tus cifras aproximadas y cómo decides con el dinero. Puedes parar y seguir.</p></div>
-      <div class="st rv d2"><div class="n">2</div><h3>Recibes tu informe</h3><p>Al terminar, en tu correo. Tu número, lo que te cuesta no actuar, tus 3 decisiones y tu hoja de ruta a 90 días.</p></div>
-      <div class="st rv d3"><div class="n">3</div><h3>Tú decides</h3><p>Lo aplicas por tu cuenta o, si quieres, lo revisas con el equipo de Adapta. Sin compromiso.</p></div>
+      <div class="st rv d1"><div class="n">1</div><h3>Respondes, gratis</h3><p>Entre 10 y 20 minutos, desde el móvil. Tus cifras aproximadas y cómo decides con el dinero. Puedes parar y seguir.</p></div>
+      <div class="st rv d2"><div class="n">2</div><h3>Ves tu adelanto</h3><p>Al terminar, un adelanto real con tus cifras. Si te convence, desbloqueas tu informe completo: 39 €, pago único.</p></div>
+      <div class="st rv d3"><div class="n">3</div><h3>Recibes tu informe</h3><p>Tu número, lo que te cuesta no actuar, tus 3 decisiones y tu hoja de ruta a 90 días. Lo aplicas tú o, si quieres, con Adapta.</p></div>
     </div>
   </div>
 </section>
@@ -840,6 +861,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   <div class="wrap">
     <div class="sh c rv"><p class="kick">Dudas rápidas</p><h2>Antes de empezar</h2></div>
     <div class="faq rv">
+      <details data-evv="pago"><summary>¿Tengo que pagar antes de empezar?</summary><p>No. Respondes gratis y, al terminar, ves un adelanto real con tus cifras. Solo pagas si quieres desbloquear tu informe completo: 19 € el rápido, 39 € el completo o 54 € en pareja. Pago único, sin suscripción.</p></details>
       <details data-evv="que_recibo"><summary>¿Qué recibo exactamente?</summary><p>Un informe personal en PDF en tu correo al terminar: tu Número de Libertad y cuándo llegas, lo que te cuesta no actuar, tu punto ciego, las 3 decisiones que más mueven tu número y tu hoja de ruta a 90 días. Puedes ver un <a href="muestra-avanzado.pdf" target="_blank" rel="noopener" style="text-decoration:underline">ejemplo completo aquí</a>.</p></details>
       <details data-evv="asesoramiento"><summary>¿Esto es asesoramiento o una recomendación?</summary><p>No. Es un marco educativo y orientativo de Adapta Family Office. No constituye recomendación de inversión ni de ningún producto, ni asesoramiento financiero, fiscal o jurídico personalizado. Las decisiones son siempre tuyas.</p></details>
       <details data-evv="cifras"><summary>¿Necesito tener mis cifras exactas?</summary><p>No. Con aproximaciones basta para empezar: ingresos, gastos, lo que tienes ahorrado e invertido y tus deudas. Cuanto más reales, más útil el resultado.</p></details>
@@ -856,7 +878,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
     <h2 class="rv">Ya sabes a qué edad llegas. <em>Ahora descubre cómo adelantarla.</em></h2>
     <p class="rv d1">Entre 15 y 20 minutos hoy. Un mapa claro para los próximos años.</p>
     <div class="row rv d2">
-      <a class="btn btn-am" href="empezar2.html?tier=2">Hacer mi diagnóstico · 39 € →</a>
+      <a class="btn btn-am" href="empezar2.html?tier=2">Empezar gratis →</a>
       <a class="btn btn-gh" href="#calc" data-ev="volver_calc">Volver a mi calculadora</a>
     </div>
     <a class="wa rv d3" href="https://wa.me/34683343531?text=Hola%2C%20tengo%20una%20duda%20sobre%20el%20diagn%C3%B3stico" target="_blank" rel="noopener"><i></i>¿Una duda antes de empezar? <b>Escríbenos por WhatsApp</b></a>
@@ -873,10 +895,23 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 </footer>
 
 <div id="bar"><div class="in">
-  <div class="t" id="bar-t"><b>Tu diagnóstico completo</b><br>Lo que la calculadora no ve · 39 €</div>
-  <a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_barra">Hacerlo ahora →</a>
+  <div class="t" id="bar-t"><b>Empieza gratis</b><br>Pagas solo si quieres tu informe</div>
+  <a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_barra">Empezar gratis →</a>
 </div></div>
 <div id="lb"><img alt=""></div>
+<div id="xm" role="dialog" aria-modal="true" aria-labelledby="xm-t"><div class="xm-in">
+  <button type="button" class="xm-x" id="xm-x" aria-label="Cerrar">×</button>
+  <p class="kick">Antes de irte</p>
+  <h3 id="xm-t">¿Te enviamos tus resultados?</h3>
+  <p class="xm-p">Recíbelos en tu correo y haz tu diagnóstico cuando tengas 15 minutos tranquilos.</p>
+  <div class="xm-res" id="xm-res"></div>
+  <form id="xm-f" novalidate>
+    <input type="email" id="xm-e" placeholder="Tu email" autocomplete="email" required>
+    <label class="xm-c"><input type="checkbox" id="xm-k"> <span>Acepto recibir mis resultados y comunicaciones de Adapta Family Office sobre el diagnóstico. Puedo darme de baja en un clic. <a href="privacidad.html" target="_blank" rel="noopener">Privacidad</a>.</span></label>
+    <button type="submit" class="btn btn-am" id="xm-b">Enviármelos →</button>
+  </form>
+  <p class="xm-ok" id="xm-ok">Hecho. Revisa tu correo (y la carpeta de promociones).</p>
+</div></div>
 
 <script>
 /* ===== Motor de libertad: mismo cálculo que el informe (motor_financiero_v3) ===== */
@@ -940,7 +975,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
       } else wait.style.display='none';
     } else { lev.style.display='none'; wait.style.display='none'; }
     var pa=$('p-anios'); if(pa){ pa.textContent = (dif===null||dif<=0) ? '0' : (llega===null||llega>FIN ? '+'+dif : String(dif)); }
-    var bt=$('bar-t'); if(bt && dif!==null && dif>0) bt.innerHTML='<b>'+(llega===null||llega>FIN?'No llegas antes de los 95':'Llegas a los '+llega+', no a los '+ep)+'</b><br>Descubre cómo adelantarlo · 39 €';
+    var bt=$('bar-t'); if(bt && dif!==null && dif>0) bt.innerHTML='<b>'+(llega===null||llega>FIN?'No llegas antes de los 95':'Llegas a los '+llega+', no a los '+ep)+'</b><br>Descubre cómo adelantarlo · empieza gratis';
+    window.adaptaCalc={ed:ed,ep:ep,go:go,pe:pe,ca:ca,ah:ah,N:N,llega:llega,dif:dif,usado:usado};
     clearTimeout(tRes); tRes=setTimeout(function(){ if(usado && window.adaptaEv) adaptaEv('calc_resultado', (dif===null?'na':dif)+'|'+ed+'|'+pct+'%'); },1500);
   }
   ids.forEach(function(k){ $('i-'+k).addEventListener('input',function(){ if(!usado){usado=true; window.adaptaEv&&adaptaEv('calc_uso',k);} calc(); if(k==='ed') vida(lee('ed')); }); });
@@ -959,6 +995,9 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   var tAg=null;
   function paso(d){ ponEdad(lee('ed')+d); clearTimeout(tAg); tAg=setTimeout(function(){ window.adaptaEv&&adaptaEv('hero_edad',lee('ed')); },1200); }
   $('ag-m').addEventListener('click',function(){paso(-1)}); $('ag-p').addEventListener('click',function(){paso(1)});
+  try{ var qc=(new URLSearchParams(location.search).get('c')||'').split('-').map(Number);
+    if(qc.length===6 && qc.every(function(x){return isFinite(x)&&x>=0})){ ids.forEach(function(k,i){ var el=$('i-'+k); el.value=Math.max(+el.min,Math.min(+el.max,qc[i])); }); usado=true; }
+  }catch(e){}
   calc(); vida(lee('ed'));
   setTimeout(function(){ life.classList.add('on'); setTimeout(function(){ inicial=false; for(var q=0;q<life.children.length;q++) life.children[q].style.transitionDelay='0ms'; },life.children.length*18+700); },700);
 })();
@@ -985,6 +1024,46 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   book.addEventListener('mouseenter',function(){ parado=true; }); book.addEventListener('mouseleave',function(){ parado=false; });
   var lb=document.getElementById('lb'), li=lb.querySelector('img');
   book.addEventListener('click',function(e){ var im=e.target.closest('img'); if(!im) return; parado=true; li.src=im.src; li.alt=im.alt; lb.classList.add('on'); window.adaptaEv&&adaptaEv('zoom_pagina',im.getAttribute('src')); });
+})();
+
+/* captura amable antes de irse: guarda tu cálculo en tu correo */
+(function(){
+  var m=document.getElementById('xm'); if(!m) return;
+  var ss={g:function(k){try{return sessionStorage.getItem(k)}catch(e){return null}},s:function(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}};
+  var t0=Date.now(), hecho=false, cta=false;
+  document.addEventListener('click',function(e){ var a=e.target.closest&&e.target.closest('a[href*="empezar2.html"]'); if(a) cta=true; },true);
+  function puede(){ return !hecho && !cta && !ss.g('adaptaXm') && (Date.now()-t0)>8000; }
+  function miles(n){return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,'.')}
+  function abre(motivo){ if(!puede()) return; hecho=true; ss.s('adaptaXm','1');
+    var c=window.adaptaCalc, r=document.getElementById('xm-res');
+    if(c && c.usado && c.N>0){ r.style.display='block';
+      r.innerHTML='Tu Número de Libertad: <b>'+miles(c.N)+' €</b><br>'+(c.llega===null||c.llega>95?'A tu ritmo: <span class="r">no llegas antes de los 95</span>':'A tu ritmo llegas a los <b>'+c.llega+'</b>'+(c.dif>0?' · <span class="r">'+c.dif+' años más</span> de lo que quieres':'')); }
+    m.classList.add('on'); window.adaptaEv&&adaptaEv('salida_modal',motivo); }
+  function cierra(){ m.classList.remove('on'); }
+  document.getElementById('xm-x').addEventListener('click',cierra);
+  m.addEventListener('click',function(e){ if(e.target===m) cierra(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') cierra(); });
+  /* ordenador: el ratón sale por arriba (hacia cerrar la pestaña) */
+  document.addEventListener('mouseout',function(e){ if(!e.relatedTarget && e.clientY<=0) abre('salida'); });
+  /* móvil: tras usar la calculadora, si pasan 45 s sin pulsar empezar */
+  if(matchMedia('(pointer:coarse)').matches){
+    var tm=null; function arma(){ clearTimeout(tm); tm=setTimeout(function(){ abre('movil'); },45000); }
+    ['i-ed','i-ep','i-go','i-pe','i-ca','i-ah'].forEach(function(id){ var el=document.getElementById(id); el&&el.addEventListener('change',arma); });
+    ['ag-m','ag-p'].forEach(function(id){ var el=document.getElementById(id); el&&el.addEventListener('click',arma); });
+  }
+  document.getElementById('xm-f').addEventListener('submit',function(e){ e.preventDefault();
+    var em=document.getElementById('xm-e'), k=document.getElementById('xm-k'), v=(em.value||'').trim();
+    em.classList.remove('xm-err'); k.parentNode.style.color='';
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ em.classList.add('xm-err'); em.focus(); return; }
+    if(!k.checked){ k.parentNode.style.color='#e11d48'; return; }
+    var c=window.adaptaCalc||{}, de=(window.adaptaDe||'').replace(/[^a-z0-9_.-]/gi,'').slice(0,40);
+    var arq='calc:'+[c.ed,c.ep,c.go,c.pe,c.ca,c.ah].map(function(x){return Math.round(+x||0)}).join('-')+(de?':'+de:'');
+    var b=document.getElementById('xm-b'); b.disabled=true; b.textContent='Enviando…';
+    fetch('https://diagnostico-financiero-app.onrender.com/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:v,arquetipo:arq,consent:true})}).catch(function(){});
+    document.getElementById('xm-f').style.display='none'; document.getElementById('xm-ok').style.display='block';
+    window.adaptaEv&&adaptaEv('salida_lead', c.usado?'calc':'sin_calc');
+    setTimeout(cierra,3500);
+  });
 })();
 /* cabecera, barra fija, revelado, contadores, foco en tarjetas, lightbox */
 (function(){
