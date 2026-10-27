@@ -64,7 +64,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:100;op
 .gridbg{position:absolute;inset:0;z-index:-1;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse at 50% 30%,#000 30%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at 50% 30%,#000 30%,transparent 75%)}
 .hero-g{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
 @media(max-width:980px){.hero-g>div:first-child{position:static;padding-top:0}.hero-g{grid-template-columns:1fr;gap:34px}.hero{padding:96px 0 60px;min-height:0}}
-.hero h1{font-size:clamp(48px,5.4vw,88px);line-height:.98;font-weight:900;letter-spacing:-2px;margin-top:22px}
+.hero h1{font-size:clamp(40px,4.7vw,78px);line-height:.98;font-weight:900;letter-spacing:-2px;margin-top:22px}
 .hero h1 .w{display:inline-block;margin-right:.12em;opacity:0;transform:translateY(40px) rotate(2deg);animation:sube .9s cubic-bezier(.2,.8,.2,1) forwards}
 .hero h1 em{color:var(--am);font-style:italic;letter-spacing:-1.5px;position:relative}
 .hero h1 em.sub::after{content:'';position:absolute;left:0;right:0;bottom:.04em;height:.09em;background:var(--am);transform:scaleX(0);transform-origin:left;animation:raya .8s 1.3s cubic-bezier(.7,0,.2,1) forwards;border-radius:4px}
@@ -137,7 +137,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .calc-n a{text-decoration:underline}
 /* vida en 95 casillas */
 .hero .lead b.tr{color:var(--ro)}.hero .lead b.ta{color:var(--am)}
-.life{display:flex;flex-wrap:wrap;align-content:flex-start;align-items:flex-start;gap:9px;width:100%;max-width:470px;margin:0 auto}
+.life{display:flex;flex-wrap:wrap;align-content:flex-start;align-items:flex-start;gap:9px;width:100%;max-width:470px;margin:0 auto;padding-top:24px}
 .hero-g>div{min-width:0}
 .life i{position:relative;flex:none;width:calc((100% - 81px)/10);aspect-ratio:1;border-radius:8px;background:#14172a;opacity:0;transform:scale(.2) rotate(-20deg);transition:opacity .45s,transform .6s cubic-bezier(.2,.8,.2,1),background .45s,box-shadow .45s}
 .life.on i{opacity:1;transform:none}
@@ -159,6 +159,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .hmsg{margin:18px auto 0;font-size:18px;line-height:1.5;color:#e4e8f0;max-width:520px;min-height:54px}
 .hmsg b{color:var(--tx)}.hmsg .r{color:var(--ro);font-weight:800}
 .hcta{margin-top:22px}
+.hnote{font-size:11px;color:var(--gr2);margin-top:14px}
+.hmsg .a{color:var(--am);font-weight:800}
 @media(max-width:980px){.life{gap:6px;max-width:440px}.life i{border-radius:5px;width:calc((100% - 54px)/10)}.hmsg{font-size:16px}}
 /* calculadora en su sección */
 .calcsec{background:radial-gradient(ellipse at 50% 0%,rgba(253,215,49,.1),transparent 50%),#07080f}
@@ -173,6 +175,17 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .ltx span.on{color:var(--tx)}
 .ltx span.y{font-family:'Lora',serif;font-style:italic;font-weight:600;letter-spacing:-1px}
 .ltx span.y.on{color:var(--am);text-shadow:0 0 40px rgba(253,215,49,.35)}
+/* lo que ganas */
+.gana{background:linear-gradient(180deg,#05060b,#0c0b06 60%,#05060b)}
+.gg{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:60px}
+@media(max-width:1000px){.gg{grid-template-columns:repeat(2,1fr)}.gg .gk:first-child{grid-column:1/-1}}
+.gk{position:relative;border-radius:22px;padding:26px 22px;background:rgba(253,215,49,.04);border:1px solid rgba(253,215,49,.18);overflow:hidden}
+.gk:first-child{background:var(--am);color:#000;border-color:var(--am)}
+.gk .gi{font-size:30px;line-height:1}
+.gk h3{font-size:20px;font-weight:900;margin-top:16px;letter-spacing:-.3px}
+.gk p{font-size:13.5px;line-height:1.55;margin-top:8px;color:#cfd5e1;font-weight:300}
+.gk:first-child p{color:#2b2400;font-weight:400}
+.gana .fin{margin-top:40px;text-align:center;font-size:12px;color:var(--gr2)}
 /* marquee */
 .marq{background:var(--am);color:#000;overflow:hidden;white-space:nowrap;border-top:1px solid #000;border-bottom:1px solid #000;transform:rotate(-1.2deg) scale(1.02);margin:10px 0 -10px;position:relative;z-index:3}
 .marq div{display:inline-block;padding:16px 0;animation:corre 38s linear infinite;font-weight:900;font-size:clamp(15px,2vw,22px);letter-spacing:.5px;text-transform:uppercase}
@@ -219,7 +232,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 .cc .lk{position:absolute;top:22px;right:22px;font-size:15px;opacity:.7}
 @media(max-width:640px){.cc{padding:22px 20px}.cc .ic{font-size:32px}.cc h3{margin-top:10px}.cg{gap:12px}}
 /* informe (papel) */
-.papel{background:var(--papel);color:var(--tinta)}
+.papel{background:#fffdf8;color:var(--tinta)}
 .papel .kick{color:#8a6d00}
 .papel .sh p{color:#4b5563}.papel .sh p b{color:var(--tinta)}
 .papel .sh h2 em{color:#b8860b}
@@ -388,6 +401,64 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 #lb{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
 #lb.on{display:flex}
 #lb img{max-width:min(760px,94vw);max-height:92vh;width:auto;height:auto;border-radius:8px}
+/* ===== SECCIONES CLARAS ===== */
+.claro{background:#f6f1e7!important;color:#14161d}
+.claro.alt{background:#fffdf8!important}
+.claro .kick{color:#8a6d00}
+.claro .sh h2 em,.claro h2 em{color:#b8860b}
+.claro .sh p{color:#4b5563}.claro .sh p b{color:#14161d}
+.claro .btn-gh{color:#14161d;border-color:#cbbfa6;background:transparent}.claro .btn-gh:hover{border-color:#14161d}
+.claro .btn-am{box-shadow:0 20px 40px -18px rgba(184,134,11,.65)}
+/* calculadora: tarjeta oscura sobre fondo claro */
+.calcsec.claro .calc{box-shadow:0 60px 120px -50px rgba(20,22,29,.55),0 0 0 1px rgba(0,0,0,.04)}
+/* texto que se ilumina */
+.lit.claro .ltx span{color:#e4ddcd}
+.lit.claro .ltx span.on{color:#14161d}
+.lit.claro .ltx span.y.on{color:#b8860b;text-shadow:none}
+/* lo que ganas */
+.gana.claro .gk{background:#fff;border-color:rgba(0,0,0,.07);box-shadow:0 24px 50px -36px rgba(20,22,29,.35)}
+.gana.claro .gk p{color:#4b5563}
+.gana.claro .gk:first-child{background:var(--am);border-color:var(--am)}
+.gana.claro .gk:first-child p{color:#2b2400}
+.gana.claro .fin{color:#6b7280}
+/* dolor */
+.dolor.claro .big3{border-top-color:rgba(0,0,0,.1)}
+.dolor.claro .b3{border-color:rgba(0,0,0,.1)}
+.dolor.claro .b3 .num{color:#e11d48;text-shadow:none}
+.dolor.claro .b3 .num small{color:#6b7280}
+.dolor.claro .b3 p{color:#4b5563}.dolor.claro .b3 .src{color:#8a8f99}
+/* curiosidad */
+.curio.claro .cc{background:#fff;border-color:rgba(0,0,0,.07);box-shadow:0 24px 50px -36px rgba(20,22,29,.35)}
+.curio.claro .cc:hover{border-color:rgba(184,134,11,.5)}
+.curio.claro .cc .ic{color:#b8860b}
+.curio.claro .cc p{color:#4b5563}
+.curio.claro .cc .tease{background:#f6f1e7;border-color:#d8cdb5;color:#14161d}
+/* precios */
+.precios.claro .pk{background:#fff;border-color:rgba(0,0,0,.08);box-shadow:0 24px 50px -36px rgba(20,22,29,.35)}
+.precios.claro .pk li{color:#374151}
+.precios.claro .pk .k{color:#6b7280}
+.precios.claro .pk .pr small{color:#6b7280}
+.precios.claro .pk.star{background:#0c0d16;color:#f5f5f6}
+.precios.claro .pk.star li{color:#cfd5e1}.precios.claro .pk.star .k{color:var(--am)}
+.precios.claro .pk.star .pr small{color:var(--gr)}
+.precios.claro .mini{color:#4b5563}.precios.claro .mini a{color:#14161d}
+/* cómo */
+.claro .st p{color:#4b5563}
+.claro .st .n{box-shadow:0 0 0 10px #fffdf8,0 0 40px rgba(253,215,49,.6)}
+/* adapta */
+.adapta.claro .stat .v{color:#b8860b}
+.adapta.claro .stat .l{color:#4b5563}
+.adapta.claro .isno{border-color:rgba(0,0,0,.1);background:#fff}
+.adapta.claro .isno .bk{background:#fff}
+.adapta.claro .isno .bk+.bk{background:#fff7f7;border-color:rgba(0,0,0,.08)}
+.adapta.claro .isno li{color:#374151}.adapta.claro .isno li b{color:#14161d}
+.adapta.claro .isno .si h3{color:#059669}.adapta.claro .isno .si li::before{color:#059669}
+.adapta.claro .isno .no h3,.adapta.claro .isno .no li::before{color:#e11d48}
+/* faq */
+.claro .faq details{border-bottom-color:rgba(0,0,0,.1)}
+.claro .faq summary::after{border-color:#cbbfa6;color:#b8860b}
+.claro .faq details[open] summary::after{color:#000}
+.claro .faq details p{color:#4b5563}
 /* revelado */
 .rv{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
 .rv.in{opacity:1;transform:none}
@@ -414,27 +485,28 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   <div class="wrap hero-g">
     <div class="hl">
       <p class="kick">Adapta Family Office · Diagnóstico financiero</p>
-      <h1><span class="w" style="animation-delay:.05s">Tu</span> <span class="w" style="animation-delay:.12s">vida</span> <span class="w" style="animation-delay:.19s">tiene</span> <span class="w" style="animation-delay:.32s"><em class="sub">95 casillas.</em></span></h1>
-      <p class="lead">Cada una es un año. <b class="tr">Las rojas</b> las pasas trabajando por dinero. <b class="ta">Las amarillas</b> son tuyas.</p>
+      <h1><span class="w" style="animation-delay:.05s">¿Cuántos</span> <span class="w" style="animation-delay:.12s">de</span> <span class="w" style="animation-delay:.19s">tus</span> <span class="w" style="animation-delay:.26s">próximos</span> <span class="w" style="animation-delay:.33s">años</span> <span class="w" style="animation-delay:.40s">serán</span> <span class="w" style="animation-delay:.52s"><em class="sub">tuyos?</em></span></h1>
+      <p class="lead">Cada casilla es un año, desde hoy. <b class="tr">Las rojas</b> las pasas trabajando por dinero. <b class="ta">Las amarillas</b> son tuyas: tiempo para hacer lo que quieras. Tu diagnóstico existe para una cosa: <b>ayudarte a ganar más amarillas.</b></p>
       <div class="proof"><span class="pill"><b>★ 5,0</b> en Google</span><span class="pill"><b>25 años</b> en patrimonio</span><span class="pill">Autor de <b>2 libros</b></span></div>
     </div>
     <div class="hr">
-      <div class="life" id="life" aria-label="Tu vida en 95 casillas"></div>
-      <div class="lifeleg"><span><i class="lv"></i>Vivido</span><span><i class="lw"></i>Trabajando por dinero</span><span><i class="lf"></i>Libre</span><span><i class="lt"></i>Hoy</span></div>
+      <div class="life" id="life" aria-label="Tus próximos años"></div>
+      <div class="lifeleg"><span><i class="lw"></i>Trabajando por dinero</span><span><i class="lf"></i>Años tuyos</span><span><i class="lt"></i>Hoy</span></div>
       <div class="age"><span>Tengo</span><button type="button" id="ag-m" aria-label="Menos">−</button><b id="ag-v">40</b><button type="button" id="ag-p" aria-label="Más">+</button><span>años</span></div>
       <p class="hmsg" id="hmsg"></p>
-      <div class="hcta"><a class="btn btn-am" href="#calc" data-ev="hero_calc">¿Cuántas rojas te quedan de verdad? →<small>Calcúlalo con tus números · 30 segundos</small></a></div>
+      <div class="hcta"><a class="btn btn-am" href="#calc" data-ev="hero_calc">¿Cuántos años amarillos puedes ganar? →<small>Calcúlalo con tus números · 30 segundos</small></a></div>
+      <p class="hnote">Horizonte de planificación: hasta los 95 años, el mismo que usa tu diagnóstico. Jubilación ordinaria a los 67.</p>
     </div>
   </div>
 </section>
 
 <!-- CALCULADORA -->
-<section class="band calcsec" id="calc">
+<section class="band calcsec claro" id="calc">
   <div class="wrap">
     <div class="sh c rv">
       <p class="kick">Ahora, con tus números</p>
       <h2>¿Llega tu dinero <em>a tiempo?</em></h2>
-      <p>Si trabajas hasta los 67, <b>eso si tu dinero llega</b>. Mueve las barras y mira cuántas casillas rojas te quedan de verdad.</p>
+      <p>Arriba has visto los años si paras a los 67. Ahora mira <b>si tu dinero llega a tiempo</b> y cuántos años amarillos te quedan de verdad.</p>
     </div>
     <div class="calc" id="calcbox"><div class="calc-in">
       <div class="calc-h"><h2><i></i>Tu calculadora de libertad</h2><span>En directo</span></div>
@@ -458,9 +530,9 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
         </div>
         <p class="verdict" id="o-ver"></p>
         <div class="vida">
-          <div class="vida-h"><span><b>Tu vida, año a año</b> · de 0 a 95</span><span id="o-vh"></span></div>
+          <div class="vida-h"><span><b>Tus próximos años</b> · hasta los 95</span><span id="o-vh"></span></div>
           <div class="yrs" id="o-yrs"></div>
-          <div class="leg"><span><i style="background:#2a2e40"></i>Vivido</span><span><i style="background:var(--ro)"></i>Trabajando por dinero</span><span><i style="background:var(--am)"></i>Libre</span><span><i style="background:#1d2133;outline:2px solid #fff;outline-offset:1px"></i>Cuando quieres parar</span></div>
+          <div class="leg"><span><i style="background:var(--ro)"></i>Trabajando por dinero</span><span><i style="background:var(--am)"></i>Años tuyos</span><span><i style="background:#1d2133;outline:2px solid #fff;outline-offset:1px"></i>Cuando quieres parar</span></div>
         </div>
         <div class="lever" id="o-lev"></div>
         <div class="wait" id="o-wait"></div>
@@ -479,15 +551,34 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 </section>
 
 <div class="marq" aria-hidden="true"><div>
-  <span>Tu Número de Libertad</span><span>✦</span><span>Lo que te cuesta no actuar</span><span>✦</span><span>Tu punto ciego</span><span>✦</span><span>12 dimensiones</span><span>✦</span><span>Las 3 decisiones que más te mueven</span><span>✦</span><span>Hoja de ruta a 90 días</span><span>✦</span>
-  <span>Tu Número de Libertad</span><span>✦</span><span>Lo que te cuesta no actuar</span><span>✦</span><span>Tu punto ciego</span><span>✦</span><span>12 dimensiones</span><span>✦</span><span>Las 3 decisiones que más te mueven</span><span>✦</span><span>Hoja de ruta a 90 días</span><span>✦</span>
+  <span>Años tuyos</span><span>✦</span><span>Tranquilidad</span><span>✦</span><span>Opciones</span><span>✦</span><span>Menos estrés</span><span>✦</span><span>Legado</span><span>✦</span><span>Tiempo para lo que quieras</span><span>✦</span>
+  <span>Años tuyos</span><span>✦</span><span>Tranquilidad</span><span>✦</span><span>Opciones</span><span>✦</span><span>Menos estrés</span><span>✦</span><span>Legado</span><span>✦</span><span>Tiempo para lo que quieras</span><span>✦</span>
 </div></div>
 
 <!-- TEXTO QUE SE ILUMINA -->
-<section class="lit" id="lit"><div class="stick"><div class="wrap"><p class="ltx" id="ltx">No es que ganes poco. Es que *nadie *te *ha *hecho *la *cuenta. Tu patrimonio ya toma decisiones cada mes. La pregunta es si las estás *tomando *tú.</p></div></div></section>
+<section class="lit claro alt" id="lit"><div class="stick"><div class="wrap"><p class="ltx" id="ltx">No es que ganes poco. Es que *nadie *te *ha *hecho *la *cuenta. Tu patrimonio ya toma decisiones cada mes. La pregunta es si las estás *tomando *tú.</p></div></div></section>
+
+<!-- LO QUE GANAS -->
+<section class="band gana claro" id="gana">
+  <div class="wrap">
+    <div class="sh c rv">
+      <p class="kick">Para qué sirve de verdad</p>
+      <h2>No compras un informe. <em>Compras años tuyos.</em></h2>
+      <p>El dinero solo es la herramienta. Lo que buscas es lo que te da cuando está ordenado.</p>
+    </div>
+    <div class="gg">
+      <div class="gk rv d1"><div class="gi">⏳</div><h3>Años libres</h3><p>Tiempo de libre disposición, antes. Para hacer lo que quieras, no lo que te toque.</p></div>
+      <div class="gk rv d2"><div class="gi">🌙</div><h3>Tranquilidad</h3><p>Saber dónde estás y qué hacer. Dormir sin la cuenta dando vueltas en la cabeza.</p></div>
+      <div class="gk rv d3"><div class="gi">🧭</div><h3>Opciones</h3><p>Poder decir que no a un trabajo, cambiar de rumbo o parar un año sin que todo se tambalee.</p></div>
+      <div class="gk rv d4"><div class="gi">🫁</div><h3>Menos estrés</h3><p>Un plan con fechas en lugar de decisiones sueltas y discusiones por dinero.</p></div>
+      <div class="gk rv d5"><div class="gi">🌳</div><h3>Legado</h3><p>Que lo que construyes llegue a quien quieres, ordenado y sin sorpresas.</p></div>
+    </div>
+    <p class="fin rv">Es el objetivo del diagnóstico: darte claridad para decidir. Los resultados dependen de lo que decidas hacer tú.</p>
+  </div>
+</section>
 
 <!-- DOLOR -->
-<section class="band dolor">
+<section class="band dolor claro alt">
   <div class="wrap">
     <p class="kick rv">La cuenta que nadie te hace</p>
     <div class="big3">
@@ -499,7 +590,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 </section>
 
 <!-- CURIOSIDAD -->
-<section class="band curio">
+<section class="band curio claro">
   <div class="wrap">
     <div class="sh c rv">
       <p class="kick">Lo que la calculadora no ve</p>
@@ -617,7 +708,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 </section>
 
 <!-- PRECIOS -->
-<section class="band precios" id="precios">
+<section class="band precios claro" id="precios">
   <div class="wrap">
     <div class="sh c rv">
       <p class="kick">Elige tu diagnóstico</p>
@@ -650,7 +741,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 </section>
 
 <!-- CÓMO -->
-<section class="band">
+<section class="band claro alt">
   <div class="wrap">
     <div class="sh c rv"><p class="kick">Cómo funciona</p><h2>Tres pasos. <em>El primero, hoy.</em></h2></div>
     <div class="steps">
@@ -662,7 +753,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 </section>
 
 <!-- ADAPTA -->
-<section class="band adapta">
+<section class="band adapta claro">
   <div class="wrap ad-g">
     <div class="rv">
       <div class="sh">
@@ -692,7 +783,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 </section>
 
 <!-- FAQ -->
-<section class="band" style="padding-top:60px">
+<section class="band claro alt" style="padding-top:60px">
   <div class="wrap">
     <div class="sh c rv"><p class="kick">Dudas rápidas</p><h2>Antes de empezar</h2></div>
     <div class="faq rv">
@@ -777,9 +868,9 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
       ver.innerHTML = dif>0 ? 'Quieres parar a los <b>'+ep+'</b>. A tu ritmo llegas a los <b>'+llega+'</b>: <span class="ro">'+dif+' año'+(dif===1?'':'s')+' más trabajando por dinero</span> de lo que te gustaría.'
                             : 'Vas por delante: llegas a los <b>'+llega+'</b>, antes de los '+ep+'. Ahora toca <span class="ve">protegerlo</span> y saber qué puede torcerlo.'; }
     // tu vida, año a año
-    var hasta=(N<=0)?ed:((llega===null||llega>FIN)?FIN:Math.max(ed,llega)), g=$('o-yrs'), n=FIN;
+    var hasta=(N<=0)?ed:((llega===null||llega>FIN)?FIN:Math.max(ed,llega)), g=$('o-yrs'), n=FIN-ed;
     if(g.children.length!==n){ g.innerHTML=''; for(var i=0;i<n;i++){ var s=document.createElement('i'); g.appendChild(s);} }
-    for(var j=0;j<n;j++){ var el=g.children[j]; el.className=(j<ed?'yv':(j<hasta?'yw':'yf'))+(j===ep?' yt':''); el.title=j+' años'; }
+    for(var j=0;j<n;j++){ var y=ed+j, el=g.children[j]; el.className=(y<hasta?'yw':'yf')+(y===ep?' yt':''); el.title=y+' años'; }
     var tw=Math.max(0,hasta-ed), tf=Math.max(0,FIN-hasta);
     $('o-vh').innerHTML='<b style="color:var(--ro)">'+tw+'</b> trabajando · <b style="color:var(--am)">'+tf+'</b> libres';
     // palanca: +200 €/mes (escenario del informe)
@@ -801,20 +892,22 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   }
   ids.forEach(function(k){ $('i-'+k).addEventListener('input',function(){ if(!usado){usado=true; window.adaptaEv&&adaptaEv('calc_uso',k);} calc(); if(k==='ed') vida(lee('ed')); }); });
   /* HERO: tu vida en 95 casillas (hasta la jubilación ordinaria, 67) */
-  var life=$('life');
-  for(var q=0;q<95;q++){ var c=document.createElement('i'); c.style.transitionDelay=(q*14)+'ms'; life.appendChild(c); }
+  var life=$('life'), inicial=true;
   function vida(ed){
     $('ag-v').textContent=ed;
-    for(var k=0;k<95;k++){ life.children[k].className=(k<ed?'cv':(k<JUB?'cw':'cf'))+(k===ed?' ct':'')+(k===JUB?' cj':''); }
-    var r=JUB-ed;
-    $('hmsg').innerHTML='Con <b>'+ed+'</b> años, si trabajas hasta los 67 te quedan <span class="r">'+r+' casillas rojas</span>. Y eso, <b>solo si tu dinero llega a tiempo</b>.';
+    var n=FIN-ed;
+    while(life.children.length<n){ var c=document.createElement('i'); if(inicial) c.style.transitionDelay=(life.children.length*18)+'ms'; life.appendChild(c); }
+    while(life.children.length>n){ life.removeChild(life.lastChild); }
+    for(var k=0;k<n;k++){ var y=ed+k; life.children[k].className=(y<JUB?'cw':'cf')+(k===0?' ct':'')+(y===JUB?' cj':''); life.children[k].title=y+' años'; }
+    var r=Math.max(0,JUB-ed), am=FIN-Math.max(ed,JUB);
+    $('hmsg').innerHTML='Con <b>'+ed+'</b> años y trabajando hasta los 67: <span class="r">'+r+' años rojos</span> y <span class="a">'+am+' amarillos</span>. ¿Quieres más amarillos? Depende de <b>si tu dinero llega a tiempo</b>.';
   }
   function ponEdad(v){ v=Math.max(22,Math.min(66,v)); $('i-ed').value=v; calc(); vida(v); }
   var tAg=null;
   function paso(d){ ponEdad(lee('ed')+d); clearTimeout(tAg); tAg=setTimeout(function(){ window.adaptaEv&&adaptaEv('hero_edad',lee('ed')); },1200); }
   $('ag-m').addEventListener('click',function(){paso(-1)}); $('ag-p').addEventListener('click',function(){paso(1)});
   calc(); vida(lee('ed'));
-  setTimeout(function(){ life.classList.add('on'); setTimeout(function(){ for(var q=0;q<95;q++) life.children[q].style.transitionDelay='0ms'; },95*14+700); },700);
+  setTimeout(function(){ life.classList.add('on'); setTimeout(function(){ inicial=false; for(var q=0;q<life.children.length;q++) life.children[q].style.transitionDelay='0ms'; },life.children.length*18+700); },700);
 })();
 /* cabecera, barra fija, revelado, contadores, foco en tarjetas, lightbox */
 (function(){
