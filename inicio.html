@@ -2,496 +2,602 @@
 <html lang="es">
 <head>
 <style id="adapta-fonts">
-@font-face{font-family:'Poppins';font-weight:300;font-style:normal;font-display:swap;src:url('fonts/Poppins-Light.ttf') format('truetype')}
-@font-face{font-family:'Poppins';font-weight:400;font-style:normal;font-display:swap;src:url('fonts/Poppins-Regular.ttf') format('truetype')}
-@font-face{font-family:'Poppins';font-weight:500;font-style:normal;font-display:swap;src:url('fonts/Poppins-Medium.ttf') format('truetype')}
-@font-face{font-family:'Poppins';font-weight:600;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
-@font-face{font-family:'Poppins';font-weight:700;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
-@font-face{font-family:'Poppins';font-weight:800;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
-@font-face{font-family:'Lora';font-weight:400;font-style:normal;font-display:swap;src:url('fonts/Lora-Regular.ttf') format('truetype')}
-@font-face{font-family:'Lora';font-weight:600;font-style:normal;font-display:swap;src:url('fonts/Lora-SemiBold.ttf') format('truetype')}
-@font-face{font-family:'Lora';font-weight:700;font-style:normal;font-display:swap;src:url('fonts/Lora-Bold.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:300;font-display:swap;src:url('fonts/Poppins-Light.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:400;font-display:swap;src:url('fonts/Poppins-Regular.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:500;font-display:swap;src:url('fonts/Poppins-Medium.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:600 800;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:400;font-display:swap;src:url('fonts/Lora-Regular.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:600;font-display:swap;src:url('fonts/Lora-SemiBold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:700;font-display:swap;src:url('fonts/Lora-Bold.ttf') format('truetype')}
 @font-face{font-family:'Lora';font-weight:400;font-style:italic;font-display:swap;src:url('fonts/Lora-Italic.ttf') format('truetype')}
 </style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADAPTA · ¿Cuánto te está costando tu forma de gestionar el dinero?</title>
-<meta name="description" content="Tu diagnóstico financiero personal, individual o en pareja: con tus cifras reales, lo que se te escapa al año, tu Número de Libertad y tu hoja de ruta a 90 días. Desde 19 €. Por Adapta Family Office.">
-<meta property="og:title" content="¿Cuánto te está costando tu forma de gestionar el dinero?">
-<meta property="og:description" content="Tu diagnóstico financiero, individual o en pareja: tus cifras, tu Número de Libertad y tu hoja de ruta a 90 días. Desde 19 €.">
+<title>¿A qué edad dejas de depender de tu sueldo? · Adapta Family Office</title>
+<meta name="description" content="Calcula en 30 segundos a qué edad dejas de depender de tu sueldo y cuánto te falta. Después, tu diagnóstico financiero personal de Adapta Family Office te dice por qué y qué hacer. Contenido educativo, no es una recomendación.">
+<meta property="og:title" content="¿A qué edad dejas de depender de tu sueldo?">
+<meta property="og:description" content="Calcúlalo en 30 segundos. Adapta Family Office.">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://diagnostico.adaptafamilyoffice.com/informe-p1.jpg">
 <meta name="theme-color" content="#06070d">
 <style>
-:root{--am:#FDD731;--ng:#06070d;--pa:#0d0f1a;--bd:#23252e;--tx:#f4f4f5;--gr:#94a3b8;--em:#10b981;--ro:#f43f5e}
+:root{--am:#FDD731;--am2:#ffe25a;--ng:#06070d;--pa:#0d0f1a;--pa2:#131624;--bd:#23252e;--tx:#f4f4f5;--gr:#94a3b8;--gr2:#64748b;--ro:#ff4d5e;--ve:#22c55e;--papel:#f6f3ec;--tinta:#16181f}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--ng);color:var(--tx);font-family:'Poppins',system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-.serif{font-family:'Lora',Georgia,serif}
 a{color:inherit;text-decoration:none}
-.wrap{max-width:1040px;margin:0 auto;padding:0 22px}
-.narrow{max-width:760px}
-.kick{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--am);font-weight:700;margin-bottom:16px}
-.eyebrow{font-size:10.5px;letter-spacing:3px;text-transform:uppercase;color:var(--gr);font-weight:700}
-.btn{display:inline-flex;align-items:center;gap:9px;padding:16px 30px;border-radius:12px;font-weight:700;font-size:14px;letter-spacing:.3px;cursor:pointer;border:none;font-family:inherit;transition:.2s}
-.btn-am{background:var(--am);color:#000}.btn-am:hover{background:#ffe25a;transform:translateY(-1px)}
-.btn-gh{background:transparent;color:var(--gr);border:1px solid var(--bd)}.btn-gh:hover{color:var(--tx);border-color:#3a3d48}
-.reass{color:var(--gr);font-size:12.5px;margin-top:18px;letter-spacing:.3px}
-.reass b{color:var(--tx);font-weight:600}
-section{position:relative}
+.serif{font-family:'Lora',Georgia,serif}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+.kick{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--am);font-weight:700}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:18px 30px;border-radius:14px;font-weight:700;font-size:15px;cursor:pointer;border:none;font-family:inherit;transition:.2s;text-align:center}
+.btn-am{background:var(--am);color:#000;box-shadow:0 18px 40px -16px rgba(253,215,49,.7)}
+.btn-am:hover{background:var(--am2);transform:translateY(-2px)}
+.btn-gh{background:transparent;color:var(--tx);border:1px solid #3a3d48}.btn-gh:hover{border-color:var(--am)}
+.btn small{font-weight:500;opacity:.75;font-size:12.5px}
+.pulse{animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 18px 40px -16px rgba(253,215,49,.7),0 0 0 0 rgba(253,215,49,.45)}50%{box-shadow:0 18px 40px -16px rgba(253,215,49,.7),0 0 0 12px rgba(253,215,49,0)}}
 /* header */
-.head{position:sticky;top:0;z-index:30;background:rgba(6,7,13,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd)}
-.head .wrap{height:64px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-weight:800;letter-spacing:1px;font-size:20px}.logo b{color:var(--am)}
-.logo small{font-size:9px;letter-spacing:2px;color:var(--gr);text-transform:uppercase;margin-left:8px;font-weight:600}
-.btn-head{background:var(--am);color:#06070d;font-weight:700;font-size:13px;padding:9px 16px;border-radius:10px;white-space:nowrap;transition:.2s}
-.btn-head:hover{background:#ffe25a;transform:translateY(-1px)}
-@media(max-width:560px){.btn-head{font-size:12px;padding:8px 13px}.logo small{display:none}}
-/* hero */
-.hero{text-align:center;padding:88px 0 72px;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% -10%,rgba(253,215,49,.13),transparent 60%);pointer-events:none}
-.hero .wrap{position:relative;z-index:1}
-@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-.hero>.wrap>*{animation:rise .7s both}
-.hero h1{animation-delay:.05s}.hero .promise{animation-delay:.18s}.hero .cta-row{animation-delay:.32s}.hero .reass{animation-delay:.44s}.hero .tail{animation-delay:.56s}
-h1.hero-t{font-size:clamp(30px,5.4vw,56px);line-height:1.1;font-weight:700;letter-spacing:-.6px;max-width:15ch;margin:0 auto}
-h1.hero-t .hl{color:var(--am);font-style:italic;font-family:'Lora',serif;font-weight:600}
-.promise{margin:26px auto 0;max-width:600px;color:var(--gr);font-size:16px;font-weight:300;line-height:1.6}
-.cta-row{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:34px}
-.tail{margin:34px auto 0;max-width:520px;font-family:'Lora',serif;font-style:italic;font-size:17px;color:var(--tx)}
-.tail b{color:var(--am);font-style:normal;font-weight:600}
-/* result / demo dashboard */
-.band{padding:78px 0;border-top:1px solid var(--bd)}
-.band.pa{background:linear-gradient(180deg,var(--pa),transparent)}
-.sec-h{text-align:center;max-width:720px;margin:0 auto}
-.sec-h h2{font-size:clamp(24px,3.8vw,38px);font-weight:600;line-height:1.16;margin-top:10px}
-.sec-h h2 .serif{font-style:italic}
-.sec-h p{color:var(--gr);font-weight:300;font-size:15px;line-height:1.65;margin:16px auto 0;max-width:600px}
-.demo{display:grid;grid-template-columns:1fr;gap:16px;max-width:920px;margin:44px auto 0}
-@media(min-width:820px){.demo{grid-template-columns:repeat(3,1fr)}}
-.dcard{background:var(--pa);border:1px solid var(--bd);border-radius:18px;padding:30px 26px;text-align:center;position:relative;overflow:hidden}
-.dcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--am),transparent)}
-.dcard .dl{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gr);font-weight:700}
-.dcard .dn{font-family:'Lora',serif;font-size:clamp(48px,7vw,68px);font-weight:700;line-height:1;margin:14px 0 6px;color:var(--tx);font-variant-numeric:tabular-nums}
-.dcard .dn small{font-size:22px;color:var(--gr);font-weight:400}
-.dcard .dn.ro{color:var(--ro)}
-.dcard .dd{font-size:13px;color:var(--gr);font-weight:300}
-.dcard .dtag{display:inline-block;margin-top:12px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--am);font-weight:700;background:rgba(253,215,49,.1);border:1px solid rgba(253,215,49,.3);border-radius:999px;padding:3px 10px}
-.demo-note{text-align:center;color:var(--gr);font-size:12px;margin-top:22px;letter-spacing:.4px}
-/* curiosity */
-.curio{text-align:center;max-width:640px;margin:0 auto}
-.curio .big{font-family:'Lora',serif;font-size:clamp(26px,4.2vw,40px);font-weight:600;line-height:1.2}
-.curio .stk{margin:24px 0;display:flex;flex-direction:column;gap:6px;font-size:18px;color:var(--gr);font-weight:300}
-.curio .stk b{color:var(--tx);font-weight:600}
-.curio .punch{font-size:19px;color:var(--am);font-weight:600;margin-top:6px}
-/* steps */
-.steps{display:grid;grid-template-columns:1fr;gap:14px;max-width:860px;margin:44px auto 0}
-@media(min-width:720px){.steps{grid-template-columns:repeat(2,1fr)}}
-.step{display:flex;gap:16px;align-items:flex-start;background:var(--pa);border:1px solid var(--bd);border-radius:14px;padding:22px}
-.step .num{font-family:'Lora',serif;font-size:30px;font-weight:700;color:var(--am);line-height:1;flex:none;width:34px}
-.step h4{font-size:15.5px;font-weight:600;margin-bottom:5px}
-.step p{font-size:13px;color:var(--gr);font-weight:300;line-height:1.55}
-/* blindspot grid */
-.bs-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:720px;margin:30px auto 0}
-.bs{font-size:13px;font-weight:500;color:var(--tx);background:var(--pa);border:1px solid var(--bd);border-radius:999px;padding:9px 18px}
-/* libertad calc */
-.lib{max-width:560px;margin:40px auto 0;background:var(--pa);border:1px solid var(--bd);border-radius:18px;padding:30px 28px}
-.lib .fld{margin-bottom:18px}
-.lib label{display:flex;justify-content:space-between;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--gr);font-weight:600;margin-bottom:9px}
-.lib label .v{color:var(--tx);font-variant-numeric:tabular-nums}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:#1b1d27;outline:none}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--am);cursor:pointer;box-shadow:0 0 10px rgba(253,215,49,.5);transition:.15s}
-input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
-.lib .out{text-align:center;border-top:1px solid var(--bd);margin-top:22px;padding-top:22px}
-.lib .out .l{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gr);font-weight:700}
-.lib .out .n{font-family:'Lora',serif;font-size:clamp(40px,6vw,58px);font-weight:700;color:var(--am);line-height:1;margin-top:8px}
-/* pareja */
-.pj-table{max-width:560px;margin:30px auto 0;border:1px solid var(--bd);border-radius:14px;overflow:hidden}
-.pj-table table{width:100%;border-collapse:collapse}
-.pj-table th,.pj-table td{padding:14px 16px;font-size:14px;text-align:right;border-bottom:1px solid var(--bd)}
-.pj-table th:first-child,.pj-table td:first-child{text-align:left;color:var(--gr);font-weight:400}
-.pj-table thead th{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--am);font-weight:700}
-.pj-table tr:last-child td{border-bottom:none;font-weight:700}
-.pj-table .hot{color:var(--ro)}
-.pj-punch{text-align:center;font-family:'Lora',serif;font-style:italic;font-size:19px;color:var(--tx);max-width:520px;margin:24px auto 0}
-/* authority */
-.auth-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:11px;margin:8px auto 0;max-width:760px}
-.chip{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--tx);background:var(--pa);border:1px solid var(--bd);border-radius:999px;padding:9px 16px;font-weight:500}
-.chip b{color:var(--am);font-weight:700}
-.method{max-width:640px;margin:40px auto 0;background:var(--pa);border:1px solid var(--bd);border-radius:16px;padding:28px}
-.method h3{font-size:16px;font-weight:600;margin-bottom:10px}
-.method p{font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.7;margin-bottom:10px}
-.method p:last-child{margin-bottom:0}.method strong{color:var(--tx);font-weight:600}
+.head{position:sticky;top:0;z-index:40;background:rgba(6,7,13,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd)}
+.head .wrap{height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{display:flex;flex-direction:column;line-height:1}
+.logo b{font-weight:800;letter-spacing:2px;font-size:19px;color:var(--am)}
+.logo small{font-size:8.5px;letter-spacing:3px;color:var(--gr);text-transform:uppercase;font-weight:600;margin-top:4px}
+.hd-r{display:flex;align-items:center;gap:16px}
+.hd-l{color:var(--gr);font-size:13px}.hd-l:hover{color:var(--tx)}
+.btn-head{background:var(--am);color:#000;font-weight:700;font-size:13px;padding:10px 16px;border-radius:10px;white-space:nowrap}
+@media(max-width:620px){.hd-l{display:none}}
+/* HERO */
+.hero{position:relative;padding:58px 0 70px;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:-20% -10% auto;height:120%;background:radial-gradient(ellipse at 75% 10%,rgba(253,215,49,.16),transparent 55%),radial-gradient(ellipse at 10% 80%,rgba(255,77,94,.08),transparent 50%);pointer-events:none}
+.hero-g{position:relative;display:grid;grid-template-columns:1.02fr 1fr;gap:46px;align-items:start}
+@media(max-width:940px){.hero-g{grid-template-columns:1fr;gap:26px}.hero .pains,.hero .trust{display:none}.hero{padding:34px 0 56px}.hero .sub{font-size:16px;margin-top:16px}}
+.hero h1{font-size:clamp(34px,5.6vw,62px);line-height:1.04;font-weight:800;letter-spacing:-1.4px;margin:16px 0 0}
+.hero h1 em{font-family:'Lora',serif;font-weight:600;color:var(--am)}
+.hero .sub{color:#cbd5e1;font-size:17px;font-weight:300;line-height:1.6;margin-top:22px;max-width:520px}
+.hero .sub b{color:var(--tx);font-weight:600}
+.pains{margin-top:28px;display:flex;flex-direction:column;gap:12px;max-width:520px}
+.pain{display:flex;gap:14px;align-items:flex-start;font-size:14.5px;color:#cbd5e1;font-weight:300}
+.pain i{flex:none;width:26px;height:26px;border-radius:8px;background:rgba(255,77,94,.12);color:var(--ro);display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:800;font-size:13px}
+.pain b{color:var(--tx);font-weight:600}
+.trust{margin-top:30px;display:flex;flex-wrap:wrap;gap:8px 18px;font-size:12px;color:var(--gr)}
+.trust b{color:var(--am)}
+/* calculadora */
+.calc{position:relative;background:linear-gradient(180deg,#121522,#0b0d17);border:1px solid #2c2f3b;border-radius:22px;padding:26px 24px 22px;box-shadow:0 40px 90px -40px rgba(0,0,0,.9),0 0 0 1px rgba(253,215,49,.08) inset}
+.calc::before{content:'';position:absolute;top:-1px;left:30px;right:30px;height:2px;background:linear-gradient(90deg,transparent,var(--am),transparent)}
+.calc-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:16px}
+.calc-h h2{font-size:17px;font-weight:700}
+.calc-h span{font-size:11px;color:var(--gr);letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.f{margin-bottom:13px}
+.f label{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--gr);font-weight:500;margin-bottom:7px}
+.f label .v{color:var(--tx);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.f .h{font-size:11px;color:var(--gr2);margin-top:4px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:#22253a;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--am);border:3px solid #0b0d17;box-shadow:0 0 0 1px var(--am),0 0 14px rgba(253,215,49,.5)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--am);border:3px solid #0b0d17}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+@media(max-width:460px){.f2{grid-template-columns:1fr}}
+/* resultado */
+.res{margin-top:10px;border-top:1px dashed #2c2f3b;padding-top:18px}
+.res-top{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rbox{background:#090b14;border:1px solid var(--bd);border-radius:14px;padding:14px 14px 12px}
+.rbox .l{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gr);font-weight:700}
+.rbox .n{font-family:'Lora',serif;font-weight:700;font-size:clamp(28px,4vw,40px);line-height:1.05;margin-top:6px;font-variant-numeric:tabular-nums}
+.rbox .d{font-size:11.5px;color:var(--gr);margin-top:3px}
+.n.ro{color:var(--ro)}.n.am{color:var(--am)}.n.ve{color:var(--ve)}
+.verdict{margin-top:14px;font-size:15px;line-height:1.5;color:#e2e8f0}
+.verdict b{color:var(--tx)}.verdict .ro{color:var(--ro);font-weight:700}.verdict .ve{color:var(--ve);font-weight:700}
+/* barra de vida */
+.vida{margin-top:16px}
+.vida .bar{position:relative;height:16px;border-radius:8px;background:#1b1e2c;overflow:hidden;display:flex}
+.vida .bar .w{background:linear-gradient(90deg,#7f1d2d,var(--ro));transition:width .5s}
+.vida .bar .fr{background:linear-gradient(90deg,#b99a12,var(--am));transition:width .5s}
+.vida .mk{position:relative;height:18px;font-size:10.5px;color:var(--gr)}
+.vida .mk span{position:absolute;top:3px;transform:translateX(-50%);white-space:nowrap}
+.vida .leg{display:flex;gap:14px;font-size:11px;color:var(--gr);margin-top:2px;flex-wrap:wrap}
+.vida .leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.lever{margin-top:14px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.3);border-radius:12px;padding:11px 14px;font-size:13.5px;color:#d1fae5}
+.lever b{color:var(--ve)}
+.wait{margin-top:10px;background:rgba(255,77,94,.07);border:1px solid rgba(255,77,94,.3);border-radius:12px;padding:11px 14px;font-size:13.5px;color:#ffe4e6}
+.wait b{color:var(--ro)}
+/* bloqueados */
+.lock{margin-top:16px;border:1px solid rgba(253,215,49,.35);border-radius:14px;overflow:hidden}
+.lock-h{background:rgba(253,215,49,.08);padding:10px 14px;font-size:12px;font-weight:700;color:var(--am);letter-spacing:.4px;display:flex;justify-content:space-between}
+.lr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--bd);font-size:13px;color:#cbd5e1}
+.lr .bl{filter:blur(6px);user-select:none;color:var(--tx);font-weight:700;font-family:'Lora',serif;font-size:16px;white-space:nowrap}
+.lr .bl.t{font-family:'Poppins';font-size:12.5px;font-weight:500}
+.calc .btn{width:100%;margin-top:16px;flex-direction:column;gap:2px}
+.calc-n{font-size:10.5px;color:var(--gr2);margin-top:12px;line-height:1.5;text-align:center}
+.calc-n a{text-decoration:underline}
+/* secciones */
+.band{padding:90px 0;border-top:1px solid var(--bd);position:relative}
+@media(max-width:700px){.band{padding:62px 0}.pg,.cg,.roi,.prod,.steps,.af{margin-top:32px}.quote{margin-top:40px}}
+.sh{max-width:760px;margin:0 auto;text-align:center}
+.sh h2{font-size:clamp(28px,4.4vw,46px);line-height:1.1;font-weight:800;letter-spacing:-.8px;margin-top:12px}
+.sh h2 em{font-family:'Lora',serif;font-weight:600;color:var(--am)}
+.sh p{color:var(--gr);font-size:16px;font-weight:300;line-height:1.7;margin:18px auto 0;max-width:620px}
+.sh p b{color:var(--tx);font-weight:600}
+/* dolor */
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:46px}
+@media(max-width:860px){.pg{grid-template-columns:1fr}}
+.pc3{background:var(--pa);border:1px solid var(--bd);border-radius:20px;padding:30px 26px;position:relative;overflow:hidden}
+.pc3::after{content:'';position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(255,77,94,.18),transparent 70%)}
+.pc3 .big{font-family:'Lora',serif;font-weight:700;font-size:clamp(44px,5.6vw,60px);line-height:1;color:var(--ro)}
+.pc3 .big small{font-size:.42em;color:var(--gr);font-weight:400}
+.pc3 h3{font-size:17px;font-weight:700;margin:16px 0 8px}
+.pc3 p{font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.6}
+.pc3 .src{font-size:10.5px;color:var(--gr2);margin-top:12px}
+.quote{max-width:780px;margin:56px auto 0;text-align:center;font-family:'Lora',serif;font-style:italic;font-size:clamp(21px,2.8vw,28px);line-height:1.4}
+.quote b{font-style:normal;color:var(--am);font-weight:600}
+/* curiosidad: lo que no ve */
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:46px;max-width:980px;margin-left:auto;margin-right:auto}
+@media(max-width:820px){.cg{grid-template-columns:1fr}}
+.cc{display:flex;gap:16px;background:var(--pa);border:1px solid var(--bd);border-radius:18px;padding:22px}
+.cc .ic{flex:none;width:44px;height:44px;border-radius:12px;background:rgba(253,215,49,.1);border:1px solid rgba(253,215,49,.3);display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-weight:700;color:var(--am);font-size:18px}
+.cc h3{font-size:15.5px;font-weight:700}
+.cc p{font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.55;margin-top:4px}
+.cc .tease{margin-top:10px;font-size:12.5px;color:var(--tx);background:#090b14;border:1px dashed #33364a;border-radius:9px;padding:8px 11px}
+.cc .tease span{filter:blur(5px);user-select:none}
+/* informe por dentro (papel) */
+.papel{background:var(--papel);color:var(--tinta);border-top:none}
+.papel .kick{color:#9a7b00}
+.papel .sh p{color:#4b5563}
+.papel .sh p b{color:var(--tinta)}
+.papel .sh h2 em{color:#b8860b}
+.fan{position:relative;height:560px;max-width:1000px;margin:50px auto 0}
+.fan img{position:absolute;top:0;left:50%;width:300px;border-radius:6px;box-shadow:0 30px 60px -20px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.06);transition:transform .35s,box-shadow .35s;background:#fff;cursor:zoom-in}
+.fan img.lo{transform:translateX(-50%) translateX(-330px) rotate(-9deg) translateY(50px);z-index:1}
+.fan img.li{transform:translateX(-50%) translateX(-170px) rotate(-4.5deg) translateY(16px);z-index:2}
+.fan img.c{transform:translateX(-50%) scale(1.06);z-index:5}
+.fan img.ri{transform:translateX(-50%) translateX(170px) rotate(4.5deg) translateY(16px);z-index:2}
+.fan img.ro{transform:translateX(-50%) translateX(330px) rotate(9deg) translateY(50px);z-index:1}
+.fan img:hover{z-index:9!important;box-shadow:0 40px 80px -20px rgba(0,0,0,.6)}
+@media(max-width:860px){
+ .fan{height:auto;display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px 4px 26px;margin-top:36px}
+ .fan img{position:static;transform:none!important;flex:none;width:76vw;max-width:330px;scroll-snap-align:center}
+}
+.caps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;max-width:1000px;margin:26px auto 0}
+@media(max-width:860px){.caps{grid-template-columns:1fr 1fr}}
+.cap{font-size:12.5px;color:#374151;line-height:1.45;border-top:3px solid var(--am);padding-top:10px}
+.cap b{display:block;color:var(--tinta);font-size:13.5px;margin-bottom:2px}
+.papel .row-c{text-align:center;margin-top:40px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.papel .btn-gh{color:var(--tinta);border-color:#cfc8b8}.papel .btn-gh:hover{border-color:#9a7b00}
+.papel .note{text-align:center;font-size:11.5px;color:#6b7280;margin-top:14px}
+/* inversión */
+.roi{display:grid;grid-template-columns:1.1fr 1fr;gap:22px;max-width:1000px;margin:46px auto 0;align-items:stretch}
+@media(max-width:860px){.roi{grid-template-columns:1fr}}
+.roi-l{background:var(--pa);border:1px solid var(--bd);border-radius:20px;padding:30px}
+.roi-l h3{font-size:18px;font-weight:700;margin-bottom:16px}
+.eq{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--bd);font-size:14px;color:#cbd5e1}
+.eq:last-child{border-bottom:none}
+.eq b{font-family:'Lora',serif;font-size:22px;color:var(--tx);white-space:nowrap}
+.eq.tot b{color:var(--am);font-size:30px}
+.roi-r{background:linear-gradient(160deg,rgba(253,215,49,.14),rgba(253,215,49,.02));border:1px solid rgba(253,215,49,.45);border-radius:20px;padding:30px;display:flex;flex-direction:column;justify-content:center}
+.roi-r .x{font-family:'Lora',serif;font-weight:700;font-size:clamp(64px,9vw,104px);line-height:.9;color:var(--am)}
+.roi-r p{color:#e2e8f0;font-size:15px;line-height:1.6;margin-top:14px;font-weight:300}
+.roi-r p b{font-weight:600;color:var(--tx)}
+.roi-r .src{font-size:11px;color:var(--gr);margin-top:14px}
+/* productos */
+.prod{display:grid;grid-template-columns:1fr 1.12fr 1fr;gap:16px;max-width:1000px;margin:46px auto 0;align-items:stretch}
+@media(max-width:860px){.prod{grid-template-columns:1fr}.pk.star{order:-1}}
+.pk{position:relative;display:flex;flex-direction:column;background:var(--pa);border:1px solid var(--bd);border-radius:20px;padding:28px 24px;transition:.2s}
+.pk:hover{border-color:#4a4d5a;transform:translateY(-3px)}
+.pk.star{border:1.5px solid var(--am);background:linear-gradient(180deg,#17160e,#0d0f1a 40%);box-shadow:0 30px 70px -30px rgba(253,215,49,.5)}
+.pk .badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--am);color:#000;font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;padding:5px 12px;border-radius:99px;white-space:nowrap}
+.pk .k{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--gr)}
+.pk.star .k{color:var(--am)}
+.pk h3{font-size:21px;font-weight:700;margin:6px 0 2px}
+.pk .pr{font-family:'Lora',serif;font-size:46px;font-weight:700;line-height:1.1;margin:8px 0 4px}
+.pk .pr small{font-family:'Poppins';font-size:12px;color:var(--gr);font-weight:400}
+.pk ul{list-style:none;margin:14px 0 20px;flex:1}
+.pk li{font-size:13.5px;color:#cbd5e1;padding:6px 0 6px 22px;position:relative;font-weight:300;line-height:1.45}
+.pk li::before{content:'✓';position:absolute;left:0;color:var(--am);font-weight:700}
+.pk .btn{width:100%;padding:15px}
+.pk .btn-gh{border-color:#3a3d48}
+.mini{text-align:center;color:var(--gr);font-size:13px;margin-top:22px}
+.mini a{color:var(--tx);border-bottom:1px solid rgba(253,215,49,.5)}
+/* pasos */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1000px;margin:46px auto 0}
+@media(max-width:820px){.steps{grid-template-columns:1fr}}
+.st{background:var(--pa);border:1px solid var(--bd);border-radius:18px;padding:24px}
+.st .n{font-family:'Lora',serif;font-size:42px;font-weight:700;color:var(--am);line-height:1}
+.st h3{font-size:16px;font-weight:700;margin:12px 0 6px}
+.st p{font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.6}
+/* adapta */
+.af{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:1000px;margin:46px auto 0}
+@media(max-width:820px){.af{grid-template-columns:1fr}}
+.af-b{background:var(--pa);border:1px solid var(--bd);border-radius:20px;padding:28px}
+.af-b h3{font-size:16px;font-weight:700;margin-bottom:14px}
+.af-b li{list-style:none;font-size:14px;color:#cbd5e1;padding:7px 0 7px 26px;position:relative;font-weight:300;line-height:1.5}
+.af-b.si li::before{content:'✓';position:absolute;left:0;color:var(--ve);font-weight:800}
+.af-b.no li::before{content:'✕';position:absolute;left:0;color:var(--ro);font-weight:800}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:30px}
+.chip{font-size:13px;background:var(--pa);border:1px solid var(--bd);border-radius:99px;padding:9px 16px;color:#cbd5e1}
+.chip b{color:var(--am)}
 /* faq */
-.faq{max-width:720px;margin:40px auto 0}
-.faq details{border:1px solid var(--bd);border-radius:12px;background:var(--pa);margin-bottom:10px;overflow:hidden}
-.faq summary{cursor:pointer;list-style:none;padding:18px 20px;font-size:14.5px;font-weight:600;display:flex;justify-content:space-between;gap:12px}
+.faq{max-width:760px;margin:40px auto 0}
+.faq details{border:1px solid var(--bd);border-radius:14px;background:var(--pa);margin-bottom:10px}
+.faq summary{cursor:pointer;list-style:none;padding:18px 20px;font-size:15px;font-weight:600;display:flex;justify-content:space-between;gap:12px}
 .faq summary::-webkit-details-marker{display:none}
-.faq summary::after{content:'+';color:var(--am);font-weight:700;font-size:18px;line-height:1}
+.faq summary::after{content:'+';color:var(--am);font-weight:700;font-size:20px;line-height:1}
 .faq details[open] summary::after{content:'−'}
-.faq details p{padding:0 20px 20px;font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.65}
+.faq details p{padding:0 20px 20px;font-size:14px;color:var(--gr);font-weight:300;line-height:1.7}
 /* final */
-.final{text-align:center;padding:96px 0}
-.final h2{font-family:'Lora',serif;font-size:clamp(28px,4.6vw,46px);font-weight:700;line-height:1.14;max-width:16ch;margin:0 auto}
-.final h2 .hl{color:var(--am)}
-.final p{color:var(--gr);font-weight:300;font-size:16px;margin:20px auto 0;max-width:520px}
-/* footer */
-.foot{border-top:1px solid var(--bd);padding:48px 22px;text-align:center;color:var(--gr)}
-.foot .big{font-family:'Lora',serif;font-size:22px;color:var(--tx);font-weight:600}
-.foot>div:nth-child(2){font-size:13px;margin-top:6px}
-.foot .disc{font-size:11px;color:#6b7280;max-width:720px;margin:22px auto 0;line-height:1.6;font-weight:300}
-/* sticky */
-#stickyCta{position:fixed;right:22px;bottom:22px;z-index:60;background:var(--am);color:#000;font-weight:700;font-size:13px;padding:13px 22px;border-radius:999px;box-shadow:0 12px 34px -8px rgba(253,215,49,.55);opacity:0;pointer-events:none;transition:opacity .3s,transform .2s}
-/* RUTA: el test gratis es el PASO 1, no el producto */
-.ruta{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:960px;margin:40px auto 0;text-align:left}
-@media(max-width:820px){.ruta{grid-template-columns:1fr}}
-.rp{background:var(--pa);border:1px solid var(--bd);border-radius:16px;padding:22px;display:flex;flex-direction:column}
-.rp.main{border-color:rgba(253,215,49,.55);box-shadow:0 0 0 1px rgba(253,215,49,.15) inset}
-.rp .k{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--gr)}
-.rp.main .k{color:var(--am)}
-.rp h4{font-size:19px;font-weight:700;margin:8px 0 6px}
-.rp .m{font-size:12.5px;color:var(--am);font-weight:600;margin-bottom:10px}
-.rp p{font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.55;flex:1}
-.rp a{margin-top:16px;font-size:13.5px;font-weight:700;color:var(--am);text-decoration:none}
-.ruta-n{text-align:center;color:var(--gr);font-size:14.5px;margin-top:26px;font-weight:300}
-.ruta-n b{color:var(--tx);font-weight:600}
-.hd-link{color:var(--gr);font-size:13px;text-decoration:none;margin-right:14px;white-space:nowrap}
-.hd-link:hover{color:var(--tx)}
-@media(max-width:560px){.hd-link{display:none}}
-/* PRODUCTO en el hero: el diagnostico es lo que se compra */
-.prod{display:grid;grid-template-columns:1fr 1.08fr 1fr;gap:14px;max-width:900px;margin:34px auto 0;text-align:left;align-items:stretch}
-@media(max-width:760px){.prod{grid-template-columns:1fr}.pc.star{order:-1}}
-.pc{display:block;background:var(--pa);border:1px solid rgba(253,215,49,.45);border-radius:16px;padding:20px 20px 18px;text-decoration:none;color:var(--tx);transition:.2s}
-.pc:hover{border-color:var(--am);transform:translateY(-2px)}
-.pc .k{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--am)}
-.pc h3{font-size:20px;font-weight:700;margin:6px 0 4px}
-.pc .pr{font-size:14px;color:var(--am);font-weight:700;margin-bottom:8px}
-.pc p{font-size:13.5px;color:var(--gr);font-weight:300;line-height:1.5}
-.pc .go{display:inline-block;margin-top:12px;font-size:13.5px;font-weight:700;color:var(--am)}
-.pc{position:relative}.pc.star{border:1.5px solid var(--am);box-shadow:0 14px 40px -18px rgba(253,215,49,.55)}
-.pc .badge{position:absolute;top:-11px;left:20px;background:var(--am);color:#000;font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:99px}
-.free{margin-top:20px;font-size:14px;color:var(--gr);font-weight:300}
-.free a{color:var(--tx);font-weight:600;text-decoration:none;border-bottom:1px solid rgba(253,215,49,.5)}
+.final{text-align:center;padding:110px 0 120px;border-top:1px solid var(--bd);background:radial-gradient(ellipse at 50% 0,rgba(253,215,49,.12),transparent 60%)}
+.final h2{font-size:clamp(32px,5.2vw,58px);font-weight:800;line-height:1.06;letter-spacing:-1px;max-width:17ch;margin:0 auto}
+.final h2 em{font-family:'Lora',serif;color:var(--am);font-weight:600}
+.final p{color:var(--gr);font-size:16px;margin:22px auto 0;max-width:540px;font-weight:300}
+.final .row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:34px}
+.wa{display:inline-flex;align-items:center;gap:8px;margin-top:26px;font-size:13.5px;color:var(--gr)}
+.wa b{color:var(--ve)}
+/* legal */
+.legal{border-top:1px solid var(--bd);padding:48px 22px 120px;text-align:center;color:var(--gr)}
+.legal .nm{font-family:'Lora',serif;font-size:21px;color:var(--tx);font-weight:600}
+.legal .ds{max-width:820px;margin:20px auto 0;font-size:11.5px;line-height:1.7;color:#7c8597;font-weight:300;text-align:left;border:1px solid var(--bd);border-radius:12px;padding:16px 18px}
+.legal .ds b{color:#a3acbd;font-weight:600}
+.legal .lk{margin-top:16px;font-size:12px}.legal .lk a{text-decoration:underline}
+/* barra fija */
+#bar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(9,11,20,.96);backdrop-filter:blur(10px);border-top:1px solid #2c2f3b;transform:translateY(110%);transition:transform .3s}
+#bar.on{transform:none}
+#bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:68px}
+#bar .t{font-size:13px;color:#cbd5e1;line-height:1.3}
+#bar .t b{color:var(--tx)}
+#bar .btn{padding:12px 20px;font-size:14px;white-space:nowrap}
+@media(max-width:520px){#bar .t{font-size:11.5px}#bar .btn{padding:11px 14px;font-size:13px}}
+/* lightbox */
+#lb{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
+#lb.on{display:flex}
+#lb img{max-width:min(720px,94vw);max-height:92vh;border-radius:6px}
+.rv{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}.pulse{animation:none}}
 </style>
+<script src="ev.js" defer></script>
 </head>
 <body>
 
 <header class="head"><div class="wrap">
-  <div class="logo"><b>ADAPTA</b><small>Family Office</small></div>
-  <div><a class="hd-link" href="indice.html">Nota gratis</a><a class="btn-head" href="empezar2.html?tier=2">Hacer mi diagnóstico →</a></div>
+  <a class="logo" href="#" aria-label="Adapta Family Office"><b>ADAPTA</b><small>Family Office</small></a>
+  <div class="hd-r">
+    <a class="hd-l" href="#dentro">Ver el informe por dentro</a>
+    <a class="hd-l" href="#precios">Precios</a>
+    <a class="btn-head" href="empezar2.html?tier=2">Mi diagnóstico · 39 €</a>
+  </div>
 </div></header>
 
-<!-- 01 · HERO -->
-<section class="hero">
+<!-- HERO + CALCULADORA -->
+<section class="hero" id="calc">
+  <div class="wrap hero-g">
+    <div>
+      <p class="kick">Adapta Family Office · Diagnóstico financiero personal</p>
+      <h1>¿A qué edad dejas de <em>trabajar por dinero?</em></h1>
+      <p class="sub">La mayoría lo descubre <b>cuando ya no hay tiempo de corregirlo</b>. Tú puedes saberlo en 30 segundos. Mueve las barras y mira tu número.</p>
+      <div class="pains">
+        <div class="pain"><i>!</i><span>Ganar más no te acerca si <b>tu gasto sube al mismo ritmo</b>.</span></div>
+        <div class="pain"><i>!</i><span>El dinero parado en la cuenta <b>pierde poder de compra cada año</b>.</span></div>
+        <div class="pain"><i>!</i><span>Nadie te ha hecho <b>la cuenta completa</b>: con tus cifras, tu pensión y tu forma de decidir.</span></div>
+      </div>
+      <div class="trust"><span><b>★ 5,0</b> en Google</span><span><b>25 años</b> en patrimonio</span><span>Autor de <b>2 libros</b></span><span>Pago único · Sin suscripción</span></div>
+    </div>
+
+    <div class="calc" id="calcbox">
+      <div class="calc-h"><h2>Tu calculadora de libertad</h2><span>30 segundos</span></div>
+      <div class="f2">
+        <div class="f"><label>Tu edad <span class="v" id="v-ed"></span></label><input type="range" id="i-ed" min="22" max="66" step="1" value="40"></div>
+        <div class="f"><label>Quiero dejar de depender a los <span class="v" id="v-ep"></span></label><input type="range" id="i-ep" min="40" max="70" step="1" value="60"></div>
+      </div>
+      <div class="f"><label>La vida que quieres, al mes <span class="v" id="v-go"></span></label><input type="range" id="i-go" min="1000" max="10000" step="100" value="2800"></div>
+      <div class="f"><label>Pensión pública que esperas (neta/mes) <span class="v" id="v-pe"></span></label><input type="range" id="i-pe" min="0" max="3200" step="50" value="1000"><div class="h">Si no lo sabes, déjalo así. Se cobra a partir de los 67.</div></div>
+      <div class="f"><label>Lo que tienes ahorrado e invertido <span class="v" id="v-ca"></span></label><input type="range" id="i-ca" min="0" max="1500000" step="5000" value="60000"><div class="h">Sin contar tu vivienda.</div></div>
+      <div class="f"><label>Lo que apartas cada mes <span class="v" id="v-ah"></span></label><input type="range" id="i-ah" min="0" max="5000" step="50" value="400"></div>
+
+      <div class="res" id="res">
+        <div class="res-top">
+          <div class="rbox"><div class="l">Tu Número de Libertad</div><div class="n am" id="o-n">—</div><div class="d" id="o-nd">Lo que necesitas para vivir sin sueldo</div></div>
+          <div class="rbox"><div class="l">A tu ritmo llegas a los</div><div class="n ro" id="o-ed">—</div><div class="d" id="o-edd"></div></div>
+        </div>
+        <p class="verdict" id="o-ver"></p>
+        <div class="vida">
+          <div class="mk" id="o-mk"></div>
+          <div class="bar"><div class="w" id="o-bw"></div><div class="fr" id="o-bf"></div></div>
+          <div class="leg"><span><i style="background:var(--ro)"></i>Años trabajando por dinero</span><span><i style="background:var(--am)"></i>Años libres (hasta los 95)</span></div>
+        </div>
+        <div class="lever" id="o-lev"></div>
+        <div class="wait" id="o-wait"></div>
+        <div class="lock">
+          <div class="lock-h"><span>🔒 Lo que esta calculadora no puede ver</span><span>En tu diagnóstico</span></div>
+          <div class="lr"><span>Lo que te cuesta no actuar, en euros</span><span class="bl">−•••.••• €</span></div>
+          <div class="lr"><span>Tu punto ciego (de 12 dimensiones)</span><span class="bl t">El precio de tu ••••••</span></div>
+          <div class="lr"><span>Las 3 decisiones que más mueven tu número</span><span class="bl">•• años antes</span></div>
+          <div class="lr"><span>Tu hoja de ruta a 90 días</span><span class="bl t">Fase 1 · 72 horas</span></div>
+        </div>
+        <a class="btn btn-am pulse" href="empezar2.html?tier=2" data-ev="cta_calc" data-evv="2">Ver lo que me falta y cómo adelantarlo →<small>Diagnóstico completo · 39 € · 15-20 minutos</small></a>
+        <p class="calc-n">Cálculo orientativo con supuestos generales: rentabilidad real del 5 % anual, tasa de retirada del 3–3,5 % según los años que deba durar, horizonte hasta los 95 y pensión desde los 67. <b>No es una recomendación ni asesoramiento.</b> <a href="#legal">Más</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOLOR -->
+<section class="band">
   <div class="wrap">
-    <p class="kick">Diagnóstico psicofinanciero · individual o en pareja</p>
-    <h1 class="hero-t serif" style="font-family:'Poppins'">¿Cuánto te está costando <span class="hl">tu forma de gestionar el dinero?</span></h1>
-    <p class="promise">Tu diagnóstico te lo dice <b>en euros</b>. Con tus cifras reales, un informe personal con lo que se te escapa al año, tu Número de Libertad, las decisiones que más lo mueven y tu hoja de ruta a 90 días.</p>
+    <div class="sh rv">
+      <p class="kick">La cuenta que nadie te hace</p>
+      <h2>No es que ganes poco. <em>Es que nadie te ha hecho la cuenta.</em></h2>
+      <p>Mientras no la haces, el tiempo trabaja en tu contra. En silencio, cada mes.</p>
+    </div>
+    <div class="pg">
+      <div class="pc3 rv"><div class="big" id="p-anios">—<small> años</small></div><h3>Que podrías trabajar de más</h3><p>Es la distancia entre la edad a la que quieres parar y la edad a la que llegas a tu ritmo actual, según lo que has puesto arriba.</p><p class="src">Calculado con tus datos de la calculadora.</p></div>
+      <div class="pc3 rv"><div class="big">−3.594<small> €</small></div><h3>Lo que pierden 20.000 € parados en 10 años</h3><p>Con una inflación del 2 % anual, 20.000 € en la cuenta compran dentro de 10 años lo que hoy 16.406 €. Nadie te lo cobra. Simplemente desaparece.</p><p class="src">Supuesto: inflación del 2 % anual (objetivo del BCE). Cálculo: 20.000 × (1 − 1/1,02¹⁰).</p></div>
+      <div class="pc3 rv"><div class="big">1<small> de cada 3</small></div><h3>Euros de poder de compra que se lleva la inflación en 20 años</h3><p>Al 2 % anual, en 20 años tu dinero compra un 33 % menos. Tu plan de jubilación tiene que ganarle a eso antes de empezar a sumar.</p><p class="src">Supuesto: inflación del 2 % anual. Cálculo: 1 − 1/1,02²⁰ = 32,7 %.</p></div>
+    </div>
+    <p class="quote rv">Tu patrimonio ya está tomando decisiones cada mes.<br><b>La pregunta es si las estás tomando tú.</b></p>
+  </div>
+</section>
+
+<!-- CURIOSIDAD -->
+<section class="band" style="background:linear-gradient(180deg,var(--pa),var(--ng))">
+  <div class="wrap">
+    <div class="sh rv">
+      <p class="kick">Lo que la calculadora no ve</p>
+      <h2>Seis datos te dan una edad. <em>Doce dimensiones te dan el porqué.</em></h2>
+      <p>El diagnóstico cruza <b>tus cifras reales</b> con <b>tu forma de decidir con el dinero</b>. Y ahí aparecen cosas que ninguna calculadora te va a enseñar.</p>
+    </div>
+    <div class="cg">
+      <div class="cc rv"><div class="ic">€</div><div><h3>Lo que te cuesta no actuar</h3><p>En euros, no en porcentajes. La distancia entre quedarte quieto y ejecutar tu plan.</p><div class="tease">Quieto vs. tu plan: <span>304.068 € frente a 3.503.417 €</span></div></div></div>
+      <div class="cc rv"><div class="ic">◎</div><div><h3>Tu punto ciego</h3><p>De 12 dimensiones medidas, la que más te está costando sin que lo sepas.</p><div class="tease">Tu dimensión más frágil: <span>El precio de tu estatus</span></div></div></div>
+      <div class="cc rv"><div class="ic">3</div><div><h3>Las 3 decisiones que más mueven tu número</h3><p>Ordenadas por euros, no por lo que suena mejor. Con cuántos años te devuelve cada una.</p><div class="tease">Decisión 1: <span>recortar el gasto un 10 % → −133.848 €</span></div></div></div>
+      <div class="cc rv"><div class="ic">!</div><div><h3>Qué pasa si llega un golpe</h3><p>Un despido, una enfermedad, una caída del mercado. Cuánto aguantas y qué se rompe primero.</p><div class="tease">Tu colchón objetivo: <span>6 meses de gastos</span></div></div></div>
+      <div class="cc rv"><div class="ic">↗</div><div><h3>Tus 4 vías para llegar</h3><p>Ahorrar más, rentar mejor, ajustar el objetivo o tu plan completo. Con la cifra exacta de cada una.</p><div class="tease">Camino 1 · ahorra más: <span>+714 €/mes</span></div></div></div>
+      <div class="cc rv"><div class="ic">90</div><div><h3>Tu hoja de ruta a 90 días</h3><p>Qué hacer en las primeras 72 horas, en 30 días y en 90. Con casillas, no con consejos.</p><div class="tease">Primer paso: <span>monta un presupuesto de tres cajas</span></div></div></div>
+    </div>
+    <div style="text-align:center;margin-top:40px" class="rv"><a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_curiosidad">Quiero ver los míos →<small>Diagnóstico completo · 39 €</small></a></div>
+  </div>
+</section>
+
+<!-- EL INFORME POR DENTRO -->
+<section class="band papel" id="dentro">
+  <div class="wrap">
+    <div class="sh rv">
+      <p class="kick">Así es por dentro</p>
+      <h2>Esto es lo que vas a tener <em>en tus manos</em></h2>
+      <p>Páginas reales de un diagnóstico de ejemplo (perfil ficticio). El tuyo llevará <b>tus cifras, tu nombre y tu plan</b>. Toca una página para verla en grande.</p>
+    </div>
+    <div class="fan" id="fan">
+      <img class="c" src="informe-p1.jpg" alt="Esto es lo que te separa de no depender de un sueldo" loading="lazy" width="827" height="1170">
+      <img class="li" src="informe-p2.jpg" alt="Las tres decisiones que más mueven tu número" loading="lazy" width="827" height="1170">
+      <img class="ri" src="informe-p3.jpg" alt="Tu cuadro completo de 12 dimensiones" loading="lazy" width="827" height="1170">
+      <img class="lo" src="informe-p4.jpg" alt="Tu número y las 4 vías para llegar a él" loading="lazy" width="827" height="1170">
+      <img class="ro" src="informe-p5.jpg" alt="Tu hoja de ruta a 90 días" loading="lazy" width="827" height="1170">
+    </div>
+    <div class="caps">
+      <div class="cap"><b>Tu número</b>Lo que te separa de no depender de un sueldo, y cuánto tienes ya.</div>
+      <div class="cap"><b>3 decisiones</b>Las que más años te devuelven, en euros.</div>
+      <div class="cap"><b>12 dimensiones</b>Tu cuadro completo, de la más frágil a la más sólida.</div>
+      <div class="cap"><b>4 vías</b>Ahorrar más, rentar mejor, ajustar el objetivo o tu plan.</div>
+      <div class="cap"><b>90 días</b>Tu hoja de ruta con fechas y casillas.</div>
+    </div>
+    <div class="row-c rv">
+      <a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_informe">Quiero el mío →</a>
+      <a class="btn btn-gh" href="muestra-avanzado.pdf" target="_blank" rel="noopener">Ver el ejemplo completo (PDF)</a>
+    </div>
+    <p class="note">Ejemplo ilustrativo con datos ficticios. No es una recomendación.</p>
+  </div>
+</section>
+
+<!-- LA INVERSIÓN -->
+<section class="band">
+  <div class="wrap">
+    <div class="sh rv">
+      <p class="kick">La inversión</p>
+      <h2>39 € una vez. <em>Haz tú la cuenta.</em></h2>
+      <p>No te pedimos que confíes. Te pedimos que hagas una multiplicación.</p>
+    </div>
+    <div class="roi">
+      <div class="roi-l rv">
+        <h3>Un ejemplo sencillo</h3>
+        <div class="eq"><span>Si el diagnóstico te hace ver <b style="font-family:Poppins;font-size:14px">una sola</b> fuga de</span><b>50 €/mes</b></div>
+        <div class="eq"><span>En un año son</span><b>600 €</b></div>
+        <div class="eq"><span>En 10 años, solo apartándolos</span><b>6.000 €</b></div>
+        <div class="eq tot"><span>Lo que cuesta el diagnóstico</span><b>39 €</b></div>
+      </div>
+      <div class="roi-r rv">
+        <div class="x">×15</div>
+        <p>Una sola decisión de 50 € al mes multiplica <b>por más de 15</b> lo que pagas, solo el primer año. Y la calculadora de arriba te enseña cuántos <b>años de tu vida</b> mueve apartar 200 € más al mes.</p>
+        <p class="src">Ejemplo aritmético ilustrativo, no una promesa de ahorro ni de rentabilidad. El resultado depende de lo que decidas hacer tú.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRECIOS -->
+<section class="band" id="precios" style="background:linear-gradient(180deg,var(--pa),var(--ng))">
+  <div class="wrap">
+    <div class="sh rv">
+      <p class="kick">Elige tu diagnóstico</p>
+      <h2>Pago único. <em>Tu informe al terminar.</em></h2>
+      <p>Sin suscripción. Respondes desde el móvil y lo recibes en tu correo al terminar.</p>
+    </div>
     <div class="prod">
-      <a class="pc" href="empezar2.html?tier=1">
-        <div class="k">Rápido</div>
-        <h3>Tu foto en claro</h3>
-        <div class="pr">19 €</div>
-        <p>~50 páginas. Tu Número de Libertad, tu balance y tu hoja de ruta a 90 días.</p>
-        <span class="go">Empezar →</span>
-      </a>
-      <a class="pc star" href="empezar2.html?tier=2">
+      <div class="pk rv">
+        <div class="k">Rápido</div><h3>Tu foto en claro</h3>
+        <div class="pr">19 €<small> pago único</small></div>
+        <ul><li>Tus 12 dimensiones, en un vistazo</li><li>Tu Número de Libertad y cuándo llegas</li><li>Las 3 decisiones que más lo mueven</li><li>Hoja de ruta a 90 días</li><li>~50 páginas · 10-12 minutos</li></ul>
+        <a class="btn btn-gh" href="empezar2.html?tier=1">Empezar el rápido</a>
+      </div>
+      <div class="pk star rv">
         <div class="badge">El más elegido</div>
-        <div class="k">Avanzado</div>
-        <h3>Tu diagnóstico completo</h3>
-        <div class="pr">39 €</div>
-        <p>~90 páginas. Tus 12 dimensiones una a una, lo que te cuesta no actuar y tu plan.</p>
-        <span class="go">Hacer mi diagnóstico →</span>
-      </a>
-      <a class="pc" href="empezar2.html?tier=3">
-        <div class="k">En pareja</div>
-        <h3>Vuestro informe</h3>
-        <div class="pr">54 €</div>
-        <p>Vuestras cifras, el reparto justo y dónde no estáis de acuerdo sin saberlo.</p>
-        <span class="go">Empezar en pareja →</span>
-      </a>
+        <div class="k">Avanzado</div><h3>Tu diagnóstico completo</h3>
+        <div class="pr">39 €<small> pago único</small></div>
+        <ul><li><b>Todo lo del rápido</b></li><li>Tus 12 dimensiones, una a una, con su plan</li><li>Lo que te cuesta no actuar, en euros</li><li>Riesgos: qué pasa si llega un golpe</li><li>Tablero de operaciones por fases</li><li>~90 páginas · 15-20 minutos</li></ul>
+        <a class="btn btn-am pulse" href="empezar2.html?tier=2">Hacer mi diagnóstico →</a>
+      </div>
+      <div class="pk rv">
+        <div class="k">En pareja</div><h3>Vuestro informe</h3>
+        <div class="pr">54 €<small> los dos</small></div>
+        <ul><li>Dos perfiles, un libro conjunto</li><li>El reparto justo: cuánto le cuesta a cada uno</li><li>Dónde no estáis de acuerdo sin saberlo</li><li>Guion para hablarlo sin discutir</li><li>~90 páginas · 15-20 min cada uno</li></ul>
+        <a class="btn btn-gh" href="empezar2.html?tier=3">Empezar en pareja</a>
+      </div>
     </div>
-    <p class="free" style="margin-top:14px"><a href="planes.html#precios">Compara qué incluye cada uno</a></p>
-    <p class="reass" style="margin-top:18px">Pago único · Sin suscripción · Entre 10 y 20 minutos · Informe al terminar</p>
-    <p class="free">¿Aún no lo tienes claro? <a href="indice.html">Haz antes tu nota gratis (2 min)</a> o <a href="#como">mira cómo funciona</a>.</p>
-    <p class="tail">Tu resultado no será un consejo genérico. <b>Será tuyo.</b></p>
+    <p class="mini">¿Prefieres tantear antes? <a href="indice.html">Tu nota de salud financiera gratis (2 min)</a> · <a href="planes.html#precios">Comparar qué incluye cada uno</a></p>
   </div>
 </section>
 
-<!-- 01b · LA RUTA: tres pasos, el gratis es el primero -->
-<section class="band" id="ruta">
-  <div class="wrap">
-    <div class="sec-h">
-      <p class="eyebrow">Cómo se hace</p>
-      <h2>Tres pasos. <span class="serif">La nota es solo el primero.</span></h2>
-    </div>
-    <div class="ruta">
-      <div class="rp">
-        <div class="k">Paso 1 · Gratis</div>
-        <h4>Tu nota</h4>
-        <div class="m">2 minutos · 10 preguntas</div>
-        <p>El termómetro. Te dice si hay fiebre y en qué pilar flojeas. No usa tus cifras, así que no puede decirte cuánto te cuesta.</p>
-        <a href="indice.html">Hacer mi nota →</a>
-      </div>
-      <div class="rp main">
-        <div class="k">Paso 2 · Desde 19 €</div>
-        <h4>Tu diagnóstico</h4>
-        <div class="m">10-20 minutos · con tus cifras reales</div>
-        <p>La radiografía. Un informe personal con cuánto se te escapa al año, tu Número de Libertad, las 3 decisiones que más lo mueven y tu hoja de ruta a 90 días.</p>
-        <a href="planes.html">Ver el diagnóstico →</a>
-      </div>
-      <div class="rp">
-        <div class="k">Paso 3 · Si lo quieres</div>
-        <h4>Lo trabajamos juntos</h4>
-        <div class="m">Una sesión con Adapta</div>
-        <p>Convertimos tu informe en decisiones concretas, con números y fechas. Tú decides si das este paso.</p>
-      </div>
-    </div>
-    <p class="ruta-n">La nota te dice <b>dónde estás</b>. El diagnóstico te dice <b>cuánto te cuesta y qué hacer</b>.</p>
-  </div>
-</section>
-
-<!-- 02 · RESULTADO (demo alto) -->
-<section class="band pa">
-  <div class="wrap">
-    <div class="sec-h">
-      <p class="eyebrow">Paso 1 · Lo que verás gratis</p>
-      <h2>En 2 minutos sabrás <span class="serif">tres cosas</span> sobre ti</h2>
-    </div>
-    <div class="demo">
-      <div class="dcard">
-        <div class="dl">Tu nota</div>
-        <div class="dn"><span class="ct" data-to="72">0</span><small>/100</small></div>
-        <div class="dd">Tu Índice de Salud Financiera, sobre 100.</div>
-      </div>
-      <div class="dcard">
-        <div class="dl">Tus tres pilares</div>
-        <div class="dn" style="font-size:clamp(19px,2.8vw,25px);line-height:1.35;margin-top:22px">Seguridad<br>Hábito<br>Futuro</div>
-        <div class="dd">Dónde estás fuerte y dónde flojeas hoy.</div>
-      </div>
-      <div class="dcard">
-        <div class="dl">Tu punto más débil</div>
-        <div class="dn" style="font-size:clamp(22px,3.4vw,30px);line-height:1.15;margin-top:22px">Seguridad</div>
-        <div class="dtag">detectado</div>
-      </div>
-    </div>
-    <p class="demo-note">Así se verá tu resultado. Ejemplo ilustrativo — el tuyo se calcula con tus respuestas.</p>
-  </div>
-</section>
-
-<!-- 03 · CURIOSIDAD -->
+<!-- CÓMO -->
 <section class="band">
   <div class="wrap">
-    <div class="curio">
-      <p class="big serif">El problema no suele ser lo que crees.</p>
-      <div class="stk">
-        <span>Puedes ganar <b>más</b>.</span>
-        <span>Ahorrar <b>más</b>.</span>
-        <span>Invertir <b>más</b>.</span>
-      </div>
-      <p style="color:var(--gr);font-weight:300;font-size:16px">Y aun así estar perdiendo años de libertad sin verlo.</p>
-      <p class="punch">El diagnóstico encuentra dónde.</p>
-    </div>
-  </div>
-</section>
-
-<!-- 04 · CÓMO FUNCIONA -->
-<section class="band pa" id="como">
-  <div class="wrap">
-    <div class="sec-h">
-      <p class="eyebrow">Cómo funciona</p>
-      <h2>De tu nota a <span class="serif">tu plan</span></h2>
-    </div>
+    <div class="sh rv"><p class="kick">Cómo funciona</p><h2>Tres pasos. <em>El primero lo das hoy.</em></h2></div>
     <div class="steps">
-      <div class="step"><span class="num">1</span><div><h4>Haces tu nota gratis</h4><p>10 preguntas, 2 minutos. Sabes dónde estás sobre 100 y qué pilar flojea. Es el termómetro, no el diagnóstico.</p></div></div>
-      <div class="step"><span class="num">2</span><div><h4>Si quieres ver el porqué, haces el diagnóstico</h4><p>Desde 19 €. Un cuestionario de 10-20 minutos con tus cifras reales —ingresos, gastos, patrimonio, deuda— y tu forma de decidir con el dinero.</p></div></div>
-      <div class="step"><span class="num">3</span><div><h4>Recibes tu informe personal</h4><p>Cuánto se te escapa al año, tu Número de Libertad, las decisiones que más lo mueven y tu hoja de ruta a 90 días. Con tus números, no con medias.</p></div></div>
-      <div class="step"><span class="num">4</span><div><h4>Si quieres, lo trabajamos juntos</h4><p>Una sesión con Adapta para convertir el informe en decisiones con fecha.</p></div></div>
+      <div class="st rv"><div class="n">1</div><h3>Respondes</h3><p>Entre 10 y 20 minutos, desde el móvil. Tus cifras aproximadas y cómo decides con el dinero. Puedes parar y seguir.</p></div>
+      <div class="st rv"><div class="n">2</div><h3>Recibes tu informe</h3><p>Al terminar, en tu correo. Tu número, lo que te cuesta no actuar, tus 3 decisiones y tu hoja de ruta a 90 días.</p></div>
+      <div class="st rv"><div class="n">3</div><h3>Tú decides</h3><p>Lo aplicas por tu cuenta o, si quieres, lo revisas con el equipo de Adapta. Sin compromiso.</p></div>
     </div>
-    <div style="text-align:center;margin-top:36px"><a class="btn btn-am" href="planes.html#precios">Hacer mi diagnóstico →</a></div>
   </div>
 </section>
 
-<!-- 05 · DEMO / EJEMPLO -->
+<!-- ADAPTA -->
+<section class="band" style="background:linear-gradient(180deg,var(--pa),var(--ng))">
+  <div class="wrap">
+    <div class="sh rv">
+      <p class="kick">Quién está detrás</p>
+      <h2>Adapta Family Office. <em>El rigor de un family office, para tu caso.</em></h2>
+      <p>Llevamos 25 años trabajando con patrimonios. Este diagnóstico es la puerta de entrada que usamos con nuestros propios clientes, ahora abierta a cualquiera.</p>
+    </div>
+    <div class="chips rv"><span class="chip"><b>★ 5,0</b> en Google</span><span class="chip"><b>25 años</b> de experiencia</span><span class="chip">Autor de <b>2 libros</b></span><span class="chip">Supuestos <b>a la vista</b></span></div>
+    <div class="af">
+      <div class="af-b si rv"><h3>Lo que es</h3><ul>
+        <li>Una herramienta <b>educativa y orientativa</b> para ver tu situación con claridad.</li>
+        <li>Calculado con <b>tus datos</b> y con supuestos explicados, para que puedas juzgarlo.</li>
+        <li>Un mapa para que <b>tú</b> tomes mejores decisiones.</li>
+      </ul></div>
+      <div class="af-b no rv"><h3>Lo que no es</h3><ul>
+        <li><b>No es una recomendación</b> de inversión ni de ningún producto financiero.</li>
+        <li>No es asesoramiento financiero, fiscal ni jurídico personalizado.</li>
+        <li>No es una promesa de rentabilidad ni una previsión garantizada.</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
 <section class="band">
   <div class="wrap">
-    <div class="sec-h">
-      <p class="eyebrow">Antes de decidir nada</p>
-      <h2>Mira <span class="serif">exactamente</span> lo que recibirás</h2>
-      <p>No compras a ciegas. Primero descubres tu situación; después decides si quieres el diagnóstico completo. Este es un informe real de ejemplo — el tuyo llevará tus cifras y tu plan.</p>
-    </div>
-    <div style="text-align:center;margin-top:34px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center">
-      <a class="btn btn-am" href="muestra-avanzado.pdf" download>⬇ Ver informe de ejemplo</a>
-      <a class="btn btn-gh" href="muestra-pareja.pdf" download>⬇ Ejemplo del informe en pareja</a>
-    </div>
-  </div>
-</section>
-
-<!-- 06 · PUNTO CIEGO -->
-<section class="band pa">
-  <div class="wrap">
-    <div class="sec-h">
-      <p class="eyebrow">La idea central</p>
-      <h2>Todos tenemos un <span class="serif">punto ciego financiero</span></h2>
-      <p>Nadie quiere comprar un PDF. Todos queremos saber qué estamos haciendo mal sin darnos cuenta. Tu punto ciego puede estar en cualquiera de estas áreas:</p>
-    </div>
-    <div class="bs-grid">
-      <span class="bs">Gasto</span><span class="bs">Deuda</span><span class="bs">Liquidez</span>
-      <span class="bs">Inversión</span><span class="bs">Fiscalidad</span><span class="bs">Vivienda</span>
-      <span class="bs">Pareja</span><span class="bs">Comportamiento</span>
-    </div>
-    <p style="text-align:center;font-family:'Lora',serif;font-style:italic;font-size:20px;margin-top:30px">Tu diagnóstico encuentra <span style="color:var(--am);font-style:normal;font-weight:600">cuál es el tuyo.</span></p>
-  </div>
-</section>
-
-<!-- 07 · NÚMERO DE LIBERTAD -->
-<section class="band">
-  <div class="wrap">
-    <div class="sec-h">
-      <p class="eyebrow">El producto</p>
-      <h2>¿Cuántos meses de libertad <span class="serif">has comprado ya?</span></h2>
-      <p>Tu patrimonio no se mide solo en euros. Se mide en cuánto tiempo puedes vivir sin depender de tu próximo sueldo. Muévelo y míralo:</p>
-    </div>
-    <div class="lib">
-      <div class="fld">
-        <label>Patrimonio líquido <span class="v" id="lv-pat">80.000 €</span></label>
-        <input type="range" id="r-pat" min="0" max="500000" step="5000" value="80000">
-      </div>
-      <div class="fld">
-        <label>Gastos al mes <span class="v" id="lv-gas">3.000 €</span></label>
-        <input type="range" id="r-gas" min="800" max="10000" step="100" value="3000">
-      </div>
-      <div class="out">
-        <div class="l">Tu libertad actual</div>
-        <div class="n"><span id="lib-out">26,7</span> meses</div>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:32px"><a class="btn btn-am" href="planes.html#precios">Hacer mi diagnóstico →</a></div>
-    <div style="text-align:center;margin-top:16px"><a href="herramientas.html" style="color:var(--gr);font-size:12.5px;border-bottom:1px solid var(--bd);padding-bottom:2px">Explorar las 5 herramientas gratis →</a></div>
-  </div>
-</section>
-
-<!-- 08 · PAREJA -->
-<section class="band pa">
-  <div class="wrap">
-    <div class="sec-h">
-      <p class="eyebrow">En pareja</p>
-      <h2>50/50 no siempre significa <span class="serif">justo</span></h2>
-      <p>El problema no es cuánto aporta cada uno. Es cuánto le cuesta a cada uno. Un reparto igual en euros puede ser profundamente desigual en esfuerzo.</p>
-    </div>
-    <div class="pj-table">
-      <table>
-        <thead><tr><th></th><th>Persona A</th><th>Persona B</th></tr></thead>
-        <tbody>
-          <tr><td>Ingresos</td><td>5.000 €</td><td>2.500 €</td></tr>
-          <tr><td>Aporte al común</td><td>1.500 €</td><td>1.500 €</td></tr>
-          <tr><td>% de esfuerzo real</td><td>30 %</td><td class="hot">60 %</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="pj-punch">Matemáticamente igual. Económicamente injusto. El diagnóstico en pareja lo pone sobre la mesa, con datos imparciales.</p>
-    <div style="text-align:center;margin-top:30px"><a class="btn btn-am" href="planes.html#precios">Hacer nuestro diagnóstico en pareja →</a></div>
-  </div>
-</section>
-
-<!-- 09 · AUTORIDAD + CREDIBILIDAD -->
-<section class="band">
-  <div class="wrap">
-    <div class="sec-h">
-      <p class="eyebrow">Quién está detrás</p>
-      <h2>No es un test de internet</h2>
-      <p>Es el diagnóstico de entrada de Adapta Family Office: 25 años de experiencia en patrimonio, con el rigor de un family office puesto al servicio de tu situación real.</p>
-    </div>
-    <div class="auth-chips">
-      <span class="chip"><b>★ 5,0</b> en Google</span>
-      <span class="chip"><b>+100</b> informes realizados</span>
-      <span class="chip"><b>Autor</b> de 2 libros</span>
-      <span class="chip">El rigor de un <b>family office</b></span>
-    </div>
-    <div class="method">
-      <h3>¿De dónde sale tu resultado?</h3>
-      <p>Combinamos <strong>tus respuestas, tus cifras y nuestro modelo de análisis</strong> para detectar patrones financieros y de comportamiento que normalmente pasan desapercibidos.</p>
-      <p>No hacemos predicciones mágicas ni sabemos nada que tú no nos cuentes. Te mostramos <strong>los supuestos y cómo llegamos a cada conclusión</strong>, para que puedas juzgarlo por ti mismo.</p>
-    </div>
-    <!-- TODO Javier: aquí van testimonios REALES (frase + contexto) cuando los tengas. No añado ninguno inventado. -->
-  </div>
-</section>
-
-<!-- 10 · FAQ -->
-<section class="band pa">
-  <div class="wrap">
-    <div class="sec-h">
-      <p class="eyebrow">Dudas rápidas</p>
-      <h2>Antes de empezar</h2>
-    </div>
+    <div class="sh rv"><p class="kick">Dudas rápidas</p><h2>Antes de empezar</h2></div>
     <div class="faq">
-      <details><summary>¿De verdad es gratis?</summary><p>El primer paso, sí: tu nota del Índice de Salud Financiera es gratuita, sin registro y sin tarjeta. Pero es un termómetro, no el diagnóstico: no usa tus cifras. El diagnóstico completo —tu informe personal con tus números y tu plan— cuesta desde 19 €.</p></details>
-      <details><summary>¿Qué diferencia hay entre la nota y el diagnóstico?</summary><p>La nota te dice <b>dónde estás</b>, con 10 preguntas generales. El diagnóstico trabaja con tus cifras reales y te dice <b>cuánto te cuesta y qué hacer</b>: lo que se te escapa al año en euros, tu Número de Libertad, cuándo llegas y tu hoja de ruta a 90 días.</p></details>
-      <details><summary>¿Cuánto tiempo me lleva?</summary><p>La nota, 2 minutos. El diagnóstico completo, entre 10 y 20 minutos según la modalidad. Puedes parar y retomar.</p></details>
-      <details><summary>¿Qué necesito tener a mano?</summary><p>Nada especial para empezar. Para el diagnóstico completo ayuda tener tus cifras aproximadas de ingresos, gastos y patrimonio; cuanto más reales, más útil es el resultado.</p></details>
-      <details><summary>¿Esto es asesoramiento financiero?</summary><p>No. Es un marco educativo y orientativo que te ayuda a ver tu situación con claridad. No constituye asesoramiento financiero, fiscal, jurídico ni de inversión personalizado.</p></details>
-      <details><summary>¿Qué pasa con mis datos?</summary><p>Tu diagnóstico se elabora con los datos que tú aportas. No los necesitamos para nada ajeno a construir tu informe.</p></details>
+      <details data-evv="que_recibo"><summary>¿Qué recibo exactamente?</summary><p>Un informe personal en PDF en tu correo al terminar: tu Número de Libertad y cuándo llegas, lo que te cuesta no actuar, tu punto ciego, las 3 decisiones que más mueven tu número y tu hoja de ruta a 90 días. Puedes ver un <a href="muestra-avanzado.pdf" target="_blank" rel="noopener" style="text-decoration:underline">ejemplo completo aquí</a>.</p></details>
+      <details data-evv="asesoramiento"><summary>¿Esto es asesoramiento o una recomendación?</summary><p>No. Es un marco educativo y orientativo de Adapta Family Office. No constituye recomendación de inversión ni de ningún producto, ni asesoramiento financiero, fiscal o jurídico personalizado. Las decisiones son siempre tuyas.</p></details>
+      <details data-evv="cifras"><summary>¿Necesito tener mis cifras exactas?</summary><p>No. Con aproximaciones basta para empezar: ingresos, gastos, lo que tienes ahorrado e invertido y tus deudas. Cuanto más reales, más útil el resultado.</p></details>
+      <details data-evv="datos"><summary>¿Qué hacéis con mis datos?</summary><p>Solo los usamos para elaborar tu informe. No los vendemos ni los cedemos. Más detalle en la <a href="privacidad.html" style="text-decoration:underline">política de privacidad</a>.</p></details>
+      <details data-evv="diferencia"><summary>¿En qué se diferencia de la calculadora de arriba?</summary><p>La calculadora usa seis datos y te da una edad. El diagnóstico usa tus cifras completas y tu forma de decidir para decirte <b>por qué</b> llegas a esa edad y <b>qué hacer</b> para adelantarla.</p></details>
     </div>
   </div>
 </section>
 
-<!-- 11 · FINAL CTA -->
+<!-- FINAL -->
 <section class="final">
   <div class="wrap">
-    <h2 class="serif">Tu patrimonio ya está tomando decisiones. <span class="hl">La pregunta es si las estás tomando tú.</span></h2>
-    <p>Tu diagnóstico, individual o en pareja, desde 19 €.</p>
-    <div class="cta-row"><a class="btn btn-am" href="planes.html#precios">Hacer mi diagnóstico →</a><a class="btn btn-gh" href="indice.html">Antes, mi nota gratis</a></div>
+    <h2>Ya sabes a qué edad llegas. <em>Ahora descubre cómo adelantarla.</em></h2>
+    <p>Entre 15 y 20 minutos hoy. Un mapa claro para los próximos años.</p>
+    <div class="row">
+      <a class="btn btn-am pulse" href="empezar2.html?tier=2">Hacer mi diagnóstico · 39 € →</a>
+      <a class="btn btn-gh" href="#calc" data-ev="volver_calc">Volver a mi calculadora</a>
+    </div>
+    <a class="wa" href="https://wa.me/34683343531?text=Hola%2C%20tengo%20una%20duda%20sobre%20el%20diagn%C3%B3stico" target="_blank" rel="noopener">¿Una duda antes de empezar? <b>Escríbenos por WhatsApp</b></a>
   </div>
 </section>
 
-<footer class="foot">
-  <div class="big">Adapta Family Office</div>
-  <div>Ingeniería del comportamiento financiero · patrimonio con propósito</div>
-  <p class="disc">Marco educativo. Los ejemplos y simuladores de esta página son ilustrativos y no constituyen asesoramiento financiero, fiscal, jurídico ni de inversión. Las proyecciones usan supuestos generales y no son previsiones garantizadas. Tu diagnóstico se elabora con los datos reales que aportes en el cuestionario.</p>
+<footer class="legal" id="legal">
+  <div class="nm">Adapta Family Office</div>
+  <div style="font-size:13px;margin-top:6px">Diagnóstico financiero personal · individual o en pareja</div>
+  <div class="ds">
+    <b>Aviso importante.</b> Todo el contenido de esta página y del diagnóstico de Adapta Family Office tiene <b>carácter exclusivamente educativo e informativo</b>. <b>No constituye una recomendación</b> de inversión ni de ningún producto o servicio financiero, ni asesoramiento financiero, fiscal, jurídico o de inversión personalizado, ni una oferta o solicitud de compra o venta de ningún instrumento. La calculadora y los ejemplos usan <b>supuestos generales</b> (rentabilidad real del 5 % anual, tasa de retirada del 3–3,5 % según la duración, horizonte hasta los 95 años, pensión pública desde los 67, inflación del 2 % en los ejemplos) y sus resultados son <b>orientativos, no previsiones ni promesas</b>. Las rentabilidades pasadas no garantizan rentabilidades futuras. Cualquier decisión es responsabilidad exclusiva de quien la toma; antes de decidir, valora consultar con un profesional habilitado. Las páginas del informe que se muestran corresponden a un perfil ficticio.
+  </div>
+  <div class="lk"><a href="privacidad.html">Privacidad</a> · Medición propia y anónima de visitas, sin cookies ni datos personales.</div>
 </footer>
 
-<a id="stickyCta" href="empezar2.html?tier=2">Mi diagnóstico completo · 39 € →</a>
+<div id="bar"><div class="wrap">
+  <div class="t" id="bar-t"><b>Tu diagnóstico completo</b><br>Lo que la calculadora no ve · 39 €</div>
+  <a class="btn btn-am" href="empezar2.html?tier=2" data-ev="cta_barra">Hacerlo ahora →</a>
+</div></div>
+<div id="lb"><img alt=""></div>
 
 <script>
-// count-up de las cifras demo (se dispara al entrar en pantalla)
+/* ===== Motor de libertad: mismo cálculo que el informe (motor_financiero_v3) ===== */
 (function(){
-  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function run(el){
-    var to=parseFloat(el.getAttribute('data-to'));
-    if(reduce){el.textContent=to;return;}
-    var start=null,dur=1100;
-    function step(t){if(!start)start=t;var p=Math.min((t-start)/dur,1);var e=1-Math.pow(1-p,3);el.textContent=Math.round(to*e);if(p<1)requestAnimationFrame(step);else el.textContent=to;}
-    requestAnimationFrame(step);
+  var TMIN=3.5,TMAX=3.0,DMIN=30,DMAX=50,JUB=67,FIN=95,RR=0.05/12;
+  function tasa(d){ if(d<=DMIN)return TMIN; if(d>=DMAX)return TMAX; return TMIN+(d-DMIN)*(TMAX-TMIN)/(DMAX-DMIN); }
+  function mult(d){ return Math.round(1000/tasa(d))/10; }
+  function capNec(go,pen,ep){
+    var gp=Math.max(0,go-pen); if(gp<=0) return 0;
+    var dur=Math.max(20,FIN-ep), m=mult(dur), puente=Math.max(0,JUB-ep);
+    if(puente<=0) return gp*12*m;
+    var mpost=mult(FIN-JUB), rd=tasa(dur)/100, af=(1-Math.pow(1+rd,-puente))/rd;
+    return go*12*af + (gp*12*mpost)/Math.pow(1+rd,puente);
   }
-  var seen=new WeakSet();
-  var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting&&!seen.has(x.target)){seen.add(x.target);run(x.target);}});},{threshold:.5});
-  document.querySelectorAll('.ct').forEach(function(el){io.observe(el);});
-})();
-// calculadora Número de Libertad
-(function(){
-  var pat=document.getElementById('r-pat'),gas=document.getElementById('r-gas');
-  var lvp=document.getElementById('lv-pat'),lvg=document.getElementById('lv-gas'),out=document.getElementById('lib-out');
-  var eur=function(n){return Math.round(n).toLocaleString('es-ES')+' €';};
+  function fv(P,A,r,n){ if(r<=0) return P+A*n; var g=Math.pow(1+r,n); return P*g+A*(g-1)/r; }
+  function rnd(x){ var f=Math.floor(x); return Math.abs(x-f-0.5)<1e-9 ? (f%2===0?f:f+1) : Math.round(x); } /* redondeo igual que Python */
+  function anios(obj,cap,aho){ if(cap>=obj) return 0; for(var m=1;m<=960;m++){ if(fv(cap,aho,RR,m)>=obj) return rnd(m/12); } return null; }
+  function ahorroNec(N,cap,meses){ if(meses<=0) return null; var g=Math.pow(1+RR,meses), base=cap*g; return base>=N?0:(N-base)*RR/(g-1); }
+  var $=function(id){return document.getElementById(id)};
+  var miles=function(n){var x=Math.round(n),sg=x<0?'−':'';return sg+String(Math.abs(x)).replace(/\B(?=(\d{3})+(?!\d))/g,'.')};
+  var eur=function(n){return miles(n)+' €'};
+  var corto=function(n){ return n>=1e6 ? (Math.round(n/1e4)/100).toFixed(2).replace('.',',')+' M€' : eur(n); };
+  var ids=['ed','ep','go','pe','ca','ah'], usado=false, tRes=null;
+  function lee(k){return +$('i-'+k).value}
   function calc(){
-    var p=+pat.value,g=+gas.value;
-    lvp.textContent=eur(p);lvg.textContent=eur(g);
-    var m=g>0?p/g:0;
-    out.textContent=m.toLocaleString('es-ES',{minimumFractionDigits:1,maximumFractionDigits:1});
+    var ed=lee('ed'), ep=lee('ep'), go=lee('go'), pe=lee('pe'), ca=lee('ca'), ah=lee('ah');
+    if(ep<=ed){ ep=ed+1; $('i-ep').value=ep; }
+    $('v-ed').textContent=ed+' años'; $('v-ep').textContent=ep+' años';
+    $('v-go').textContent=eur(go); $('v-pe').textContent=eur(pe); $('v-ca').textContent=eur(ca); $('v-ah').textContent=eur(ah);
+    var N=capNec(go,pe,ep), pct=N>0?Math.min(100,Math.round(100*ca/N)):100, falta=Math.max(0,N-ca);
+    $('o-n').textContent=corto(N);
+    $('o-nd').textContent= N>0 ? ('Tienes cubierto el '+pct+' %. Te faltan '+corto(falta)+'.') : 'Tu pensión ya cubre esa vida.';
+    var a=anios(N,ca,ah), llega = a===null ? null : ed+a, ver=$('o-ver'), dif=null;
+    if(N<=0){ $('o-ed').textContent='Ya'; $('o-ed').className='n ve'; $('o-edd').textContent='Con tu pensión llega'; ver.innerHTML='Con la pensión que esperas cubres esa vida desde los 67. La pregunta es <b>qué pasa hasta entonces</b>.'; }
+    else if(llega===null || llega>FIN){ $('o-ed').textContent='No llegas'; $('o-ed').className='n ro'; $('o-edd').textContent='antes de los 95, a este ritmo';
+      ver.innerHTML='Quieres parar a los <b>'+ep+'</b>. A tu ritmo actual <span class="ro">no reúnes ese capital en toda tu vida</span>. No es una condena: es que <b>falta un plan</b>.'; dif=FIN-ep; }
+    else { $('o-ed').textContent=llega+' años'; dif=llega-ep;
+      $('o-ed').className='n '+(dif>0?'ro':'ve'); $('o-edd').textContent= a===0?'Ya lo tienes':('dentro de '+a+' años');
+      ver.innerHTML = dif>0 ? 'Quieres parar a los <b>'+ep+'</b>. A tu ritmo llegas a los <b>'+llega+'</b>: <span class="ro">'+dif+' año'+(dif===1?'':'s')+' más trabajando por dinero</span> de lo que te gustaría.'
+                            : 'Vas por delante: llegas a los <b>'+llega+'</b>, antes de los '+ep+'. Ahora toca <span class="ve">protegerlo</span> y saber qué puede torcerlo.'; }
+    // barra de vida
+    var fin=FIN, hasta=(llega===null||llega>fin)?fin:Math.max(ed,llega), tot=fin-ed;
+    $('o-bw').style.width=(100*(hasta-ed)/tot)+'%'; $('o-bf').style.width=(100*(fin-hasta)/tot)+'%';
+    var pos=function(x){return Math.max(4,Math.min(96,100*(x-ed)/tot))+'%'};
+    $('o-mk').innerHTML='<span style="left:'+pos(ed)+'">Hoy '+ed+'</span><span style="left:'+pos(ep)+';color:var(--am)">▼ quieres '+ep+'</span><span style="left:'+pos(fin)+'">95</span>';
+    // palanca: +200 €/mes (escenario del informe)
+    var lev=$('o-lev'), wait=$('o-wait');
+    if(N>0 && a!==0){
+      var a2=anios(N,ca,ah+200);
+      if(a2!==null && (a===null || a2<a)){ lev.style.display='';
+        lev.innerHTML = a===null ? 'Apartando <b>200 € más al mes</b> llegarías a los <b>'+(ed+a2)+'</b>. Pequeños cambios mueven años enteros.'
+                                 : 'Apartando <b>200 € más al mes</b> llegarías a los <b>'+(ed+a2)+'</b>: <b>'+(a-a2)+' año'+((a-a2)===1?'':'s')+' antes</b>. Y es solo una de las palancas.';
+      } else lev.style.display='none';
+      var meses=(ep-ed)*12, hoy=ahorroNec(N,ca,meses), tras=ahorroNec(N,fv(ca,ah,RR,12),meses-12);
+      if(hoy!==null && tras!==null && hoy>ah && meses>12){ wait.style.display='';
+        wait.innerHTML='Para parar a los '+ep+' tendrías que apartar <b>'+eur(hoy)+'/mes</b> desde hoy. Si lo dejas un año más, serán <b>'+eur(tras)+'/mes</b>. <b>Esperar también cuesta.</b>';
+      } else wait.style.display='none';
+    } else { lev.style.display='none'; wait.style.display='none'; }
+    // dolor: años de más
+    var pa=$('p-anios'); if(pa){ pa.innerHTML = (dif===null||dif<=0) ? '0<small> años</small>' : (llega===null||llega>FIN ? '+'+dif : dif)+'<small> años</small>'; }
+    var bt=$('bar-t'); if(bt && dif!==null && dif>0) bt.innerHTML='<b>'+(llega===null||llega>FIN?'No llegas antes de los 95':'Llegas a los '+llega+', no a los '+ep)+'</b><br>Descubre cómo adelantarlo · 39 €';
+    clearTimeout(tRes); tRes=setTimeout(function(){ if(usado && window.adaptaEv) adaptaEv('calc_resultado', (dif===null?'na':dif)+'|'+ed+'|'+pct+'%'); },1500);
   }
-  if(pat&&gas){pat.addEventListener('input',calc);gas.addEventListener('input',calc);calc();}
+  ids.forEach(function(k){ $('i-'+k).addEventListener('input',function(){ if(!usado){usado=true; window.adaptaEv&&adaptaEv('calc_uso',k);} calc(); }); });
+  calc();
 })();
-// sticky CTA tras el hero
+/* barra fija, revelado, lightbox */
 (function(){
-  var s=document.getElementById('stickyCta');if(!s)return;
+  var bar=document.getElementById('bar'), cb=document.getElementById('calcbox');
   addEventListener('scroll',function(){
-    if(scrollY>640){s.style.opacity='1';s.style.pointerEvents='auto';}
-    else{s.style.opacity='0';s.style.pointerEvents='none';}
+    var r=cb.getBoundingClientRect(); bar.classList.toggle('on', r.bottom<0 && (innerHeight+scrollY)<(document.body.scrollHeight-260));
   },{passive:true});
+  var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}})},{threshold:.12});
+  document.querySelectorAll('.rv').forEach(function(el){io.observe(el)});
+  var lb=document.getElementById('lb'), li=lb.querySelector('img');
+  document.querySelectorAll('#fan img').forEach(function(im){ im.addEventListener('click',function(){ li.src=im.src; li.alt=im.alt; lb.classList.add('on'); window.adaptaEv&&adaptaEv('zoom_pagina',im.getAttribute('src')); }); });
+  lb.addEventListener('click',function(){lb.classList.remove('on')});
+  document.querySelectorAll('.faq details').forEach(function(d){ d.addEventListener('toggle',function(){ if(d.open&&window.adaptaEv) adaptaEv('faq',d.getAttribute('data-evv')); }); });
 })();
-</script>
-<script>
-/* MEDICION: si la visita llega con ?de=... (p.ej. linkedin-post), se arrastra a la nota, a planes y al diagnóstico. */
-(function(){try{var de=(new URLSearchParams(location.search).get("de")||"").replace(/[^a-z0-9_-]/gi,"").slice(0,40);if(!de)return;
-document.querySelectorAll('a[href^="indice.html"],a[href^="planes.html"],a[href^="empezar2.html"]').forEach(function(a){var h=a.getAttribute("href");if(h.indexOf("de=")<0)a.setAttribute("href",h+(h.indexOf("?")<0?"?":"&")+"de="+encodeURIComponent(de));});}catch(e){}})();
 </script>
 </body>
 </html>

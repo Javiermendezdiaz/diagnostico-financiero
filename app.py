@@ -679,6 +679,146 @@ def funnel():
         "por_tier": bytier,
     }
 
+# ---------- MEDICION PROPIA Y ANONIMA DE LA WEB (sin cookies, sin IP, sin datos personales) ----------
+import re as _re_ev, random as _rnd_ev
+_EV_RX = _re_ev.compile(r"[^a-zA-Z0-9_.:\-|%]")
+def _ev_txt(x, n):
+    return _EV_RX.sub("", str(x if x is not None else ""))[:n]
+
+def _ensure_ev(c):
+    c.execute("CREATE TABLE IF NOT EXISTS eventos (ts TEXT, sid TEXT, ev TEXT, pag TEXT, de TEXT, ref TEXT, val TEXT, movil INTEGER)")
+    c.execute("CREATE INDEX IF NOT EXISTS ix_ev_ts ON eventos(ts)")
+    c.execute("CREATE INDEX IF NOT EXISTS ix_ev_sid ON eventos(sid)")
+
+@app.post("/api/ev")
+async def evento_web(request: Request):
+    """Registra un evento anonimo de la web (visita, uso de la calculadora, clics). Failsafe: nunca falla."""
+    try:
+        raw = (await request.body())[:2000]
+        d = json.loads(raw.decode("utf-8", "ignore") or "{}")
+        sid, ev = _ev_txt(d.get("s"), 24), _ev_txt(d.get("e"), 30)
+        if not sid or not ev:
+            return {"ok": False}
+        fila = (datetime.datetime.utcnow().isoformat(timespec="seconds"), sid, ev, _ev_txt(d.get("p"), 30),
+                (_ev_txt(d.get("de"), 40).lower() or "directo"), _ev_txt(d.get("r"), 40).lower(),
+                _ev_txt(d.get("v"), 60), 1 if d.get("m") else 0)
+        with db() as c:
+            _ensure_ev(c)
+            if c.execute("SELECT COUNT(*) FROM eventos WHERE sid=?", (sid,)).fetchone()[0] >= 250:
+                return {"ok": False}
+            c.execute("INSERT INTO eventos VALUES (?,?,?,?,?,?,?,?)", fila)
+            if _rnd_ev.random() < 0.005:   # limpieza ocasional: conservar 13 meses
+                lim = (datetime.datetime.utcnow() - datetime.timedelta(days=400)).isoformat()
+                c.execute("DELETE FROM eventos WHERE ts < ?", (lim,))
+        return {"ok": True}
+    except Exception as e:
+        print("[ev] no se pudo registrar:", repr(e))
+        return {"ok": False}
+
+def _canal(de):
+    d = (de or "").lower()
+    if "linkedin" in d or d.startswith("li-") or d == "li" or "lnkd" in d:
+        return "linkedin"
+    if d in ("", "directo"):
+        return "directo"
+    if "google" in d: return "google"
+    if d in ("meta", "facebook", "instagram") or "instagram" in d or "facebook" in d: return "meta"
+    if "whatsapp" in d or d.startswith("wa"): return "whatsapp"
+    if d.startswith("email") or d.startswith("mail") or "newsletter" in d: return "email"
+    return "otros"
+
+@app.get("/api/visitas")
+def visitas(key: str = "", dias: int = 30):
+    """Panel privado: que hace la gente que llega a la web, por origen (sobre todo LinkedIn). Requiere ?key=ADMIN_KEY."""
+    if not ADMIN_KEY or key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="no autorizado")
+    dias = max(1, min(int(dias or 30), 400))
+    desde = (datetime.datetime.utcnow() - datetime.timedelta(days=dias)).isoformat()
+    from collections import defaultdict, Counter
+    vis = {}
+    with db() as c:
+        _ensure_ev(c)
+        filas = c.execute("SELECT ts,sid,ev,pag,de,ref,val,movil FROM eventos WHERE ts>=? ORDER BY ts", (desde,)).fetchall()
+        ses = c.execute("SELECT datos,respuestas,pagado,tier,creado FROM sesiones WHERE creado>=?", (desde,)).fetchall()
+    for r in filas:
+        v = vis.get(r["sid"])
+        if v is None:
+            v = vis[r["sid"]] = {"inicio": r["ts"], "de": r["de"], "ref": r["ref"], "movil": r["movil"],
+                                 "ev": [], "pags": [], "seg": 0, "scroll": 0}
+        if v["de"] in ("", "directo") and r["de"] not in ("", "directo"):
+            v["de"] = r["de"]
+        v["ev"].append((r["ev"], r["val"], r["pag"], r["ts"]))
+        if r["ev"] == "vista" and (not v["pags"] or v["pags"][-1] != r["pag"]):
+            v["pags"].append(r["pag"])
+        if r["ev"] == "salida":
+            try: v["seg"] += int(r["val"] or 0)
+            except Exception: pass
+        if r["ev"] == "scroll":
+            try: v["scroll"] = max(v["scroll"], int(r["val"] or 0))
+            except Exception: pass
+    PASOS = [("visitas", lambda v: True),
+             ("usa_calculadora", lambda v: any(e[0] == "calc_uso" for e in v["ev"])),
+             ("lee_75pct", lambda v: v["scroll"] >= 75),
+             ("clic_diagnostico", lambda v: any(e[0].startswith("cta_") and e[0] not in ("cta_nota", "cta_planes") for e in v["ev"])),
+             ("abre_cuestionario", lambda v: "empezar2" in v["pags"]),
+             ("empieza_test", lambda v: any(e[0] == "test_inicio" for e in v["ev"])),
+             ("termina_test", lambda v: any(e[0] == "test_fin" for e in v["ev"])),
+             ("clic_pagar", lambda v: any(e[0] == "pago_click" for e in v["ev"])),
+             ("pago_ok", lambda v: any(e[0] == "pago_ok" for e in v["ev"])),
+             ("nota_gratis", lambda v: any(e[0] == "nota_fin" for e in v["ev"])),
+             ("deja_email_nota", lambda v: any(e[0] == "nota_email" for e in v["ev"])),
+             ("whatsapp", lambda v: any(e[0] == "whatsapp" for e in v["ev"])),
+             ("ve_ejemplo", lambda v: any(e[0] in ("ver_muestra", "zoom_pagina") for e in v["ev"]))]
+    grupos = defaultdict(list)
+    for v in vis.values():
+        grupos["TOTAL"].append(v); grupos["canal:" + _canal(v["de"])].append(v)
+        if _canal(v["de"]) == "linkedin": grupos["linkedin:" + (v["de"] or "linkedin")].append(v)
+    embudo = {}
+    for g, vs in sorted(grupos.items(), key=lambda kv: -len(kv[1])):
+        n = len(vs)
+        e = {k: sum(1 for v in vs if f(v)) for k, f in PASOS}
+        segs = sorted(v["seg"] for v in vs if v["seg"] > 0)
+        e["movil_pct"] = round(100.0 * sum(v["movil"] for v in vs) / n) if n else 0
+        e["tiempo_mediano_seg"] = segs[len(segs) // 2] if segs else 0
+        embudo[g] = e
+    # Resultado de la calculadora: cuantos anos de mas les sale (distribucion)
+    brecha = Counter()
+    for v in vis.values():
+        res = [x for x in v["ev"] if x[0] == "calc_resultado"]
+        if res:
+            b = (res[-1][1] or "na").split("|")[0]
+            try:
+                bi = int(b); b = "ya llega" if bi <= 0 else ("1-5 años" if bi <= 5 else ("6-10 años" if bi <= 10 else "+10 años"))
+            except Exception:
+                b = "no llega/na"
+            brecha[b] += 1
+    # Por dia
+    por_dia = Counter(v["inicio"][:10] for v in vis.values())
+    li_dia = Counter(v["inicio"][:10] for v in vis.values() if _canal(v["de"]) == "linkedin")
+    # Servidor: cuestionarios por origen (datos._origen), fiable aunque el navegador bloquee la medicion
+    srv = defaultdict(lambda: {"iniciados": 0, "completados": 0, "pagados": 0})
+    for r in ses:
+        try: o = (json.loads(r["datos"] or "{}") or {}).get("_origen") or "directo"
+        except Exception: o = "directo"
+        for k in ("TOTAL", "canal:" + _canal(o)):
+            srv[k]["iniciados"] += 1
+            if r["respuestas"] not in (None, "", "{}"): srv[k]["completados"] += 1
+            if r["pagado"]: srv[k]["pagados"] += 1
+    # Recorridos recientes (lo que hizo cada visitante, sin datos personales)
+    rec = []
+    for sid, v in sorted(vis.items(), key=lambda kv: kv[1]["inicio"], reverse=True)[:80]:
+        pasos, prev = [], None
+        for e in v["ev"]:
+            if e[0] in ("scroll", "salida"): continue
+            t = e[0] + ((":" + e[1]) if e[1] and e[0] not in ("vista",) else "") + ("@" + e[2] if e[0] == "vista" else "")
+            if t != prev: pasos.append(t)
+            prev = t
+        rec.append({"inicio": v["inicio"], "origen": v["de"], "canal": _canal(v["de"]), "ref": v["ref"],
+                    "movil": bool(v["movil"]), "seg": v["seg"], "scroll": v["scroll"], "recorrido": pasos[:40]})
+    return {"dias": dias, "visitantes": len(vis), "embudo": embudo, "cuestionarios_servidor": dict(srv),
+            "calculadora_anios_de_mas": dict(brecha), "por_dia": dict(sorted(por_dia.items())),
+            "linkedin_por_dia": dict(sorted(li_dia.items())), "recorridos": rec}
+
 @app.post("/api/complete")
 def complete(payload: CompletePayload, background_tasks: BackgroundTasks):
     with db() as c:

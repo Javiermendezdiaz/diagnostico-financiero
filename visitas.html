@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Visitas · Adapta (privado)</title>
+<style>
+@font-face{font-family:'Poppins';font-weight:400;src:url('fonts/Poppins-Regular.ttf')}
+@font-face{font-family:'Poppins';font-weight:700;src:url('fonts/Poppins-Bold.ttf')}
+:root{--am:#FDD731;--ng:#06070d;--pa:#0d0f1a;--bd:#23252e;--tx:#f4f4f5;--gr:#94a3b8;--ro:#ff4d5e;--ve:#22c55e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ng);color:var(--tx);font-family:'Poppins',system-ui,sans-serif;padding:24px;font-size:14px}
+h1{font-size:22px}h1 b{color:var(--am)}
+h2{font-size:15px;margin:30px 0 10px;color:var(--am);letter-spacing:.5px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0}
+input,select,button{font-family:inherit;font-size:14px;padding:9px 12px;border-radius:9px;border:1px solid var(--bd);background:var(--pa);color:var(--tx)}
+button{background:var(--am);color:#000;font-weight:700;border:none;cursor:pointer}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.k{background:var(--pa);border:1px solid var(--bd);border-radius:14px;padding:14px}
+.k .l{font-size:11px;color:var(--gr);text-transform:uppercase;letter-spacing:1px}
+.k .n{font-size:28px;font-weight:700;margin-top:4px}
+.k .n.am{color:var(--am)}
+.tw{overflow-x:auto;border:1px solid var(--bd);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--bd);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--gr);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;background:var(--pa)}
+tr.li td{background:rgba(10,102,194,.12)}
+td small{color:var(--gr)}
+.rec{background:var(--pa);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:12.5px}
+.rec .h{color:var(--gr);margin-bottom:4px}.rec .h b{color:var(--tx)}
+.rec .p span{display:inline-block;background:#161a2a;border-radius:6px;padding:2px 7px;margin:2px 3px 2px 0}
+.rec .p span.c{background:rgba(253,215,49,.18);color:var(--am)}
+.rec .p span.ok{background:rgba(34,197,94,.18);color:var(--ve)}
+.note{color:var(--gr);font-size:12px;margin-top:8px;line-height:1.6}
+#err{color:var(--ro);margin-top:10px}
+</style></head><body>
+<h1><b>ADAPTA</b> · Qué hace la gente que llega</h1>
+<div class="bar">
+  <input id="key" type="password" placeholder="Clave de administrador" autocomplete="current-password">
+  <select id="dias"><option value="7">7 días</option><option value="30" selected>30 días</option><option value="90">90 días</option><option value="365">1 año</option></select>
+  <button onclick="carga()">Ver</button>
+</div>
+<div id="err"></div>
+<div id="out"></div>
+<p class="note">Medición propia y anónima: sin cookies, sin IP, sin datos personales. Para saber de qué post viene cada visita, enlaza así: <b>diagnostico.adaptafamilyoffice.com/?de=li-post-NOMBRE</b> (p. ej. ?de=li-post-jubilacion). Sin ese parámetro, LinkedIn aparece como «linkedin» genérico cuando el navegador lo permite.</p>
+<script>
+const API="https://diagnostico-financiero-app.onrender.com";
+const $=id=>document.getElementById(id);
+try{ $('key').value=localStorage.getItem('adaptaAdminKey')||''; }catch(e){}
+const COLS=[["visitas","Visitas"],["usa_calculadora","Usa calculadora"],["lee_75pct","Lee 75 %"],["ve_ejemplo","Ve ejemplo"],["clic_diagnostico","Clic diagnóstico"],["abre_cuestionario","Abre cuestionario"],["empieza_test","Empieza test"],["termina_test","Termina test"],["clic_pagar","Clic pagar"],["pago_ok","Paga"],["nota_gratis","Nota gratis"],["deja_email_nota","Email nota"],["whatsapp","WhatsApp"],["movil_pct","% móvil"],["tiempo_mediano_seg","Tiempo mediano"]];
+function pct(a,b){return b?Math.round(100*a/b)+'%':'—'}
+async function carga(){
+  $('err').textContent=''; $('out').innerHTML='Cargando… (si el servidor dormía, tarda unos segundos)';
+  const k=$('key').value.trim(); try{localStorage.setItem('adaptaAdminKey',k)}catch(e){}
+  let d;
+  try{ const r=await fetch(API+'/api/visitas?key='+encodeURIComponent(k)+'&dias='+$('dias').value); if(r.status===403){ $('out').innerHTML=''; $('err').textContent='Clave incorrecta.'; return;} d=await r.json(); }
+  catch(e){ $('out').innerHTML=''; $('err').textContent='No se pudo conectar. Reintenta en 30 s.'; return; }
+  const E=d.embudo||{}, T=E.TOTAL||{}, L=E['canal:linkedin']||{};
+  let h='<div class="kpis">'+
+    '<div class="k"><div class="l">Visitantes</div><div class="n">'+(d.visitantes||0)+'</div></div>'+
+    '<div class="k"><div class="l">Desde LinkedIn</div><div class="n am">'+(L.visitas||0)+'</div></div>'+
+    '<div class="k"><div class="l">Usan la calculadora</div><div class="n">'+pct(T.usa_calculadora,T.visitas)+'</div></div>'+
+    '<div class="k"><div class="l">Clic en diagnóstico</div><div class="n">'+pct(T.clic_diagnostico,T.visitas)+'</div></div>'+
+    '<div class="k"><div class="l">Empiezan el test</div><div class="n">'+(T.empieza_test||0)+'</div></div>'+
+    '<div class="k"><div class="l">Pagan</div><div class="n am">'+(T.pago_ok||0)+'</div></div></div>';
+  h+='<h2>Embudo por origen</h2><div class="tw"><table><tr><th>Origen</th>'+COLS.map(c=>'<th>'+c[1]+'</th>').join('')+'</tr>';
+  Object.keys(E).forEach(g=>{ const e=E[g], v=e.visitas||0;
+    h+='<tr class="'+(g.indexOf('linkedin')>=0?'li':'')+'"><td><b>'+g.replace('canal:','').replace('linkedin:','↳ ')+'</b></td>'+COLS.map(c=>{ const x=e[c[0]]||0;
+      if(c[0]==='visitas')return '<td><b>'+x+'</b></td>'; if(c[0]==='movil_pct')return '<td>'+x+'%</td>'; if(c[0]==='tiempo_mediano_seg')return '<td>'+(x>=60?Math.floor(x/60)+'m '+(x%60)+'s':x+'s')+'</td>';
+      return '<td>'+x+' <small>'+pct(x,v)+'</small></td>'; }).join('')+'</tr>'; });
+  h+='</table></div>';
+  const S=d.cuestionarios_servidor||{};
+  h+='<h2>Cuestionarios registrados en el servidor (por origen)</h2><div class="tw"><table><tr><th>Origen</th><th>Iniciados</th><th>Completados</th><th>Pagados</th></tr>';
+  Object.keys(S).forEach(g=>{h+='<tr><td>'+g.replace('canal:','')+'</td><td>'+S[g].iniciados+'</td><td>'+S[g].completados+'</td><td>'+S[g].pagados+'</td></tr>';});
+  h+='</table></div>';
+  const C=d.calculadora_anios_de_mas||{};
+  h+='<h2>Lo que les sale en la calculadora (años de más trabajando)</h2><div class="kpis">'+Object.keys(C).map(x=>'<div class="k"><div class="l">'+x+'</div><div class="n">'+C[x]+'</div></div>').join('')+'</div>';
+  const D=d.por_dia||{}, LD=d.linkedin_por_dia||{};
+  h+='<h2>Visitas por día</h2><div class="tw"><table><tr><th>Día</th><th>Total</th><th>LinkedIn</th></tr>'+Object.keys(D).reverse().map(x=>'<tr><td>'+x+'</td><td>'+D[x]+'</td><td>'+(LD[x]||0)+'</td></tr>').join('')+'</table></div>';
+  h+='<h2>Últimos recorridos (qué hizo cada visitante)</h2>';
+  (d.recorridos||[]).forEach(r=>{ h+='<div class="rec"><div class="h"><b>'+r.inicio.replace('T',' ').slice(0,16)+' UTC</b> · '+r.origen+(r.ref?' · ref '+r.ref:'')+' · '+(r.movil?'móvil':'ordenador')+' · '+r.seg+' s · lee '+r.scroll+'%</div><div class="p">'+
+    r.recorrido.map(p=>'<span class="'+(/^(cta_|pago_click|test_)/.test(p)?'c':(/pago_ok/.test(p)?'ok':''))+'">'+p+'</span>').join('')+'</div></div>'; });
+  $('out').innerHTML=h;
+}
+if($('key').value) carga();
+</script>
+</body></html>

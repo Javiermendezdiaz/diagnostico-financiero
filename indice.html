@@ -113,6 +113,7 @@ body{font-family:'Poppins',sans-serif;background:var(--ng);color:var(--tx);-webk
 .thumbs-n{font-size:11.5px;color:#6a6a70;margin-bottom:18px}
 .thumbs-n a{color:var(--gr)}
 </style>
+<script src="ev.js" defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -296,6 +297,7 @@ function desbloquear(){
     fetch("https://diagnostico-financiero-app.onrender.com/api/lead",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({email:m,arquetipo:"indice:"+score+":"+PILAR[weakKey]+(de?":"+de:""),consent:true})}).catch(function(){});
   }catch(e){}
+  try{window.adaptaEv&&adaptaEv("nota_email",score)}catch(e){}
   $("gate").style.display="none"; $("gOpen").style.display="block";   // nunca bloqueamos si el envio falla
 }
 let i=0, ans=[], segVal="solo", score=0, weakKey="seguridad";
@@ -335,6 +337,7 @@ function finish(){
   let worst=null,worstPct=101;
   Object.keys(sum).forEach(k=>{ const pct=sum[k]/max[k]*100; if(pct<worstPct){worstPct=pct;worst=k;} });
   weakKey=worst;
+  try{window.adaptaEv&&adaptaEv('nota_fin',score+'|'+worst)}catch(e){}
 
   /* etiqueta */
   let tag,color,sub;
