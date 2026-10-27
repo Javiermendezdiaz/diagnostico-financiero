@@ -1866,6 +1866,61 @@ def _asegurar_pdf(session_id):
         finally:
             _liberar_memoria()
 
+def _plan_adjuntos(pdf_path):
+    """Plan imprimible (<libro>_plan72.pdf) + recordatorios .ics a 1, 30 y 90 dias, si el libro los genero.
+    Devuelve [(nombre, bytes)]. Nunca falla: si no hay plan, lista vacia."""
+    out = []
+    try:
+        base = os.path.splitext(pdf_path)[0]
+        if os.path.exists(base + "_plan72.pdf"):
+            with open(base + "_plan72.pdf", "rb") as f:
+                out.append(("Plan_72h_para_imprimir_Adapta.pdf", f.read()))
+        if not os.path.exists(base + "_plan72.json"):
+            return out
+        with open(base + "_plan72.json", encoding="utf-8") as f:
+            plan = json.load(f)
+        fases = plan.get("fases") or []
+        vos = bool(plan.get("vos"))
+        def _txt(i):
+            try:
+                return " / ".join(fases[i]["acciones"])
+            except Exception:
+                return ""
+        wa = "https://wa.me/34683343531"
+        eventos = [(1, "Hoy toca: %s primer paso (Adapta)" % ("vuestro" if vos else "tu"),
+                    (_txt(0) or "El primer paso de la Parte 1 de %s libro." % ("vuestro" if vos else "tu"))),
+                   (30, "Revisión a 30 días de %s plan (Adapta)" % ("vuestro" if vos else "tu"),
+                    "Fase 2: " + (_txt(1) or "estructura y automatización.") + " ¿Lo revisamos juntos? " + wa),
+                   (90, "Revisión a 90 días de %s plan (Adapta)" % ("vuestro" if vos else "tu"),
+                    "Fase 3: " + (_txt(2) or "poner el patrimonio a trabajar.") + " Mira cuántos lunes has ganado. ¿Lo revisamos juntos? " + wa)]
+        def _esc(t):
+            return str(t).replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
+        def _fold(line):
+            b = line.encode("utf-8"); res = []
+            while len(b) > 74:
+                cut = 74
+                while cut > 0 and (b[cut] & 0xC0) == 0x80:
+                    cut -= 1
+                res.append(b[:cut].decode("utf-8")); b = b" " + b[cut:]
+            res.append(b.decode("utf-8"))
+            return "\r\n".join(res)
+        hoy = datetime.date.today()
+        stamp = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+        L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Adapta Family Office//Diagnostico//ES", "CALSCALE:GREGORIAN", "METHOD:PUBLISH"]
+        for dias, titulo, desc in eventos:
+            d = hoy + datetime.timedelta(days=dias)
+            L += ["BEGIN:VEVENT", "UID:%s@adaptafamilyoffice.com" % uuid.uuid4(), "DTSTAMP:" + stamp,
+                  "DTSTART:%s" % d.strftime("%Y%m%dT090000"), "DTEND:%s" % d.strftime("%Y%m%dT093000"),
+                  "SUMMARY:" + _esc(titulo), "DESCRIPTION:" + _esc(desc),
+                  "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + _esc(titulo), "TRIGGER:PT0M", "END:VALARM",
+                  "END:VEVENT"]
+        L.append("END:VCALENDAR")
+        out.append(("Recordatorios_Adapta.ics", ("\r\n".join(_fold(x) for x in L) + "\r\n").encode("utf-8")))
+    except Exception as e:
+        print("[PLAN72] adjuntos no generados: %s" % e, flush=True)
+    return out
+
+
 def _resend_email(asunto, html, pdf_bytes, filename, to=None, extra=None):
     _att = [{"filename": filename, "content": base64.b64encode(pdf_bytes).decode("ascii")}]
     for _fn, _by in (extra or []):
@@ -1998,6 +2053,18 @@ def _enviar_copia_impl(session_id):
         with open(path,"rb") as f: pdf_bytes=f.read()
     except Exception:
         return {"ok": False, "reason": "pdf_lectura"}
+    # Control de calidad VISUAL del PDF real: nunca bloquea; si encuentra algo, Adapta lo ve en su copia.
+    _qa_html = ""; _qa_grave = False
+    if not fallback:
+        try:
+            import qa_visual
+            _qa = qa_visual.revisar(path, row["tier"])
+            if _qa:
+                print("[QA-VISUAL] %s tier=%s\n%s" % (session_id, row["tier"], qa_visual.resumen_log(_qa)), flush=True)
+                _qa_html = qa_visual.resumen_html(_qa)
+                _qa_grave = any(h.get("severidad") in ("critico", "alto") for h in _qa)
+        except Exception as _e:
+            print("[QA-VISUAL] no ejecutado: %s" % _e, flush=True)
     # Tarjeta del arquetipo: se genera ANTES para adjuntarla tambien al cliente
     # Tarjeta del arquetipo (16 tipos) - PNG social premium, lista para redes (todos los tiers).
     def _mk_card(_respuestas, _sexo, _nombre):
@@ -2043,6 +2110,8 @@ def _enviar_copia_impl(session_id):
             pass
     if not _card_extra:
         _card_extra = None
+    _plan_extra = [] if fallback else _plan_adjuntos(path)
+    _cli_extra = ((_card_extra or []) + _plan_extra) or None
 
     # 2) Entrega al CLIENTE (el real siempre; el de espera solo una vez)
     cli_ok = False
@@ -2071,8 +2140,11 @@ def _enviar_copia_impl(session_id):
                       "<b>&iquest;Lo ponemos en marcha juntos?</b><br>En una sesi&oacute;n estrat&eacute;gica de 30 minutos convertimos tu diagn&oacute;stico en decisiones con n&uacute;meros y fechas. "
                       "<b>Te descontamos el importe de este informe.</b><br>"
                       "<a href='https://wa.me/34683343531?text=Hola%%2C%%20he%%20recibido%%20mi%%20diagn%%C3%%B3stico%%20y%%20quiero%%20reservar%%20mi%%20sesi%%C3%%B3n%%20estrat%%C3%%A9gica%%20de%%2030%%20minutos' style='color:#0284c7'>Reservar mi sesi&oacute;n por WhatsApp</a> &middot; +34 683 34 35 31</div>"
-                      "<p>Gracias por confiar en nosotros.<br>Javier M&eacute;ndez &middot; Adapta Family Office</p></div>") % (_nom1 or "")
-            cli_ok=_enviar_resend("Tu Libro Financiero - Adapta Family Office", html_cli, pdf_bytes, "Tu_Libro_Financiero_Adapta.pdf", to=[email_cli], extra=_card_extra)
+                      "<p>Gracias por confiar en nosotros.<br>El equipo de Adapta Family Office</p></div>") % (_nom1 or "")
+            if _plan_extra:
+                html_cli=html_cli.replace("<p>Gu&aacute;rdalo: es tu hoja de ruta a 90 d&iacute;as.</p>",
+                    "<p>Te adjuntamos tambi&eacute;n <b>tu plan para imprimir</b> (ponlo a la vista) y <b>tres recordatorios para tu calendario</b>: ma&ntilde;ana, a 30 y a 90 d&iacute;as. Abre el archivo y se a&ntilde;aden solos.</p>")
+            cli_ok=_enviar_resend("Tu Libro Financiero - Adapta Family Office", html_cli, pdf_bytes, "Tu_Libro_Financiero_Adapta.pdf", to=[email_cli], extra=_cli_extra)
     # 2b) Pareja (tier 3): el segundo miembro recibe TAMBIEN el Libro de Pareja conjunto, en envio SEPARADO (privacidad)
     if (not fallback) and row["tier"]==3 and row["pareja_de"]:
         try:
@@ -2081,14 +2153,16 @@ def _enviar_copia_impl(session_id):
             _pe = ((_pr["email"] if _pr else "") or "").strip()
             if _pe and "@" in _pe and not _pe.lower().endswith(".test") and _pe.lower()!=email_cli.lower():
                 _pn = ((_pr["nombre"] if _pr else "") or "").strip() or "(sin nombre)"
-                _html_p = "<div style='font-family:Helvetica,Arial;color:#222;max-width:560px'><h2 style='color:#0a0a0b'>Vuestro Libro de Pareja</h2><p>Hola %s,</p><p>Aqui teneis vuestro <b>Diagnostico de Pareja completo</b>, con los dos perfiles cruzados, en el PDF adjunto.</p><p>Gracias por confiar en Adapta Family Office.</p><p style='color:#888;font-size:12px'>Adapta Family Office</p></div>" % _pn
-                _enviar_resend("Vuestro Libro de Pareja - Adapta Family Office", _html_p, pdf_bytes, "Libro_de_Pareja_Adapta.pdf", to=[_pe], extra=_card_extra)
+                _html_p = ("<div style='font-family:Helvetica,Arial;color:#222;max-width:560px'><h2 style='color:#0a0a0b'>Vuestro Libro de Pareja</h2><p>Hola %s,</p><p>Aqu&iacute; ten&eacute;is vuestro <b>Diagn&oacute;stico de Pareja completo</b>, con los dos perfiles cruzados, en el PDF adjunto. Empezad por la <b>Parte 1 &middot; Lo esencial</b>.</p>" + ("<p>Tambi&eacute;n os adjuntamos <b>vuestro plan para imprimir</b> y <b>tres recordatorios para el calendario</b> (ma&ntilde;ana, a 30 y a 90 d&iacute;as).</p>" if _plan_extra else "") + "<p>Gracias por confiar en Adapta Family Office.</p><p style='color:#888;font-size:12px'>Adapta Family Office</p></div>") % _pn
+                _enviar_resend("Vuestro Libro de Pareja - Adapta Family Office", _html_p, pdf_bytes, "Libro_de_Pareja_Adapta.pdf", to=[_pe], extra=_cli_extra)
         except Exception:
             pass
     # 3) Adapta SIEMPRE recibe copia + estado (al entregar real, o la primera vez que algo va mal)
     if (not fallback) or nuevo:
         estado = "[REGENERAR-GENERACION-FALLO] " if fallback else ("[EMAIL-CLIENTE-FALLO] " if (cli_valido and not cli_ok) else ("[SIN-EMAIL-CLIENTE] " if not cli_valido else ""))
         html_adm="<h2>%sCompra ITAP</h2><p><b>Cliente:</b> %s<br><b>Email:</b> %s<br><b>Producto:</b> %s</p><p>%s</p>"%(estado or "", cliente, email_cli or "(sin email)", tier_nombre, ("ATENCION: requiere accion manual." if estado else "Copia del libro adjunta."))
+        if _qa_grave and not estado: estado = "[QA-REVISAR] "
+        if _qa_html: html_adm = html_adm.replace("<h2>", "<h2>%s" % ("[QA-REVISAR] " if _qa_grave and estado == "[QA-REVISAR] " else ""), 1) + _qa_html
         _enviar_resend(("%sITAP - %s - %s"%(estado, cliente, tier_nombre)).strip(), html_adm, pdf_bytes, "ITAP_%s.pdf"%cliente.replace(" ","_"), to=[NOTIFY_EMAIL], extra=_card_extra)
     # 4) Estado de entrega
     if not fallback and (cli_ok or not cli_valido):

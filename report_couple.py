@@ -615,7 +615,7 @@ MICROACUERDO={
  "C12":"Decidid un % fijo del ahorro que se invierte automáticamente cada mes, pactado entre los dos.",
 }
 
-def seccion_constitucion_hogar(pA,pB,nA,nB,hogar,fi_h,divs):
+def seccion_constitucion_hogar(pA,pB,nA,nB,hogar,fi_h,divs,_plan=None):
     """Plan conjunto 72h/30/90 + cifras del hogar + contingencia + pacto firmado."""
     comb=sorted(CAPAS,key=lambda c:(pA[c]["score"]+pB[c]["score"]),reverse=True)
     confl=sorted([c for c in CAPAS if abs(pA[c]["score"]-pB[c]["score"])>=30],
@@ -636,6 +636,7 @@ def seccion_constitucion_hogar(pA,pB,nA,nB,hogar,fi_h,divs):
            ("#B45309","Fase 2 · Días 4-30","Estructura: montar el sistema del hogar",[_p(2),_p(3)]),
            ("#0284C7","Fase 3 · Días 31-90","Construir: poner el patrimonio a trabajar",
             [_p(4),"Repetid el diagnóstico por separado y comparad: veréis cuánto se han acortado vuestras distancias."])]
+    if isinstance(_plan,dict): _plan["fases"]=fases
     rt=[]
     for col,fase,lema,accs in fases:
         rt.append([Paragraph(f"<font color='white'><b>{fase}</b>  ·  {lema}</font>",
@@ -654,10 +655,10 @@ def seccion_constitucion_hogar(pA,pB,nA,nB,hogar,fi_h,divs):
     rtab.setStyle(TableStyle(sty))
     out+=[rtab, Spacer(1,5*mm)]
     gm=hogar.get("gasto_mensual") or 0; pat=hogar.get("patrimonio") or 0
-    colobj=round(gm*3) if gm else 0
+    colobj=round(gm*6) if gm else 0   # 6 meses: la misma definicion que el libro individual
     cif=[]
     if colobj:
-        cif.append("<b>Vuestro colchón objetivo: %s</b> (3 meses de gastos del hogar). Abridlo en una cuenta remunerada aparte y "
+        cif.append("<b>Vuestro colchón objetivo: %s</b> (6 meses de gastos del hogar). Abridlo en una cuenta remunerada aparte y "
                    "alimentadlo con una transferencia automática el día 1, repartida entre los dos." % rb._eur(colobj))
     cif.append("Pagaos primero, como hogar: el día 1, antes de gastar, sale el ahorro conjunto a una cuenta separada. "
                "Ahorrar lo que sobra no funciona; forzar el reparto, sí.")
@@ -696,7 +697,7 @@ def seccion_coste_no_hablarlo(pA,pB,nA,nB,hogar,fi_h,divs):
         fin.append("<b>%s</b> de vuestro patrimonio está hoy parado o ilíquido, sin generar renta. Cada año que sigue "
                    "dormido es rentabilidad que no vuelve." % rb._eur(dormido))
     if fi_h and fi_h[1] is not None and fi_h[1]<100:
-        fin.append("Estáis al <b>%.1f%%</b> de vuestro número de libertad. Sin un plan común, ese porcentaje se mueve "
+        fin.append("Estáis al <b>%.0f%%</b> de vuestro número de libertad. Sin un plan común, ese porcentaje se mueve "
                    "despacio — o no se mueve." % fi_h[1])
     if fin:
         cp=[Paragraph("<b>Lo que cuesta en dinero</b>",St("cn0",fontSize=10.5,leading=14,fontName=rb.FB))]
@@ -2442,7 +2443,8 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         _crows.append([Paragraph(f"<b>{_i}</b>",small),Paragraph(rb.CAPAS[_c]["nombre"],small),
                        Paragraph(MICROACUERDO.get(_c,paso_pareja(_c)),small)])
     S+=[tbl(_crows,[20*mm,52*mm,88*mm]),PageBreak()]
-    S+=rb._secsafe(seccion_constitucion_hogar,pA,pB,nA,nB,hogar,fi_h,divs)
+    _plan72={}
+    S+=rb._secsafe(seccion_constitucion_hogar,pA,pB,nA,nB,hogar,fi_h,divs,_plan=_plan72)
     S+=rb._secsafe(seccion_hoja_ruta_12m,pA,pB,nA,nB,hogar)
     pass  # laboratorio_pareja eliminado (cuaderno de trabajo redundante)
     S+=rb._secsafe(seccion_adapta_pareja,pA,pB,nA,nB)
@@ -2466,7 +2468,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         Paragraph("Estas cifras son <b>conjuntas</b>: describen vuestra econom\u00eda como hogar, no a uno ni a otro por "
                   "separado. Donde de verdad difer\u00eds es en c\u00f3mo las vive cada uno por dentro.",small),
         Table([["N\u00famero de libertad del hogar (neto de pensiones)",("%s \u20ac"%format(fi_h[0],",.0f")).replace(",",".")],
-               ["Progreso hacia la libertad",("Cubierto (con vuestras pensiones, a los 67)" if (fi_h[1] or 0)>=100 else ("%.0f%%"%float(fi_h[1] or 0)))],
+               ["Progreso hacia la libertad",("Cubierto a los 67" if (fi_h[1] or 0)>=100 else ("%.0f%%"%float(fi_h[1] or 0)))],
                ["Tasa de ahorro conjunta",("%.1f%%"%float(fi_h[2] or 0)).replace(".",",")],
                ["A\u00f1os a la libertad","m\u00e1s de 100" if fi_h[3] is None else ("Ya cubierta a los 67" if float(fi_h[3])<0.5 else "%.0f a\u00f1os"%float(fi_h[3]))]],
               colWidths=[105*mm,51*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
@@ -2656,6 +2658,10 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     doc._cliente="%s & %s"%(nA,nB)
     if getattr(rb,"NumberedCanvas",None): doc.build(S,onFirstPage=rb.deco,onLaterPages=rb.deco,canvasmaker=rb.NumberedCanvas)
     else: doc.build(S,onFirstPage=rb.deco,onLaterPages=rb.deco)
+    try:
+        if _plan72.get("fases"): rb.plan72_guardar(out,"%s y %s"%(nA,nB),_plan72["fases"],vos=True,fecha=cliA.get("fecha",""))
+    except Exception:
+        pass
     print("PDF PAREJA OK ->",out)
 
 if __name__=="__main__":

@@ -12,3 +12,4 @@ anthropic
 qrcode
 pillow
 svglib
+pymupdf

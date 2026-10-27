@@ -46,6 +46,50 @@ try:
     _LORA=True
 except Exception:
     _LORA=False
+# --- SIMBOLOS SIN GLIFO: Poppins y Lora no traen ●, Δ, →, ★, ①... y salian como huecos en blanco.
+# Cualquier caracter que la fuente del parrafo no tenga se pinta con DejaVu Sans (viene con matplotlib).
+try:
+    import re as _re_g
+    from reportlab.platypus import Paragraph as _ParG
+    _DVD=_os.path.join(matplotlib.get_data_path(),"fonts","ttf")
+    pdfmetrics.registerFont(TTFont("DejaVuSans",_os.path.join(_DVD,"DejaVuSans.ttf")))
+    pdfmetrics.registerFont(TTFont("DejaVuSans-Bold",_os.path.join(_DVD,"DejaVuSans-Bold.ttf")))
+    pdfmetrics.registerFontFamily("DejaVuSans",normal="DejaVuSans",bold="DejaVuSans-Bold",italic="DejaVuSans",boldItalic="DejaVuSans-Bold")
+    _DV_CM=pdfmetrics.getFont("DejaVuSans").face.charToGlyph
+    _RE_ENT=_re_g.compile(r"&#(x?[0-9a-fA-F]+);")
+    def _tiene(fn,cp):
+        try:
+            return cp in pdfmetrics.getFont(fn).face.charToGlyph
+        except Exception:
+            return True   # fuentes estandar (Helvetica...): no tocamos
+    def _glifos(txt,fn):
+        def _ent(m):
+            v=m.group(1)
+            try: cp=int(v[1:],16) if v[0] in "xX" else int(v)
+            except Exception: return m.group(0)
+            return chr(cp) if cp>=0x370 else m.group(0)
+        if "&#" in txt: txt=_RE_ENT.sub(_ent,txt)
+        if not any(ord(c)>=0x370 for c in txt): return txt
+        out=[]
+        for c in txt:
+            cp=ord(c)
+            if cp>=0x370 and not _tiene(fn,cp) and cp in _DV_CM:
+                out.append('<font name="DejaVuSans">%s</font>'%c)
+            else:
+                out.append(c)
+        return "".join(out)
+    if not getattr(_ParG,"_glifos_ok",False):
+        _ParG_init=_ParG.__init__
+        def _par_init(self,text,style=None,*a,**k):
+            try:
+                if isinstance(text,str) and style is not None:
+                    text=_glifos(text,getattr(style,"fontName","Poppins"))
+            except Exception:
+                pass
+            _ParG_init(self,text,style,*a,**k)
+        _ParG.__init__=_par_init; _ParG._glifos_ok=True
+except Exception:
+    pass
 # Paneles oscuros (matplotlib): la tipografia de marca, no DejaVu. Antes 4 paginas del informe
 # salian en otra fuente y se notaba el cambio de estilo.
 _MPLFAM = "Poppins" if _POPP else "DejaVu Sans"
@@ -3592,6 +3636,69 @@ def seccion_coste_inflacion(datos):
                  "#FBF4E4","#B45309",nota="C",ancho=160*mm),
             Spacer(1,2*mm)]
 
+def plan72_guardar(out_pdf, nombre, fases, vos=False, fecha=""):
+    """Plan IMPRIMIBLE de una pagina (<libro>_plan72.pdf) + sus textos (<libro>_plan72.json) para los
+    recordatorios de calendario. Sale de las MISMAS fases de la hoja de ruta del libro. Failsafe: nunca rompe el libro."""
+    try:
+        import json as _js, re as _re
+        base=_os.path.splitext(out_pdf)[0]
+        limpio=lambda t: _re.sub(r"<[^>]+>","",str(t or "")).replace("&amp;","&").replace("&nbsp;"," ").strip()
+        _cap=lambda t: (t[:1].upper()+t[1:]) if t else t
+        fz=[{"titulo":limpio(f[1]),"lema":limpio(f[2]),"acciones":[_cap(limpio(a)) for a in (f[3] or []) if a]} for f in (fases or []) if f]
+        fz=[f for f in fz if f["acciones"]]
+        if not fz: return None
+        with open(base+"_plan72.json","w",encoding="utf-8") as fh:
+            _js.dump({"nombre":nombre or "","vos":bool(vos),"fases":fz},fh,ensure_ascii=False)
+        from reportlab.platypus import SimpleDocTemplate as _SD
+        import seccion_apertura as _sa
+        cols=[(f[0] if f and isinstance(f[0],str) and f[0].startswith("#") else "#1A1A17") for f in (fases or []) if f and any(f[3] or [])]
+        def _fondo(c,d):
+            c.saveState(); c.setFillColor(colors.HexColor("#FBF8F1")); c.rect(0,0,A4[0],A4[1],fill=1,stroke=0)
+            c.setFillColor(colors.HexColor("#1A1A17")); c.rect(0,A4[1]-14*mm,A4[0],14*mm,fill=1,stroke=0)
+            c.setFillColor(colors.HexColor("#FDD731")); c.setFont(FB,10); c.drawString(18*mm,A4[1]-9*mm,"ADAPTA")
+            c.setFillColor(colors.HexColor("#9AA3B5")); c.setFont(FR,7); c.drawString(37*mm,A4[1]-9*mm,"FAMILY OFFICE  ·  PARA IMPRIMIR Y PONER A LA VISTA")
+            c.setFont(FR,6.8); c.setFillColor(colors.HexColor("#7A7A72"))
+            c.drawCentredString(A4[0]/2,9*mm,"Herramienta de autoconocimiento financiero; no constituye asesoramiento personalizado ni recomendación de inversión.")
+            c.restoreState()
+        S=[Spacer(1,4*mm),
+           Paragraph(("NUESTRO" if vos else "MI")+" PLAN · 72 HORAS, 30 DÍAS, 90 DÍAS",St("p72k",fontSize=8.5,leading=11,textColor=colors.HexColor("#B8860B"),fontName=FB)),
+           Paragraph(("Lo que vamos a hacer, y cuándo" if vos else "Lo que voy a hacer, y cuándo"),St("p72t",fontSize=24,leading=29,fontName=SB,textColor=INK,spaceBefore=2)),
+           Paragraph(("Preparado para <b>%s</b>"%nombre if nombre else "")+((" · %s"%fecha) if fecha else ""),St("p72n",fontSize=10,leading=13,textColor=GREY,spaceBefore=2)),
+           Spacer(1,5*mm),
+           Paragraph(("Ponedlo en la nevera o junto al ordenador. Marcad cada casilla cuando lo hagáis: lo que se ve, se hace." if vos else
+                      "Ponlo en la nevera o junto al ordenador. Marca cada casilla cuando lo hagas: lo que se ve, se hace."),
+                     St("p72i",fontSize=10.5,leading=15,textColor=INK)),Spacer(1,5*mm)]
+        for i,f in enumerate(fz):
+            col=cols[i] if i<len(cols) else "#1A1A17"
+            rows=[[Paragraph("<font color='white'><b>%s</b>  ·  %s</font>"%(f["titulo"],f["lema"]),St("p72f%d"%i,fontSize=10,leading=13,textColor=colors.white)),""]]
+            for j,a in enumerate(f["acciones"]):
+                rows.append([Paragraph(a,St("p72a%d%d"%(i,j),fontSize=10.5,leading=14.5,textColor=INK)),""])
+            t=Table(rows,colWidths=[150*mm,14*mm])
+            sty=[("BACKGROUND",(0,0),(-1,0),colors.HexColor(col)),("SPAN",(0,0),(1,0)),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+                 ("TOPPADDING",(0,0),(-1,-1),7),("BOTTOMPADDING",(0,0),(-1,-1),7),("LEFTPADDING",(0,0),(-1,-1),9),
+                 ("BACKGROUND",(0,1),(-1,-1),colors.white),("LINEBELOW",(0,1),(-1,-1),0.4,colors.HexColor("#E4DECF"))]
+            for r in range(1,len(rows)):
+                sty.append(("BOX",(1,r),(1,r),1.1,colors.HexColor("#1A1A17")))
+            t.setStyle(TableStyle(sty)); S+=[t,Spacer(1,4*mm)]
+        S+=[Spacer(1,3*mm),
+            Table([["Firma","Fecha de inicio","Revisión a 30 días"]],colWidths=[60*mm,52*mm,52*mm],
+                  style=[("LINEABOVE",(0,0),(-1,0),0.7,colors.HexColor("#1A1A17")),("FONTNAME",(0,0),(-1,-1),FR),("FONTSIZE",(0,0),(-1,-1),8.5),
+                         ("TEXTCOLOR",(0,0),(-1,-1),colors.HexColor("#6B7280")),("TOPPADDING",(0,0),(-1,-1),3),("LEFTPADDING",(0,0),(-1,-1),0)]),
+            Spacer(1,7*mm),
+            _sa.cta_sesion(("¿Lo ponemos en marcha juntos?"),
+                           ("En una sesión estratégica de 30 minutos convertimos este plan en decisiones con números y fechas. "
+                            "Os descontamos el importe del informe." if vos else
+                            "En una sesión estratégica de 30 minutos convertimos este plan en decisiones con números y fechas. "
+                            "Te descontamos el importe del informe."),qr_mm=20,rotulo=("VUESTRA SESIÓN CON ADAPTA" if vos else "TU SESIÓN CON ADAPTA"))]
+        doc=_SD(base+"_plan72.pdf",pagesize=A4,topMargin=22*mm,bottomMargin=16*mm,leftMargin=22*mm,rightMargin=22*mm,
+                title=("Nuestro plan" if vos else "Mi plan")+" · Adapta Family Office")
+        doc.build(S,onFirstPage=_fondo,onLaterPages=_fondo)
+        return base+"_plan72.pdf"
+    except Exception as _e:
+        import sys; sys.stderr.write("[plan72] no generado: %s\n"%_e)
+        return None
+
+
 def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=None,arq_override=None):
     p,tr,salud=perfil(resp); p=_realidad(p,datos)
     global _REPORT_FECHA
@@ -3613,6 +3720,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     # El codigo va en el orden de siempre, pero cada bloque cae en su parte:
     #   p0 portada · p1 LO ESENCIAL · mapa · p2 TU DIAGNOSTICO (una idea por pagina) · p3 ANEXOS · fin
     _B={"p0":[],"p1":[],"mapa":[],"p2":[],"p3":[],"fin":[]}; _hero_rest=[]
+    _plan_fases=None
     S=_B["p0"]
     coh=coherencia(salud,fi,datos)
     arq_code = arq_override if arq_override is not None else arquetipo(resp)[0]
@@ -3682,8 +3790,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                    "<b>lo que cambia tu vida no es leer este libro, es lo que hagas en los próximos siete días.</b>",_carta),
          Paragraph("Cuando quieras recorrerlo con alguien al lado, aquí estamos.",_carta),
          Spacer(1,2*mm),
-         Paragraph("Javier Méndez",St("cartaf",fontSize=12,leading=16,textColor=INK,fontName="Lora-Italic")),
-         Paragraph("Fundador · Adapta Family Office",St("cartaf2",fontSize=9,leading=12,textColor=GREY))]
+         Paragraph("El equipo de Adapta Family Office",St("cartaf",fontSize=12,leading=16,textColor=INK,fontName="Lora-Italic"))]
     S+=[Paragraph("Una carta antes de empezar",h_sec), Spacer(1,2*mm)]+_l+[Spacer(1,8*mm),
         _box([Paragraph("<font color='#234E70'><b>Eres de los primeros — y lo afinamos contigo</b></font>",St("fbk1",fontSize=10,leading=15,fontName=FB)),
               Paragraph("Respaldamos cada cifra de este informe. Y como esta versión del diagnóstico es nueva, la afinamos también contigo: si al leerlo ves algún número o conclusión que no te encaje, escríbenos a <font color='#234E70'><b>info@adaptafamilyoffice.com</b></font>. Lo revisamos al momento, lo corregimos y te reenviamos tu informe actualizado, sin coste. Tu mirada lo hace mejor — para ti y para quienes vengan detrás.",St("fbk2",fontSize=10,leading=15,spaceBefore=2,textColor=INK))],
@@ -4442,6 +4549,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         fases=[("#0F766E","Fase 1 \u00b7 Pr\u00f3ximas 72 horas","Cortafuegos: frenar el estr\u00e9s y las fugas",([_p1,_acc(0)] if _p1 else [_acc(0),_acc(1)])),
                ("#B45309","Fase 2 \u00b7 D\u00edas 4-30","Estructura: automatizar y ordenar",[_acc(2),_acc(3)]),
                ("#0284C7","Fase 3 \u00b7 D\u00edas 31-90","Expansi\u00f3n: construir patrimonio",[_acc(4),"Ponle fecha en tu calendario a repetir el diagn\u00f3stico dentro de seis meses."])]
+        _plan_fases=fases
         rt=[]
         for col,fase,lema,accs in fases:
             rt.append([Paragraph(f"<font color='white'><b>{fase}</b>  \u00b7  {lema}</font>",
@@ -4673,6 +4781,15 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     doc._cliente=(cli.get("nombre") or "")
     if NumberedCanvas: doc.build(S,onFirstPage=deco,onLaterPages=deco,canvasmaker=NumberedCanvas)
     else: doc.build(S,onFirstPage=deco,onLaterPages=deco)
+    # Plan imprimible + textos para los recordatorios de calendario (mismas fases que el libro)
+    try:
+        if not _plan_fases:
+            _au0=(extras or {}).get("accion_unica")
+            if _au0: _plan_fases=[("#0F766E","Próximas 72 horas","Tu primer paso",["<b>Tu primer paso:</b> "+str(_au0)])]
+        if _plan_fases:
+            plan72_guardar(out,(cli or {}).get("nombre",""),_plan_fases,vos=False,fecha=(cli or {}).get("fecha",""))
+    except Exception:
+        pass
     print("PDF OK ->",out)
 
 def build_book(resp, datos, cli, outpath, depth="completo", baremo=None, sintesis=None, extras=None, arq_override=None):
