@@ -398,11 +398,24 @@ def _carga_pct(perfil, propio=True):
     else: v=None
     return v if propio else (100-v if v is not None else None)
 
-def pareja_hero(nA,nB,cliA,dA,dB,pA,pB,hogar_num,fecha,tmp="/tmp/_lp_",perfilA=None,perfilB=None):
+def pareja_paginas(nA,nB,cliA,dA,dB,pA,pB,fecha,tmp="/tmp/_lp_",perfilA=None,perfilB=None,linea=None):
+    """Libro de pareja en 3 partes: devuelve las paginas-imagen POR NOMBRE para colocarlas donde tocan.
+    Sin divisor 'diferencia callada' (lo cuenta la Parte 1), sin bignum (la cifra esta en la Parte 1)
+    y sin constitucion-imagen (ya hay una constitucion del hogar con cifras reales)."""
+    seq=pareja_hero(nA,nB,cliA,dA,dB,pA,pB,None,fecha,tmp=tmp,perfilA=perfilA,perfilB=perfilB,linea=linea,_libro3=True)
+    out={}
+    for p in seq:
+        b=os.path.basename(p)
+        for k,suf in (("portada","00."),("mapa","02."),("esfuerzo","02c."),("balanza","02b.")):
+            if b.startswith(os.path.basename(tmp)+suf): out[k]=p
+    return out
+
+
+def pareja_hero(nA,nB,cliA,dA,dB,pA,pB,hogar_num,fecha,tmp="/tmp/_lp_",perfilA=None,perfilB=None,linea=None,_libro3=False):
     seq=[]
     ref=("AFO-%s"%(str(abs(hash((cliA.get('email') or nA)+nB))%9999)).zfill(4))
-    seq.append(LD.cover_pareja(tmp+"00.svg",nA,nB,fecha,ref=ref))
-    seq.append(LD.divider(tmp+"01.svg","El Libro de Pareja",["La diferencia","callada"],
+    seq.append(LD.cover_pareja(tmp+"00.svg",nA,nB,fecha,ref=ref,linea=linea))
+    if not _libro3: seq.append(LD.divider(tmp+"01.svg","El Libro de Pareja",["La diferencia","callada"],
         "El dinero rara vez rompe por cuánto hay. Rompe por cómo lo vive cada uno — y no se habla. Aquí lo ponemos sobre la mesa.",
         tint=LD.GLOW, accent=LD.BLUE))
     zonas=friccion_zonas(pA,pB)
@@ -488,5 +501,6 @@ def pareja_hero(nA,nB,cliA,dA,dB,pA,pB,hogar_num,fecha,tmp="/tmp/_lp_",perfilA=N
         "Las decisiones por encima de %s € las hablamos juntos, antes de decidir."%("{:,.0f}".format(umbral).replace(",",".")),
         "Reconocemos las dos monedas: quien aporta menos dinero puede sostener más hogar.",
         "Revisaremos nuestro número de libertad conjunto cada seis meses, como un equipo."]
+    if _libro3: return seq
     seq.append(LD.constitucion(tmp+"99.svg",reglas,"Firmado por %s y %s. Un equipo, un plan."%(nA,nB),accent=LD.GOLD,titulo="VUESTRA CONSTITUCIÓN",kicker="VUESTRO LIBRO FINANCIERO · EL CIERRE"))
     return seq

@@ -334,6 +334,135 @@ def frente_a_tu_edad(datos):
     return None
 
 
+
+def bloque_lunes(d, exp, vosotros=False):
+    """Pagina "Tus lunes": muro de lunes, cuadricula de años y rango. Reutilizable (individual y pareja)."""
+    import report_book as rb
+    from reportlab.lib import colors
+    from reportlab.lib.units import mm
+    from reportlab.platypus import Paragraph, Spacer, Table, PageBreak, Flowable as _Fl
+    St, box = rb.St, rb._box
+    INK, GREY, FB = rb.INK, rb.GREY, rb.FB
+    _n = [0]
+    def _id(pre):
+        _n[0] += 1
+        return "bl%s%d" % (pre, _n[0])
+    def texto(txt, tam=10.5, color=None):
+        return Paragraph(txt, St(_id("t"), fontSize=tam, leading=tam + 4.5, textColor=(color or INK)))
+    def rotulo(txt, color=GREY):
+        col = colors.HexColor(color) if isinstance(color, str) else color
+        return Paragraph(txt, St(_id("r"), fontSize=8.5, leading=11, textColor=col, fontName=FB))
+    H1 = St(_id("h1"), fontSize=24, leading=29, textColor=INK, fontName="Lora-Bold", spaceAfter=6)
+    T = ({"h1": "Vuestros lunes, con y sin vuestras decisiones",
+          "intro": "Cada punto es un lunes de trabajo que os queda hasta que vuestro dinero pueda sostener la vida de los dos. "
+                   "Los verdes son los que os quitáis si aplicáis vuestras 3 decisiones.",
+          "hoy": "HOY, A VUESTRO RITMO", "nollega": "No llegáis", "con": "CON VUESTRAS 3 DECISIONES", "quitas": "OS QUITÁIS",
+          "anios": "VUESTROS PRÓXIMOS AÑOS, DE HOY A LOS 95", "recuperas": "los que recuperáis con vuestras decisiones",
+          "tuyos": "años vuestros", "llegas": "llegáis", "nollegarias": "no llegaríais",
+          "mueven": "Vuestras decisiones mueven esta edad mucho más que los mercados."} if vosotros else
+         {"h1": "Tus lunes, con y sin tus decisiones",
+          "intro": "Cada punto es un lunes de trabajo que te queda hasta que tu dinero pueda sostener tu vida. "
+                   "Los verdes son los que te quitas si aplicas tus 3 decisiones.",
+          "hoy": "HOY, A TU RITMO", "nollega": "No llegas", "con": "CON TUS 3 DECISIONES", "quitas": "TE QUITAS",
+          "anios": "TUS PRÓXIMOS AÑOS, DE HOY A LOS 95", "recuperas": "los que recuperas con tus decisiones",
+          "tuyos": "años tuyos", "llegas": "llegas", "nollegarias": "no llegarías",
+          "mueven": "Tus decisiones mueven esta edad mucho más que los mercados."})
+    lr = lunes_y_rango(d, exp)
+    if not (lr and ((lr.get("a0") or 0) > 0 or (lr.get("a0") is None and lr.get("a1")))):
+        return []
+    out = []
+    class _Muro(_Fl):
+        """Un punto por lunes. Negros: los que siguen. Verdes: los que te quitas con tus 3 decisiones."""
+        def __init__(self, total, quitas, ancho=160 * mm):
+            _Fl.__init__(self); self.t = int(total); self.q = max(0, int(quitas)); self.w = ancho
+            self.cols = max(52, -(-self.t // 24)); self.gap = 0.7 * mm if self.cols <= 60 else 0.45 * mm
+            self.dd = (self.w - self.gap * (self.cols - 1)) / self.cols
+            self.filas = max(1, -(-self.t // self.cols))
+            self.h = self.filas * (self.dd + self.gap)
+        def wrap(self, aw, ah): return self.w, self.h
+        def draw(self):
+            c = self.canv
+            for i in range(self.t):
+                x = (i % self.cols) * (self.dd + self.gap)
+                y = self.h - (i // self.cols + 1) * (self.dd + self.gap)
+                c.setFillColor(colors.HexColor(VERDE) if i >= self.t - self.q else colors.HexColor("#1A1A17"))
+                c.circle(x + self.dd / 2, y + self.dd / 2, self.dd / 2 * 0.86, fill=1, stroke=0)
+
+    class _Anios(_Fl):
+        """Tus proximos años, de hoy a los 95: rojo trabajando, verde los que recuperas, amarillo libres."""
+        def __init__(self, edad, llega0, llega1, ancho=160 * mm):
+            _Fl.__init__(self); self.e = edad; self.l0 = llega0; self.l1 = llega1; self.w = ancho
+            self.n = max(1, 95 - edad); self.cols = min(self.n, 30); self.gap = 1.1 * mm
+            self.dd = (self.w - self.gap * (self.cols - 1)) / self.cols
+            self.filas = -(-self.n // self.cols); self.h = self.filas * (self.dd + self.gap) + 5 * mm
+        def wrap(self, aw, ah): return self.w, self.h
+        def draw(self):
+            c = self.canv
+            for k in range(self.n):
+                y_ed = self.e + k
+                x = (k % self.cols) * (self.dd + self.gap)
+                y = self.h - 5 * mm - (k // self.cols + 1) * (self.dd + self.gap)
+                if self.l1 is not None and y_ed < self.l1:
+                    col = ROJO
+                elif self.l0 is None or y_ed < self.l0:
+                    col = VERDE if self.l1 is not None else ROJO
+                else:
+                    col = "#C9962B"
+                c.setFillColor(colors.HexColor(col)); c.roundRect(x, y, self.dd, self.dd, 1.2, fill=1, stroke=0)
+                if k % 10 == 0 or k == 0:
+                    c.setFillColor(colors.HexColor("#6B7280")); c.setFont("Poppins", 6.5)
+                    c.drawString(x, y + self.dd + 1.2 * mm, str(y_ed))
+
+    def _f1(n):
+        return ("{:,.0f}".format(n)).replace(",", ".")
+    l0, l1 = lr.get("lunes0"), lr.get("lunes1")
+    a0, a1, ed = lr.get("a0"), lr.get("a1"), lr.get("edad")
+    out += [Spacer(1, 8 * mm), Paragraph(T["h1"], H1),
+            texto(T["intro"], 12)]
+    celdas = []
+    if l0:
+        celdas.append((T["hoy"], "%s lunes" % _f1(l0), "#1A1A17"))
+    else:
+        celdas.append((T["hoy"], T["nollega"], ROJO))
+    if l1:
+        celdas.append((T["con"], "%s lunes" % _f1(l1), "#1A1A17"))
+    if l0 and l1 and l0 > l1:
+        celdas.append((T["quitas"], "%s lunes" % _f1(l0 - l1), VERDE))
+    fila = [[Paragraph(r_, St(_id("lnr"), fontSize=8.2, leading=10.5, textColor=colors.HexColor("#6B7280"), fontName=FB)),
+             Paragraph("<b>%s</b>" % v_, St(_id("lnv"), fontSize=21, leading=26, textColor=colors.HexColor(c_), fontName=FB, spaceBefore=3))]
+            for r_, v_, c_ in celdas]
+    _cw = 160.0 / len(fila)
+    out += [Spacer(1, 6 * mm),
+            Table([fila], colWidths=[_cw * mm] * len(fila),
+                  style=[("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F3EFE4")),
+                         ("LINEBEFORE", (1, 0), (-1, -1), 5, rb.PAGEBG),
+                         ("LEFTPADDING", (0, 0), (-1, -1), 12), ("TOPPADDING", (0, 0), (-1, -1), 10),
+                         ("BOTTOMPADDING", (0, 0), (-1, -1), 12), ("LINEABOVE", (0, 0), (-1, 0), 2.2, rb.AMARILLO)]),
+            Spacer(1, 6 * mm)]
+    _tot = l0 if l0 else l1
+    if _tot and _tot <= 3000:
+        out += [_Muro(_tot, (l0 - l1) if (l0 and l1 and l0 > l1) else 0), Spacer(1, 6 * mm)]
+    if ed:
+        out += [rotulo(T["anios"]), Spacer(1, 2 * mm),
+                _Anios(ed, (ed + a0) if a0 is not None else None, (ed + a1) if a1 is not None else None),
+                Paragraph(('<font color="%s"><b>Rojo</b></font>: trabajando por dinero &nbsp;·&nbsp; <font color="%s"><b>Verde</b></font>: ' % (ROJO, VERDE))
+                          + T["recuperas"] + ' &nbsp;·&nbsp; <font color="#C9962B"><b>Dorado</b></font>: ' + T["tuyos"],
+                          St(_id("leg"), fontSize=8.5, leading=11, textColor=GREY, spaceBefore=3))]
+    _rg = lr.get("rango") or []
+    if ed and len(_rg) == 3 and _rg[1] is not None:
+        _lo = _rg[2]; _hi = _rg[0]
+        _txt = ("<b>Un rango, no una promesa.</b> Con una rentabilidad real del 5 % " + T["llegas"] + (" a los <b>%d</b>. " % (ed + _rg[1])))
+        if _lo is not None and _hi is not None:
+            _txt += ("Si los mercados van mejor (6,5 %%), a los %d; si van peor (3,5 %%), a los %d. "
+                     % (ed + _lo, ed + _hi))
+        elif _lo is not None:
+            _txt += ("Si los mercados van mejor (6,5 %%), a los %d; si van peor (3,5 %%), " + T["nollegarias"] + " antes de los 95. ") % (ed + _lo)
+        _txt += T["mueven"]
+        out += [Spacer(1, 6 * mm), box([texto(_txt, 10.5, INK)], "#F3EFE4", "#C9962B", ancho=160 * mm)]
+    out += [PageBreak()]
+
+    return out
+
 # ------------------------------------------------------------------ SECCION
 def apertura(salud, fi, datos, extras=None, p=None):
     """Devuelve los flowables de las paginas de apertura. [] si no hay datos."""
@@ -669,96 +798,8 @@ def _apertura(salud, fi, datos, extras, p):
     # =========================================================== PAGINA 4 · TUS LUNES
     # El mismo lenguaje de la web: un punto por cada lunes de trabajo que te queda.
     if _hay_lunes:
-        class _Muro(_Fl):
-            """Un punto por lunes. Negros: los que siguen. Verdes: los que te quitas con tus 3 decisiones."""
-            def __init__(self, total, quitas, ancho=160 * mm):
-                _Fl.__init__(self); self.t = int(total); self.q = max(0, int(quitas)); self.w = ancho
-                self.cols = max(52, -(-self.t // 24)); self.gap = 0.7 * mm if self.cols <= 60 else 0.45 * mm
-                self.dd = (self.w - self.gap * (self.cols - 1)) / self.cols
-                self.filas = max(1, -(-self.t // self.cols))
-                self.h = self.filas * (self.dd + self.gap)
-            def wrap(self, aw, ah): return self.w, self.h
-            def draw(self):
-                c = self.canv
-                for i in range(self.t):
-                    x = (i % self.cols) * (self.dd + self.gap)
-                    y = self.h - (i // self.cols + 1) * (self.dd + self.gap)
-                    c.setFillColor(colors.HexColor(VERDE) if i >= self.t - self.q else colors.HexColor("#1A1A17"))
-                    c.circle(x + self.dd / 2, y + self.dd / 2, self.dd / 2 * 0.86, fill=1, stroke=0)
+        out += bloque_lunes(d, exp)
 
-        class _Anios(_Fl):
-            """Tus proximos años, de hoy a los 95: rojo trabajando, verde los que recuperas, amarillo libres."""
-            def __init__(self, edad, llega0, llega1, ancho=160 * mm):
-                _Fl.__init__(self); self.e = edad; self.l0 = llega0; self.l1 = llega1; self.w = ancho
-                self.n = max(1, 95 - edad); self.cols = min(self.n, 30); self.gap = 1.1 * mm
-                self.dd = (self.w - self.gap * (self.cols - 1)) / self.cols
-                self.filas = -(-self.n // self.cols); self.h = self.filas * (self.dd + self.gap) + 5 * mm
-            def wrap(self, aw, ah): return self.w, self.h
-            def draw(self):
-                c = self.canv
-                for k in range(self.n):
-                    y_ed = self.e + k
-                    x = (k % self.cols) * (self.dd + self.gap)
-                    y = self.h - 5 * mm - (k // self.cols + 1) * (self.dd + self.gap)
-                    if self.l1 is not None and y_ed < self.l1:
-                        col = ROJO
-                    elif self.l0 is None or y_ed < self.l0:
-                        col = VERDE if self.l1 is not None else ROJO
-                    else:
-                        col = "#C9962B"
-                    c.setFillColor(colors.HexColor(col)); c.roundRect(x, y, self.dd, self.dd, 1.2, fill=1, stroke=0)
-                    if k % 10 == 0 or k == 0:
-                        c.setFillColor(colors.HexColor("#6B7280")); c.setFont("Poppins", 6.5)
-                        c.drawString(x, y + self.dd + 1.2 * mm, str(y_ed))
-
-        def _f1(n):
-            return ("{:,.0f}".format(n)).replace(",", ".")
-        l0, l1 = lr.get("lunes0"), lr.get("lunes1")
-        a0, a1, ed = lr.get("a0"), lr.get("a1"), lr.get("edad")
-        out += [Spacer(1, 8 * mm), Paragraph("Tus lunes, con y sin tus decisiones", H1),
-                texto("Cada punto es un lunes de trabajo que te queda hasta que tu dinero pueda sostener tu vida. "
-                      "Los verdes son los que te quitas si aplicas tus 3 decisiones.", 12)]
-        celdas = []
-        if l0:
-            celdas.append(("HOY, A TU RITMO", "%s lunes" % _f1(l0), "#1A1A17"))
-        else:
-            celdas.append(("HOY, A TU RITMO", "No llegas", ROJO))
-        if l1:
-            celdas.append(("CON TUS 3 DECISIONES", "%s lunes" % _f1(l1), "#1A1A17"))
-        if l0 and l1 and l0 > l1:
-            celdas.append(("TE QUITAS", "%s lunes" % _f1(l0 - l1), VERDE))
-        fila = [[Paragraph(r_, St(_id("lnr"), fontSize=8.2, leading=10.5, textColor=colors.HexColor("#6B7280"), fontName=FB)),
-                 Paragraph("<b>%s</b>" % v_, St(_id("lnv"), fontSize=21, leading=26, textColor=colors.HexColor(c_), fontName=FB, spaceBefore=3))]
-                for r_, v_, c_ in celdas]
-        _cw = 160.0 / len(fila)
-        out += [Spacer(1, 6 * mm),
-                Table([fila], colWidths=[_cw * mm] * len(fila),
-                      style=[("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F3EFE4")),
-                             ("LINEBEFORE", (1, 0), (-1, -1), 5, rb.PAGEBG),
-                             ("LEFTPADDING", (0, 0), (-1, -1), 12), ("TOPPADDING", (0, 0), (-1, -1), 10),
-                             ("BOTTOMPADDING", (0, 0), (-1, -1), 12), ("LINEABOVE", (0, 0), (-1, 0), 2.2, rb.AMARILLO)]),
-                Spacer(1, 6 * mm)]
-        _tot = l0 if l0 else l1
-        if _tot and _tot <= 3000:
-            out += [_Muro(_tot, (l0 - l1) if (l0 and l1 and l0 > l1) else 0), Spacer(1, 6 * mm)]
-        if ed:
-            out += [rotulo("TUS PRÓXIMOS AÑOS, DE HOY A LOS 95"), Spacer(1, 2 * mm),
-                    _Anios(ed, (ed + a0) if a0 is not None else None, (ed + a1) if a1 is not None else None),
-                    Paragraph('<font color="%s"><b>Rojo</b></font>: trabajando por dinero &nbsp;·&nbsp; <font color="%s"><b>Verde</b></font>: los que recuperas con tus decisiones &nbsp;·&nbsp; <font color="#C9962B"><b>Dorado</b></font>: años tuyos'
-                              % (ROJO, VERDE), St("ln_leg", fontSize=8.5, leading=11, textColor=GREY, spaceBefore=3))]
-        _rg = lr.get("rango") or []
-        if ed and len(_rg) == 3 and _rg[1] is not None:
-            _lo = _rg[2]; _hi = _rg[0]
-            _txt = ("<b>Un rango, no una promesa.</b> Con una rentabilidad real del 5 %% llegas a los <b>%d</b>. "
-                    % (ed + _rg[1]))
-            if _lo is not None and _hi is not None:
-                _txt += ("Si los mercados van mejor (6,5 %%), a los %d; si van peor (3,5 %%), a los %d. "
-                         % (ed + _lo, ed + _hi))
-            elif _lo is not None:
-                _txt += "Si los mercados van mejor (6,5 %%), a los %d; si van peor (3,5 %%), no llegarías antes de los 95. " % (ed + _lo)
-            _txt += "Tus decisiones mueven esta edad mucho más que los mercados."
-            out += [Spacer(1, 6 * mm), box([texto(_txt, 10.5, INK)], "#F3EFE4", "#C9962B", ancho=160 * mm)]
-        out += [PageBreak()]
 
     # =========================================================== PAGINA 4
     rv = ex.get("ratio_vida") or {}

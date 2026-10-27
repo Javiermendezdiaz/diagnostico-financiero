@@ -19,12 +19,14 @@ INK=colors.HexColor("#262620"); A_COL="#B8860B"; B_COL="#3F3F46"
 ACCDK=colors.HexColor("#1A1A17"); GREY=colors.HexColor("#7A7A72")
 LIGHT=colors.HexColor("#FBF6E0"); LINE=colors.HexColor("#E4E1D5"); BANDC=rb.BANDC
 
-def St(n,**k): k.setdefault("fontName","Helvetica"); k.setdefault("textColor",INK); return ParagraphStyle(n,**k)
+def St(n,**k):
+    k.setdefault("textColor",INK)
+    return rb.St(n,**k)   # misma tipografia de marca y letra minima 10 pt que el libro individual
 h_sec=St("hs",fontSize=20,leading=24,textColor=ACCDK,fontName=rb.SB,spaceAfter=8)
-h_sub=St("hu",fontSize=10.5,leading=13,textColor=colors.HexColor("#1A1A17"),fontName="Helvetica-Bold",spaceBefore=7,spaceAfter=3)
+h_sub=St("hu",fontSize=10.5,leading=13,textColor=colors.HexColor("#1A1A17"),fontName=rb.FB,spaceBefore=7,spaceAfter=3)
 body=St("bd",fontSize=10,leading=15,spaceAfter=7,alignment=TA_JUSTIFY)
-small=St("sm",fontSize=8,leading=11,textColor=GREY)
-kick=St("ck",fontSize=8.5,leading=11,textColor=GREY,fontName="Helvetica-Bold")
+small=St("sm",fontSize=9,leading=12.5,textColor=GREY)
+kick=St("ck",fontSize=8.5,leading=11,textColor=GREY,fontName=rb.FB)
 
 def cell(t,w,fill=None,bold=False,color=INK,align=0,size=9):
     return rb.Table  # placeholder not used
@@ -97,7 +99,7 @@ def tbl(rows,widths,head=True):
     sty=[("LINEBELOW",(0,0),(-1,-1),0.4,LINE),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
          ("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5),
          ("LEFTPADDING",(0,0),(-1,-1),8)]
-    if head: sty+=[("BACKGROUND",(0,0),(-1,0),LIGHT),("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]
+    if head: sty+=[("BACKGROUND",(0,0),(-1,0),LIGHT),("FONTNAME",(0,0),(-1,0),rb.FB)]
     t.setStyle(TableStyle(sty)); return t
 
 CAP_QMIDE=rb.QMIDE
@@ -157,8 +159,8 @@ def comparar_capa(code,a,b,nA,nB):
 def paso_pareja(code):
     return {
      "C1":"compartid una cosa que el dinero os quita el sueño a cada uno. Nombrarlo en voz alta ya alivia.",
-     "C2":"acordad UN número comun de libertad y a qué edad lo querríais. Tener una meta compartida cambia todo.",
-     "C3":"decidid juntos el tamano del colchón de emergencia de la casa y quién lo alimenta.",
+     "C2":"acordad UN número común de libertad y a qué edad lo querríais. Tener una meta compartida cambia todo.",
+     "C3":"decidid juntos el tamaño del colchón de emergencia de la casa y quién lo alimenta.",
      "C4":"elegid un gasto de estilo de vida que ninguno de los dos defendería ante el otro, y recortadlo.",
      "C5":"revisad si, faltando uno, el otro tendría acceso y protección. Es el regalo más grande que os podéis hacer.",
      "C6":"contaos sin juicio en qué gasta cada uno por imagen. Reír juntos de ello lo desactiva.",
@@ -205,7 +207,7 @@ def _opt_score(resp, iid):
     return None
 
 def _compartimento(prof, resp):
-    """Compartimento estanco: opacidad de deuda + deuda familiar con tension."""
+    """Compartimento estanco: opacidad de deuda + deuda familiar con tensión."""
     transp=_opt_score(resp,"C10-9")   # >=66: solo en parte / la oculto
     famil=_opt_score(resp,"C10-10")   # >=66: deuda familiar con tension
     if transp is not None and famil is not None and transp>=66 and famil>=66:
@@ -293,7 +295,8 @@ def seccion_caminos_hogar(dA, dB):
             titulo="EL MAPA DE VUESTRO FUTURO",
             subtitulo="Tres caminos parten del mismo punto. La distancia la decidís vosotros, cada mes.",
             brecha_cap="Lo que separa actuar de no hacerlo, juntos, a los %d años.")
-        out += [PageBreak(), rb.FullBleedImage("_proyhogarpanel.png")]
+        out += [PageBreak(), rb.FullBleedImage(rb._claro("_proyhogarpanel.png")), PageBreak()]
+        return out   # el panel ya cuenta los tres caminos y la brecha: la pagina de texto los repetia
     except Exception:
         pass
     out += [PageBreak(), Paragraph("Vuestros tres caminos",h_sec),
@@ -348,7 +351,7 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
     try:
         _ac,_,_=rb.arquetipo(resp or {})
         rb.panel_persona(radar_path+".hero.png", pn, salud, _ac, prof)
-        out += [rb.FullBleedImage(radar_path+".hero.png"), PageBreak()]
+        out += [rb.FullBleedImage(rb._claro(radar_path+".hero.png")), PageBreak()]
     except Exception:
         pass
     out += [Paragraph("PERFIL INDIVIDUAL",kick), Paragraph(nombre,h_sec),
@@ -361,13 +364,6 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
     est=_compartimento(prof, resp or {})
     if est:
         out+=[Spacer(1,3*mm), _callout(est[0], est[1], "#B45309", "#FBF3E8")]
-    try:
-        _dialp = radar_path + ".dials.png"
-        rb.panel_capas(_dialp, prof, titulo=("%s · SUS 12 DIMENSIONES" % pn).upper(),
-                       subtitulo="Cómo vive %s cada palanca del dinero. El verde sostiene; el rojo pide acción." % pn)
-        out += [PageBreak(), rb.FullBleedImage(_dialp)]
-    except Exception:
-        pass
     out+=[PageBreak(), Paragraph(f"{pn}: fortalezas y focos",h_sub)]
     orden=sorted(rb.CAPAS,key=lambda c:prof[c]["score"])
     out.append(Paragraph("<b>Tus tres fortalezas</b>",small))
@@ -400,8 +396,6 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
         out.append(Paragraph(f"<font color='#1A1A17'>&#8226;</font>  <b>{ti}</b>",small))
         out.append(Paragraph(tx,St("ii",fontSize=9.6,leading=13,leftIndent=10,spaceAfter=6)))
     if extras:
-        try: out += rb.seccion_ratio_vida(extras) + rb.seccion_nudo(extras) + rb.seccion_coste_inaccion(extras)
-        except Exception: pass
         # --- Matiz colchón social ante pérdida de empleo (solo si el perfil tiene derecho) ---
         try:
             _res=(extras or {}).get("resiliencia") or {}
@@ -422,47 +416,6 @@ def seccion_individual(nombre, prof, trans, salud, datos, radar_path, fi_hogar, 
                 out += [Spacer(1,3*mm), _callout("Colchón social estimado", _tcs, "#2C5C8A", "#EEF2F8")]
         except Exception: pass
     out.append(PageBreak())
-    out.append(Paragraph(f"{pn}: tus doce capas, una a una",h_sub))
-    out.append(Paragraph("Tu lectura individual, capa por capa — las que más te pesan, primero. El cruce con tu pareja viene después.",small))
-    _facmap=rb.CAPAS
-    for _c in sorted(rb.CAPAS,key=lambda c:prof[c]["score"],reverse=True):
-        _sc=prof[_c]["score"]
-        _ps=rb.PASO[_c]; _ps=_ps[0] if isinstance(_ps,(list,tuple)) else _ps
-        _blk=[Table([[Paragraph("<b>%s</b>  <font color='#6B7280'>%.0f/100</font>"%(rb.CAPAS[_c]["nombre"],rb._sal100(_sc)),small),
-                      rb.Chip(prof[_c]["banda"],BANDC[prof[_c]["bi"]],w=84,h=13)]],
-                     colWidths=[118*mm,40*mm],style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),3)]),
-              Paragraph("<b>Qué mide en ti:</b> "+rb.QMIDE[_c],St("dxq",fontSize=9.4,leading=13,leftIndent=4))]
-        _fr=(extras or {}).get("frases",{}).get(_c) if extras else None
-        if _fr:
-            _blk.append(rb._box([Paragraph("<b>Tu caso, en números:</b> "+_fr,St("dxtcn",fontSize=9.2,leading=12.5,textColor=INK))],"#FBF4E4","#B45309",ancho=160*mm))
-        _facd=(_facmap[_c].get("facetas",{}) if isinstance(_facmap[_c],dict) else {})
-        _fr=[]
-        for _fk,_fv in prof[_c]["facetas"].items():
-            _fr.append([Paragraph(_facd.get(_fk,_fk),St("dxfl",fontSize=8.4,leading=11)),
-                        rb.Bar(_fv,w=66*mm),
-                        Paragraph("<font color='#6B7280'>%.0f</font>"%(rb._sal100(_fv)),St("dxfn",fontSize=8.4,leading=11))])
-        if _fr:
-            _blk.append(Table(_fr,colWidths=[58*mm,72*mm,12*mm],
-                              style=[("LEFTPADDING",(0,0),(0,-1),8),("LEFTPADDING",(1,0),(-1,-1),5),
-                                     ("BOTTOMPADDING",(0,0),(-1,-1),2),("TOPPADDING",(0,0),(-1,-1),2),("VALIGN",(0,0),(-1,-1),"MIDDLE")]))
-        if _sc>=50:
-            _blk.append(Paragraph("<font color='#9A3B2E'><b>Tu foco:</b></font> "+rb.RIESGO[_c],St("dxr",fontSize=9.4,leading=13,leftIndent=4)))
-            _blk.append(Paragraph("<font color='%s'><b>Tu paso:</b></font> "%A_COL+_ps,St("dxp",fontSize=9.4,leading=13,leftIndent=4)))
-        else:
-            _blk.append(Paragraph("<font color='#1D6F42'><b>Tu fortaleza:</b></font> "+rb.OPORTUNIDAD[_c],St("dxo",fontSize=9.4,leading=13,leftIndent=4)))
-        _blk.append(Paragraph("<i>Para pensar:</i> "+rb.REFLEX[_c],St("dxrf",fontSize=8.9,leading=12,leftIndent=4,textColor=INK)))
-        _blk.append(Paragraph("“%s”"%rb.PRINCIPIO[_c],St("dxpr",fontSize=9,leading=12,leftIndent=4,textColor=GREY,fontName="Helvetica-Oblique",spaceAfter=8)))
-        out.append(KeepTogether(_blk))
-    out.append(PageBreak())
-    out.append(Paragraph(f"{pn}: resumen capa por capa",h_sub))
-    rows=[[Paragraph("<b>Capa</b>",small),Paragraph("<b>Score</b>",small),Paragraph("<b>Banda</b>",small)]]
-    for c in rb.CAPAS:
-        rows.append([Paragraph(rb.CAPAS[c]["nombre"],small),Paragraph("%.0f"%(rb._sal100(prof[c]["score"])),small),
-                     rb.Chip(prof[c]["banda"],BANDC[prof[c]["bi"]],w=84,h=13)])
-    out.append(Table(rows,colWidths=[96*mm,20*mm,40*mm],style=TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),
-               ("LINEBELOW",(0,0),(-1,-1),0.3,LINE),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
-               ("TOPPADDING",(0,0),(-1,-1),4),("BOTTOMPADDING",(0,0),(-1,-1),4),("LEFTPADDING",(0,0),(-1,-1),6)])))
-    out.append(PageBreak())
     return out
 
 def seccion_adapta_pareja(pA,pB,nA,nB):
@@ -478,24 +431,13 @@ def seccion_adapta_pareja(pA,pB,nA,nB):
         out.append(Paragraph(f"<font color='{A_COL}'><b>&#8226; {ti}</b></font>",St("pad1",fontSize=11,leading=14,spaceBefore=6,spaceAfter=2)))
         out.append(Paragraph(de,St("pad2",fontSize=10,leading=14,leftIndent=8,spaceAfter=2)))
         out.append(Paragraph(f"<a href='{url}'><font color='#1A1A17'>Ver c\u00f3mo lo trabajamos &#8594;</font></a>",St("pad3",fontSize=9.5,leading=13,leftIndent=8,spaceAfter=8)))
-    out+=[Spacer(1,3*mm),
-          Paragraph("Por d\u00f3nde empezamos",h_sub),
-          Paragraph("Una conversaci\u00f3n inicial, sin compromiso, los dos. Os escuchamos primero, os proponemos despu\u00e9s.",
-                    St("pcta",fontSize=10.5,leading=15,textColor=INK,backColor=LIGHT,borderPadding=10,rightIndent=10,leftIndent=10,spaceBefore=2)),
-          Spacer(1,2*mm),
-          Paragraph("<b>Reserva vuestra conversaci\u00f3n:</b> <a href='https://www.adaptafamilyoffice.com/informe'><font color='#1A1A17'>adaptafamilyoffice.com</font></a>  &#183;  "
-                    "<b>WhatsApp:</b> <a href='https://wa.me/34683343531'><font color='#1A1A17'>+34 683 34 35 31</font></a>  &#183;  info@adaptafamilyoffice.com",
-                    St("pcta2",fontSize=9.5,leading=14))]
-    try:
-        rb.cierre_cta("_cierre_par.png", "VUESTRO\nSIGUIENTE PASO",
-                      "Este libro es vuestro mapa. Adapta Family Office es quien lo recorre con vosotros, juntos o por separado.",
-                      ["Una conversación inicial, sin compromiso, los dos.",
-                       "Visión integral del patrimonio del hogar: sin productos propios ni conflictos.",
-                       "Os escuchamos primero, os proponemos después. Sin llamadas de presión."],
-                      "adaptafamilyoffice.com    ·    WhatsApp +34 683 34 35 31    ·    info@adaptafamilyoffice.com")
-        out += [PageBreak(), rb.FullBleedImage("_cierre_par.png")]
-    except Exception:
-        pass
+    out+=[Spacer(1,5*mm),
+          __import__("seccion_apertura").cta_sesion("Por dónde empezamos",
+              "Una sesión estratégica de 30 minutos, los dos. Os escuchamos primero y os proponemos después: "
+              "vuestro sistema de reparto, vuestras tres cuentas y vuestras primeras decisiones. Os descontamos el importe íntegro de este informe.",
+              qr_mm=28, rotulo="VUESTRA SESIÓN CON ADAPTA"),
+          Spacer(1,4*mm),
+          Paragraph("Este libro es una herramienta de autoconocimiento; no sustituye asesoramiento profesional ni terapia de pareja.",small)]
     return out
 
 CHOQUE_ARQ = {
@@ -556,7 +498,7 @@ def seccion_arquetipos(rA,rB,nA,nB):
         else:
             titulo=f"<b>{rb.ARQ_META[aA]['nombre']}</b> + <b>{rb.ARQ_META[aB]['nombre']}</b>"
         out+=[Paragraph("Vuestra combinación",h_sub),
-              Paragraph(titulo,St("ac",fontSize=11,leading=14,textColor=ACCDK,fontName="Helvetica-Bold",spaceAfter=4)),
+              Paragraph(titulo,St("ac",fontSize=11,leading=14,textColor=ACCDK,fontName=rb.FB,spaceAfter=4)),
               Paragraph(texto,body),
               KeepTogether([Table([[Paragraph(f"<b>Vuestra regla de oro:</b> {regla}",
                     St("rg",fontSize=10,leading=14,textColor=colors.HexColor("#7A5C00")))]],
@@ -698,9 +640,9 @@ def seccion_constitucion_hogar(pA,pB,nA,nB,hogar,fi_h,divs):
         rt.append([Paragraph(f"<font color='white'><b>{fase}</b>  ·  {lema}</font>",
                    St("rf",fontSize=9.5,leading=12,textColor=colors.white)),""])
         for a in accs:
-            if a: rt.append([Paragraph(a,St("ra",fontSize=9.6,leading=13)),""])
+            if a: rt.append([Paragraph(a[:1].upper()+a[1:],St("ra",fontSize=9.6,leading=13)),""])
     rtab=Table(rt,colWidths=[148*mm,12*mm])
-    sty=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6),
+    sty=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("TOPPADDING",(0,0),(-1,-1),4),("BOTTOMPADDING",(0,0),(-1,-1),4),
          ("LEFTPADDING",(0,0),(-1,-1),9),("LINEBELOW",(0,0),(-1,-1),0.4,LINE)]
     ri=0
     for col,fase,lema,accs in fases:
@@ -716,25 +658,21 @@ def seccion_constitucion_hogar(pA,pB,nA,nB,hogar,fi_h,divs):
     if colobj:
         cif.append("<b>Vuestro colchón objetivo: %s</b> (3 meses de gastos del hogar). Abridlo en una cuenta remunerada aparte y "
                    "alimentadlo con una transferencia automática el día 1, repartida entre los dos." % rb._eur(colobj))
-    if pat and colobj and pat>colobj:
-        cif.append("Dividid vuestro patrimonio: <b>%s</b> congelados como fondo intocable de la pareja y <b>%s</b> como base "
-                   "para invertir o amortizar, con mando compartido." % (rb._eur(colobj),rb._eur(pat-colobj)))
     cif.append("Pagaos primero, como hogar: el día 1, antes de gastar, sale el ahorro conjunto a una cuenta separada. "
                "Ahorrar lo que sobra no funciona; forzar el reparto, sí.")
-    cp=[Paragraph("<b>Vuestro plan, en cifras</b>",St("cif0",fontSize=11,leading=15,textColor=ACCDK,fontName="Helvetica-Bold"))]
+    cp=[Paragraph("<b>Vuestro plan, en cifras</b>",St("cif0",fontSize=11,leading=15,textColor=ACCDK,fontName=rb.FB))]
     for x in cif: cp.append(Paragraph("<font color='#B45309'>&#8226;</font>  "+x,St("cifx",fontSize=9.8,leading=14,textColor=INK,leftIndent=4,spaceBefore=3)))
     out+=[rb._box(cp,"#FBF4E4","#B45309",ancho=160*mm), Spacer(1,4*mm)]
     col6=gm*6
     out+=[rb._box([Paragraph("<font color='#B45309'><b>Vuestra regla de contingencia</b></font><br/>"
             f"<font size=9.5>Todo plan necesita un freno de emergencia. El vuestro: si el fondo líquido del hogar baja de "
-            f"<b>{rb._eur(col6)}</b> (seis meses de gastos) o llega un imprevisto grande, <b>pausad las fases 2 y 3</b> y "
+            f"<b>{rb._eur(colobj or col6)}</b> (vuestro colchón objetivo) o llega un imprevisto grande, <b>pausad las fases 2 y 3</b> y "
             f"volcad todo el excedente a reconstruir el colchón antes de seguir. Proteger la base va siempre primero.</font>",
             St("kc",fontSize=10.5,leading=15))],"#FBF4E4","#B45309",ancho=160*mm), Spacer(1,4*mm),
-          Paragraph("Vuestro pacto",h_sub),
-          rb._box([Paragraph(f"<b>{nA} y {nB} nos comprometemos</b>, antes de 30 días, a dar juntos el primer paso de la Fase 1 "
+          rb._box([Paragraph(f"<b>Vuestro pacto.</b> {nA} y {nB} nos comprometemos, antes de 30 días, a dar juntos el primer paso de la Fase 1 "
                 f"y a reservar una cita mensual de 20 minutos para revisar las cuentas del hogar. Firmamos:",
                 St("pac",fontSize=10.5,leading=15)),
-                Spacer(1,8*mm),
+                Spacer(1,6*mm),
                 Table([["Firma "+nA,"Firma "+nB]],colWidths=[78*mm,78*mm],
                   style=TableStyle([("LINEABOVE",(0,0),(-1,0),0.6,colors.HexColor("#9CA3AF")),
                     ("TEXTCOLOR",(0,0),(-1,0),colors.HexColor("#9CA3AF")),("FONTSIZE",(0,0),(-1,0),8),
@@ -760,14 +698,14 @@ def seccion_coste_no_hablarlo(pA,pB,nA,nB,hogar,fi_h,divs):
         fin.append("Estáis al <b>%.1f%%</b> de vuestro número de libertad. Sin un plan común, ese porcentaje se mueve "
                    "despacio — o no se mueve." % fi_h[1])
     if fin:
-        cp=[Paragraph("<b>Lo que cuesta en dinero</b>",St("cn0",fontSize=10.5,leading=14,fontName="Helvetica-Bold"))]
+        cp=[Paragraph("<b>Lo que cuesta en dinero</b>",St("cn0",fontSize=10.5,leading=14,fontName=rb.FB))]
         for x in fin: cp.append(Paragraph("<font color='#9A3B2E'>&#8226;</font>  "+x,St("cnx",fontSize=9.8,leading=14,leftIndent=4,spaceBefore=3)))
         out+=[rb._box(cp,"#FBECE8","#9A3B2E",ancho=160*mm), Spacer(1,3*mm)]
     if nconf or nfric:
         rel=("Tenéis <b>%d</b> %s de conflicto y <b>%d</b> %s de fricción concretos sin resolver. Cada uno, callado, "
              "se repite en decenas de pequeñas decisiones al mes y se convierte, con el tiempo, en reproche. "
              "Hablados, se desactivan." % (nconf,"zona" if nconf==1 else "zonas",nfric,"punto" if nfric==1 else "puntos"))
-        out+=[rb._box([Paragraph("<b>Lo que cuesta en la relación</b>",St("cr0",fontSize=10.5,leading=14,fontName="Helvetica-Bold")),
+        out+=[rb._box([Paragraph("<b>Lo que cuesta en la relación</b>",St("cr0",fontSize=10.5,leading=14,fontName=rb.FB)),
                        Paragraph(rel,St("cr1",fontSize=9.8,leading=14,spaceBefore=2))],"#FBF3E8","#B45309",ancho=160*mm),
               Spacer(1,4*mm)]
     out+=[PageBreak()]   # matriz "Dos caminos desde aqui" eliminada (redundante con "Vuestros tres caminos")
@@ -797,7 +735,7 @@ def seccion_hoja_ruta_12m(pA,pB,nA,nB,hogar):
                   Paragraph("<font color='%s'><b>&#8226; Esta semana:</b></font> %s"%(_pc,mv["accion"]),St("ph2",fontSize=9.6,leading=13.5,textColor=INK,spaceBefore=2)),
                   Paragraph("<b>En 12 meses ganáis:</b> <i>%s</i>"%mv["gana"],St("ph3",fontSize=9.4,leading=13,textColor=GREY,spaceBefore=2))]
             out.append(rb._box(_pin,_pbg,_pc,ancho=160*mm)); out.append(Spacer(1,3*mm))
-        out.append(Paragraph("Haced el primero hasta tenerlo en marcha — juntos. Una palanca movida vale más que diez planeadas.",St("phf",fontSize=9.4,leading=13,textColor=GREY,fontName="Helvetica-Oblique",spaceAfter=4)))
+        out.append(Paragraph("Haced el primero hasta tenerlo en marcha — juntos. Una palanca movida vale más que diez planeadas.",St("phf",fontSize=9.4,leading=13,textColor=GREY,fontName=rb.SI,spaceAfter=4)))
     rows=[]
     for tit,lema,desc in q:
         rows.append([Paragraph(f"<font color='#1A1A17'><b>{tit}</b></font><br/><font color='{A_COL}' size=8><b>{lema.upper()}</b></font>",small),
@@ -852,7 +790,7 @@ def seccion_sociedad_conyugal(hogar, nA, nB):
            Paragraph("Hasta aquí os hemos leído como dos personas. Pero hay una tercera que también decide, "
                      "aunque no aparezca en ninguna cuenta a su nombre.", body),
            rb._box([
-                Paragraph("<b>Vuestro tercer actor económico</b>", St("scy0", fontSize=11, leading=15, textColor=ACCDK, fontName="Helvetica-Bold")),
+                Paragraph("<b>Vuestro tercer actor económico</b>", St("scy0", fontSize=11, leading=15, textColor=ACCDK, fontName=rb.FB)),
                 Paragraph("Más allá de vuestras cuentas individuales existe una tercera entidad: <b>vuestra sociedad "
                           "conyugal</b>. No es la suma de %s más %s — es un único patrimonio con criterio común. Hoy "
                           "asciende a <b>%s</b>." % (nA, nB, rb._eur(pat)),
@@ -907,7 +845,7 @@ def seccion_asimetria_inversora(dAf, dBf, pA, pB, nA, nB):
         return []
     out = [Paragraph("Asimetría de cultura inversora", h_sec),
            rb._box([
-                Paragraph("<b>Dos relojes distintos frente al mercado</b>", St("aci0", fontSize=11, leading=15, textColor=ACCDK, fontName="Helvetica-Bold")),
+                Paragraph("<b>Dos relojes distintos frente al mercado</b>", St("aci0", fontSize=11, leading=15, textColor=ACCDK, fontName=rb.FB)),
                 Paragraph("Existe entre vosotros una asimetría de cultura inversora: mientras <b>%s</b> mantiene el "
                           "capital quieto —sufriendo en silencio el coste de la inflación—, <b>%s</b> empuja hacia el "
                           "mercado. No es un defecto de ninguno de los dos: es una palanca que aún no habéis acoplado." % (quieto, activo),
@@ -923,8 +861,8 @@ def seccion_asimetria_inversora(dAf, dBf, pA, pB, nA, nB):
     return out
 
 def _kpi_celda_par(rotulo, valor, color="#1A1A17", nota=""):
-    parr=[Paragraph(rotulo,St("opp_l_%s"%rotulo[:6],fontSize=8.5,leading=11,textColor=colors.HexColor("#6B7280"),fontName="Helvetica-Bold")),
-          Paragraph("<b>%s</b>"%valor,St("opp_v_%s"%rotulo[:6],fontSize=20,leading=24,textColor=colors.HexColor(color),fontName="Helvetica-Bold",spaceBefore=1))]
+    parr=[Paragraph(rotulo,St("opp_l_%s"%rotulo[:6],fontSize=8.5,leading=11,textColor=colors.HexColor("#6B7280"),fontName=rb.FB)),
+          Paragraph("<b>%s</b>"%valor,St("opp_v_%s"%rotulo[:6],fontSize=20,leading=24,textColor=colors.HexColor(color),fontName=rb.FB,spaceBefore=1))]
     if nota: parr.append(Paragraph(nota,St("opp_n_%s"%rotulo[:6],fontSize=7.5,leading=10,textColor=colors.HexColor("#8A8472"))))
     return parr
 
@@ -1021,7 +959,7 @@ def seccion_impuesto_friccion(dAf, dBf, pA, pB, nA, nB):
         if coste<=0: return []
         return [Paragraph("El impuesto de vuestra fricción, en euros", h_sec),
                 rb._box([
-                    Paragraph("<b>Lo que la parálisis os cuesta cada año</b>",St("if0",fontSize=11,leading=15,textColor=ACCDK,fontName="Helvetica-Bold")),
+                    Paragraph("<b>Lo que la parálisis os cuesta cada año</b>",St("if0",fontSize=11,leading=15,textColor=ACCDK,fontName=rb.FB)),
                     Paragraph("Vuestra parálisis conyugal mantiene <b>~%s</b> parados; a un <b>%.0f%% prudente</b>, eso son "
                               "<b>~%s al año</b> en rendimiento no capturado. No es una pérdida contable —el dinero sigue ahí— "
                               "pero es crecimiento que no llega: cada año que el desacuerdo deja el capital quieto, la inflación "
@@ -1167,7 +1105,7 @@ def seccion_glosario():
     ]
     rows=[]
     for t,d in terminos:
-        rows.append([Paragraph("<b>%s</b>"%t,St("glp_t_%s"%t[:5],fontSize=9.5,leading=13,textColor=ACCDK,fontName="Helvetica-Bold")),
+        rows.append([Paragraph("<b>%s</b>"%t,St("glp_t_%s"%t[:5],fontSize=9.5,leading=13,textColor=ACCDK,fontName=rb.FB)),
                      Paragraph(d,St("glp_d_%s"%t[:5],fontSize=9,leading=12.5,textColor=INK))])
     tabla=Table(rows,colWidths=[40*mm,116*mm],
         style=TableStyle([("VALIGN",(0,0),(-1,-1),"TOP"),("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
@@ -1337,8 +1275,8 @@ def seccion_indice_friccion(rA, rB, nA, nB):
     if divs:
         BRONCE = "#B45309"
         GRIS_AZ = "#EEF2F6"; CREMA_T = "#FBF4E4"
-        out.append(Paragraph("El efecto espejo: lo que respondió cada uno", h_sub))
-        for d in divs[:5]:
+        out.append(Paragraph("Tres choques más, cara a cara (los tres primeros ya los visteis en la Parte 1)", h_sub))
+        for d in divs[3:6]:
             try:
                 es_vinc = bool(d.get("vinc")); gap = d.get("gap", 0)
                 resalta = es_vinc or gap >= 66
@@ -1983,24 +1921,24 @@ def seccion_horizonte_retiro(rA, rB, nA, nB):
     if brecha >= 2:
         titulo = u"Horizontes de retiro desalineados"
         txt = (u"Aquí los dos no mirais al mismo punto del calendario: uno quiere soltar amarras bastante antes y el "
-               u"otro se imagina dejandolo mucho mas tarde. No hay que unificar la meta a la fuerza —forzar un unico "
-               u"horizonte suele generar mas tension que la propia diferencia—. Lo sano es proyectar el plan conjunto "
+               u"otro se imagina dejándolo mucho más tarde. No hay que unificar la meta a la fuerza —forzar un único "
+               u"horizonte suele generar más tensión que la propia diferencia—. Lo sano es proyectar el plan conjunto "
                u"por fases: primero liberar al que quiere parar antes, mientras el otro mantiene ingresos por eleccion "
                u"y no por obligacion; después, el retiro total de ambos cuando toque. Lo importante no es coincidir en "
                u"la edad, sino decidir juntos —y dejarlo por escrito— como encajais los dos ritmos en un mismo plan.")
     elif brecha == 1:
         titulo = u"Horizontes casi alineados"
-        txt = (u"Estais practicamente en la misma pagina: uno se ve soltando amarras solo un peldano antes que el "
-               u"otro. Es un matiz menor, mas de ritmo que de rumbo. Vale la pena nombrarlo para que el que quiere "
-               u"parar un poco antes no se sienta arrastrado, pero no condiciona la planificacion: el horizonte comun "
-               u"esta, en lo esencial, compartido.")
+        txt = (u"Estáis prácticamente en la misma página: uno se ve soltando amarras solo un peldaño antes que el "
+               u"otro. Es un matiz menor, más de ritmo que de rumbo. Vale la pena nombrarlo para que el que quiere "
+               u"parar un poco antes no se sienta arrastrado, pero no condiciona la planificación: el horizonte común "
+               u"está, en lo esencial, compartido.")
     else:
         titulo = u"Mismo horizonte: una gran ventaja para planificar"
-        txt = (u"Los dos os imaginais dejando de depender del sueldo en el mismo tramo de edad. Eso es mas valioso de "
-               u"lo que parece: cuando la pareja comparte horizonte, cada decisión de ahorro, inversion y gasto rema "
-               u"en la misma direccion, sin tira y afloja sobre el «cuando». Vuestro trabajo no es negociar la meta, "
+        txt = (u"Los dos os imagináis dejando de depender del sueldo en el mismo tramo de edad. Eso es más valioso de "
+               u"lo que parece: cuando la pareja comparte horizonte, cada decisión de ahorro, inversión y gasto rema "
+               u"en la misma dirección, sin tira y afloja sobre el «cuándo». Vuestro trabajo no es negociar la meta, "
                u"sino blindarla: ponerla por escrito y revisar juntos, cada cierto tiempo, que el plan sigue "
-               u"apuntando a ese horizonte comun.")
+               u"apuntando a ese horizonte común.")
 
     return [Paragraph(u"Vuestro horizonte para soltar amarras", h_sec),
             Paragraph(u"Os preguntamos por separado a que edad os gustaria poder dejar de depender del sueldo. "
@@ -2309,53 +2247,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     compat=max(0,round(100-statistics.mean(gaps)))
     divs=divergencias_item(rA,rB)
     dual_radar(pA,pB,"_dualradar.png",nA,nB)
-    S=[]
-    _hero_done=False
-    try:
-        if getattr(rb,"_LEGADO_OK",False):
-            import legado_pages as _lp
-            _dAf=_fill(dA); _dBf=_fill(dB)
-            _hog={"gasto_mensual":_gasto_hogar(_dAf,_dBf),"ingreso_mensual":_dAf["ingreso_mensual"]+_dBf["ingreso_mensual"],"ahorro_mensual":_dAf["ahorro_mensual"]+_dBf["ahorro_mensual"],"patrimonio":_dAf["patrimonio"]+_dBf["patrimonio"],"edad":(_dAf["edad"]+_dBf["edad"])/2}
-            _hn=rb.fi_metrics(_hog)[0]
-            for _pg in _lp.pareja_hero(nA,nB,cliA,dA,dB,pA,pB,_hn,cliA.get("fecha",""),perfilA=perfilA,perfilB=perfilB):
-                S+=[rb.FullBleedImage(_pg), PageBreak()]
-            _hero_done=True
-    except Exception:
-        _hero_done=False
-    # cover (fallback si no hay Legado)
-    if not _hero_done: S+=[Spacer(1,32*mm),
-        Paragraph("VUESTRO LIBRO FINANCIERO",St("c0",fontSize=12,textColor=GREY,fontName="Helvetica-Bold")),
-        Spacer(1,3*mm),
-        Paragraph("Diagnóstico<br/>de Pareja",St("c1",fontSize=40,leading=44,fontName="Helvetica-Bold")),
-        Spacer(1,5*mm),
-        Table([[""]],colWidths=[60*mm],style=[("LINEBELOW",(0,0),(-1,-1),4,colors.HexColor("#FDD731"))]),
-        Spacer(1,7*mm),
-        Paragraph("El informe que os dice, desde donde estáis hoy, cómo llegar juntos a donde queréis.",St("c2",fontSize=12,textColor=ACCDK)),
-        Spacer(1,38*mm),
-        Paragraph(f"Escrito para  <b>{cliA['nombre']}</b>  &amp;  <b>{cliB['nombre']}</b>",St("cn",fontSize=12)),
-        Paragraph(cliA["fecha"],small),
-        Spacer(1,3*mm), Paragraph("Edición de Pareja",St("ct",fontSize=9.5,textColor=colors.HexColor(A_COL),fontName="Helvetica-Bold")),
-        Spacer(1,16*mm),
-        Paragraph(f"DOCUMENTO CONFIDENCIAL · REF {rb.report_id(cliA['nombre']+cliB['nombre'],cliA['fecha'])} · USO PRIVADO",
-                  St("cr",fontSize=7.5,textColor=GREY,fontName="Helvetica")),
-        PageBreak()]
-    # apertura
-    S+=[Paragraph("Antes de empezar",h_sec),
-        rb._box([Paragraph("<font color='#234E70'><b>&#8226;  Sois de los primeros — y lo afinamos con vosotros</b></font>",body),
-                 Paragraph("Respaldamos cada cifra de este informe. Y como esta versión del diagnóstico es nueva, la afinamos también con vosotros: si al leerlo veis algún número o conclusión que no os encaje, escribidnos a <font color='#234E70'><b>info@adaptafamilyoffice.com</b></font>. Lo revisamos al momento, lo corregimos y os reenviamos vuestro informe actualizado, sin coste. Vuestra mirada lo hace mejor — para vosotros y para quienes vengan detrás.",body)],
-                "#EEF2F6","#234E70",ancho=160*mm),
-        Spacer(1,4*mm),
-        Paragraph(f"{nA} y {nB}: el dinero es una de las causas más citadas de ruptura en las parejas — y casi "
-                  "nunca por cuánto hay, sino porque cada uno lo vive distinto y no se habla. La grieta no la abre "
-                  "la falta de dinero: la abre la diferencia callada. Este libro pone esas diferencias sobre la "
-                  "mesa, sin juicio, para que dejen de operar en silencio.",body),
-        Paragraph("No mide quién lo hace mejor. Mide dónde estáis alineados (vuestra fuerza conjunta) y dónde "
-                  "divergís (vuestros focos de fricción). Al final encontraréis un guion para hablarlo.",body),
-        Paragraph("Leedlo juntos. Esa es la mitad del valor.",body),
-        PageBreak()]
-    # === ÍTEM 1 · ONE-PAGER EJECUTIVO DE PAREJA (justo tras la portada) ===
-    S+=rb._secsafe(seccion_one_pager,nA,nB,dA,dB,compat,saludA,saludB)
-    S+=rb._secsafe(seccion_arquetipos,rA,rB,nA,nB)
+    _B={"p0":[],"p1":[],"mapa":[],"p2":[],"p3":[],"fin":[]}
     # compatibilidad + radar
     dAf=_fill(dA); dBf=_fill(dB)
     _gA=dAf["gasto_mensual"]; _gB=dBf["gasto_mensual"]; _gh=_gasto_hogar(dAf,dBf)
@@ -2373,11 +2265,190 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
            "pct_gasto_fijo":_pfh,
            "edad":(dAf["edad"]+dBf["edad"])/2}
     fi_h=rb.fi_metrics(hogar)
+    # === PORTADA + PARTE 1 · LO ESENCIAL (5 paginas que se leen solas) ===
+    import seccion_apertura as _sa, seccion_pareja as _sp
     try:
-        rb.panel_compat("_compat.png", compat, nA, nB, 100-saludA, 100-saludB)
-        S+=[rb.FullBleedImage("_compat.png"), PageBreak()]
+        _exp_h=_sa.datos_expectativas(hogar); _lr=_sa.lunes_y_rango(hogar,_exp_h) if _exp_h else None
+        _l0=(_lr or {}).get("lunes0")
+        _linea=("Hoy os quedan %s lunes. Este libro os dice cómo quitaros muchos."%format(int(round(_l0)),",").replace(",",".")) if _l0 and _l0>=52 else None
+    except Exception:
+        _linea=None
+    _pg={}
+    try:
+        if getattr(rb,"_LEGADO_OK",False):
+            import legado_pages as _lp
+            _pg=_lp.pareja_paginas(nA,nB,cliA,dA,dB,pA,pB,cliA.get("fecha",""),perfilA=perfilA,perfilB=perfilB,linea=_linea)
+    except Exception:
+        _pg={}
+    S=_B["p0"]
+    if _pg.get("portada"):
+        S+=[rb.FullBleedImage(_pg["portada"]), PageBreak()]
+    else:
+        S+=[Spacer(1,32*mm),
+        Paragraph("VUESTRO LIBRO FINANCIERO",St("c0",fontSize=12,textColor=GREY,fontName=rb.FB)),
+        Spacer(1,3*mm),
+        Paragraph("Diagnóstico<br/>de Pareja",St("c1",fontSize=40,leading=44,fontName=rb.SB)),
+        Spacer(1,7*mm),
+        Paragraph(f"Escrito para  <b>{cliA['nombre']}</b>  &amp;  <b>{cliB['nombre']}</b>",St("cn",fontSize=12)),
+        Paragraph(cliA["fecha"],small),
+        PageBreak()]
+    S=_B["p1"]; S+=[rb.Anchor("sec_apertura","PARTE 1 · LO ESENCIAL")]
+    try: _fr=indice_friccion(rA,rB)
+    except Exception: _fr=None
+    S+=_sp.apertura_pareja(nA,nB,dAf,dBf,hogar,rA,rB,compat,divs,_fr,esfuerzo_img=_pg.get("esfuerzo"))
+    # === MAPA DEL LIBRO ===
+    S=_B["mapa"]
+    _ix=[("PARTE 1 · LO ESENCIAL","Vuestra cifra, dónde chocáis, vuestros lunes y por dónde empezar. Lo que acabáis de leer","sec_apertura"),
+         ("PARTE 2 · VUESTRO DIAGNÓSTICO","Vuestra fricción, lo que os cuesta no hablarla, un reparto justo, vuestro sistema de hogar, el guion y vuestro plan a 12 meses","sec_parte2"),
+         ("PARTE 3 · ANEXOS","Cada uno por dentro, las doce dimensiones en pareja, vuestros números y vuestras respuestas, para ir al fondo","sec_anexos")]
+    S+=[Paragraph("El mapa de vuestro libro",h_sec),
+        Paragraph("Tres partes. Si solo leéis la primera, ya sabéis lo importante. La segunda es vuestro diagnóstico como pareja. La tercera, el detalle para quien quiera ir al fondo. Leedlo juntos: esa es la mitad del valor.",body),Spacer(1,5*mm)]
+    for _t,_d,_anc in _ix:
+        S.append(Table([[Paragraph("<a href=\"#%s\"><font color=\"#1A1A17\"><b>%s</b></font></a>"%(_anc,_t),St("ixt",fontSize=11,leading=14,textColor=ACCDK,fontName=rb.FB)),
+                         Paragraph(_d,St("ixd",fontSize=10,leading=13.5,textColor=GREY))]],
+                 colWidths=[56*mm,104*mm],
+                 style=[("LINEBELOW",(0,0),(-1,-1),0.5,LINE),("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+                        ("LINEBEFORE",(0,0),(0,-1),2.6,rb.AMARILLO),("LEFTPADDING",(0,0),(0,-1),10),
+                        ("TOPPADDING",(0,0),(-1,-1),9),("BOTTOMPADDING",(0,0),(-1,-1),9)]))
+    S+=[PageBreak()]
+    # === PARTE 2 · VUESTRO DIAGNÓSTICO ===
+    S=_B["p2"]
+    # apertura
+    S+=[Paragraph("Antes de empezar",h_sec),
+        rb._box([Paragraph("<font color='#234E70'><b>&#8226;  Sois de los primeros — y lo afinamos con vosotros</b></font>",body),
+                 Paragraph("Respaldamos cada cifra de este informe. Y como esta versión del diagnóstico es nueva, la afinamos también con vosotros: si al leerlo veis algún número o conclusión que no os encaje, escribidnos a <font color='#234E70'><b>info@adaptafamilyoffice.com</b></font>. Lo revisamos al momento, lo corregimos y os reenviamos vuestro informe actualizado, sin coste. Vuestra mirada lo hace mejor — para vosotros y para quienes vengan detrás.",body)],
+                "#EEF2F6","#234E70",ancho=160*mm),
+        Spacer(1,4*mm),
+        Paragraph(f"{nA} y {nB}: el dinero es una de las causas más citadas de ruptura en las parejas — y casi "
+                  "nunca por cuánto hay, sino porque cada uno lo vive distinto y no se habla. La grieta no la abre "
+                  "la falta de dinero: la abre la diferencia callada. Este libro pone esas diferencias sobre la "
+                  "mesa, sin juicio, para que dejen de operar en silencio.",body),
+        Paragraph("No mide quién lo hace mejor. Mide dónde estáis alineados (vuestra fuerza conjunta) y dónde "
+                  "divergís (vuestros focos de fricción). Al final encontraréis un guion para hablarlo.",body),
+        Paragraph("Leedlo juntos. Esa es la mitad del valor.",body),
+        PageBreak()]
+    for _k in ("mapa","balanza"):
+        if _pg.get(_k): S+=[rb.FullBleedImage(rb._claro(_pg[_k])), PageBreak()]
+    # === MAPA DE LA RELACIÓN ===
+    try:
+        _short={"C1":"Estrés con el dinero","C2":"Libertad","C3":"Resistencia","C4":"Estilo de vida","C5":"Protección legal","C6":"Gasto de imagen","C7":"Dependencia de ingresos","C8":"Antifragilidad","C9":"Control del flujo","C10":"Salud de la deuda","C11":"Crecimiento","C12":"Inversión"}
+        _caps=[(_short.get(c, CAPAS[c]["nombre"]), pA[c]["score"], pB[c]["score"]) for c in CAPAS]
+        mapa_relacion("_relmap.png", _caps, compat, nA, nB)
+        S+=[rb.FullBleedImage(rb._claro("_relmap.png")), PageBreak()]
     except Exception:
         pass
+    # mapa de divergencias por capa
+    S+=[Paragraph("Dónde coincidís y dónde no",h_sec),
+        Paragraph("Capa por capa: vuestras dos puntuaciones y la distancia entre ambas. En rojo, las zonas que "
+                  "conviene hablar.",body)]
+    rows=[[Paragraph("<b>Capa</b>",small),Paragraph(f"<b>{nA}</b>",small),Paragraph(f"<b>{nB}</b>",small),
+           Paragraph("<b>Distancia</b>",small),Paragraph("<b>Zona</b>",small)]]
+    for c in CAPAS:
+        a,b=pA[c]["score"],pB[c]["score"]
+        da,db=rb._sal100(a),rb._sal100(b); g=abs(da-db)   # distancia coherente
+        zona = "Conflicto" if g>=30 else ("A revisar" if g>=18 else "Alineados")
+        zc = "#B91C1C" if g>=30 else ("#EA580C" if g>=18 else "#15803D")
+        rows.append([Paragraph(f"{c} · {CAPAS[c]['nombre']}",small),Paragraph(f"{da}",small),
+                     Paragraph(f"{db}",small),Paragraph(f"{g:.0f}",small),
+                     rb.Chip(zona,zc,w=64,h=13)])
+    S+=[tbl(rows,[78*mm,15*mm,15*mm,20*mm,32*mm]),PageBreak()]
+    # === ÍNDICE DE FRICCIÓN CONYUGAL (Fase 1) — corona el Mapa de Fricción ===
+    S+=rb._secsafe(seccion_indice_friccion, rA, rB, nA, nB)
+    # focos de friccion (item-level)
+    S+=[Paragraph("Vuestros focos de fricción",h_sec),
+        Paragraph("Las preguntas concretas donde respondisteis casi en extremos opuestos. Aquí es donde el dinero "
+                  "se convierte en discusión sin que sepáis por qué. Priorizamos las de vínculo y transparencia.",body),
+        Paragraph("Cada una de estas diferencias, callada, erosiona; nombrada y entendida, se desactiva. No son "
+                  "amenazas: son las conversaciones que aún no habéis tenido — y tenerlas es, justamente, la vacuna.",body)]
+    S+=[Spacer(1,2*mm), rb._box([
+        Paragraph("<b>Por qué el dinero rompe parejas</b>",St("mec0",fontSize=10.5,leading=14,fontName=rb.FB)),
+        Paragraph("Casi nunca es una gran pelea. Es una diferencia pequeña que no se habla —cómo se gasta, cuánto se guarda, "
+                  "qué da miedo— y que se repite cada mes en mil decisiones minúsculas. Cada vez, uno cede y el otro ni se "
+                  "entera. Esa cesión callada se vuelve reproche; el reproche, distancia; y la distancia, «ya no hablamos de "
+                  "dinero». El dinero no es la causa: es el escenario donde se representa todo lo demás. Por eso ponerlo en "
+                  "palabras hoy vale más que cualquier cifra.",St("mec1",fontSize=9.7,leading=14,spaceBefore=2,textColor=INK))],
+        "#FBF3E8","#B45309",ancho=160*mm), Spacer(1,3*mm)]
+    if not divs:
+        S+=[Paragraph("Apenas hay divergencias marcadas: vuestra forma de ver el dinero está muy alineada. "
+                      "Vuestro trabajo es de afinación, no de reconciliación.",body)]
+    elif len(divs)>6:
+        S+=[Paragraph("Y estas son las siguientes de la lista, después de las seis que ya habéis visto:",h_sub)]
+    for d in divs[6:10]:
+        tag = "VÍNCULO" if d["vinc"] else f"Δ {d['gap']:.0f}"
+        card=[Paragraph(f"<font color='{A_COL}'><b>{tag}</b></font>  ·  {CAPAS[d['capa']]['nombre']}",small),
+              Paragraph(d["texto"],St("dt",fontSize=10,leading=14,fontName=rb.FB,spaceBefore=2,spaceAfter=3)),
+              Table([[Paragraph(f"<font color='{A_COL}'>● {nA}</font>",small),Paragraph(d["A"],small)],
+                     [Paragraph(f"<font color='{B_COL}'>● {nB}</font>",small),Paragraph(d["B"],small)]],
+                    colWidths=[26*mm,130*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),3),("VALIGN",(0,0),(-1,-1),"TOP")])]
+        S.append(KeepTogether(card)); S.append(Spacer(1,4*mm))
+    S+=[PageBreak()]
+    # === ÍTEM 5 · EJE/TIMELINE DE FRICCIÓN (mejora visual del mapa de fricción) ===
+    S+=rb._secsafe(seccion_timeline_friccion,divs,nA,nB)
+    S+=rb._secsafe(seccion_coste_no_hablarlo,pA,pB,nA,nB,hogar,fi_h,divs)
+    # Las cuatro varas del reparto (ingreso / patrimonio / esfuerzo / carga no retribuida),
+    # el coste de oportunidad acumulado y quien fija el nivel de vida. Va ANTES de la
+    # asfixia del 50%: primero se ve que hay cuatro formas de medir, luego el veredicto.
+    S+=rb._secsafe(seccion_reparto_justo, dAf, dBf, rA, rB, nA, nB)
+    S+=rb._secsafe(seccion_asfixia_relativa, dAf, dBf, rA, rB, nA, nB)
+    # Y despues de medir: PRESCRIBIR. Que modelo les toca, sus tres cuentas con
+    # euros reales, y las cinco preguntas que convierten el informe en una
+    # conversacion con fecha. Es la diferencia entre un informe y un family office.
+    S+=rb._secsafe(seccion_sistema_hogar, dAf, dBf, rA, rB, nA, nB)
+    # cruce semantico de pareja (sintesis IA de las abiertas)
+    if sintesis and str(sintesis).strip():
+        S+=[Paragraph("Análisis de asimetría y brecha de comunicación",h_sec),
+            Paragraph("Esta lectura cruza lo que cada uno escribió en sus respuestas abiertas: dónde vuestros relatos "
+                      "coinciden, dónde chocan, y qué revela eso de la conversación que tenéis pendiente.",small),
+            Spacer(1,2*mm)]
+        for _par in [x for x in str(sintesis).replace("\r","").split("\n") if x.strip()]:
+            _e=_par.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+            S.append(Paragraph(_e,body))
+        S+=[PageBreak()]
+    # guion de conversacion
+    S+=[Paragraph("Vuestro guion de conversación",h_sec),
+        Paragraph("Sentaos sin móviles, treinta minutos. Recorred estas preguntas por turnos: primero uno explica "
+                  "su «por qué», luego el otro, sin interrumpir. El objetivo no es ganar, es entender.",body),
+        rb._box([Paragraph("<b>Reglas de juego:</b> prohibidas las palabras «capricho», «controlar» y «ya lo veremos» "
+                "(cierran la conversación del otro). Turnos de tres minutos sin interrumpir. Si el tono sube, se cierra "
+                "el cuaderno y se retoma en 24 horas. No se decide nada con enfado.",St("rg",fontSize=9.8,leading=14))],
+                "#FEF9E7","#B45309",ancho=158*mm),
+        Spacer(1,3*mm)]
+    base_qs=[]
+    for d in divs[:4]:
+        base_qs.append(f"Sobre «{d['texto']}» — {nA} respondió «{d['A']}» y {nB} «{d['B']}». "
+                       f"¿De dónde viene esa diferencia? ¿Qué historia familiar hay detrás?")
+    if not base_qs:
+        base_qs=[f"¿Qué significa para cada uno «estar tranquilo» con el dinero?",
+                 f"Si llegara un imprevisto grande mañana, ¿cómo lo afrontaríais juntos?"]
+    base_qs+=[ "¿Qué decisión financiera de los próximos 12 meses os da más miedo, y cuál más ilusión?",
+               "¿Qué necesitáis del otro para sentir que vais en el mismo barco?"]
+    for i,qq in enumerate(base_qs,1):
+        S+=[Paragraph(f"<font color='{A_COL}'><b>{i}.</b></font>  {qq}",St("g",fontSize=10,leading=14,spaceAfter=8,leftIndent=2))]
+    # calendario de cuatro conversaciones (sobre los temas más divergentes / más débiles)
+    _temas=[]
+    for c in sorted(CAPAS,key=lambda c:abs(pA[c]["score"]-pB[c]["score"]),reverse=True):
+        if abs(pA[c]["score"]-pB[c]["score"])>=18 or (pA[c]["score"]+pB[c]["score"])/2>=55:
+            _temas.append(c)
+        if len(_temas)>=4: break
+    for c in sorted(CAPAS,key=lambda c:(pA[c]["score"]+pB[c]["score"]),reverse=True):
+        if len(_temas)>=4: break
+        if c not in _temas: _temas.append(c)
+    S+=[Spacer(1,3*mm),Paragraph("Vuestro calendario de cuatro conversaciones",h_sub),
+        Paragraph("Una conversación por semana, no todas de golpe. Cada una sobre un tema concreto, con su pequeño "
+                  "acuerdo al final. En cuatro semanas habréis hablado de lo que muchas parejas no hablan en años.",body)]
+    _crows=[[Paragraph("<b>Semana</b>",small),Paragraph("<b>De qué habláis</b>",small),Paragraph("<b>Acuerdo a cerrar</b>",small)]]
+    for _i,_c in enumerate(_temas,1):
+        _crows.append([Paragraph(f"<b>{_i}</b>",small),Paragraph(rb.CAPAS[_c]["nombre"],small),
+                       Paragraph(MICROACUERDO.get(_c,paso_pareja(_c)),small)])
+    S+=[tbl(_crows,[20*mm,52*mm,88*mm]),PageBreak()]
+    S+=rb._secsafe(seccion_constitucion_hogar,pA,pB,nA,nB,hogar,fi_h,divs)
+    S+=rb._secsafe(seccion_hoja_ruta_12m,pA,pB,nA,nB,hogar)
+    pass  # laboratorio_pareja eliminado (cuaderno de trabajo redundante)
+    S+=rb._secsafe(seccion_adapta_pareja,pA,pB,nA,nB)
+    # === PARTE 3 · ANEXOS ===
+    S=_B["p3"]
+    # === ÍTEM 1 · ONE-PAGER EJECUTIVO DE PAREJA (justo tras la portada) ===
+    S+=rb._secsafe(seccion_arquetipos,rA,rB,nA,nB)
     S+=[Paragraph("Vuestro mapa conjunto",h_sec),
         Table([[Paragraph(f"<font size=40 color='#1A1A17'><b>{compat}</b></font><font size=13 color='#6B7280'>/100</font>",body),
                 Paragraph(f"<b>Compatibilidad financiera</b><br/><font size=8 color='#6B7280'>Cuanto más alto, más "
@@ -2398,7 +2469,7 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                ["Tasa de ahorro conjunta",("%.1f%%"%float(fi_h[2] or 0)).replace(".",",")],
                ["A\u00f1os a la libertad","m\u00e1s de 100" if fi_h[3] is None else ("Ya cubierta a los 67" if float(fi_h[3])<0.5 else "%.0f a\u00f1os"%float(fi_h[3]))]],
               colWidths=[105*mm,51*mm],style=TableStyle([("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
-              ("FONTNAME",(1,0),(1,-1),"Helvetica-Bold"),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
+              ("FONTNAME",(1,0),(1,-1),rb.FB),("TEXTCOLOR",(1,0),(1,-1),ACCDK),
               ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6)]))]
     # --- Foto patrimonial del hogar (invertido/parado/iliquido) ---
     _h_inv=float(hogar["inversiones_liquidas"]); _h_par=float(hogar["colchon_liquido"]); _h_pat=float(hogar["patrimonio"])
@@ -2465,71 +2536,31 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
         Paragraph("De cada euro que entra en casa, esto es lo que se queda y lo que se va. Si la barra «sin asignar» "
                   "es grande, no es libertad: es dinero esperando una decisión que aún no habéis tomado juntos.",small)]),
         PageBreak()]
-    # === MAPA DE LA RELACIÓN ===
-    try:
-        _short={"C1":"Estrés con el dinero","C2":"Libertad","C3":"Resistencia","C4":"Estilo de vida","C5":"Protección legal","C6":"Gasto de imagen","C7":"Dependencia de ingresos","C8":"Antifragilidad","C9":"Control del flujo","C10":"Salud de la deuda","C11":"Crecimiento","C12":"Inversión"}
-        _caps=[(_short.get(c, CAPAS[c]["nombre"]), pA[c]["score"], pB[c]["score"]) for c in CAPAS]
-        mapa_relacion("_relmap.png", _caps, compat, nA, nB)
-        S+=[rb.FullBleedImage("_relmap.png"), PageBreak()]
-    except Exception:
-        pass
-    # mapa de divergencias por capa
-    S+=[Paragraph("Dónde coincidís y dónde no",h_sec),
-        Paragraph("Capa por capa: vuestras dos puntuaciones y la distancia entre ambas. En rojo, las zonas que "
-                  "conviene hablar.",body)]
-    rows=[[Paragraph("<b>Capa</b>",small),Paragraph(f"<b>{nA}</b>",small),Paragraph(f"<b>{nB}</b>",small),
-           Paragraph("<b>Distancia</b>",small),Paragraph("<b>Zona</b>",small)]]
-    for c in CAPAS:
-        a,b=pA[c]["score"],pB[c]["score"]
-        da,db=rb._sal100(a),rb._sal100(b); g=abs(da-db)   # distancia coherente
-        zona = "Conflicto" if g>=30 else ("A revisar" if g>=18 else "Alineados")
-        zc = "#B91C1C" if g>=30 else ("#EA580C" if g>=18 else "#15803D")
-        rows.append([Paragraph(f"{c} · {CAPAS[c]['nombre']}",small),Paragraph(f"{da}",small),
-                     Paragraph(f"{db}",small),Paragraph(f"{g:.0f}",small),
-                     rb.Chip(zona,zc,w=64,h=13)])
-    S+=[tbl(rows,[78*mm,15*mm,15*mm,20*mm,32*mm]),PageBreak()]
     S+=rb._secsafe(seccion_dafo_pareja,pA,pB,nA,nB)
     S+=rb._secsafe(seccion_caminos_hogar,dA,dB)
     S+=rb._secsafe(seccion_dinero_trabaja,dA,dB)
-    S+=rb._secsafe(seccion_acelerador_hogar,dA,dB)
     rb.radar_png(pA,"_radarA.png"); rb.radar_png(pB,"_radarB.png")
     try: _exA=sv.computar_extras(rA,_fill(dA),perfilA or {},_iv2)
     except Exception: _exA=None
     try: _exB=sv.computar_extras(rB,_fill(dB),perfilB or {},_iv2)
     except Exception: _exB=None
-    try:
-        rb.portadilla("_pa_indiv.png", "Acto 2", 'VOSOTROS DOS,\nPOR DENTRO', 'La foto psicológica de cada uno antes de cruzaros: cómo vive el dinero por dentro.')
-        S+=[PageBreak(), rb.FullBleedImage("_pa_indiv.png")]
-    except Exception:
-        pass
     S+=rb._secsafe(seccion_individual,cliA["nombre"] or nA,pA,trA,saludA,dA,"_radarA.png",fi_h,rA,extras=_exA)
     S+=rb._secsafe(rb.seccion_fiabilidad,_exA)
     S+=rb._secsafe(seccion_individual,cliB["nombre"] or nB,pB,trB,saludB,dB,"_radarB.png",fi_h,rB,extras=_exB)
     S+=rb._secsafe(rb.seccion_fiabilidad,_exB)
     # capitulos comparativos por capa
-    try:
-        rb.portadilla("_pa_cruce.png", "Acto 3", 'DÓNDE CHOCÁIS\nY DÓNDE ENCAJÁIS', 'Las doce capas, enfrentadas. Dónde os sostenéis y dónde salta la fricción.')
-        S+=[PageBreak(), rb.FullBleedImage("_pa_cruce.png")]
-    except Exception:
-        pass
-    S+=[Paragraph("Capa por capa, los dos",h_sec),
-        Paragraph("El corazon de vuestro libro: las doce dimensiones, leidas en pareja. La barra dorada es "
-                  f"{nA}; la gris, {nB}. Mas corta = mas sano.",body),PageBreak()]
     for n,code in enumerate(CAPAS,1):
         a,b=pA[code]["score"],pB[code]["score"]
-        bloque=[Paragraph(f"CAPÍTULO {n}",kick),
-                Paragraph(CAPAS[code]["nombre"],St("cb",fontSize=15,leading=19,textColor=ACCDK,fontName="Helvetica-Bold")),
+        bloque=[Paragraph((f"CAPA POR CAPA, LOS DOS · CAPÍTULO {n}" if n==1 else f"CAPÍTULO {n}"),kick),
+                Paragraph(CAPAS[code]["nombre"],St("cb",fontSize=15,leading=19,textColor=ACCDK,fontName=rb.FB)),
                 Table([[""]],colWidths=[40*mm],style=[("LINEBELOW",(0,0),(-1,-1),1.5,colors.HexColor(A_COL))]),
-                Spacer(1,3*mm),
-                Paragraph("Qué mide",h_sub),
-                Paragraph("Esta capa mide "+QMIDE_PAREJA.get(code, CAP_QMIDE[code]),body),
-                Paragraph("Vuestros resultados",h_sub),
+                Spacer(1,2*mm),
+                Paragraph("<b>Qué mide:</b> "+QMIDE_PAREJA.get(code, CAP_QMIDE[code]),St("qmp",fontSize=10,leading=14,textColor=GREY,spaceAfter=5)),
                 Table([[Paragraph(f"<font color='{A_COL}'>●</font> {nA}: <b>{rb._sal100(a)}</b>/100",small),
                         Paragraph(f"<font color='{B_COL}'>●</font> {nB}: <b>{rb._sal100(b)}</b>/100",small)],
                        [Bar2(rb._sal100(a),rb._sal100(b),w=150*mm),""]],
                       colWidths=[80*mm,80*mm],style=[("SPAN",(0,1),(1,1)),("LEFTPADDING",(0,0),(-1,-1),0),("TOPPADDING",(0,1),(0,1),4)]),
-                Spacer(1,2*mm),
-                Paragraph("Faceta por faceta",h_sub)]
+                Spacer(1,3*mm)]
         facs=CAPAS[code]["facetas"]
         for f in pA[code]["facetas"]:
             fa=pA[code]["facetas"].get(f,0); fb=pB[code]["facetas"].get(f,0)
@@ -2537,72 +2568,19 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
                                   Paragraph(f"<font color='{A_COL}'>{100-fa:.0f}</font> / <font color='{B_COL}'>{100-fb:.0f}</font>",small)]],
                                  colWidths=[70*mm,40*mm,46*mm],
                                  style=[("VALIGN",(0,0),(-1,-1),"MIDDLE"),("LEFTPADDING",(0,0),(0,-1),0),
-                                        ("LEFTPADDING",(1,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
+                                        ("LEFTPADDING",(1,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),2),("TOPPADDING",(0,0),(-1,-1),1)]))
         bloque+=[Spacer(1,2*mm),
-                Paragraph("Qué significa para vosotros",h_sub),
-                Paragraph(comparar_capa(code,a,b,nA,nB),body),
-                Paragraph("Cómo se nota en vuestro día a día",h_sub),
-                Paragraph(DIADIA.get(code,""),body),
-                Paragraph("El riesgo para vuestra econom\u00eda",h_sub),
-                Paragraph(rb.RIESGO[code],body),
-                Paragraph("La oportunidad si lo trabaj\u00e1is juntos",h_sub),
-                Paragraph(rb.OPORTUNIDAD[code],body),
-                Paragraph("La trampa que evitar",h_sub),
-                Paragraph("<font color='#9A3B2E'><b>&#9888;</b></font>  "+TRAMPA.get(code,""),
-                          St("tr",fontSize=10,leading=14,leftIndent=4)),
+                Paragraph("<b>Qué significa para vosotros.</b> "+comparar_capa(code,a,b,nA,nB),body),
+                (Paragraph("El riesgo para vuestra econom\u00eda",h_sub) if (a+b)/2>=50 else Paragraph("La oportunidad si lo trabaj\u00e1is juntos",h_sub)),
+                Paragraph(rb.RIESGO[code] if (a+b)/2>=50 else rb.OPORTUNIDAD[code],body),
                 Paragraph("Vuestro siguiente paso",h_sub),
                 Paragraph(f"<font color='{A_COL}'><b>&bull;</b></font>  "+paso_pareja(code),
                           St("pp",fontSize=10,leading=14,leftIndent=6,backColor=LIGHT,borderPadding=6,rightIndent=6)),
-                Paragraph("Vuestro micro-acuerdo de este mes",h_sub),
-                rb._box([Paragraph(MICROACUERDO.get(code,""),St("ma",fontSize=10,leading=14))],
-                        "#EEF2F6","#234E70",ancho=156*mm),
                 Spacer(1,2*mm),
-                Paragraph(f"\u201c{rb.PRINCIPIO[code]}\u201d",St("pr2",fontSize=10.5,leading=14,textColor=ACCDK,
-                          fontName="Helvetica-Oblique")),
-                Paragraph("Para hablar entre vosotros: "+rb.REFLEX[code],St("rf2",fontSize=10,leading=14,
-                          textColor=INK,fontName="Helvetica-Oblique",spaceBefore=3))]
+                rb._box([Paragraph("<b>Vuestro micro-acuerdo de este mes:</b> "+MICROACUERDO.get(code,""),St("ma",fontSize=10,leading=14))],
+                        "#EEF2F6","#234E70",ancho=156*mm)]
         S.append(KeepTogether(bloque)); S.append(PageBreak())
-    # === ÍNDICE DE FRICCIÓN CONYUGAL (Fase 1) — corona el Mapa de Fricción ===
-    S+=rb._secsafe(seccion_indice_friccion, rA, rB, nA, nB)
-    # focos de friccion (item-level)
-    S+=[Paragraph("Vuestros focos de fricción",h_sec),
-        Paragraph("Las preguntas concretas donde respondisteis casi en extremos opuestos. Aquí es donde el dinero "
-                  "se convierte en discusión sin que sepáis por qué. Priorizamos las de vínculo y transparencia.",body),
-        Paragraph("Cada una de estas diferencias, callada, erosiona; nombrada y entendida, se desactiva. No son "
-                  "amenazas: son las conversaciones que aún no habéis tenido — y tenerlas es, justamente, la vacuna.",body)]
-    S+=[Spacer(1,2*mm), rb._box([
-        Paragraph("<b>Por qué el dinero rompe parejas</b>",St("mec0",fontSize=10.5,leading=14,fontName="Helvetica-Bold")),
-        Paragraph("Casi nunca es una gran pelea. Es una diferencia pequeña que no se habla —cómo se gasta, cuánto se guarda, "
-                  "qué da miedo— y que se repite cada mes en mil decisiones minúsculas. Cada vez, uno cede y el otro ni se "
-                  "entera. Esa cesión callada se vuelve reproche; el reproche, distancia; y la distancia, «ya no hablamos de "
-                  "dinero». El dinero no es la causa: es el escenario donde se representa todo lo demás. Por eso ponerlo en "
-                  "palabras hoy vale más que cualquier cifra.",St("mec1",fontSize=9.7,leading=14,spaceBefore=2,textColor=INK))],
-        "#FBF3E8","#B45309",ancho=160*mm), Spacer(1,3*mm)]
-    if not divs:
-        S+=[Paragraph("Apenas hay divergencias marcadas: vuestra forma de ver el dinero está muy alineada. "
-                      "Vuestro trabajo es de afinación, no de reconciliación.",body)]
-    for d in divs[:6]:
-        tag = "VÍNCULO" if d["vinc"] else f"Δ {d['gap']:.0f}"
-        card=[Paragraph(f"<font color='{A_COL}'><b>{tag}</b></font>  ·  {CAPAS[d['capa']]['nombre']}",small),
-              Paragraph(d["texto"],St("dt",fontSize=10,leading=14,fontName="Helvetica-Bold",spaceBefore=2,spaceAfter=3)),
-              Table([[Paragraph(f"<font color='{A_COL}'>● {nA}</font>",small),Paragraph(d["A"],small)],
-                     [Paragraph(f"<font color='{B_COL}'>● {nB}</font>",small),Paragraph(d["B"],small)]],
-                    colWidths=[26*mm,130*mm],style=[("LEFTPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),3),("VALIGN",(0,0),(-1,-1),"TOP")])]
-        S.append(KeepTogether(card)); S.append(Spacer(1,4*mm))
-    S+=[PageBreak()]
-    # === ÍTEM 5 · EJE/TIMELINE DE FRICCIÓN (mejora visual del mapa de fricción) ===
-    S+=rb._secsafe(seccion_timeline_friccion,divs,nA,nB)
-    S+=rb._secsafe(seccion_coste_no_hablarlo,pA,pB,nA,nB,hogar,fi_h,divs)
     S+=rb._secsafe(seccion_sociedad_conyugal,hogar,nA,nB)
-    # Las cuatro varas del reparto (ingreso / patrimonio / esfuerzo / carga no retribuida),
-    # el coste de oportunidad acumulado y quien fija el nivel de vida. Va ANTES de la
-    # asfixia del 50%: primero se ve que hay cuatro formas de medir, luego el veredicto.
-    S+=rb._secsafe(seccion_reparto_justo, dAf, dBf, rA, rB, nA, nB)
-    S+=rb._secsafe(seccion_asfixia_relativa, dAf, dBf, rA, rB, nA, nB)
-    # Y despues de medir: PRESCRIBIR. Que modelo les toca, sus tres cuentas con
-    # euros reales, y las cinco preguntas que convierten el informe en una
-    # conversacion con fecha. Es la diferencia entre un informe y un family office.
-    S+=rb._secsafe(seccion_sistema_hogar, dAf, dBf, rA, rB, nA, nB)
     # === TRANSPARENCIA FINANCIERA MUTUA (opacidad_financiera / SD-28) ===
     S+=rb._secsafe(seccion_transparencia, rA, rB, nA, nB)
     # === CONVERGENCIA DE HORIZONTES DE RETIRO (edad_retiro_ideal / SD-29) ===
@@ -2618,112 +2596,56 @@ def build_couple(rA,dA,cliA,rB,dB,cliB,out,sintesis=None,perfilA=None,perfilB=No
     S+=rb._secsafe(seccion_impuesto_friccion,dAf,dBf,pA,pB,nA,nB)
     # === ÍTEM 4 · SCATTER DE PERFIL INVERSOR DE LA PAREJA ===
     S+=rb._secsafe(seccion_perfil_inversor,rA,rB,dAf,dBf,pA,pB,nA,nB)
-    # cruce semantico de pareja (sintesis IA de las abiertas)
-    if sintesis and str(sintesis).strip():
-        S+=[Paragraph("Análisis de asimetría y brecha de comunicación",h_sec),
-            Paragraph("Esta lectura cruza lo que cada uno escribió en sus respuestas abiertas: dónde vuestros relatos "
-                      "coinciden, dónde chocan, y qué revela eso de la conversación que tenéis pendiente.",small),
-            Spacer(1,2*mm)]
-        for _par in [x for x in str(sintesis).replace("\r","").split("\n") if x.strip()]:
-            _e=_par.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
-            S.append(Paragraph(_e,body))
-        S+=[PageBreak()]
-    # guion de conversacion
-    S+=[Paragraph("Vuestro guion de conversación",h_sec),
-        Paragraph("Sentaos sin móviles, treinta minutos. Recorred estas preguntas por turnos: primero uno explica "
-                  "su «por qué», luego el otro, sin interrumpir. El objetivo no es ganar, es entender.",body),
-        rb._box([Paragraph("<b>Reglas de juego:</b> prohibidas las palabras «capricho», «controlar» y «ya lo veremos» "
-                "(cierran la conversación del otro). Turnos de tres minutos sin interrumpir. Si el tono sube, se cierra "
-                "el cuaderno y se retoma en 24 horas. No se decide nada con enfado.",St("rg",fontSize=9.8,leading=14))],
-                "#FEF9E7","#B45309",ancho=158*mm),
-        Spacer(1,3*mm)]
-    base_qs=[]
-    for d in divs[:4]:
-        base_qs.append(f"Sobre «{d['texto']}» — {nA} respondió «{d['A']}» y {nB} «{d['B']}». "
-                       f"¿De dónde viene esa diferencia? ¿Qué historia familiar hay detrás?")
-    if not base_qs:
-        base_qs=[f"¿Qué significa para cada uno «estar tranquilo» con el dinero?",
-                 f"Si llegara un imprevisto grande mañana, ¿cómo lo afrontaríais juntos?"]
-    base_qs+=[ "¿Qué decisión financiera de los próximos 12 meses os da más miedo, y cuál más ilusión?",
-               "¿Qué necesitáis del otro para sentir que vais en el mismo barco?"]
-    for i,qq in enumerate(base_qs,1):
-        S+=[Paragraph(f"<font color='{A_COL}'><b>{i}.</b></font>  {qq}",St("g",fontSize=10,leading=14,spaceAfter=8,leftIndent=2))]
-    # calendario de cuatro conversaciones (sobre los temas más divergentes / más débiles)
-    _temas=[]
-    for c in sorted(CAPAS,key=lambda c:abs(pA[c]["score"]-pB[c]["score"]),reverse=True):
-        if abs(pA[c]["score"]-pB[c]["score"])>=18 or (pA[c]["score"]+pB[c]["score"])/2>=55:
-            _temas.append(c)
-        if len(_temas)>=4: break
-    for c in sorted(CAPAS,key=lambda c:(pA[c]["score"]+pB[c]["score"]),reverse=True):
-        if len(_temas)>=4: break
-        if c not in _temas: _temas.append(c)
-    S+=[Spacer(1,3*mm),Paragraph("Vuestro calendario de cuatro conversaciones",h_sub),
-        Paragraph("Una conversación por semana, no todas de golpe. Cada una sobre un tema concreto, con su pequeño "
-                  "acuerdo al final. En cuatro semanas habréis hablado de lo que muchas parejas no hablan en años.",body)]
-    _crows=[[Paragraph("<b>Semana</b>",small),Paragraph("<b>De qué habláis</b>",small),Paragraph("<b>Acuerdo a cerrar</b>",small)]]
-    for _i,_c in enumerate(_temas,1):
-        _crows.append([Paragraph(f"<b>{_i}</b>",small),Paragraph(rb.CAPAS[_c]["nombre"],small),
-                       Paragraph(MICROACUERDO.get(_c,paso_pareja(_c)),small)])
-    S+=[tbl(_crows,[20*mm,52*mm,88*mm]),PageBreak()]
-    try:
-        rb.portadilla("_pa_plan.png", "Acto 4", 'VUESTRO PLAN,\nEN MARCHA', 'De la conversación a los hechos: constitución, hoja de ruta y vuestro laboratorio.')
-        S+=[PageBreak(), rb.FullBleedImage("_pa_plan.png")]
-    except Exception:
-        pass
-    S+=rb._secsafe(seccion_constitucion_hogar,pA,pB,nA,nB,hogar,fi_h,divs)
-    S+=rb._secsafe(seccion_hoja_ruta_12m,pA,pB,nA,nB,hogar)
-    pass  # laboratorio_pareja eliminado (cuaderno de trabajo redundante)
-    S+=[Spacer(1,4*mm),   # "Como seguir / repetid el diagnostico" eliminado; queda solo el descargo
-        Paragraph("Este libro es una herramienta de autoconocimiento; no sustituye asesoramiento profesional ni "
-                  "terapia de pareja.",small)]
-    S+=rb._secsafe(seccion_adapta_pareja,pA,pB,nA,nB)
-    # ANEXO: respuestas de ambos (sin scores)
+    # ANEXO: solo las respuestas donde de verdad os separais (antes: 7+ paginas con todas)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
-    S+=[PageBreak(), Paragraph("Anexo \u2014 Vuestras respuestas",h_sec),
-        Paragraph("Para total transparencia: lo que respondi\u00f3 cada uno, una al lado de la otra. "
-                  "Leer esta tabla juntos ya abre conversaciones. <font color=\'#B91C1C\'><b>En rojo</b></font>, "
-                  "donde respondisteis en extremos opuestos (vuestros campos de minas); "
-                  "<font color=\'#B45309\'>en \u00e1mbar</font>, divergencias moderadas; en blanco, donde est\u00e1is alineados.",body)]
-    def _na(txt, na):
-        return Paragraph("<font color='#B5B3A6'>&#8212;</font>", small) if na else Paragraph(txt, small)
+    _filas=[]
     for capa in INST["capas"]:
-        rows=[[Paragraph("<b>Pregunta</b>",small),Paragraph("<b>%s</b>"%nA,small),Paragraph("<b>%s</b>"%nB,small)]]
-        bgs=[]; ri=1
         for it in capa["items"]:
-            if it.get("atencion"): continue
-            sa=sb=None; na_a=na_b=False
-            if it["tipo"]=="escala":
-                ia=rA.get(it["id"]); ib=rB.get(it["id"])
-                _ra=_resp_op(it,ia); _rb=_resp_op(it,ib)
-                if _ra is not None: va=_ra[1]; sa=_ra[0]
-                else: va=""; na_a=True
-                if _rb is not None: vb=_rb[1]; sb=_rb[0]
-                else: vb=""; na_b=True
-            else:
-                ga=dA.get(NUM_MAP.get(it["id"],"")); va=str(ga) if ga is not None else ""; na_a=(ga is None)
-                gb=dB.get(NUM_MAP.get(it["id"],"")); vb=str(gb) if gb is not None else ""; na_b=(gb is None)
-            rows.append([Paragraph(it["texto"],small),_na(va,na_a),_na(vb,na_b)])
-            if sa is not None and sb is not None:
-                gap=abs(sa-sb)
-                fill="#F6D7D7" if gap>=66 else ("#FBEEDB" if gap>=33 else None)
-                if fill: bgs.append(("BACKGROUND",(0,ri),(-1,ri),colors.HexColor(fill)))
-                if gap>=66: bgs.append(("FONTNAME",(0,ri),(0,ri),"Helvetica-Bold"))
-            ri+=1
-        t=Table(rows,colWidths=[86*mm,35*mm,35*mm])
-        t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),
-            ("ROWBACKGROUNDS",(0,1),(-1,-1),[colors.white,colors.HexColor("#FAF8EF")]),
-            ("LINEBELOW",(0,0),(-1,0),0.6,LINE),
+            if it.get("atencion") or it["tipo"]!="escala": continue
+            _ra=_resp_op(it,rA.get(it["id"])); _rb=_resp_op(it,rB.get(it["id"]))
+            if _ra is None or _rb is None: continue
+            _g=abs(_ra[0]-_rb[0])
+            if _g>=33: _filas.append((_g,capa["nombre"],it["texto"],_ra[1],_rb[1]))
+    _filas.sort(key=lambda x:-x[0])
+    if _filas:
+        S+=[PageBreak(), Paragraph("Anexo \u2014 Donde respondisteis distinto",h_sec),
+            Paragraph("Las preguntas donde vuestras respuestas más se separan, de mayor a menor distancia. "
+                      "<font color='#B91C1C'><b>En rojo</b></font>, extremos opuestos; <font color='#B45309'>en ámbar</font>, "
+                      "divergencias moderadas. Leer esta tabla juntos ya abre conversaciones.",body)]
+        rows=[[Paragraph("<b>Pregunta</b>",small),Paragraph("<b>%s</b>"%nA,small),Paragraph("<b>%s</b>"%nB,small)]]; bgs=[]
+        for ri,(_g,_cn,_tx,_va,_vb) in enumerate(_filas[:16],1):
+            rows.append([Paragraph("<font color='#7A7A72'>%s</font><br/>%s"%(_cn,_tx),small),Paragraph(str(_va),small),Paragraph(str(_vb),small)])
+            bgs.append(("BACKGROUND",(0,ri),(-1,ri),colors.HexColor("#F6D7D7" if _g>=66 else "#FBEEDB")))
+        t=Table(rows,colWidths=[80*mm,38*mm,38*mm],repeatRows=1)
+        t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),LIGHT),("LINEBELOW",(0,0),(-1,-1),0.4,LINE),
             ("VALIGN",(0,0),(-1,-1),"TOP"),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5),
-            ("LEFTPADDING",(0,0),(-1,-1),7),("RIGHTPADDING",(0,0),(-1,-1),7),
-            ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold")]+bgs))
-        S+=[Paragraph("%s \u00b7 %s"%(capa["code"],capa["nombre"]),h_sub), t]
+            ("LEFTPADDING",(0,0),(-1,-1),6),("RIGHTPADDING",(0,0),(-1,-1),6)]+bgs))
+        S+=[t]
+        if len(_filas)>16:
+            S+=[Spacer(1,2*mm),Paragraph("Y %d preguntas más con diferencias. Las repasamos con vosotros en la sesión."%(len(_filas)-16),small)]
     # === \u00cdTEM 2b \u00b7 GLOSARIO EJECUTIVO (cierre de anexos) ===
     S+=rb._secsafe(seccion_glosario)
+    S=_B["fin"]
+    S+=[PageBreak(), rb.DarkPage(titulo="ADAPTA  ·  family office",
+        sub="Vuestro Libro Financiero · Documento confidencial",
+        legal="Adapta Family Office · Herramienta de autoconocimiento financiero; no constituye asesoramiento personalizado regulado ni terapia de pareja. Las estimaciones son orientativas. © 2026.")]
+    # --- ensamblado en 3 partes ---
+    try:
+        rb.portadilla("_pa_parte2p.png", "Parte 2", 'VUESTRO\nDIAGNÓSTICO', 'Dónde chocáis, lo que os cuesta callarlo y cómo repartir sin discutir.')
+        _sep2=[PageBreak(), rb.Anchor("sec_parte2","PARTE 2 · VUESTRO DIAGNÓSTICO"), rb.FullBleedImage("_pa_parte2p.png"), PageBreak()]
+        rb.portadilla("_pa_parte3p.png", "Parte 3", 'ANEXOS', 'Cada uno por dentro, las doce dimensiones y vuestras respuestas.')
+        _sep3=[PageBreak(), rb.Anchor("sec_anexos","PARTE 3 · ANEXOS"), rb.FullBleedImage("_pa_parte3p.png"), PageBreak()]
+    except Exception:
+        _sep2=[PageBreak(), rb.Anchor("sec_parte2","PARTE 2 · VUESTRO DIAGNÓSTICO")]; _sep3=[PageBreak(), rb.Anchor("sec_anexos","PARTE 3 · ANEXOS")]
+    S=(_B["p0"]+_B["p1"]+[PageBreak()]+_B["mapa"]+_sep2+_B["p2"]+_sep3+_B["p3"]+_B["fin"])
     # --- saneador: colapsa PageBreaks consecutivos (elimina paginas en blanco) ---
     _clean=[]
     for _f in S:
-        if isinstance(_f, PageBreak) and _clean and isinstance(_clean[-1], PageBreak):
-            continue
+        if isinstance(_f, PageBreak):
+            while _clean and isinstance(_clean[-1], Spacer):   # un espaciador al final de pagina creaba hojas en blanco
+                _clean.pop()
+            if _clean and isinstance(_clean[-1], PageBreak):
+                continue
         _clean.append(_f)
     while _clean and isinstance(_clean[-1], PageBreak):
         _clean.pop()

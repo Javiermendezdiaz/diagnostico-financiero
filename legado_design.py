@@ -780,7 +780,7 @@ def anzuelo(out, items, url, accent=GOLD):
     ax.text(0.5,0.135,url,ha="center",va="center",color=MUTE,fontproperties=P(9),transform=ax.transAxes)
     fig.savefig(out,dpi=130); _cerrar(fig); return out
 
-def cover_pareja(out, nA, nB, fecha, ref="ITAP"):
+def cover_pareja(out, nA, nB, fecha, ref="ITAP", linea=None):
     fig,ax=_canvas(); _bg(ax,(0.80,0.86))
     _emblem(ax,0.5,0.845)
     ax.text(0.5,0.78,_spaced("ADAPTA  FAMILY  OFFICE",1),ha="center",va="center",color=MUTE,fontproperties=P(8.5),transform=ax.transAxes)
@@ -791,6 +791,8 @@ def cover_pareja(out, nA, nB, fecha, ref="ITAP"):
     ax.text(0.5,0.475,nombres,ha="center",va="center",color=BLUE,fontproperties=L(fs),transform=ax.transAxes)
     ax.plot([0.42,0.58],[0.42,0.42],color=BLUE,lw=1.6,transform=ax.transAxes)
     ax.text(0.5,0.375,_spaced("DOS VIDAS · UNA ECONOMÍA",1),ha="center",va="center",color=MUTE,fontproperties=P(10),transform=ax.transAxes)
+    if linea:
+        ax.text(0.5,0.30,linea,ha="center",va="center",color=BLUE_L,fontproperties=Pm(12),transform=ax.transAxes)
     ax.text(0.5,0.17,"Edición de Pareja",ha="center",va="center",color=FAINT,fontproperties=P(9.5),transform=ax.transAxes)
     ax.text(0.5,0.075,"DOCUMENTO CONFIDENCIAL · %s · USO PRIVADO"%ref,ha="center",va="center",color=FAINT,fontproperties=P(7),transform=ax.transAxes)
     ax.text(0.5,0.05,fecha,ha="center",va="center",color=FAINT,fontproperties=P(7.5),transform=ax.transAxes)
