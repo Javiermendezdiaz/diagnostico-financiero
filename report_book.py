@@ -610,12 +610,23 @@ class FlujoEstructura(Flowable):
         s._seg([(s.act,"#6B7280"),(s.pas,"#1D6F42")],y1,W,maxv,H)
         s._seg([(s.fij,"#C65C4E"),(s.var,"#E3B341")],y2,W,maxv,H)
 
-def St(n,**k): k.setdefault("fontName",FR); k.setdefault("textColor",INK); return ParagraphStyle(n,**k)
+def St(n,**k):
+    k.setdefault("fontName",FR); k.setdefault("textColor",INK)
+    # LETRA MINIMA DE LECTURA: todo texto corrido entre 8,6 y 10 pt sube a 10 pt (los rotulos
+    # pequenos en mayusculas, fuentes y pies, por debajo de 8,6, se quedan como estan).
+    try:
+        _fs=float(k.get("fontSize",10))
+        if 8.6<=_fs<10:
+            k["fontSize"]=10.0
+            k["leading"]=max(float(k.get("leading",_fs*1.3))*10.0/_fs,13.0)
+    except Exception:
+        pass
+    return ParagraphStyle(n,**k)
 h_book=St("hb",fontSize=17,leading=21,textColor=ACCDK,fontName=SB,spaceAfter=2)
 h_sec=St("hs",fontSize=20,leading=24,textColor=ACCDK,fontName=SB,spaceAfter=8)
 h_sub=St("hu",fontSize=10.5,leading=13,textColor=ACC,fontName=FB,spaceBefore=7,spaceAfter=3)
 body=St("bd",fontSize=10,leading=15,spaceAfter=7,alignment=TA_JUSTIFY)
-small=St("sm",fontSize=8,leading=11,textColor=GREY)
+small=St("sm",fontSize=9,leading=12.5,textColor=GREY)
 cap_kicker=St("ck",fontSize=8.5,leading=11,textColor=GREY,fontName=FB)
 
 import re as _re
@@ -693,6 +704,14 @@ class DarkPage(_Flowable):
                 _l1 = " ".join(_ws[:_half]); _l2 = " ".join(_ws[_half:])
                 c.setFont(FR, 7); c.drawCentredString(cx, 17*mm, _l1); c.drawCentredString(cx, 11*mm, _l2)
         c.restoreState()
+
+def _claro(path):
+    """Version en la paleta crema del libro de una pagina-imagen oscura (failsafe)."""
+    try:
+        import tema_claro
+        return tema_claro.claro(path)
+    except Exception:
+        return path
 
 class FullBleedImage(_Flowable):
     """Página-imagen a sangre (cubre toda la hoja A4). Para portada/portadillas/joyas Legado."""
@@ -2521,7 +2540,7 @@ def cuadro_financiero(p, datos, fi):
     out.append(PageBreak())
     try:
         panel_proyeccion("_proypanel.png", datos)
-        out += [FullBleedImage("_proypanel.png"), PageBreak()]
+        out += [FullBleedImage(_claro("_proypanel.png")), PageBreak()]
     except Exception:
         pass
     f65,mid65,m65,medad,modo=proyeccion_chart(datos,"_proy.png")
@@ -3600,7 +3619,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         _hero=None
     if _hero:
         S+=[FullBleedImage(_hero[0]), PageBreak()]
-        for _pg in _hero[1:]: _hero_rest+=[FullBleedImage(_pg), PageBreak()]
+        for _pg in _hero[1:]: _hero_rest+=[FullBleedImage(_claro(_pg)), PageBreak()]
     if not _hero: S+=[Spacer(1,34*mm),
         Paragraph("TU LIBRO FINANCIERO",St("cv0",fontSize=12,textColor=GREY,fontName=FB)),
         Spacer(1,3*mm),
@@ -3696,16 +3715,16 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         _gas=float(datos.get("gasto_mensual") or 0); _pf=float(datos.get("pct_gasto_fijo") or 0)
         _gfij=min(_gas,(_gas*_pf/100.0) if _pf>0 else _fijo_viv_deuda(datos.get("coste_vivienda"),datos.get("cuota_deuda"),datos.get("vivienda_tenencia"))); _gvar=max(0.0,_gas-_gfij)
         panel_dashboard("_panel.png", 100-salud, bl, fi[0], fi[1] or 0, fi[2] or 0, _inv,_par,_ili, _iact,_ipas, _gfij,_gvar, max(0.0,_par-6*_gas), cli.get("fecha",""))
-        S+=[FullBleedImage("_panel.png"), PageBreak()]
+        S+=[FullBleedImage(_claro("_panel.png")), PageBreak()]
         try:
             _dp=panel_distribucion("_distrib.png", datos, extras, cli.get("fecha",""))
             for _pg in (_dp if isinstance(_dp,list) else ["_distrib.png"]):
-                S+=[FullBleedImage(_pg), PageBreak()]
+                S+=[FullBleedImage(_claro(_pg)), PageBreak()]
         except Exception as _ed:
             import sys; sys.stderr.write("[distrib] omitida: %s\n"%_ed)
         if depth!="esencial":
             panel_capas("_capas.png", p)
-            S+=[FullBleedImage("_capas.png"), PageBreak()]
+            S+=[FullBleedImage(_claro("_capas.png")), PageBreak()]
     except Exception:
         pass
     S=_B["p3"]
@@ -3990,7 +4009,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         S+=[PageBreak()]
     # === ACTO 1 (cierre): sintesis financiera (FODA + flujo + proyeccion) ANTES de planificar ===
     S+=_secsafe(cuadro_financiero,p,datos,fi)
-    _B["p2"]+=_secsafe(seccion_cuatro_caminos,datos,fi,extras)
+    S+=_secsafe(seccion_cuatro_caminos,datos,fi,extras)   # detalle: a anexos (en la Parte 1 ya estan tus 3 decisiones)
     S+=_secsafe(seccion_estructura_sucesion,datos,p)
     S+=_secsafe(seccion_rentabilidad_alquiler,datos)
     S+=_secsafe(seccion_familia,datos)
@@ -4274,7 +4293,8 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                      St("pa_ok",fontSize=10,leading=14,textColor=INK,leftIndent=8,backColor="#F1F6EF",borderPadding=8,rightIndent=8,spaceBefore=2))
     _pens=float(datos.get("pension_estimada") or 0); _gm_lib=float(datos.get("gasto_mensual") or 0)
     _num_aj=max(0.0,(_gm_lib-_pens))*12*25
-    S+=[pt,Spacer(1,5*mm),Paragraph("Tus números de libertad",h_sub),
+    S=_B["p3"]   # el detalle del plan (tabla por area, tus numeros, tus fotos) va a anexos
+    S+=[PageBreak(),Paragraph("Tu plan, área por área",h_sec),pt,Spacer(1,5*mm),Paragraph("Tus números de libertad",h_sub),
         Table([["Número de libertad financiera (neto de pensión)",f"{fi[0]:,.0f} €".replace(",",".")],
                ["En tiempo de tu trabajo actual",(_en_tiempo(fi[0],datos) or "—")],
                # Decimales con COMA y sin espacio antes del %: salia "6.3 %" y "18.4 %",
@@ -4396,6 +4416,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
                         "en esta fase se corrige mucho peor que en la de construcción.",St("gst2",fontSize=9.8,leading=14,textColor=INK,spaceBefore=3))],
               "#EEF2F8","#0F766E",ancho=160*mm)]
     S+=[PageBreak()]
+    S=_B["p2"]; S+=[PageBreak()]
     if depth!="esencial":
         _seen=[]
         for _v,_c,_d in plan(p):
@@ -4407,7 +4428,13 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         S+=[Paragraph("Tu hoja de ruta a 90 d\u00edas",h_sec),
             Paragraph("No es una lista de buenos prop\u00f3sitos: es un tablero de operaciones por fases de urgencia. "
                       "Marca cada casilla cuando lo hagas. Empieza por arriba \u2014 el orden importa.",body)]
-        fases=[("#0F766E","Fase 1 \u00b7 Pr\u00f3ximas 72 horas","Cortafuegos: frenar el estr\u00e9s y las fugas",[_acc(0),_acc(1)]),
+        _p1=None
+        try:
+            _au=(extras or {}).get("accion_unica")
+            if _au: _p1="<b>Tu primer paso:</b> "+str(_au)
+        except Exception:
+            _p1=None
+        fases=[("#0F766E","Fase 1 \u00b7 Pr\u00f3ximas 72 horas","Cortafuegos: frenar el estr\u00e9s y las fugas",([_p1,_acc(0)] if _p1 else [_acc(0),_acc(1)])),
                ("#B45309","Fase 2 \u00b7 D\u00edas 4-30","Estructura: automatizar y ordenar",[_acc(2),_acc(3)]),
                ("#0284C7","Fase 3 \u00b7 D\u00edas 31-90","Expansi\u00f3n: construir patrimonio",[_acc(4),"Ponle fecha en tu calendario a repetir el diagn\u00f3stico dentro de seis meses."])]
         rt=[]
@@ -4577,9 +4604,9 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
     # ANEXO: respuestas del cliente (transparencia; sin mostrar scores)
     NUM_MAP={"C2-1":"gasto_mensual","C2-2":"ingreso_mensual","C2-3":"ahorro_mensual","C2-4":"patrimonio","C2-5":"edad"}
     S+=[PageBreak(), Paragraph("Anexo \u2014 Tus respuestas",h_sec),
-        Paragraph("Para total transparencia: estas son las preguntas que respondiste y lo que elegiste. "
-                  "Tu diagn\u00f3stico se basa exactamente en esto, ni m\u00e1s ni menos.",body)]
-    for capa in INST["capas"]:
+        Paragraph("Para total transparencia: estas son tus respuestas en las cuatro dimensiones que m\u00e1s pesan "
+                  "en tu diagn\u00f3stico. Si quieres el detalle completo de todas, p\u00eddenoslo y te lo enviamos.",body)]
+    for capa in sorted(INST["capas"], key=lambda _c: -((p.get(_c["code"]) or {}).get("score") or 0))[:4]:
         rows=[[Paragraph("<b>Pregunta</b>",small),Paragraph("<b>Tu respuesta</b>",small)]]
         bgs=[]; ri=1
         for it in capa["items"]:
@@ -4609,7 +4636,7 @@ def build(cli,resp,datos,out,depth="completo",baremo=None,sintesis=None,extras=N
         if _LEGADO_OK and extras: _const=_legado_pages.hero_close(extras,depth=depth)
     except Exception:
         _const=None
-    if _const: _B["p2"]+=[PageBreak(), FullBleedImage(_const)]
+    if _const: _B["p2"]+=[PageBreak(), FullBleedImage(_claro(_const))]
     # === GLOSARIO EJECUTIVO (cierre de anexos) ===
     S+=_secsafe(seccion_glosario)
     S=_B["fin"]

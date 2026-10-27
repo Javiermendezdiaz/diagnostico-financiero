@@ -58,7 +58,7 @@ def _emblem(ax,x,y,s=0.030):
 
 def _spaced(t,n=3): return (" "*n).join(list(t))
 
-def cover(out, cliente, fecha, tier_txt="Informe Avanzado", ref="ITAP"):
+def cover(out, cliente, fecha, tier_txt="Informe Avanzado", ref="ITAP", linea=None):
     fig,ax=_canvas(); _bg(ax,(0.80,0.86))
     _emblem(ax,0.5,0.845)
     ax.text(0.5,0.78,_spaced("FAMILY  OFFICE",1),ha="center",va="center",color=MUTE,fontproperties=P(8.5),transform=ax.transAxes)
@@ -66,7 +66,12 @@ def cover(out, cliente, fecha, tier_txt="Informe Avanzado", ref="ITAP"):
     ax.text(0.5,0.575,"DIAGNÓSTICO",ha="center",va="center",color=WHITE,fontproperties=L(43),transform=ax.transAxes)
     ax.text(0.5,0.485,"PATRIMONIAL",ha="center",va="center",color=BLUE,fontproperties=L(43),transform=ax.transAxes)
     ax.plot([0.42,0.58],[0.43,0.43],color=BLUE,lw=1.6,transform=ax.transAxes)
-    ax.text(0.5,0.385,_spaced("PASADO · PRESENTE · FUTURO",1),ha="center",va="center",color=MUTE,fontproperties=P(10.5),transform=ax.transAxes)
+    if cliente:
+        ax.text(0.5,0.375,"Preparado para %s"%cliente,ha="center",va="center",color=WHITE,fontproperties=Li(17),transform=ax.transAxes)
+    if linea:
+        ax.text(0.5,0.325,linea,ha="center",va="center",color=BLUE_L,fontproperties=Pm(12),transform=ax.transAxes)
+    if not cliente and not linea:
+        ax.text(0.5,0.385,_spaced("PASADO · PRESENTE · FUTURO",1),ha="center",va="center",color=MUTE,fontproperties=P(10.5),transform=ax.transAxes)
     ax.text(0.5,0.15,"Una lectura honesta de tu relación con el dinero",ha="center",va="center",color=FAINT,fontproperties=P(10),transform=ax.transAxes)
     ax.text(0.5,0.075,_spaced("DOCUMENTO CONFIDENCIAL · %s · USO PRIVADO"%ref,0).replace("  "," "),ha="center",va="center",color=FAINT,fontproperties=P(7),transform=ax.transAxes)
     ax.text(0.5,0.05,fecha,ha="center",va="center",color=FAINT,fontproperties=P(7.5),transform=ax.transAxes)
@@ -427,7 +432,7 @@ def coste_ego(out, gasto_mes, anos, capital, n_anos=25, accent=GOLD):
     ax.text(0.12+0.066*len(txt)+0.02,0.495,("AÑO" if txt=="1" else "AÑOS"),ha="left",va="center",color=WHITE,fontproperties=L(30),transform=ax.transAxes)
     ax.text(0.10,0.40,_spaced("DE TU LIBERTAD, RETRASADA",1),ha="left",va="center",color=MUTE,fontproperties=P(10),transform=ax.transAxes)
     import textwrap
-    msg=("Gastas %s €/mes en sostener una imagen. Invertido al 7%% hasta tu jubilación (unos %d años), ese mismo "
+    msg=("Gastas %s €/mes en sostener una imagen. Invertido al 5%% real hasta tu jubilación (unos %d años), ese mismo "
          "dinero sumaría unos %s y adelantaría tu libertad %s. Ese coche, esa marca, esa mesa del mejor "
          "restaurante: su precio real no es lo que pagaste, son los años de tu vida que cuestan.") % (
          "{:,.0f}".format(gasto_mes).replace(",","."), int(n_anos), "{:,.0f} €".format(capital).replace(",","."),

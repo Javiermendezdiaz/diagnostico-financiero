@@ -124,10 +124,13 @@ def joyas_0001(seq, tmp, cli, datos, extras, p):
     num=br.get("numero_ideal")
     if ge and ge>0 and num:
         try:
-            y0=_years_to(num,pat,aho); y1=_years_to(num,pat,aho+ge)
+            import motor_financiero_v3 as _m
+            _cap=invl+col
+            y0=_m._anios_hasta(num,_cap,aho,0.05/12); y1=_m._anios_hasta(num,_cap,aho+ge,0.05/12)
+            if y0 is None or y1 is None: raise ValueError("sin horizonte")
             anos=max(0.0,y0-y1)
-            n=min(30,max(5,_num(datos,"edad") and (65-_num(datos,"edad")) or 25))
-            cap=ge*12*(((1.07**n)-1)/0.07)
+            n=min(30,max(5,_num(datos,"edad") and (67-_num(datos,"edad")) or 25))
+            cap=ge*12*(((1.05**n)-1)/0.05)
             if anos>=0.5:
                 seq.append(LD.coste_ego(tmp+"ego.svg",ge,anos,cap,n))
         except Exception: pass
@@ -223,7 +226,7 @@ def barrera(seq, tmp, datos, extras, p):
         cap="Con tu colchón aún corto, la tentación de echar mano de este dinero ante un imprevisto es real. Para eso está tu fondo de emergencia; este reactor es sagrado y no se toca."
     else:
         cap="Tu mayor peligro: abandonar en el «Valle de las Sombras» de los primeros años, cuando el esfuerzo es alto y el interés aún parece invisible. Tu única métrica esos trimestres es la velocidad hacia los 100k."
-    try: seq.append(LD.barrera_100k(tmp+"100k.svg",p0,aho,7,cap))
+    try: seq.append(LD.barrera_100k(tmp+"100k.svg",p0,aho,5,cap))
     except Exception: pass
 
 def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_meta=None):
@@ -231,12 +234,19 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
     completo = (depth != "esencial")
     seq=[]; nombre=cli.get("nombre") or "Cliente"
     ref=("AFO-%s"%(str(abs(hash(cli.get('email') or nombre))%9999)).zfill(4))
-    seq.append(LD.cover(tmp+"00.svg",nombre,cli.get("fecha",""),ref=ref))
+    _linea=None
+    try:
+        import seccion_apertura as _sa
+        _lr=_sa.lunes_y_rango(datos,_sa.datos_expectativas(datos))
+        if _lr and _lr.get("lunes0"):
+            _linea="Hoy te quedan %s lunes. Este libro te dice cómo quitarte muchos." % ("{:,.0f}".format(_lr["lunes0"]).replace(",","."))
+    except Exception:
+        _linea=None
+    _nom1=(str(cli.get("nombre") or "").strip().split() or [""])[0].capitalize()
+    seq.append(LD.cover(tmp+"00.svg",_nom1,cli.get("fecha",""),ref=ref,linea=_linea))
     br=(extras or {}).get("brecha") or {}
     if completo:
-        seq.append(LD.divider(tmp+"01.svg","Sección I — Pasado",["Arqueología del","Comportamiento"],
-            "Las decisiones y creencias que construyeron, en silencio, tus cimientos de hoy.",
-            tint="#121215", accent="#C9B98F"))
+        # (Separador "Seccion I" retirado: pagina casi vacia dentro de la Parte 2)
         if arq_meta:
             _pars=[arq_meta.get("desc",""),
                    "Esta forma de mirar el dinero no nació contigo: se aprendió, en lo que viste y oíste de pequeño sobre el dinero. No es un defecto. Es un guion — y todo guion se puede leer.",
@@ -245,7 +255,7 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
                 arq_meta.get("lema",""), _pars,
                 "Un guion se puede reescribir. Empieza por verlo.", accent="#C9B98F"))
     ci=br.get("coste_ideal_mes"); ing=br.get("ingreso_mes"); gap=br.get("brecha_mes")
-    if ci:
+    if ci and not completo:   # en el avanzado la brecha ya esta en la Parte 1: no se repite
         if gap and gap>0:
             # El KPI hero ("Tus datos dicen") debe mostrar lo que el cliente GENERA hoy:
             # el INGRESO real anual (ingreso_mes*12), NO la brecha. La brecha se muestra
@@ -269,10 +279,6 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
                 "La vida que describí como ideal cuesta %s al mes."%LD_fmt(ci),
                 "Ya llegas","Hoy tu flujo ya cubre tu vida ideal. El reto deja de ser cuánto ganas y pasa a ser a qué velocidad conviertes ese margen en capital que trabaje por ti.",
                 "Ahora, protégelo.", accent="#C9B98F"))
-    if completo:
-        seq.append(LD.divider(tmp+"03.svg","Sección II — Presente",["Radiografía","del Capital"],
-            "Dónde estás hoy, medido no en cuánto tienes, sino en cuánta paz y cuánta libertad te da.",
-            tint=LD.GLOW, accent=LD.BLUE))
     idx,et,drv=stress(datos,p)
     seq.append(LD.termometro(tmp+"04.svg","El termómetro de tu estrés financiero",idx,et,drv,accent=LD.BLUE))
     if completo:
@@ -286,12 +292,9 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
         pass
     if completo:
         joyas_0001(seq,tmp,cli,datos,extras,p)
-        seq.append(LD.divider(tmp+"05.svg","Sección III — Futuro",["Visión","y Libertad"],
-            "Hacia dónde vas, y el número exacto que convierte tu trabajo en una elección.",
-            tint="#141417", accent=LD.GOLD))
         barrera(seq,tmp,datos,extras,p)
     num=br.get("numero_ideal")
-    if num:
+    if num and not completo:   # en el avanzado tu numero ya abre la Parte 1
         dn,du=_compact(num)
         bullets=[]
         _pension=_num(datos,"pension_estimada") or 0
@@ -305,7 +308,8 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
             "Es la cifra que, generando renta, te permite vivir de tu patrimonio y no de tu tiempo.",
             bullets, accent=LD.GOLD))
     if completo:
-        acelerador(seq,tmp,datos,extras,p)
+        # Acelerador 10x10 retirado: prometia otros "años antes" con otro modelo y contradecia
+        # tus 3 decisiones. Un solo numero de años en todo el libro.
         # Plan de 100 dias: TRES movimientos imperativos y claros (no diagnosticos)
         _dt=(extras or {}).get("deuda_tipo")
         _gas100=_num(datos,"gasto_mensual") or 0; _ing100=_num(datos,"ingreso_mensual") or 0
@@ -326,10 +330,7 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
             m3=("Pon tu patrimonio a trabajar","Pasar de «parado» a «invertido con un plan» es tu mayor salto pendiente. Empieza, mide y ajusta el rumbo.")
         else:
             m3=("Reequilibra y consolida","Revisa tu fortuna neta, ajusta lo que se haya desviado y consolida el hábito. A partir de aquí, el plan es tuyo.")
-        seq.append(LD.mapa_100(tmp+"07.svg",[
-            ("Día 1–30",m1[0],m1[1]),
-            ("Día 31–60",m2[0],m2[1]),
-            ("Día 61–90",m3[0],m3[1])], accent=LD.GOLD))
+        # mapa_100 retirado: duplicaba "Tu hoja de ruta a 90 días" de la Parte 2.
         if arq_meta:
             _man="%s Y, esta vez, lo ejecutas: actúas sobre tu plan en lugar de aplazarlo." % (arq_meta.get('luz','') or '')
             seq.append(LD.el_salto(tmp+"07b.svg", arq_meta.get('nombre','Tu arquetipo'),
@@ -347,7 +348,7 @@ def hero_open(cli, datos, extras, p, tmp="/tmp/_leg_", depth="completo", arq_met
             "Blood Money: lo que tu trabajo le cuesta a tu salud.",
             "Tu Escudo ante el cisne negro, el despido y la invalidez.",
             "El Coste de tu Ego y la Barrera de los 100.000 €.",
-            "El Acelerador 10×10: cómo adelantar años tu libertad.",
+            "Tus lunes: cuántos te quitas con tus decisiones.",
             "Tus 12 capas psicofinancieras, una a una.",
             "Tu Constitución Financiera completa."], SIM_URL.rsplit("/",1)[0]))
     return seq
