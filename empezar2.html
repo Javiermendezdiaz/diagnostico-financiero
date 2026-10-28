@@ -171,6 +171,7 @@ a{color:var(--am)}
 <div class="body">
 
 <div id="s-reg" class="step active">
+<div id="regMuro">
   <div class="kick">Hoy te ves claro. Mañana, vives mejor.</div>
   <h1 style="font-size:23px;line-height:1.22;font-weight:800;letter-spacing:-0.3px;margin:6px 0 11px">No es un test. Es la <span style="color:var(--am)">radiografía más honesta</span> de tu dinero.</h1>
   <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:15px">
@@ -221,6 +222,7 @@ a{color:var(--am)}
     <div class="cmp-foot"><b>Solo tú → A fondo.</b> &nbsp;<b>En pareja → Pareja:</b> es el único que cruza vuestros dos perfiles y os da el guion para hablarlo. No es «más de lo mismo» — es vuestra relación con el dinero.</div>
   </div>
 </div>
+</div>
 
 <div id="s-invite" class="step">
   <div style="text-align:center;margin-bottom:6px">
@@ -265,11 +267,22 @@ a{color:var(--am)}
   <button class="btn" onclick="arrancarTest()">Acepto. Empecemos →</button>
 </div>
 
+<div id="s-email" class="step">
+  <div class="kick">Último paso</div>
+  <h1 style="font-size:23px;line-height:1.25;font-weight:800;letter-spacing:-0.3px;margin:6px 0 10px">Ya está. <span style="color:var(--am)">¿A quién se lo preparamos?</span></h1>
+  <p style="font-size:15px;line-height:1.55;margin-bottom:14px">Con tu nombre lo personalizamos, y a tu email te llega el resultado para que no lo pierdas.</p>
+  <div class="lbl">Tu nombre</div><input id="nombreFin" placeholder="Nombre" autocomplete="given-name">
+  <div class="lbl" style="margin-top:12px">Tu email</div><input id="emailFin" type="email" placeholder="tu@email.com" autocomplete="email">
+  <button class="btn" id="btnFin" onclick="confirmarEmail()">Ver mi resultado →</button>
+  <p style="font-size:11.5px;color:var(--gr);text-align:center;margin-top:9px;line-height:1.5">Ves tu adelanto gratis. Solo pagas si quieres tu informe completo. Sin spam: <a href="privacidad.html" target="_blank" style="color:var(--gr)">privacidad</a>.</p>
+</div>
+
 <div id="s-q" class="step">
   <div class="q-split">
     <div class="q-main">
       <div class="bar"><i id="bar"></i></div>
       <div class="tens"><span class="lbl2" id="tensLbl" style="color:#7ee3ad">Estructura eficiente</span><div class="tbar"><i id="tbar" style="background:#1f7a4d"></i></div></div>
+      <div id="introQ" style="display:none;font-size:12.5px;line-height:1.5;color:var(--gr);margin:4px 0 10px;text-align:center"><b style="color:var(--am)">Gratis y sin registro.</b> Responde por cómo es tu vida, no por cómo te gustaría. Al continuar aceptas la <a href="privacidad.html" target="_blank" style="color:var(--gr)">política de privacidad</a>.</div>
       <div class="q-card" id="qcard">
         <div class="qnum" id="bloque"></div>
         <div id="scopeBadge" style="display:none"></div>
@@ -477,13 +490,13 @@ function ofrecerReanudar(){
     box.innerHTML='<div style="font-weight:600;color:var(--tx);margin-bottom:4px">Ya completaste tu diagnóstico</div>'+
       '<div style="font-size:13px;color:var(--gr);margin-bottom:12px">Lo tenemos guardado. Recupéralo aquí: no hace falta que lo repitas.</div>'+
       '<button class="btn btn-am" style="padding:10px 18px;font-size:14px" onclick="recuperarDiagnostico()">Recuperar mi diagnóstico →</button>'+
-      '<button style="margin-left:10px;background:none;border:none;color:var(--gr);font-size:12.5px;cursor:pointer;text-decoration:underline" onclick="if(confirm(\'Se borrará el diagnóstico que ya completaste. ¿Seguro?\')){limpiarProgreso();this.closest(\'div\').remove();}">Empezar uno nuevo</button>';
+      '<button style="margin-left:10px;background:none;border:none;color:var(--gr);font-size:12.5px;cursor:pointer;text-decoration:underline" onclick="if(confirm(\'Se borrará el diagnóstico que ya completaste. ¿Seguro?\')){limpiarProgreso();this.closest(\'div\').remove();if(!PAREJA)arranqueDirecto();}">Empezar uno nuevo</button>';
   }else{
     const pct=Math.round((s.i/s.cola.length)*100);
     box.innerHTML='<div style="font-weight:600;color:var(--tx);margin-bottom:4px">Tienes un diagnóstico a medias ('+pct+'%)</div>'+
       '<div style="font-size:13px;color:var(--gr);margin-bottom:12px">Lo guardamos en este navegador. Puedes continuar donde lo dejaste.</div>'+
       '<button class="btn btn-am" style="padding:10px 18px;font-size:14px" onclick="reanudar()">Reanudar mi test →</button>'+
-      '<button style="margin-left:10px;background:none;border:none;color:var(--gr);font-size:12.5px;cursor:pointer;text-decoration:underline" onclick="limpiarProgreso();this.closest(\'div\').remove()">Empezar de nuevo</button>';
+      '<button style="margin-left:10px;background:none;border:none;color:var(--gr);font-size:12.5px;cursor:pointer;text-decoration:underline" onclick="limpiarProgreso();this.closest(\'div\').remove();if(!PAREJA)arranqueDirecto()">Empezar de nuevo</button>';
   }
   cont.insertBefore(box, cont.firstChild);
 }
@@ -532,6 +545,53 @@ async function iniciar(){
   }catch(e){console.error(e);alert('No se pudo cargar. Reintenta.');show('s-reg')}
 }
 function arrancarTest(){ show('s-q'); st.i=0; pintar(); }
+/* ENTRADA SIN MURO: la gente llegaba desde «Empezar gratis» y se encontraba nombre, email, precios y una
+   casilla antes de la primera pregunta. Nadie empezaba. Ahora la primera pantalla ES la primera pregunta;
+   el nombre y el email se piden al final, justo antes del adelanto, y los precios solo en el adelanto. */
+async function arranqueDirecto(){
+  limpiarProgreso();
+  const _t=parseInt(new URLSearchParams(location.search).get('tier')||'2'); st.tier=(_t>=1&&_t<=3)?_t:2;
+  st.sid=null; st.email=''; st.nombre=''; st._startando=false;
+  show('s-load');
+  try{
+    INST=await (await fetch('itap_v2.json?v='+Date.now())).json();
+    try{ const _qq=await (await fetch(API+'/api/questions/'+st.tier)).json(); INST._abiertas=_qq.abiertas||[]; }catch(e){ INST._abiertas=[]; }
+    construirCola();
+    // El aviso de «solo tus cifras» (antes en la pantalla del pacto) va ahora en la primera pregunta de números
+    try{ const qn=st.cola.find(x=>x._cap==='NUM'); if(qn && !qn.ayuda) qn.ayuda=(st.tier===3)
+      ? 'En pareja, responde con TUS números individuales (tus ingresos, tu parte de los gastos, tu patrimonio). Nosotros los sumamos para ver vuestro hogar.'
+      : 'Solo tus cifras, no las del hogar: tus ingresos, tu patrimonio y tu parte de los gastos.'; }catch(e){}
+    try{window.adaptaEv&&adaptaEv('test_vista',st.tier)}catch(e){}
+    show('s-q'); st.i=0; pintar();
+  }catch(e){ console.error(e); show('s-reg'); }
+}
+async function asegurarSesion(){
+  if(st.sid || st._startando) return; st._startando=true;
+  try{
+    const r=await fetch(API+'/api/start',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:'',nombre:'',tier:st.tier,sexo:'',consentimiento:true})});
+    st.sid=(await r.json()).session_id;
+    try{window.adaptaEv&&adaptaEv('test_inicio',st.tier)}catch(e){}
+    saveProgreso();
+  }catch(e){ st._startando=false; }
+}
+function pedirEmail(){
+  try{window.adaptaEv&&adaptaEv('email_pide',st.tier)}catch(e){}
+  if(!st.sid) asegurarSesion();
+  const n=document.getElementById('nombreFin'), m=document.getElementById('emailFin');
+  if(n && st.nombre) n.value=st.nombre; if(m && st.email) m.value=st.email;
+  show('s-email'); try{ window.scrollTo(0,0); }catch(e){}
+}
+async function confirmarEmail(){
+  const n=(document.getElementById('nombreFin').value||'').trim(), m=(document.getElementById('emailFin').value||'').trim();
+  if(!n){alert('Pon tu nombre');return}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){alert('Revisa tu email');return}
+  st.nombre=n; st.email=m;
+  try{window.adaptaEv&&adaptaEv('email_ok',st.tier)}catch(e){}
+  if(!st.sid){ await asegurarSesion(); }
+  if(!st.sid){ alert('No se pudo conectar. Reintenta en unos segundos.'); st._startando=false; return; }
+  saveProgreso(); finalizar();
+}
 function descTier(){
   const el=document.getElementById('tier'), box=document.getElementById('tierDesc'); if(!el||!box) return;
   const D={'1':'<b style="color:var(--am)">Para quien quiere la verdad, ya.</b> Una radiografía sin anestesia de tu relación con el dinero. Ideal si empiezas, si nunca te han dicho la verdad sobre tus números, o si quieres claridad sin rodeos.',
@@ -810,8 +870,9 @@ function _pintarScopeBadge(q){
 }
 function pintar(){
   while(st.i<st.cola.length && !aplica(st.cola[st.i])) st.i++;
-  if(st.i>=st.cola.length){ return finalizar(); }
+  if(st.i>=st.cola.length){ return (!st.email && !PAREJA) ? pedirEmail() : finalizar(); }
   const q=st.cola[st.i];
+  try{ const iq=document.getElementById('introQ'); if(iq) iq.style.display=(st.i===0 && !st.sid)?'block':'none'; }catch(e){}
   repProg(q);
   saveProgreso();
   const _rem=Math.max(0,st.cola.length-st.i), _mins=_rem>2?'  ·  ~'+Math.max(1,Math.round(_rem*8/60))+' min':'';
@@ -1282,6 +1343,7 @@ function hito(cb){
   document.getElementById('hitoBtn').onclick=function(){ m.classList.remove('on'); cb(); };
 }
 function avanzar(q){
+  if(!st.sid) asegurarSesion();
   let scanCapa=null;
   if(q._cap && q._cap[0]==='C'){
     const sig=st.cola[st.i+1];
@@ -1323,7 +1385,7 @@ async function finalizar(){
   try{
     st.datos._motor=st.motorLog;
     try{const _o=sessionStorage.getItem('adaptaDe'); if(_o) st.datos._origen=_o; const _v=sessionStorage.getItem('adaptaVid'); if(_v) st.datos._vid=_v;}catch(e){}
-    const body={session_id:st.sid,email:st.email,respuestas:st.resp,datos:st.datos,abiertas:st.abiertas,perfil:st.perfil,v2:true};
+    const body={session_id:st.sid,email:st.email,nombre:st.nombre,respuestas:st.resp,datos:st.datos,abiertas:st.abiertas,perfil:st.perfil,v2:true};
     if(PAREJA) body.pareja_de=PAREJA;
     const r=await fetch(API+'/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const d=await r.json();
@@ -1613,6 +1675,16 @@ function show(id){ if(_cyc){_cyc();_cyc=null;} document.querySelectorAll('.step'
     document.getElementById('payBtn').textContent='Comprar y pagar';
     document.getElementById('payBox').style.display='block';
   }
+})();
+// Entrada: invitacion de pareja -> su pantalla; vuelta de Stripe -> su pantalla; progreso guardado ->
+// ofrecer reanudar (sin el muro); en cualquier otro caso -> directo a la primera pregunta.
+(function(){
+  try{
+    const qs=new URLSearchParams(location.search);
+    if(PAREJA || qs.get('sid')) return;
+    if(hayProgreso()){ const mu=document.getElementById('regMuro'); if(mu) mu.style.display='none'; show('s-reg'); return; }
+    arranqueDirecto();
+  }catch(e){}
 })();
 </script><footer style="text-align:center;padding:26px 18px;border-top:1px solid var(--bd);color:var(--gr);font-size:12px;line-height:1.95;max-width:640px;margin:26px auto 0">
   <a href="https://www.adaptafamilyoffice.com/aviso-legal" target="_blank" rel="noopener" style="color:var(--gr);margin:0 6px;text-decoration:none">Aviso legal</a> ·
