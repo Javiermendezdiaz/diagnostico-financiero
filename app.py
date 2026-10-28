@@ -740,7 +740,7 @@ def visitas(key: str = "", dias: int = 30):
     with db() as c:
         _ensure_ev(c)
         filas = c.execute("SELECT ts,sid,ev,pag,de,ref,val,movil FROM eventos WHERE ts>=? ORDER BY ts", (desde,)).fetchall()
-        ses = c.execute("SELECT datos,respuestas,pagado,tier,creado,email,nombre FROM sesiones WHERE creado>=?", (desde,)).fetchall()
+        ses = c.execute("SELECT datos,respuestas,pagado,tier,creado,email,nombre,last_qid,progreso_idx,progreso_total FROM sesiones WHERE creado>=?", (desde,)).fetchall()
     for r in filas:
         v = vis.get(r["sid"])
         if v is None:
@@ -828,7 +828,17 @@ def visitas(key: str = "", dias: int = 30):
             prev = t
         rec.append({"inicio": v["inicio"], "origen": v["de"], "canal": _canal(v["de"]), "ref": v["ref"],
                     "movil": bool(v["movil"]), "seg": v["seg"], "scroll": v["scroll"], "recorrido": pasos[:40]})
-    return {"dias": dias, "visitantes": len(vis), "descartados_ruido": descartados, "embudo": embudo, "cuestionarios_servidor": dict(srv),
+    # CLAVES PARA MEJORAR: donde se atascan y donde abandonan (sin datos personales)
+    atascos = Counter(e[1] for v in vis.values() for e in v["ev"] if e[0] == "desg_bloqueo")
+    atajo_otros = Counter((e[1] or "").split("|")[0] for v in vis.values() for e in v["ev"] if e[0] == "desg_otros")
+    abandono = Counter()
+    for r in ses:
+        if r["respuestas"] in (None, "", "{}"):
+            try: pct = int(round(100.0 * (r["progreso_idx"] or 0) / max(1, r["progreso_total"] or 1)))
+            except Exception: pct = 0
+            abandono["%s (%d%%)" % (r["last_qid"] or "antes de la 1.ª", pct)] += 1
+    return {"dias": dias, "visitantes": len(vis), "descartados_ruido": descartados, "embudo": embudo,
+            "atascos_desglose": dict(atascos), "atajo_otros": dict(atajo_otros), "abandono_por_pregunta": dict(abandono.most_common(15)), "cuestionarios_servidor": dict(srv),
             "calculadora_anios_de_mas": dict(brecha), "por_dia": dict(sorted(por_dia.items())),
             "linkedin_por_dia": dict(sorted(li_dia.items())), "recorridos": rec}
 

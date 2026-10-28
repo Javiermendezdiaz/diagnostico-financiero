@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<style id="adapta-fonts">
+@font-face{font-family:'Poppins';font-weight:300;font-style:normal;font-display:swap;src:url('fonts/Poppins-Light.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:400;font-style:normal;font-display:swap;src:url('fonts/Poppins-Regular.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:500;font-style:normal;font-display:swap;src:url('fonts/Poppins-Medium.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:600;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:700;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Poppins';font-weight:800;font-style:normal;font-display:swap;src:url('fonts/Poppins-Bold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:400;font-style:normal;font-display:swap;src:url('fonts/Lora-Regular.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:600;font-style:normal;font-display:swap;src:url('fonts/Lora-SemiBold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:700;font-style:normal;font-display:swap;src:url('fonts/Lora-Bold.ttf') format('truetype')}
+@font-face{font-family:'Lora';font-weight:400;font-style:italic;font-display:swap;src:url('fonts/Lora-Italic.ttf') format('truetype')}
+</style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diagnóstico Psicofinanciero · Adapta Family Office</title>
+<style>
+:root{--am:#FDD731;--ng:#0a0a0b;--pa:#141417;--gr:#9ca3af;--bd:#26262b;--tx:#f4f4f5}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--ng);color:var(--tx);min-height:100vh;display:flex;justify-content:center;padding:20px}
+.wrap{width:100%;max-width:600px}
+.card{position:relative;background:var(--pa);border:1px solid var(--bd);border-radius:18px;overflow:hidden}
+.head{text-align:center;padding:22px 22px 16px;border-bottom:2px solid var(--am)}
+.logo{font-weight:800;letter-spacing:.5px;font-size:20px}.logo b{color:var(--am)}
+.head p{color:var(--gr);font-size:13px;margin-top:6px}
+.body{padding:24px}
+.step{display:none}.step.active{display:block}
+.bar{height:7px;background:var(--bd);border-radius:99px;overflow:hidden;margin-bottom:10px}
+.bar>i{display:block;height:100%;background:var(--am);width:0;border-radius:99px;transition:width .35s ease}
+.tens{display:flex;align-items:center;gap:9px;margin:0 0 16px;font-size:11px;font-weight:600;letter-spacing:.3px}
+.tens .lbl2{min-width:120px}.tens .tbar{flex:1;height:6px;background:var(--bd);border-radius:99px;overflow:hidden}
+.tens .tbar>i{display:block;height:100%;width:0;border-radius:99px;transition:width .55s ease,background .55s}
+.kick{color:var(--am);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:14px 0 4px}
+.qnum{color:var(--gr);font-size:12px;margin-bottom:14px}
+.scopebadge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;line-height:1;letter-spacing:.2px;padding:4px 9px;border-radius:99px;margin-bottom:10px;border:1px solid var(--bd)}
+.scopebadge.ind{color:var(--gr);background:rgba(156,163,175,.10)}
+.scopebadge.par{color:var(--am);background:rgba(253,215,49,.12);border-color:rgba(253,215,49,.35)}
+.qtext{font-size:19px;font-weight:700;line-height:1.35;margin-bottom:6px}
+.ayuda{color:var(--gr);font-size:13px;line-height:1.4;margin-bottom:16px}
+@keyframes aiFade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.ayuda.ai{color:var(--am)}
+.opt{display:block;width:100%;text-align:left;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);
+  padding:15px 16px;border-radius:12px;font-size:15px;font-weight:600;line-height:1.35;margin-bottom:11px;cursor:pointer;transition:.15s;font-family:inherit}
+.opt:hover{border-color:var(--am);background:#222227}
+.opt.sel{border-color:var(--am);background:#2b2a16;box-shadow:inset 4px 0 0 var(--am)}
+input,select{width:100%;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);padding:14px;border-radius:12px;font-size:16px;font-family:inherit}
+.lbl{font-size:13px;color:var(--gr);margin-bottom:7px}
+.btn{background:var(--am);color:#000;border:none;padding:14px 22px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;width:100%;margin-top:6px}
+.back{background:none;border:none;color:var(--gr);font-size:13px;cursor:pointer;margin-top:14px;padding:4px;font-family:inherit}
+.spin{width:42px;height:42px;border:4px solid var(--bd);border-top-color:var(--am);border-radius:50%;animation:r 1s linear infinite;margin:30px auto}
+@keyframes r{to{transform:rotate(360deg)}}
+.center{text-align:center;padding:14px 0}
+.chk{display:flex;gap:10px;align-items:flex-start;margin:14px 0;font-size:13px;color:var(--gr)}.chk input{width:auto;margin-top:2px}
+a{color:var(--am)}
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%) translateY(-14px) scale(.98);max-width:580px;width:calc(100% - 28px);
+  padding:13px 17px;border-radius:13px;font-size:14px;font-weight:600;line-height:1.4;opacity:0;pointer-events:none;transition:.32s cubic-bezier(.2,.85,.25,1);z-index:60;border:1px solid;box-shadow:0 16px 46px -14px rgba(0,0,0,.8)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+.toast .kk{display:block;font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;font-weight:800;opacity:.8;margin-bottom:4px}
+.toast.s0{background:#0e2419;border-color:#1f7a4d;color:#7ee3ad}
+.toast.s50{background:#2a2410;border-color:#9a7b1e;color:#f2cf6b}
+.toast.s100{background:#2a1413;border-color:#9a3024;color:#f6a89c}
+.scan{position:absolute;inset:0;background:var(--pa);display:none;flex-direction:column;align-items:center;justify-content:center;padding:34px;z-index:40}
+.scan.on{display:flex}
+.scan .ln{width:78%;height:2px;background:linear-gradient(90deg,transparent,var(--am),transparent);margin:20px 0}
+.scan.on .ln{animation:sw 1.1s ease-in-out infinite}
+@keyframes sw{0%{transform:translateX(-55%);opacity:.2}50%{opacity:1}100%{transform:translateX(55%);opacity:.2}}
+.scan h4{font-size:15px;font-weight:700;text-align:center}.scan .vd{font-size:13px;text-align:center;margin-top:10px;line-height:1.45;font-weight:600}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:80;padding:20px}
+.modal.on{display:flex}
+.hito-box{border-color:var(--am)}.hito-pct{font-family:Lora,Georgia,serif;font-size:46px;font-weight:700;color:var(--am);line-height:1}.hito-bar{height:6px;border-radius:3px;background:#22253a;margin:12px 0 16px;overflow:hidden}.hito-bar i{display:block;height:100%;background:var(--am);border-radius:3px;transition:width .9s ease}
+.modal .box{background:var(--pa);border:1px solid var(--am);border-radius:16px;max-width:420px;padding:26px;text-align:center;animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h3{font-size:17px;font-weight:700;margin-bottom:10px}.modal p{color:var(--gr);font-size:14px;line-height:1.5;margin-bottom:18px}.modal b{color:var(--am)}
+.pacto h3{font-size:19px;font-weight:800;margin-bottom:6px}
+.pacto .pl{display:flex;gap:9px;margin:12px 0;font-size:14px;line-height:1.45;color:var(--tx)}.pacto .pl b{color:var(--am)}
+.pacto .pl i{color:var(--am);font-style:normal;font-weight:800}
+.reflex{color:#cbb978;font-size:13px;font-style:italic;margin:16px 0 2px;padding-left:12px;border-left:2px solid var(--am);min-height:16px;line-height:1.45}
+@keyframes qin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.qin{animation:qin .34s cubic-bezier(.2,.85,.25,1) both}
+.optin{animation:qin .32s cubic-bezier(.2,.85,.25,1) both}
+.q-split{display:flex;flex-direction:column;gap:0}
+@keyframes cardin{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.q-card{transition:opacity .3s cubic-bezier(.4,0,.2,1),transform .3s cubic-bezier(.4,0,.2,1)}
+.q-card.in{animation:cardin .5s cubic-bezier(.4,0,.2,1) both}
+.q-card.exit{opacity:0;transform:translateY(-20px)}
+.q-side{order:2;text-align:center;margin:16px auto 0;background:#0a0c14;border:1px solid var(--bd);border-radius:16px;padding:18px 14px 13px;max-width:340px;width:100%}
+.radar-cap{font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--gr);font-weight:700;margin-bottom:4px}
+.radar-cap span:last-child{color:var(--am)}
+#radarWrap svg{width:232px;height:auto;max-width:82%}
+.q-side-foot{font-size:10px;color:var(--gr);margin-top:6px;letter-spacing:.3px;font-style:italic}
+/* Pantalla ancha: pregunta a la izquierda, radar como panel derecho (solo en el paso de preguntas) */
+@media(min-width:880px){
+  .wrap:has(#s-q.active){max-width:884px}
+  #s-q .q-split{flex-direction:row;align-items:flex-start;gap:24px}
+  #s-q .q-main{flex:1 1 auto;min-width:0}
+  #s-q .q-side{order:0;flex:0 0 290px;max-width:290px;margin:0;position:sticky;top:18px}
+}
+.fuga{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;padding-top:11px;border-top:1px solid var(--bd)}
+.fuga-l{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--gr);font-weight:600;text-align:left;line-height:1.35}
+.fuga-v{font-size:16px;font-weight:800;color:#f6a89c;white-space:nowrap}
+.opt{transition:transform .12s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease}
+.opt:hover{border-color:var(--am)}
+.opt:active{transform:scale(.98)}
+.opt.sel{border-color:var(--am);background:rgba(253,215,49,.07);box-shadow:0 0 0 1px var(--am)}
+.cmp-h{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--am);text-align:center;margin:6px 0 3px}
+.cmp-sub{font-size:12px;color:var(--gr);text-align:center;line-height:1.5;margin-bottom:12px}
+.cmp-wrap{border:1px solid var(--bd);border-radius:14px;overflow:hidden;background:#0e0e11}
+.cmp-pos{font-size:11px;line-height:1.55;color:var(--gr);padding:11px 13px;background:#16161a;border-bottom:1px solid var(--bd)}
+.cmp-pos b{color:var(--tx)}
+.cmp-scroll{overflow-x:auto}
+.cmp{width:100%;border-collapse:collapse;font-size:11px;min-width:340px}
+.cmp th,.cmp td{padding:7px 8px;text-align:center;border-bottom:1px solid var(--bd);line-height:1.3;vertical-align:middle}
+.cmp td:first-child,.cmp th:first-child{text-align:left;color:var(--tx);font-weight:600;width:40%}
+.cmp thead th{background:#1c1c20;font-weight:700}
+.cmp thead .pr{display:block;color:var(--am);font-size:12px;font-weight:800;margin-top:1px}
+.cmp .t3{background:rgba(253,215,49,.07)}
+.cmp thead th.t3{background:rgba(253,215,49,.13)}
+.cmp .y{color:var(--am);font-weight:800}
+.cmp .n{color:#56565e}
+.cmp .d{color:var(--gr);font-size:9px;font-weight:600}
+.cmp .rng td{font-weight:800;color:var(--tx);background:#141417}
+.cmp .rng td.t3{background:rgba(253,215,49,.1)}
+.cmp-foot{font-size:10.5px;color:var(--gr);padding:9px 13px;background:#141417;line-height:1.55;border-top:1px solid var(--bd)}
+.cmp-foot b{color:var(--tx)}
+
+.pdin{margin-top:14px;border-top:1px solid var(--bd);padding-top:12px;text-align:left}
+.pdin-h{font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--gr);font-weight:700;margin-bottom:9px}
+.pdin-h span{color:var(--am)}
+.pdr{margin-bottom:9px}
+.pdr-t{display:flex;justify-content:space-between;font-size:11px;color:var(--tx);margin-bottom:3px;gap:8px}
+.pdr-t b{font-weight:700;white-space:nowrap}
+.pdr-bar{height:6px;border-radius:4px;background:#1c1c20;overflow:hidden;display:flex}
+.pdr-bar i{height:100%;display:block}
+.pdin-num{margin-top:8px;font-size:10.5px;color:var(--gr);line-height:1.5}
+.pdin-num b{color:var(--am);font-size:13px}
+
+.desg{margin-top:12px;text-align:left}
+.desg-h{font-size:12px;color:var(--gr);margin-bottom:8px}
+.desg-h span{color:var(--am);font-weight:600}
+.desg-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
+.desg-c{flex:1;min-width:0;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:8px;font-size:13px;font-family:inherit}
+.desg-v{width:92px;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:8px;font-size:13px;font-family:inherit}
+.desg-d{width:88px;background:#231a1a;border:1px solid #4a2b2b;color:#f0b8b8;border-radius:8px;padding:8px;font-size:13px;font-family:inherit}
+.desg-d::placeholder{color:#a06b6b}
+.desg-x{background:none;border:none;color:var(--gr);font-size:18px;line-height:1;cursor:pointer;padding:0 6px}
+.desg-add{background:none;border:1px dashed var(--bd);color:var(--am);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:inherit;margin-top:2px}
+.desg-sum{margin-top:9px;font-size:12px;color:var(--gr)}
+.desg-sum b{color:var(--tx)}
+</style>
+<script src="ev.js" defer></script>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="modal" id="hito"><div class="box hito-box">
+  <div class="hito-pct" id="hitoPct">25%</div>
+  <div class="hito-bar"><i id="hitoBar"></i></div>
+  <h3 id="hitoT"></h3>
+  <p id="hitoP"></p>
+  <button class="btn" id="hitoBtn">Seguir →</button>
+</div></div>
+<div class="modal" id="modal"><div class="box">
+  <div style="font-size:30px;margin-bottom:6px">🛡️</div>
+  <h3>Estamos viendo puntos de tensión</h3>
+  <p id="modalP"></p>
+  <button class="btn" id="modalBtn">Continuar</button>
+</div></div>
+<div class="wrap"><div class="card">
+<div class="scan" id="scan"><h4 id="scanT">Analizando…</h4><div class="ln"></div><div class="vd" id="scanV"></div></div>
+<div class="head"><div class="logo"><b>ADAPTA</b> <span style="color:var(--am);font-size:11px">family office</span></div>
+<p>Diagnóstico psicofinanciero · adaptativo</p></div>
+<div class="body">
+
+<div id="s-reg" class="step active">
+<div id="regMuro">
+  <div class="kick">Hoy te ves claro. Mañana, vives mejor.</div>
+  <h1 style="font-size:23px;line-height:1.22;font-weight:800;letter-spacing:-0.3px;margin:6px 0 11px">No es un test. Es la <span style="color:var(--am)">radiografía más honesta</span> de tu dinero.</h1>
+  <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:15px">
+    <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">12 capas de análisis</span>
+    <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">Psicología + patrimonio</span>
+    <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">Hoja de ruta a 90 días</span>
+    <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">Tu Constitución Financiera</span>
+  </div>
+  <p style="font-size:15px;line-height:1.55;margin-bottom:16px">El dinero no miente: dice <b>cómo decides, qué evitas y a qué le temes.</b> Lo ves <b>sin anestesia</b> — con tu <b>cifra de libertad exacta</b> y tu <b>hoja de ruta a 90 días</b> para alcanzarla. Cada mes que sigues como estás, <b>lo pagas en silencio.</b> <b id="tiempoEst">15-20 min.</b></p>
+  <div class="lbl">Tu nombre</div><input id="nombre" placeholder="Nombre">
+  <div class="lbl" style="margin-top:12px">Tu email</div><input id="email" type="email" placeholder="tu@email.com">
+  <div class="lbl" style="margin-top:12px">Elige tu diagnóstico</div>
+  <select id="tier" onchange="descTier()"><option value="1">Rápido · 19 €</option><option value="2" selected>Avanzado · 39 €</option><option value="3">Pareja · 54 €</option></select>
+  <div id="tierDesc" style="margin-top:10px;padding:11px 13px;border-left:3px solid var(--am);background:#1c1c20;border-radius:8px;font-size:13px;line-height:1.5"></div>
+  <label class="chk"><input type="checkbox" id="consent"><span>Acepto la <a href="privacidad.html" target="_blank">Política de Privacidad</a> y el tratamiento de mis datos.</span></label>
+  <button class="btn" onclick="iniciar()">Quiero ver mi radiografía →</button>
+  <p style="font-size:11.5px;color:var(--gr);text-align:center;margin-top:9px;line-height:1.5">Empiezas <b style="color:var(--tx)">gratis</b> y ves un adelanto real con tus cifras. Solo pagas si quieres tu libro completo.</p>
+
+  <div style="height:1px;background:var(--bd);margin:26px 0 18px"></div>
+  <div class="cmp-h">Compara los tres</div>
+  <div class="cmp-sub">Elige por <b style="color:var(--tx)">lo que necesitas</b>, no por el precio.</div>
+  <div class="cmp-wrap">
+    <div class="cmp-pos"><b>Rápido</b> — un vistazo honesto a ti.&nbsp; <b>A fondo</b> — tu informe personal completo.&nbsp; <b>Pareja</b> — vuestra relación con el dinero, sin medias tintas.</div>
+    <div class="cmp-scroll">
+    <table class="cmp">
+      <thead><tr>
+        <th>Qué te llevas</th>
+        <th>Rápido<span class="pr">19€</span></th>
+        <th>A fondo<span class="pr">39€</span></th>
+        <th class="t3">Pareja<span class="pr">54€</span></th>
+      </tr></thead>
+      <tbody>
+        <tr class="rng"><td>Informe <span class="d">(adaptado a tu caso)</span></td><td>Esencial</td><td>+50 páginas</td><td class="t3">+50 páginas</td></tr>
+        <tr><td>Radar + salud · 12 áreas</td><td class="y">✓</td><td class="y">✓</td><td class="t3 y">✓ <span class="d">los dos</span></td></tr>
+        <tr><td>Nº de libertad + foto patrimonial y de flujo</td><td class="y">✓</td><td class="y">✓</td><td class="t3 y">✓ <span class="d">hogar</span></td></tr>
+        <tr><td>Arquetipo del dinero</td><td class="y">✓</td><td class="y">✓</td><td class="t3 y">✓ <span class="d">los dos</span></td></tr>
+        <tr><td>12 capítulos a fondo</td><td class="n">✗</td><td class="y">✓</td><td class="t3 y">✓ <span class="d">comparados</span></td></tr>
+        <tr><td>Plan 72h/30/90 + contrato</td><td class="n">✗</td><td class="y">✓</td><td class="t3 y">✓ <span class="d">del hogar</span></td></tr>
+        <tr><td>Coste de no hacer nada</td><td class="n">✗</td><td class="y">✓</td><td class="t3 y">✓ <span class="d">conjunto</span></td></tr>
+        <tr><td>Proyección · tres caminos</td><td class="n">✗</td><td class="y">✓</td><td class="t3 y">✓ <span class="d">hogar</span></td></tr>
+        <tr><td>Compatibilidad + dónde divergís</td><td class="n">—</td><td class="n">—</td><td class="t3 y">✓</td></tr>
+        <tr><td>Focos de fricción + guion para hablarlo</td><td class="n">—</td><td class="n">—</td><td class="t3 y">✓</td></tr>
+        <tr><td>DAFO del hogar + hoja de ruta a 12 meses</td><td class="n">—</td><td class="n">—</td><td class="t3 y">✓</td></tr>
+        <tr><td>Perfil individual de cada miembro</td><td class="n">—</td><td class="n">—</td><td class="t3 y">✓ <span class="d">con facetas</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="cmp-foot"><b>Solo tú → A fondo.</b> &nbsp;<b>En pareja → Pareja:</b> es el único que cruza vuestros dos perfiles y os da el guion para hablarlo. No es «más de lo mismo» — es vuestra relación con el dinero.</div>
+  </div>
+</div>
+</div>
+
+<div id="s-invite" class="step">
+  <div style="text-align:center;margin-bottom:6px">
+    <span style="display:inline-block;font-size:11px;color:var(--am);border:1px solid var(--am);border-radius:999px;padding:4px 13px;letter-spacing:.06em;text-transform:uppercase">Diagnóstico de Pareja · Adapta</span>
+  </div>
+  <div class="kick" style="text-align:center">Te están esperando</div>
+  <h1 style="font-size:23px;line-height:1.25;font-weight:800;letter-spacing:-0.3px;margin:8px 0 14px;text-align:center" id="inviteTitle">Te han invitado a vuestro <span style="color:var(--am)">Diagnóstico de Pareja</span></h1>
+  <div id="inviteResume" style="display:none"></div>
+  <div style="background:rgba(253,215,49,.07);border:1px solid var(--am);border-radius:14px;padding:17px 19px;margin:0 0 16px;text-align:left">
+    <p style="font-size:15px;line-height:1.6;margin:0 0 10px">La otra persona ya ha completado su parte y <b style="color:var(--tx)">el informe conjunto ya está pagado</b>.</p>
+    <p style="font-size:15px;line-height:1.6;margin:0">Solo tienes que completar <b style="color:var(--tx)">tu cuestionario</b> — es <b style="color:var(--am)">gratis, no pagas nada</b> — y se generará vuestro <b style="color:var(--tx)">Libro de Pareja</b> con los dos perfiles. Cuando termines, ambos lo recibís por email.</p>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;justify-content:center">
+    <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">Gratis para ti</span>
+    <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">15-20 min.</span>
+    <span style="font-size:11px;color:var(--tx);border:1px solid var(--bd);border-radius:999px;padding:4px 11px;background:#16161a">Confidencial</span>
+  </div>
+  <div class="lbl">Tu nombre</div><input id="inviteNombre" placeholder="Nombre">
+  <div class="lbl" style="margin-top:12px">Tu email</div><input id="inviteEmail" type="email" placeholder="tu@email.com">
+  <label class="chk"><input type="checkbox" id="inviteConsent"><span>Acepto la <a href="privacidad.html" target="_blank">Política de Privacidad</a> y el tratamiento de mis datos.</span></label>
+  <button class="btn" onclick="iniciarInvitado()">Empezar mi parte →</button>
+  <p style="font-size:11.5px;color:var(--gr);text-align:center;margin-top:9px;line-height:1.5">Responde con <b style="color:var(--tx)">tus</b> números individuales. Nosotros los cruzamos con los de tu pareja.</p>
+</div>
+
+<div id="s-load" class="step center"><div class="spin"></div><p style="color:var(--gr)">Preparando tu diagnóstico…</p></div>
+
+<div id="s-pacto" class="step pacto">
+  <div class="kick">Antes de empezar</div>
+  <h3>Un pacto de honestidad</h3>
+  <p style="font-size:14px;line-height:1.5;color:var(--gr);margin-bottom:4px">Esto no es un examen. Es un espejo. Y un espejo solo sirve si no le mientes.</p>
+  <div class="pl"><i>▸</i><span>Responde por <b>cómo es</b> tu vida, no por cómo te gustaría que fuera.</span></div>
+  <div class="pl"><i>▸</i><span>No hay respuestas buenas ni malas. Hay respuestas <b>verdaderas</b> — son las únicas que te sirven.</span></div>
+  <div class="pl"><i>▸</i><span>Tómate tu tiempo. Las preguntas que más incomodan suelen ser las que más revelan.</span></div>
+  <p style="font-size:13px;line-height:1.5;color:var(--gr);margin-top:8px">Lo que respondas es tuyo y confidencial. Cuanto más honesto seas, más preciso será tu diagnóstico.</p>
+  <div id="parejaNote" style="display:none;margin-top:12px;padding:12px 14px;border-left:3px solid var(--am);background:#1c1c20;border-radius:8px;font-size:13px;line-height:1.5">
+    <b style="color:var(--am)">En pareja, ojo con las cifras:</b> habla siempre de <b>tus</b> números individuales, no de los de los dos juntos. Tus ingresos, lo que <b>tú</b> pagas de los gastos, tu patrimonio. Nosotros los sumamos para ver vuestro hogar. Si compartís un gasto (alquiler, etc.), declara solo <b>la parte que pones tú</b>.
+  </div>
+  <div id="parejaProceso" style="display:none;margin-top:12px;padding:12px 14px;border-left:3px solid var(--am);background:#161618;border-radius:8px;font-size:12.5px;line-height:1.6"></div>
+  <div id="soloNote" style="display:none;margin-top:12px;padding:12px 14px;border-left:3px solid var(--am);background:#1c1c20;border-radius:8px;font-size:13px;line-height:1.5">
+    <b style="color:var(--am)">Solo tus cifras, no las del hogar:</b> este diagnóstico es sobre <b>ti</b>. Responde con tus números <b>individuales</b> — tus ingresos, tu patrimonio, tus propiedades, tu parte de los gastos —, <b>sin sumar los de tu pareja</b>. Si compartís un gasto o una vivienda, declara solo <b>la parte que te corresponde a ti</b>.
+  </div>
+  <button class="btn" onclick="arrancarTest()">Acepto. Empecemos →</button>
+</div>
+
+<div id="s-email" class="step">
+  <div class="kick">Último paso</div>
+  <h1 style="font-size:23px;line-height:1.25;font-weight:800;letter-spacing:-0.3px;margin:6px 0 10px">Ya está. <span style="color:var(--am)">¿A quién se lo preparamos?</span></h1>
+  <p style="font-size:15px;line-height:1.55;margin-bottom:14px">Con tu nombre lo personalizamos, y a tu email te llega el resultado para que no lo pierdas.</p>
+  <div class="lbl">Tu nombre</div><input id="nombreFin" placeholder="Nombre" autocomplete="given-name">
+  <div class="lbl" style="margin-top:12px">Tu email</div><input id="emailFin" type="email" placeholder="tu@email.com" autocomplete="email">
+  <button class="btn" id="btnFin" onclick="confirmarEmail()">Ver mi resultado →</button>
+  <p style="font-size:11.5px;color:var(--gr);text-align:center;margin-top:9px;line-height:1.5">Ves tu adelanto gratis. Solo pagas si quieres tu informe completo. Sin spam: <a href="privacidad.html" target="_blank" style="color:var(--gr)">privacidad</a>.</p>
+</div>
+
+<div id="s-q" class="step">
+  <div class="q-split">
+    <div class="q-main">
+      <div class="bar"><i id="bar"></i></div>
+      <div class="tens"><span class="lbl2" id="tensLbl" style="color:#7ee3ad">Estructura eficiente</span><div class="tbar"><i id="tbar" style="background:#1f7a4d"></i></div></div>
+      <div id="introQ" style="display:none;font-size:12.5px;line-height:1.5;color:var(--gr);margin:4px 0 10px;text-align:center"><b style="color:var(--am)">Gratis y sin registro.</b> Responde por cómo es tu vida, no por cómo te gustaría. Al continuar aceptas la <a href="privacidad.html" target="_blank" style="color:var(--gr)">política de privacidad</a>.</div>
+      <div class="q-card" id="qcard">
+        <div class="qnum" id="bloque"></div>
+        <div id="scopeBadge" style="display:none"></div>
+        <div class="qtext" id="qtext"></div>
+        <div class="ayuda" id="ayuda" style="display:none"></div>
+        <div id="opts"></div>
+        <div class="reflex" id="reflex"></div>
+      </div>
+      <button class="btn" id="cont" style="display:none" onclick="contNum()">Siguiente →</button>
+      <button class="back" id="atras" style="display:none" onclick="atras()">← Atrás</button>
+    </div>
+    <aside class="q-side">
+      <div class="radar-cap"><span>Tu huella patrimonial</span> · <span id="capasCount">0 / 12 capas</span></div>
+      <div id="radarWrap"></div>
+      <div class="fuga" id="fugaBox" style="display:none"><span class="fuga-l">Coste de oportunidad<br>detectado · orientativo</span><span class="fuga-v" id="fugaV">0 €/año</span></div>
+      <div class="pdin" id="panelDinero" style="display:none"></div>
+      <div class="q-side-foot">Analizando tu perfil en tiempo real…</div>
+    </aside>
+  </div>
+</div>
+
+<div id="s-gen" class="step center"><div class="spin"></div>
+  <p style="font-size:16px;font-weight:600;margin-bottom:6px">Analizando tu perfil…</p>
+  <p id="genMsg" style="color:var(--gr);font-size:13px;line-height:1.5;transition:opacity .2s">Leyendo tus respuestas, una a una.</p>
+  <p style="color:#6b7280;font-size:11.5px;margin-top:10px">Tómate un segundo. Estamos cruzando todo con cuidado — merece la espera.</p></div>
+
+<div id="s-build" class="step center"><div class="spin"></div>
+  <p style="font-size:16px;font-weight:600;margin-bottom:6px">Componiendo tu libro…</p>
+  <p id="buildMsg" style="color:var(--gr);font-size:13px;line-height:1.5;transition:opacity .2s">Reuniendo todo tu análisis.</p>
+  <p style="color:#6b7280;font-size:11.5px;margin-top:10px">Puede tardar hasta un minuto. Cuidamos cada página antes de entregártela.</p></div>
+
+<div id="s-done" class="step center">
+  <div id="doneIcon" style="font-size:40px;margin:6px">✓</div>
+  <p id="doneHead" style="font-size:19px;font-weight:800;margin-bottom:6px">Tu diagnóstico está listo</p>
+  <p id="doneSub" style="color:var(--gr);font-size:13.5px;line-height:1.5;margin-bottom:16px">Un primer vistazo, con tus números reales:</p>
+
+  <div id="teaserBox" style="display:none;text-align:left;background:var(--pa);border:1px solid var(--bd);border-radius:14px;padding:18px;margin:0 auto 16px;max-width:380px">
+    <div style="text-align:center;padding:4px 0 13px;border-bottom:1px solid var(--bd)">
+      <div style="color:var(--gr);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em">Tu Ratio de Esclavitud Temporal</div>
+      <div id="tEscl" style="color:var(--am);font-size:46px;font-weight:800;line-height:1.15">—</div>
+      <div id="tEsclSub" style="color:var(--gr);font-size:12.5px;line-height:1.5;margin-top:2px"></div>
+    </div>
+    <div id="tCero" style="display:none;text-align:center;margin-top:12px;padding:10px 12px;border:1px solid rgba(244,63,94,.4);background:rgba(244,63,94,.08);border-radius:10px;color:#f43f5e;font-size:13.5px;font-weight:600;line-height:1.4"></div>
+    <div style="display:flex;gap:10px;margin-top:13px">
+      <div style="flex:1;text-align:center"><div id="tSalud" style="color:var(--tx);font-size:22px;font-weight:800">—</div><div style="color:var(--gr);font-size:11px;margin-top:2px">Salud /100</div></div>
+      <div style="flex:1;text-align:center"><div id="tMargen" style="color:var(--tx);font-size:22px;font-weight:800">—</div><div style="color:var(--gr);font-size:11px;margin-top:2px">Tu margen</div></div>
+      <div style="flex:1;text-align:center"><div id="tCifra" style="color:var(--tx);font-size:16px;font-weight:700;line-height:1.4">—</div><div style="color:var(--gr);font-size:11px;margin-top:2px">Cifra libertad</div></div>
+    </div>
+    <div id="tFocoBox" style="display:none;margin-top:13px;padding-top:13px;border-top:1px solid var(--bd)">
+      <div style="color:var(--gr);font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px">Tu foco principal <span id="tIriTag" style="color:var(--am)"></span></div>
+      <div id="tFoco" style="color:var(--tx);font-size:13.5px;line-height:1.45;font-weight:500"></div>
+    </div>
+    <p style="color:var(--gr);font-size:12px;line-height:1.55;margin-top:13px">Y esto es solo la superficie. Tu libro nombra, una a una, las <b style="color:var(--tx)">12 capas</b> de tu perfil, los patrones que te cuestan dinero ahora mismo y tu hoja de ruta a 90 días para desactivarlos.</p>
+  </div>
+
+  <div id="payBox" style="display:none">
+    <div style="text-align:left;max-width:380px;margin:0 auto 14px;background:var(--pa);border:1px solid var(--bd);border-radius:14px;padding:15px 18px">
+      <p style="font-size:11px;color:var(--gr);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px">Lo que incluye tu diagnóstico patrimonial</p>
+      <div style="font-size:12.5px;line-height:1.5">
+        <p style="margin:0 0 8px"><b style="color:var(--am)">El Libro Principal</b> · análisis personalizado en profundidad: tu salud psicofinanciera, tu tasa de ahorro real, tu cifra de libertad exacta y la eficiencia de tus flujos.</p>
+        <p style="margin:0 0 8px"><b style="color:var(--am)">Auditoría de palancas</b> · ineficiencias concretas: el coste del patrimonio dormido y, si eres empresario, la eficiencia de tu estructura societaria.</p>
+        <p style="margin:0 0 8px"><b style="color:var(--am)">Plan de acción</b> · una hoja de ruta ordenada por severidad e impacto, sin ambigüedades.</p>
+        <p style="margin:0"><b style="color:var(--am)">Documento confidencial</b> · de uso privado, bajo secreto profesional y a tu entera disposición.</p>
+      </div>
+    </div>
+    <label for="consentPago" style="display:flex;gap:9px;align-items:flex-start;text-align:left;max-width:380px;margin:0 auto 12px;font-size:11px;color:var(--gr);line-height:1.5;cursor:pointer">
+      <input type="checkbox" id="consentPago" style="margin-top:2px;accent-color:var(--am);width:15px;height:15px;flex:0 0 auto">
+      <span>Solicito la <b style="color:var(--tx)">entrega inmediata</b> de mi diagnóstico y acepto que, al recibirlo al instante, <b style="color:var(--tx)">renuncio al derecho de desistimiento</b> de 14 días sobre contenido digital. Una vez entregado, no procede devolución.</span>
+    </label>
+    <label for="consentTerminos" style="display:flex;gap:9px;align-items:flex-start;text-align:left;max-width:380px;margin:0 auto 12px;font-size:11px;color:var(--gr);line-height:1.5;cursor:pointer">
+      <input type="checkbox" id="consentTerminos" style="margin-top:2px;accent-color:var(--am);width:15px;height:15px;flex:0 0 auto">
+      <span>He le&iacute;do y acepto los <a href="https://www.adaptafamilyoffice.com/terminos" target="_blank" rel="noopener" style="color:var(--am)">T&eacute;rminos generales de contrataci&oacute;n</a>.</span>
+    </label>
+    <button class="btn" id="payBtn" style="max-width:380px" onclick="pagar()">Comprar y pagar</button>
+    <p style="color:var(--gr);font-size:11.5px;margin-top:10px">Pago seguro vía Stripe · Descarga inmediata en PDF · Pago único, sin suscripción</p>
+  </div>
+
+  <button class="btn" id="dl" style="display:none;max-width:380px;margin-top:8px" onclick="descargar()">Descargar mi informe</button>
+  <p id="doneTxt" style="color:var(--gr);font-size:13.5px;line-height:1.5;margin-top:12px"></p>
+  <p id="spamTip" style="display:none;color:var(--am);font-size:12.5px;line-height:1.55;margin-top:10px;max-width:440px;margin-left:auto;margin-right:auto;background:var(--pa);border:1px solid var(--bd);border-radius:10px;padding:11px 14px">📩 También te lo hemos enviado por email. Si no lo ves en unos minutos, mira en <b>Spam</b> o <b>Promociones</b> y marca el correo como «<b>No es spam</b>» para no perderte nada.</p>
+  <p style="color:var(--gr);font-size:12px;line-height:1.55;margin-top:16px;max-width:430px;margin-left:auto;margin-right:auto;border-top:1px solid var(--bd);padding-top:14px">¿Algo no fue como esperabas —no se descarga, ves un dato que no cuadra o el libro no llega? Escríbenos a <a href="mailto:info@adaptafamilyoffice.com?subject=Incidencia%20con%20mi%20diagn%C3%B3stico%20ITAP">info@adaptafamilyoffice.com</a> contándonos qué pasó y lo resolvemos enseguida.</p>
+
+  <div id="parejaCodeBox" style="display:none;max-width:380px;margin:14px auto 0;text-align:center">
+    <div style="background:var(--pa);border:1px solid var(--bd);border-radius:14px;padding:18px">
+      <div style="color:var(--gr);font-size:11px;text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px">Enlace para tu pareja</div>
+      <div id="parejaCode" onclick="copiarPareja()" title="Pulsa para copiar" style="cursor:pointer;font-family:monospace;font-size:13px;font-weight:700;color:var(--am);word-break:break-all;line-height:1.45;background:#0e0e11;border:1px solid var(--bd);border-radius:8px;padding:10px 12px">—</div>
+      <button class="btn" id="parejaCopyBtn" style="margin-top:14px" onclick="copiarPareja()">📋 Copiar enlace</button>
+      <button id="parejaShareBtn" style="display:none;margin-top:10px;background:none;border:1px solid var(--bd);color:var(--gr);border-radius:10px;padding:9px 16px;font-size:13px;cursor:pointer" onclick="compartirPareja()">Compartir por WhatsApp…</button>
+      <p id="parejaCopyMsg" style="color:var(--gr);font-size:11.5px;margin-top:9px;line-height:1.5">Tu pareja abre ese enlace, responde su parte y vuestro libro conjunto se desbloquea.</p>
+      <div id="parejaEmailBox" style="margin-top:16px;padding-top:15px;border-top:1px solid var(--bd);text-align:left">
+        <div style="color:var(--gr);font-size:11px;text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px;text-align:center">…o se lo enviamos por ti</div>
+        <input id="parejaEmailInput" type="email" placeholder="email de tu pareja" style="width:100%;box-sizing:border-box">
+        <button class="btn" id="parejaEmailBtn" style="margin-top:10px" onclick="enviarInvitacionEmail()">Enviar invitación por email</button>
+        <p id="parejaEmailMsg" style="color:var(--gr);font-size:11.5px;margin-top:9px;line-height:1.5;text-align:center"></p>
+      </div>
+      <p id="parejaWait" style="display:none;color:var(--am);font-size:11.5px;margin-top:10px;line-height:1.5">Esperando a que tu pareja complete su parte… esta página lo detecta sola y descargará vuestro libro.</p>
+    </div>
+  </div>
+</div>
+
+</div></div></div>
+<script>
+const API="https://diagnostico-financiero-app.onrender.com";
+const PRECIO_TIER={1:19,2:39,3:54};
+let CURSID=null;
+function fmt(n){try{return Math.round(n).toLocaleString('es-ES');}catch(e){return n;}}
+const PAREJA=new URLSearchParams(location.search).get('pareja');
+try{ofrecerReanudar();}catch(e){}
+// Invitación de pareja: si llega ?pareja=<uuid> válido, mostramos la pantalla de bienvenida
+// dedicada (informe ya pagado, completa tu parte gratis). Failsafe: si el uuid no es válido
+// o falla la verificación, NO tocamos nada -> el flujo genérico actual sigue intacto.
+async function verificarInvitacion(){
+  if(!PAREJA) return;
+  try{
+    const r=await fetch(API+'/api/pareja-estado/'+encodeURIComponent(PAREJA));
+    if(!r.ok) return;
+    const d=await r.json();
+    // Solo si existe y es un iniciador de pareja (T3). Si no, comportamiento actual.
+    if(!d || !d.existe || !d.es_pareja) return;
+    var t=document.getElementById('inviteTitle');
+    if(t && d.nombre_iniciador){
+      t.innerHTML=esc(d.nombre_iniciador)+' te ha invitado a vuestro <span style="color:var(--am)">Diagnóstico de Pareja</span>';
+    }
+    // Reanudar: si esta pareja ya empezó su parte en este navegador, ofrecemos continuar.
+    try{
+      var prog=hayProgreso(), slot=document.getElementById('inviteResume');
+      if(prog && slot){
+        var pct=Math.round((prog.i/prog.cola.length)*100);
+        slot.innerHTML='<div style="background:rgba(253,215,49,.08);border:1px solid var(--am);border-radius:14px;padding:14px 16px;margin:0 0 16px;text-align:left">'+
+          '<div style="font-weight:600;color:var(--tx);margin-bottom:8px">Ya empezaste tu parte ('+pct+'%)</div>'+
+          '<button class="btn btn-am" style="padding:10px 18px;font-size:14px" onclick="reanudar()">Reanudar mi parte →</button>'+
+          '<button style="margin-left:10px;background:none;border:none;color:var(--gr);font-size:12.5px;cursor:pointer;text-decoration:underline" onclick="limpiarProgreso();this.closest(\'div\').remove()">Empezar de nuevo</button></div>';
+        slot.style.display='block';
+      }
+    }catch(_){}
+    try{ show('s-invite'); }catch(e){}
+  }catch(e){ /* failsafe: dejamos el flujo genérico */ }
+}
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+try{ verificarInvitacion(); }catch(e){}
+const _qt=new URLSearchParams(location.search).get('tier'); if((_qt==='1'||_qt==='2'||_qt==='3')&&document.getElementById('tier')) document.getElementById('tier').value=_qt; try{descTier();}catch(e){}
+try{const _cd=new URLSearchParams(location.search).get('codigo'); if(_cd) sessionStorage.setItem('adaptaCod',_cd);}catch(e){}
+// MEDICION: etiqueta de origen (?de=linkedin-post, ?de=indice...). Solo la etiqueta, ningun dato personal.
+try{const _de=(new URLSearchParams(location.search).get('de')||'').replace(/[^a-z0-9_-]/gi,'').slice(0,40); if(_de) sessionStorage.setItem('adaptaDe',_de);}catch(e){}
+let INST=null, st={email:"",nombre:"",tier:2,sid:null,perfil:{},resp:{},datos:{},abiertas:{},
+   cola:[], i:0, tens:[], reportUrl:null, abierta:new Set(), insertados:new Set(), inyectados:0, motorLog:[], _prog:0, _lastIdx:null, avisoEstres:false};
+
+const LS_KEY='itap_progreso_v3';
+function saveProgreso(){
+  try{ if(!st.sid) return;
+    localStorage.setItem(LS_KEY, JSON.stringify({v:3,sid:st.sid,email:st.email,nombre:st.nombre,tier:st.tier,
+      perfil:st.perfil,datos:st.datos,resp:st.resp,abiertas:st.abiertas,cola:st.cola,i:st.i,
+      abierta:[...st.abierta],insertados:[...st.insertados],inyectados:st.inyectados,motorLog:st.motorLog,
+      _prog:st._prog,_lastIdx:st._lastIdx,tens:st.tens,avisoEstres:st.avisoEstres,ts:Date.now()}));
+  }catch(e){}
+}
+// Devuelve el progreso guardado en ESTE navegador. Dos casos distintos:
+//   · a medias   -> se puede reanudar el cuestionario
+//   · TERMINADO  -> ya lo completo pero no llego a pagar; hay que devolverle su
+//                   pantalla de oferta, no obligarle a repetirlo todo.
+// El segundo caso faltaba: quien terminaba y cerraba la pestana sin pagar perdia
+// el acceso a su propio diagnostico, aunque sus respuestas seguian guardadas aqui
+// y en el servidor. La unica opcion visible era empezar de cero.
+function hayProgreso(){ try{ const s=JSON.parse(localStorage.getItem(LS_KEY)||'null');
+  if(!s || !s.cola || !s.sid) return null;
+  if(s.i>0 && s.i<s.cola.length) return s;
+  if(s.i>=s.cola.length){ s._terminado=true; return s; }
+  return null; }catch(e){ return null; } }
+function limpiarProgreso(){ try{ localStorage.removeItem(LS_KEY); }catch(e){} }
+/* Diagnostico TERMINADO sin pagar: le devolvemos su pantalla de oferta con su
+   sesion intacta. No tiene que repetir nada. */
+function recuperarDiagnostico(){
+  const s=hayProgreso(); if(!s || !s.sid) return;
+  CURSID=s.sid;
+  st.sid=s.sid; st.email=s.email||''; st.nombre=s.nombre||''; st.tier=s.tier||2;
+  show('s-done');
+  try{ const sub=document.getElementById('doneSub'); if(sub) sub.style.display='none'; }catch(e){}
+  try{ const tb=document.getElementById('teaserBox'); if(tb) tb.style.display='none'; }catch(e){}
+  try{
+    const h=document.getElementById('doneHead'); if(h) h.textContent='Tu diagnóstico está listo';
+    const t=document.getElementById('doneTxt');
+    if(t) t.textContent='Recuperamos el que completaste en este navegador. No hace falta repetirlo.';
+  }catch(e){}
+}
+async function reanudar(){
+  const s=hayProgreso(); if(!s) return;
+  if(s._terminado){ return recuperarDiagnostico(); }
+  show('s-load');
+  try{
+    INST=await (await fetch('itap_v2.json?v='+Date.now())).json();
+    try{ const _qq=await (await fetch(API+'/api/questions/'+s.tier)).json(); INST._abiertas=_qq.abiertas||[]; }catch(e){ INST._abiertas=[]; }
+    Object.assign(st,{sid:s.sid,email:s.email,nombre:s.nombre,tier:s.tier,perfil:s.perfil,datos:s.datos,
+      resp:s.resp,abiertas:s.abiertas,cola:s.cola,i:s.i,abierta:new Set(s.abierta||[]),
+      insertados:new Set(s.insertados||[]),inyectados:s.inyectados||0,motorLog:s.motorLog||[],
+      _prog:s._prog||0,_lastIdx:(s._lastIdx==null?null:s._lastIdx),tens:s.tens||[],avisoEstres:!!s.avisoEstres});
+    show('s-q'); pintar();
+  }catch(e){ show('s-reg'); }
+}
+function ofrecerReanudar(){
+  const s=hayProgreso(); if(!s) return; const cont=document.getElementById('s-reg'); if(!cont) return;
+  const box=document.createElement('div');
+  box.style.cssText='background:rgba(253,215,49,.08);border:1px solid var(--am);border-radius:14px;padding:16px 18px;margin:0 0 22px;text-align:left';
+  if(s._terminado){
+    /* Ya lo completo: lo que necesita es volver a SU informe, no empezar otro. */
+    box.innerHTML='<div style="font-weight:600;color:var(--tx);margin-bottom:4px">Ya completaste tu diagnóstico</div>'+
+      '<div style="font-size:13px;color:var(--gr);margin-bottom:12px">Lo tenemos guardado. Recupéralo aquí: no hace falta que lo repitas.</div>'+
+      '<button class="btn btn-am" style="padding:10px 18px;font-size:14px" onclick="recuperarDiagnostico()">Recuperar mi diagnóstico →</button>'+
+      '<button style="margin-left:10px;background:none;border:none;color:var(--gr);font-size:12.5px;cursor:pointer;text-decoration:underline" onclick="if(confirm(\'Se borrará el diagnóstico que ya completaste. ¿Seguro?\')){limpiarProgreso();this.closest(\'div\').remove();if(!PAREJA)arranqueDirecto();}">Empezar uno nuevo</button>';
+  }else{
+    const pct=Math.round((s.i/s.cola.length)*100);
+    box.innerHTML='<div style="font-weight:600;color:var(--tx);margin-bottom:4px">Tienes un diagnóstico a medias ('+pct+'%)</div>'+
+      '<div style="font-size:13px;color:var(--gr);margin-bottom:12px">Lo guardamos en este navegador. Puedes continuar donde lo dejaste.</div>'+
+      '<button class="btn btn-am" style="padding:10px 18px;font-size:14px" onclick="reanudar()">Reanudar mi test →</button>'+
+      '<button style="margin-left:10px;background:none;border:none;color:var(--gr);font-size:12.5px;cursor:pointer;text-decoration:underline" onclick="limpiarProgreso();this.closest(\'div\').remove();if(!PAREJA)arranqueDirecto()">Empezar de nuevo</button>';
+  }
+  cont.insertBefore(box, cont.firstChild);
+}
+
+// Pareja invitada: arranca desde la pantalla de bienvenida. Tier BLOQUEADO a 3 (sin pago).
+// Reaprovecha iniciar() copiando los campos a los inputs del registro genérico.
+async function iniciarInvitado(){
+  var n=document.getElementById('inviteNombre'), e=document.getElementById('inviteEmail'), c=document.getElementById('inviteConsent');
+  if(!n.value.trim()){alert('Pon tu nombre');return}
+  if(!e.value.trim()){alert('Pon tu email');return}
+  if(!c.checked){alert('Debes aceptar la Política de Privacidad');return}
+  try{ if(document.getElementById('nombre')) document.getElementById('nombre').value=n.value.trim(); }catch(_){}
+  try{ if(document.getElementById('email')) document.getElementById('email').value=e.value.trim(); }catch(_){}
+  try{ if(document.getElementById('tier')) document.getElementById('tier').value='3'; }catch(_){}
+  try{ if(document.getElementById('consent')) document.getElementById('consent').checked=true; }catch(_){}
+  return iniciar();
+}
+async function iniciar(){
+  limpiarProgreso();
+  st.nombre=nombre.value.trim(); st.email=email.value.trim(); st.tier=parseInt(tier.value);
+  if(PAREJA) st.tier=3;
+  if(!st.nombre){alert('Pon tu nombre');return}
+  if(!st.email){alert('Pon tu email');return}
+  if(!consent.checked){alert('Debes aceptar la Política de Privacidad');return}
+  show('s-load');
+  try{
+    INST=await (await fetch('itap_v2.json?v='+Date.now())).json();
+    try{ const _qq=await (await fetch(API+'/api/questions/'+st.tier)).json(); INST._abiertas=_qq.abiertas||[]; }catch(e){ INST._abiertas=[]; }
+    const r=await fetch(API+'/api/start',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:st.email,nombre:st.nombre,tier:st.tier,sexo:'',consentimiento:true})});
+    st.sid=(await r.json()).session_id;
+    try{window.adaptaEv&&adaptaEv('test_inicio',st.tier)}catch(e){}
+    construirCola();
+    if(st.tier===3){
+      const pn=document.getElementById('parejaNote');if(pn)pn.style.display='block';
+      const pp=document.getElementById('parejaProceso');
+      if(pp){ pp.style.display='block';
+        pp.innerHTML = PAREJA
+          ? '<b style="color:var(--am)">Cómo funciona:</b> tu pareja ya completó su parte y desbloqueó vuestro Libro de Pareja. Solo falta lo tuyo. En cuanto termines, recibís el documento conjunto con los dos perfiles.'
+          : '<b style="color:var(--am)">Cómo funciona el diagnóstico de pareja:</b> <b>1)</b> Completas tu parte. <b>2)</b> Desbloqueas vuestro Libro de Pareja (pago único). <b>3)</b> Recibes un enlace para tu pareja. <b>4)</b> Cuando complete su parte, descargáis el libro conjunto (y te llega por email).';
+      }
+    } else {
+      const sn=document.getElementById('soloNote');if(sn)sn.style.display='block';
+    }
+    show('s-pacto');
+  }catch(e){console.error(e);alert('No se pudo cargar. Reintenta.');show('s-reg')}
+}
+function arrancarTest(){ show('s-q'); st.i=0; pintar(); }
+/* ENTRADA SIN MURO: la gente llegaba desde «Empezar gratis» y se encontraba nombre, email, precios y una
+   casilla antes de la primera pregunta. Nadie empezaba. Ahora la primera pantalla ES la primera pregunta;
+   el nombre y el email se piden al final, justo antes del adelanto, y los precios solo en el adelanto. */
+async function arranqueDirecto(){
+  limpiarProgreso();
+  const _t=parseInt(new URLSearchParams(location.search).get('tier')||'2'); st.tier=(_t>=1&&_t<=3)?_t:2;
+  st.sid=null; st.email=''; st.nombre=''; st._startando=false;
+  show('s-load');
+  try{
+    INST=await (await fetch('itap_v2.json?v='+Date.now())).json();
+    try{ const _qq=await (await fetch(API+'/api/questions/'+st.tier)).json(); INST._abiertas=_qq.abiertas||[]; }catch(e){ INST._abiertas=[]; }
+    construirCola();
+    // El aviso de «solo tus cifras» (antes en la pantalla del pacto) va ahora en la primera pregunta de números
+    try{ const qn=st.cola.find(x=>x._cap==='NUM'); if(qn && !qn.ayuda) qn.ayuda=(st.tier===3)
+      ? 'En pareja, responde con TUS números individuales (tus ingresos, tu parte de los gastos, tu patrimonio). Nosotros los sumamos para ver vuestro hogar.'
+      : 'Solo tus cifras, no las del hogar: tus ingresos, tu patrimonio y tu parte de los gastos.'; }catch(e){}
+    try{window.adaptaEv&&adaptaEv('test_vista',st.tier)}catch(e){}
+    show('s-q'); st.i=0; pintar();
+  }catch(e){ console.error(e); show('s-reg'); }
+}
+async function asegurarSesion(){
+  if(st.sid || st._startando) return; st._startando=true;
+  try{
+    const r=await fetch(API+'/api/start',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:'',nombre:'',tier:st.tier,sexo:'',consentimiento:true})});
+    st.sid=(await r.json()).session_id;
+    try{window.adaptaEv&&adaptaEv('test_inicio',st.tier)}catch(e){}
+    saveProgreso();
+  }catch(e){ st._startando=false; }
+}
+function pedirEmail(){
+  try{window.adaptaEv&&adaptaEv('email_pide',st.tier)}catch(e){}
+  if(!st.sid) asegurarSesion();
+  const n=document.getElementById('nombreFin'), m=document.getElementById('emailFin');
+  if(n && st.nombre) n.value=st.nombre; if(m && st.email) m.value=st.email;
+  show('s-email'); try{ window.scrollTo(0,0); }catch(e){}
+}
+async function confirmarEmail(){
+  const n=(document.getElementById('nombreFin').value||'').trim(), m=(document.getElementById('emailFin').value||'').trim();
+  if(!n){alert('Pon tu nombre');return}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){alert('Revisa tu email');return}
+  st.nombre=n; st.email=m;
+  try{window.adaptaEv&&adaptaEv('email_ok',st.tier)}catch(e){}
+  if(!st.sid){ await asegurarSesion(); }
+  if(!st.sid){ alert('No se pudo conectar. Reintenta en unos segundos.'); st._startando=false; return; }
+  saveProgreso(); finalizar();
+}
+function descTier(){
+  const el=document.getElementById('tier'), box=document.getElementById('tierDesc'); if(!el||!box) return;
+  const D={'1':'<b style="color:var(--am)">Para quien quiere la verdad, ya.</b> Una radiografía sin anestesia de tu relación con el dinero. Ideal si empiezas, si nunca te han dicho la verdad sobre tus números, o si quieres claridad sin rodeos.',
+   '2':'<b style="color:var(--am)">Para quien va en serio.</b> Tienes patrimonio, deudas, una empresa o decisiones reales sobre la mesa. El manual de operaciones completo: tu brecha, tus palancas, tu proyección y tu contrato contigo mismo.',
+   '3':'<b style="color:var(--am)">Para quien comparte vida y cuentas.</b> Cruza vuestros dos diagnósticos y pone sobre la mesa la conversación de dinero que lleváis tiempo evitando — antes de que se convierta en el problema.'};
+  box.innerHTML=D[el.value]||'';
+  const T={'1':'10-12 min.','2':'15-20 min.','3':'15-20 min. por persona'};
+  const te=document.getElementById('tiempoEst'); if(te) te.textContent=T[el.value]||'15-20 min.';
+}
+const REFLEX=["La respuesta cómoda y la verdadera casi nunca son la misma. Marca la que incomoda.",
+  "Nadie te está viendo. Es el único sitio donde puedes dejar de mentirte.",
+  "Lo que te cueste marcar es, justo, lo que te está costando dinero.",
+  "Si dudas entre dos, elige la que menos te gusta admitir. Esa es la tuya.",
+  "Tu yo de dentro de diez años está leyendo esta respuesta.",
+  "Puedes quedar bien con el test, o quedar bien contigo. No las dos.",
+  "El dinero ya sabe la verdad sobre ti. Esto es para que la sepas tú.",
+  "Cada respuesta de relleno es una página en blanco en tu diagnóstico."];
+
+function construirCola(){
+  st.cola=[]; st.abierta=new Set(); st.insertados=new Set(); st.inyectados=0; st.motorLog=[]; st._prog=0; st._lastIdx=null;
+  // Empieza por la emocion (tu vida ideal), no por el formulario. El sexo va al final y es opcional.
+  INST.vision_brecha.forEach(q=>st.cola.push({...q,_b:'Tu vida ideal',_cap:'VIS'}));
+  INST.sociodemografico.filter(q=>q.campo!=='sexo' && ['SD-14','SD-15'].indexOf(q.id)<0).forEach(q=>st.cola.push({...q,_b:'Sobre ti',_cap:'SD'}));
+  INST.numericas_financieras.forEach(q=>{
+    if(st.tier===1 && (/^NUM-F/.test(q.id||'') || q.campo==='horas_semana' || q.campo==='pension_estimada')) return; // T1 (vistazo rápido): sin desglose de fuentes ni números de profundidad
+    st.cola.push({...q,tipo:'numerica',_b:'Tus números',_cap:'NUM'});
+  });
+  INST.capas.forEach(c=>c.items.filter(it=>it.nivel==='nucleo').forEach(it=>st.cola.push({...it,_b:c.nombre,_cap:c.code})));
+  (INST.arquetipo||[]).forEach(q=>st.cola.push({...q,tipo:'opcion',_b:'Tu arquetipo del dinero',_cap:'ARQ'}));
+  if(INST.prioridades) st.cola.push({...INST.prioridades,_b:'Lo que más te importa',_cap:'PRIO'});
+  (INST._abiertas||[]).forEach(q=>st.cola.push({...q,tipo:'abierta',_b:'En tus palabras',_cap:'OPEN',ayuda:'Sin filtro y sin prisa. Esto es lo que se analiza para escribir tu retrato.'}));
+  INST.sociodemografico.filter(q=>q.campo==='sexo').forEach(q=>st.cola.push({...q,_b:'Sobre ti',_cap:'SD'}));
+}
+function emostrar(ms){
+  if(!ms)return true; const v=st.perfil[ms.campo];
+  if(Array.isArray(v)){
+    if(ms.valor_in) return v.some(x=>ms.valor_in.includes(x));
+    if(ms.valor_not_in) return v.some(x=>!ms.valor_not_in.includes(x));
+    return true;
+  }
+  if(ms.valor_in) return ms.valor_in.includes(v);
+  if(ms.valor_not_in) return !ms.valor_not_in.includes(v);
+  if(ms.min!=null && v!=null) return parseInt(v)>=ms.min;
+  if(ms.max!=null && v!=null) return parseInt(v)<=ms.max;
+  return true;
+}
+function aplica(q){
+  if(!emostrar(q.mostrar_si)) return false;
+  if(q.depende_de){ const sd=st.resp['SEED-DEUDA']; if(sd==null||sd<q.depende_de.min_idx) return false; }
+  return true;
+}
+function umbralCapa(cap){
+  const u=(INST.meta&&INST.meta.umbrales)||{};
+  return (u[cap]!=null) ? u[cap] : ((INST.meta&&INST.meta.umbral_profundizacion)||35);
+}
+// Score de un item, multi-aware: respuesta unica (int)->score de la opcion;
+// respuesta multiple (array de indices)->PROMEDIO de los scores marcados. NaN -> null (el llamante decide).
+function _scoreItem(it){
+  const v=st.resp[it.id];
+  let idxs;
+  if(Array.isArray(v)) idxs=v;
+  else if(typeof v==='number') idxs=[v];
+  else return null;
+  const sc=[];
+  for(const i of idxs){ const op=it.opciones&&it.opciones[i]; const s=op?op.score:undefined;
+    if(typeof s==='number'&&!isNaN(s)) sc.push(s); }
+  if(!sc.length) return null;
+  return sc.reduce((a,b)=>a+b,0)/sc.length;
+}
+function statsCapa(cap){
+  const c=INST.capas.find(x=>x.code===cap); if(!c) return null;
+  const crib=c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null);
+  if(!crib.length) return null;
+  const sc=crib.map(it=>{                                   // #blindaje anti-NaN, multi-aware
+    let s=_scoreItem(it);
+    if(typeof s!=='number' || isNaN(s)){ _log('[Step '+st.i+'] ['+cap+'] SCORE_INVALIDO -> '+it.id+' (default 0)'); s=0; }
+    return s;
+  });
+  const mean=sc.reduce((a,b)=>a+b,0)/sc.length;
+  const sd=Math.sqrt(sc.reduce((a,b)=>a+(b-mean)*(b-mean),0)/sc.length);
+  return {mean:mean, sd:sd, n:sc.length};
+}
+// #1 — Consistencia interna 0..1 (1 = coherente, 0 = maxima contradiccion). sd maxima posible en {0,50,100}=50.
+function calcularConsistenciaCapa(cap){
+  const s=statsCapa(cap); if(!s) return null;
+  const consistencia=Math.max(0,Math.min(1, 1-(s.sd/50)));
+  return {mean:s.mean, sd:s.sd, n:s.n, consistencia:consistencia,
+          flagVarianzaAlta:(consistencia<0.6), confiable:(s.n>=3 && consistencia>=0.8)};
+}
+// #4 — Limites por TIER: [inserciones EXTRA totales en la sesion, maximo por capa]. Nucleo SIEMPRE se pregunta.
+function limitesTier(){ return (st.tier===1) ? {global:2, capa:1} : {global:24, capa:5}; }
+function _log(ev){ if(st.motorLog) st.motorLog.push(ev); }       // telemetria ligera (replicar flujo en produccion)
+// #2 + mutacion controlada — unica via de insercion. Filtra unicidad y tope global ANTES de mutar la cola.
+function inyectarEnCola(items, pos){
+  const lim=limitesTier(); let p=pos, puestos=0;
+  for(const it of items){
+    if(!it.id || st.insertados.has(it.id)) continue;                 // unicidad global -> imposible un bucle
+    if(st.inyectados>=lim.global){ _log('[Step '+st.i+'] [tier'+st.tier+'] MAX_TIER -> tope global '+lim.global+' alcanzado'); break; }
+    st.insertados.add(it.id); st.inyectados++; st.cola.splice(p++,0,it); puestos++;
+  }
+  return puestos;
+}
+function presupuestoProf(cap){
+  const cc=calcularConsistenciaCapa(cap); if(!cc) return 0;
+  const u=umbralCapa(cap), tier=st.tier||2, mean=cc.mean;
+  if(tier===1){ return (mean>=Math.max(u+30,70)) ? 1 : 0; }            // T1 conciso: solo capa catastrofica
+  if(mean<u){ return (cc.flagVarianzaAlta && mean>=u-15) ? 2 : 0; }    // bajo umbral: solo si contradictorio
+  let k = (mean>=75)?99 : (mean>=60)?5 : (mean>=45)?3 : 2;
+  if(cc.confiable && mean<75) k=Math.max(2,k-1);                       // medido con confianza -> recorta
+  if(cc.flagVarianzaAlta) k+=1;                                        // contradictorio -> una mas para resolver
+  return k;
+}
+function abrirProfundizacion(cap){
+  if(st.abierta.has(cap)) return;          // CANDADO de capa: una sola vez
+  const c=INST.capas.find(x=>x.code===cap); if(!c) return;
+  st.abierta.add(cap);
+  const cc=calcularConsistenciaCapa(cap);
+  let k=presupuestoProf(cap); k=Math.min(k, limitesTier().capa);       // tope por capa (reparto justo)
+  if(k<=0){ if(cc && cc.confiable) _log('[Step '+st.i+'] ['+cap+'] STOP_CONFIANZA -> consistencia '+cc.consistencia.toFixed(2)+' con '+cc.n+' items'); return; }
+  const cands=[];
+  for(const it of c.items){
+    if(it.nivel!=='profundizacion') continue;
+    if(!emostrar(it.mostrar_si)) continue;     // gating de perfil
+    cands.push({...it,_b:c.nombre,_cap:cap});
+    if(cands.length>=k) break;
+  }
+  const n=inyectarEnCola(cands, st.i+1);
+  if(n>0) _log('[Step '+st.i+'] ['+cap+'] PROFUNDIZA -> '+n+' items'+(cc&&cc.flagVarianzaAlta?', varianza alta':'')+' (mean '+Math.round(cc.mean)+')');
+}
+function abrirCruces(){
+  // #3 — Reglas declarativas en JSON (INST.cruces[].activa_cruce). La logica solo EVALUA la matriz.
+  const cruces=(INST.cruces||[]); const tier=st.tier||2;
+  for(const cr of cruces){
+    const key='X:'+cr.id; if(st.abierta.has(key)) continue;
+    if(tier===1 && !cr.t1) continue;        // los cruces son profundidad: T1 solo los marcados t1
+    const cond=cr.activa_cruce||[];
+    const ok = cond.length>0 && cond.every(cc=>{ const s=statsCapa(cc.capa); return s && s.mean>=cc.min; });
+    if(!ok) continue;
+    if(cr.mostrar_si && !emostrar(cr.mostrar_si)) continue;
+    st.abierta.add(key);
+    if(inyectarEnCola([{...cr,_b:cr._b||'Donde se cruza tu vida',ayuda:(cr.ayuda||'Esta pregunta nace de cruzar dos de tus respuestas. Por eso es solo para ti.'),_cap:'X'}], st.i+1)>0) _log('[Step '+st.i+'] ['+cr.id+'] INJECT_CRUCE -> triggered: '+cond.map(x=>x.capa).join('+'));
+  }
+}
+function capaBand(cap){
+  const c=INST.capas.find(x=>x.code===cap); if(!c) return null;
+  const crib=c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null);
+  if(!crib.length) return null;
+  const m=crib.reduce((a,it)=>{const s=_scoreItem(it);return a+(typeof s==='number'&&!isNaN(s)?s:0);},0)/crib.length;
+  if(m<26) return {n:c.nombre,t:'Sólido en esta área. Pasando a la siguiente.',c:'#7ee3ad'};
+  if(m<51) return {n:c.nombre,t:'Con margen de mejora. Seguimos.',c:'#f2cf6b'};
+  if(m<76) return {n:c.nombre,t:'Sobrecarga detectada. Abriendo preguntas de excavación.',c:'#f6a89c'};
+  return {n:c.nombre,t:'Zona crítica. Profundizando a fondo aquí.',c:'#f6a89c'};
+}
+
+function repProg(q){ if(!st.sid)return; try{ fetch(API+'/api/progress',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify({session_id:st.sid,idx:st.i,total:st.cola.length,last_qid:(q&&q.id)||null})}).catch(()=>{}); }catch(e){} }
+// ===== ANTI-FATIGA =====
+// (1) Cuenta atrás por bloque: cuántas preguntas QUEDAN en el bloque actual (incl. la actual), contando
+//     items consecutivos con el mismo _b a partir de st.i. Robusto: si no se puede calcular, devuelve null.
+function _quedanBloque(){
+  try{
+    if(!st.cola || !st.cola.length || st.i<0 || st.i>=st.cola.length) return null;
+    var b=st.cola[st.i]._b; if(!b) return null;
+    var n=0;
+    for(var k=st.i;k<st.cola.length;k++){ var it=st.cola[k]; if(!it||it._b!==b) break; if(aplica(it)) n++; }
+    return n>0?n:null;
+  }catch(e){ return null; }
+}
+function _txtQuedanBloque(){
+  var n=_quedanBloque(); if(n==null) return '';
+  if(n<=1) return 'Última de este bloque';
+  return 'Te quedan '+n+' en este bloque';
+}
+// Mensajes de transición al cerrar un bloque (recompensa breve, tono Adapta cómplice y firme).
+var _MSG_BLOQUE={
+  'Sobre ti':'Bloque cerrado: ya sabemos quién eres. Ahora, tu vida ideal.',
+  'Tu vida ideal':'Bloque cerrado: ya tenemos tu destino. Pongámosle números.',
+  'Tus números':'Bloque cerrado: ya tenemos tu foto patrimonial. Vamos a por tu psicología del dinero.',
+  'Tu arquetipo del dinero':'Bloque cerrado: ya conocemos tu arquetipo. Casi lo tenemos.',
+  'Lo que más te importa':'Bloque cerrado: ya sabemos qué pesa más para ti.',
+  'En tus palabras':'Bloque cerrado: tus palabras quedan registradas. Estamos terminando.',
+  'Donde se cruza tu vida':'Bloque cerrado: hemos cruzado lo que importa. Seguimos.'
+};
+// (2) Micro-hito al cerrar bloque: devuelve el mensaje si cambió _b (no en la primera), o null.
+function _msgHitoBloque(prevB, curB){
+  try{
+    if(prevB==null || prevB===curB) return null;       // primera pregunta o mismo bloque: nada
+    return _MSG_BLOQUE[prevB] || ('Bloque cerrado: «'+prevB+'». Seguimos con el siguiente.');
+  }catch(e){ return null; }
+}
+// (3) Revelaciones en vivo: cada ~10 preguntas respondidas, un dato REAL ya calculado del propio cliente.
+function _revelacion(){
+  try{
+    var ans=Object.keys(st.resp||{}).length + Object.keys(st.datos||{}).filter(function(k){
+      return k.indexOf('_detalle')<0 && k[0]!=='_' && typeof st.datos[k]==='number' && isFinite(st.datos[k]);
+    }).length;
+    if(ans<=0 || ans%10!==0) return false;             // sólo en múltiplos de 10
+    if(st._lastRevelAns===ans) return false;           // no repetir en el mismo umbral
+    var d=st.datos||{};
+    var ing=+d.ingreso_mensual||0, gas=+d.gasto_mensual||0, col=+d.colchon_liquido||0;
+    var cands=[];
+    if(ing>0 && gas>0){
+      var margen=Math.round(ing-gas);
+      cands.push({k:'margen', m:'Con lo que llevas, tu margen real es '+margen.toLocaleString('es-ES')+' €/mes.'});
+    }
+    if(col>0 && gas>0){
+      var meses=Math.round((col/gas)*10)/10;
+      cands.push({k:'colchon', m:'Tu colchón aguanta '+meses.toString().replace('.',',')+' mes'+(meses===1?'':'es')+' sin ingresos.'});
+    }
+    if(!cands.length) return false;
+    // elige un dato distinto al último mostrado
+    var pick=cands.find(function(c){return c.k!==st._lastRevelK;}) || cands[0];
+    st._lastRevelAns=ans; st._lastRevelK=pick.k;
+    toast(0, pick.m);
+    return true;
+  }catch(e){ return false; }
+}
+// (4) Hito de cierre de capa: si cambió el _cap de una capa C*, devuelve el mensaje con el contador X/12, o null.
+function _msgHitoCapa(prevCap, curCap){
+  try{
+    if(prevCap==null || prevCap===curCap) return null;
+    if(!(prevCap[0]==='C')) return null;               // sólo al cerrar una capa C*
+    if(!INST||!INST.capas) return null;
+    var rev=0; INST.capas.forEach(function(c){
+      if(c.items.filter(function(it){return it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null;}).length) rev++;
+    });
+    if(rev<1) return null;
+    return 'Capa '+rev+' de '+INST.capas.length+' — vas a buen ritmo.';
+  }catch(e){ return null; }
+}
+// Orquesta los hitos: actualiza SIEMPRE los trackers de bloque/capa y emite a lo sumo UN toast por avance
+// (prioridad: bloque > capa > revelación). No bloquea el flujo ni toca scoring/persistencia.
+function _antiFatiga(q){
+  try{
+    var curB=(q&&q._b)||null, curCap=(q&&q._cap)||null;
+    if(st._afInit==null){ st._afInit=1; st._lastB=curB; st._lastCap=curCap; st._afMaxI=st.i; return; } // arme silencioso
+    var prevB=st._lastB, prevCap=st._lastCap;
+    st._lastB=curB; st._lastCap=curCap;                // trackers SIEMPRE al día (no se desincronizan)
+    // sólo celebramos AVANCE real: si el usuario pulsa ← Atrás (st.i no supera el máximo visto), no disparamos hitos.
+    var _avance = (st._afMaxI==null || st.i>st._afMaxI);
+    if(st.i>(st._afMaxI||0)) st._afMaxI=st.i;
+    if(!_avance) return;
+    // si una respuesta acaba de lanzar un toast de scoring (feedback en caliente), no lo pisamos este avance.
+    var _toastReciente = (typeof window!=='undefined' && window._lastToastTs && (Date.now()-window._lastToastTs)<700);
+    if(_toastReciente) return;
+    var msgB=_msgHitoBloque(prevB, curB); if(msgB){ toast(0, msgB); return; }
+    var msgC=_msgHitoCapa(prevCap, curCap); if(msgC){ toast(0, msgC); return; }
+    _revelacion();
+  }catch(e){}
+}
+// T3: ¿la pregunta es sobre la pareja/hogar (true) o sobre el individuo (false)?
+function _alcancePareja(q){
+  try{
+    if(!q) return false;
+    var PAR_CAMPOS={gastos_comunes:1,gasto_libre:1,estructura_dinero:1,aportacion_modelo:1};
+    if(q.campo && PAR_CAMPOS[q.campo]) return true;
+    var t=(q.texto||q.pregunta||'').toLowerCase();
+    var KW=['vuestr','tenéis','teneis','vosotros','vuestra relación','en pareja','del hogar','gastos comunes'];
+    for(var i=0;i<KW.length;i++){ if(t.indexOf(KW[i])!==-1) return true; }
+    var ms=q.mostrar_si;
+    if(ms && ms.campo==='estado_civil'){
+      var vals=ms.valor_in||[]; var PAR_EC=['casado','pareja'];
+      for(var j=0;j<vals.length;j++){ var vv=(''+vals[j]).toLowerCase(); for(var k=0;k<PAR_EC.length;k++){ if(vv.indexOf(PAR_EC[k])!==-1) return true; } }
+    }
+  }catch(e){}
+  return false;
+}
+function _pintarScopeBadge(q){
+  var el=document.getElementById('scopeBadge'); if(!el) return;
+  try{
+    if(st.tier!==3){ el.style.display='none'; el.textContent=''; return; }
+    var par=_alcancePareja(q);
+    el.className='scopebadge '+(par?'par':'ind');
+    el.textContent=par?'👫 Sobre vuestro hogar':'👤 Sobre ti';
+    el.style.display='inline-flex';
+  }catch(e){ el.style.display='none'; }
+}
+function pintar(){
+  while(st.i<st.cola.length && !aplica(st.cola[st.i])) st.i++;
+  if(st.i>=st.cola.length){ return (!st.email && !PAREJA) ? pedirEmail() : finalizar(); }
+  const q=st.cola[st.i];
+  try{ const iq=document.getElementById('introQ'); if(iq) iq.style.display=(st.i===0 && !st.sid)?'block':'none'; }catch(e){}
+  repProg(q);
+  saveProgreso();
+  const _rem=Math.max(0,st.cola.length-st.i), _mins=_rem>2?'  ·  ~'+Math.max(1,Math.round(_rem*8/60))+' min':'';
+  const _tot=Math.max(st.cola.length,st.i+1), _n=Math.min(st.i+1,_tot);
+  const _qb=_txtQuedanBloque(), _bloqTxt=_qb?('  ·  '+_qb):('  ·  Pregunta '+_n+'/~'+_tot);
+  document.getElementById('bloque').textContent=q._b+_bloqTxt+'  ·  '+progresoPct(q)+'%'+_mins;
+  progreso(q);
+  qtext.textContent=q.texto||q.pregunta;
+  _pintarScopeBadge(q);
+  const ay=document.getElementById('ayuda'); ay.classList.remove('ai');
+  if(q.ayuda){
+    ay.textContent=q.ayuda; ay.style.display='block';
+    if(q._cap==='X'){ ay.classList.add('ai'); _log('[Step '+st.i+'] [UI] CRUCE_VISIBLE -> indicador de adaptacion mostrado al usuario'); }
+    ay.style.animation='none'; void ay.offsetWidth; ay.style.animation='aiFade .4s ease';   // micro-transicion suave
+  } else ay.style.display='none';
+  const rf=document.getElementById('reflex'); if(rf) rf.textContent=REFLEX[st.i % REFLEX.length];
+  const cont=document.getElementById('cont'); const opts=document.getElementById('opts'); opts.innerHTML='';
+  document.getElementById('atras').style.display = st.i>0?'inline-block':'none';
+  if(q.tipo==='numerica'){
+    cont.style.display='block'; cont.textContent='Siguiente →'; cont.onclick=()=>contNum();
+    const inp=document.createElement('input');inp.type='number';inp.id='num';inp.placeholder=q.unidad||'';
+    inp.value = st.datos[q.campo] ?? ''; opts.appendChild(inp);
+    if(_DESG[q.campo]){
+      var _dw=document.createElement('div');_dw.className='desg';opts.appendChild(_dw);
+      var _rf=function(){try{_buildDesglose(q.campo,parseFloat(inp.value)||0,_dw);}catch(e){}};
+      inp.addEventListener('input',_rf);_rf();
+    }
+  } else if(q.tipo==='edades_hijos'){
+    cont.style.display='block'; cont.textContent='Continuar →'; cont.onclick=()=>contEdadesHijos(q);
+    var _ehw=document.createElement('div');_ehw.id='edadesHijosWrap';opts.appendChild(_ehw);
+    _buildEdadesHijos(_ehw);
+  } else if(q.tipo==='abierta'){
+    cont.style.display='block'; cont.textContent='Continuar →'; cont.onclick=()=>contAbierta(q);
+    const ta=document.createElement('textarea');ta.id='abierta';ta.rows=4;ta.placeholder='Escribe lo que te salga, sin filtro…';
+    ta.style.cssText='width:100%;background:#1c1c20;border:1px solid var(--bd);color:var(--tx);padding:14px;border-radius:12px;font-size:15px;font-family:inherit;line-height:1.5;resize:vertical';
+    ta.value = st.abiertas[q.id] || ''; opts.appendChild(ta);
+  } else if(q.multi){
+    cont.style.display='block'; cont.textContent='Continuar →'; cont.onclick=()=>contMulti(q);
+    const sel=new Set(); q._sel=sel;
+    (q.opciones||[]).forEach((op,idx)=>{
+      const b=document.createElement('button');b.className='opt';b.textContent=op.texto||op;
+      b.onclick=()=>{ if(sel.has(idx)){sel.delete(idx);b.classList.remove('sel');}else{sel.add(idx);b.classList.add('sel');} };
+      opts.appendChild(b);
+    });
+  } else {
+    cont.style.display='none';
+    let order=(q.opciones||[]).map((_,i)=>i);
+    const scored=(q.opciones&&q.opciones[0]&&q.opciones[0].score!=null);
+    if(scored && q.orden_fijo!==true){ for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];} }
+    order.forEach(idx=>{
+      const op=q.opciones[idx];
+      const b=document.createElement('button');b.className='opt';b.textContent=op.texto||op;
+      b.onclick=()=>elegir(q,idx); opts.appendChild(b);
+    });
+  }
+  // entrada animada de la card + stagger de opciones + radar en vivo
+  const _qc=document.getElementById('qcard'); if(_qc){_qc.classList.remove('exit');_qc.classList.remove('in');void _qc.offsetWidth;_qc.classList.add('in');}
+  [...opts.children].forEach((el,i)=>{el.classList.add('optin');el.style.animationDelay=(i*50)+'ms';});
+  try{updateRadar();}catch(_e){}
+  try{_antiFatiga(q);}catch(_e){}   // anti-fatiga: hito de bloque / capa / revelación (no bloquea el flujo)
+}
+let _qlock=false;
+function nextFade(fn){ if(_qlock){return;} _qlock=true; setTimeout(()=>{try{updateRadar();}catch(e){}},90); const c=document.getElementById('qcard'); setTimeout(()=>{if(c)c.classList.add('exit');},200); setTimeout(()=>{_qlock=false;fn();},470); }
+const AXES=[
+  {k:'Flujo',caps:['C4','C6','C9']},
+  {k:'Solidez',caps:['C3','C5','C10']},
+  {k:'Crecimiento',caps:['C2','C7','C8','C11','C12']},
+  {k:'Psique',caps:['C1']}
+];
+let _radarVals=[0,0,0,0],_radarRAF=null;
+function _axisHealth(caps){let s=0,nn=0;caps.forEach(code=>{const c=INST.capas.find(x=>x.code===code);if(!c)return;const ans=c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null).length;if(!ans)return;s+=(100-capaMean(code));nn++;});return nn?s/nn:0;}
+function _rpt(cx,cy,R,i,n,val){const a=-Math.PI/2+i*2*Math.PI/n;const r=R*(0.10+0.90*Math.max(0,Math.min(100,val))/100);return [cx+r*Math.cos(a),cy+r*Math.sin(a)];}
+function buildRadar(){const w=document.getElementById('radarWrap');if(!w||!INST||!INST.capas)return;const cx=100,cy=100,R=64,n=AXES.length;function g(i,r){const a=-Math.PI/2+i*2*Math.PI/n;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];}let rings='';[0.34,0.67,1].forEach(t=>{const p=AXES.map((a,i)=>g(i,R*t).map(v=>v.toFixed(1)).join(',')).join(' ');rings+='<polygon points="'+p+'" fill="none" stroke="#23252e" stroke-width="1"/>';});let spokes='',labels='';AXES.forEach((a,i)=>{const[x,y]=g(i,R);spokes+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#23252e" stroke-width="1"/>';const[lx,ly]=g(i,R+17);const anc=Math.abs(lx-cx)<8?'middle':(lx>cx?'start':'end');labels+='<text x="'+lx.toFixed(1)+'" y="'+(ly+3).toFixed(1)+'" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="'+anc+'">'+a.k+'</text>';});w.innerHTML='<svg viewBox="-42 0 284 212" xmlns="http://www.w3.org/2000/svg">'+rings+spokes+'<polygon id="radarPoly" points="" fill="rgba(253,215,49,.15)" stroke="#FDD731" stroke-width="2" stroke-linejoin="round"/><g id="radarVerts"></g>'+labels+'</svg>';_radarVals=AXES.map(()=>0);drawRadar(_radarVals);}
+function drawRadar(vals){const cx=100,cy=100,R=64,n=AXES.length;const poly=vals.map((v,i)=>_rpt(cx,cy,R,i,n,v).map(x=>x.toFixed(1)).join(',')).join(' ');const p=document.getElementById('radarPoly');if(p)p.setAttribute('points',poly);const g=document.getElementById('radarVerts');if(g)g.innerHTML=vals.map((v,i)=>{const[x,y]=_rpt(cx,cy,R,i,n,v);return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.7" fill="#FDD731"/>';}).join('');}
+function updateRadar(){if(!INST||!INST.capas)return;const w=document.getElementById('radarWrap');if(w&&!w.children.length)buildRadar();const tgt=AXES.map(a=>_axisHealth(a.caps));const from=_radarVals.slice(),t0=performance.now(),D=480,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;cancelAnimationFrame(_radarRAF);(function step(now){const t=Math.min(1,(now-t0)/D),e=ease(t);_radarVals=tgt.map((v,i)=>from[i]+(v-from[i])*e);drawRadar(_radarVals);if(t<1)_radarRAF=requestAnimationFrame(step);})(t0);let rev=0;INST.capas.forEach(c=>{if(c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null).length)rev++;});const cc=document.getElementById('capasCount');if(cc)cc.textContent=rev+' / '+INST.capas.length+' capas'; try{_actualizarFuga();}catch(e){} try{_panelDinero();}catch(e){}}
+function calcFuga(){const d=st.datos||{};const g=+d.gasto_mensual||0,col=+d.colchon_liquido||0;if(!g||!col)return 0;return Math.round(Math.max(0,col-6*g)*0.03);}
+let _fugaCur=0,_fugaRAF=null;
+function _actualizarFuga(){const f=calcFuga();const fb=document.getElementById('fugaBox');if(!fb)return;if(f<=0){fb.style.display='none';return;}fb.style.display='flex';const from=_fugaCur,t0=performance.now(),D=750;cancelAnimationFrame(_fugaRAF);(function s(now){const t=Math.min(1,(now-t0)/D),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;const v=Math.round(from+(f-from)*e);const el=document.getElementById('fugaV');if(el)el.textContent=v.toLocaleString('es-ES')+' €/año';if(t<1)_fugaRAF=requestAnimationFrame(s);else _fugaCur=f;})(t0);}
+var _DESG={
+ ingreso_mensual:['Nómina / salario','Bonus / variable','Autónomo / actividad','Negocio propio (SL)','Alquileres','Dividendos','Intereses / cupones','Plusvalías','Royalties / propiedad intelectual','Pensión','Otros'],
+ gasto_mensual:['Vivienda (hipoteca/alquiler)','Suministros y hogar','Alimentación','Transporte / vehículo','Colegios / educación','Salud','Seguros y tributos (IBI, ITV, hogar, vida)','Ocio y viajes','Restauración','Suscripciones / servicios','Cuotas y deudas (coche, préstamos, tarjetas)','Cuidado personal','Otros'],
+ deuda_total:['Hipoteca habitual','Hipoteca de inversión','Préstamo personal','Coche / leasing','Tarjeta / revolving','Crédito al consumo','Deuda de empresa','Préstamo familiar','Otros'],
+ inversiones_liquidas:['Fondos / ETF','Acciones directas','Renta fija / bonos','Planes de pensiones','Inmobiliario (REIT/SOCIMI)','Capital riesgo / private equity','Cripto','Materias primas / oro','Liquidez / depósitos','Otros'],
+ patrimonio:['Vivienda habitual','Segunda vivienda','Otros inmuebles','Negocio / participaciones','Cartera financiera (fondos, acciones, ETF)','Planes de pensiones','Seguro de ahorro / unit-linked','Criptomonedas','Liquidez / depósitos','Vehículos','Arte / coleccionables','Préstamos concedidos / a cobrar','Otros']
+};
+function _desgSum(campo){var d=(st.datos||{})[campo+'_detalle']||[];return d.reduce(function(a,r){return a+(parseFloat(r.v)||0);},0);}
+function _buildDesglose(campo,total,wrap){
+  try{
+    if(!wrap)return;
+    var isPat=(campo==='patrimonio');
+    if(!isPat && !(total>0)){wrap.style.display='none';wrap.innerHTML='';return;}
+    wrap.style.display='block';
+    var cs=_DESG[campo]||[];
+    var det=st.datos[campo+'_detalle'];
+    if(!Array.isArray(det)||!det.length){det=[{c:cs[0]||'',v:''}];st.datos[campo+'_detalle']=det;}
+    var euros=function(x){return Math.round(x).toLocaleString('es-ES');};
+    var isPat=(campo==='patrimonio');
+    var _hint=isPat?'valor de mercado y deuda de cada activo':'Desglósalo — obligatorio';
+    var h='<div class="desg-h">'+(isPat?'Tus activos':'¿De dónde salen esos '+euros(total)+' €?')+' <span>'+_hint+'</span></div><div class="desg-rows">';
+    det.forEach(function(r,i){
+      h+='<div class="desg-row"><select data-i="'+i+'" class="desg-c">'+cs.map(function(o){return '<option'+(o===r.c?' selected':'')+'>'+o+'</option>';}).join('')+'</select>'
+        +'<input type="number" inputmode="numeric" data-i="'+i+'" class="desg-v" value="'+(r.v||'')+'" placeholder="'+(isPat?'valor €':'€')+'">'
+        +(isPat?'<input type="number" inputmode="numeric" data-i="'+i+'" class="desg-d" value="'+(r.d||'')+'" placeholder="deuda €">':'')
+        +'<button type="button" data-i="'+i+'" class="desg-x" title="quitar">×</button></div>';
+    });
+    h+='</div><button type="button" class="desg-add">+ añadir partida</button><div class="desg-sum" id="desgSum"></div>';
+    wrap.innerHTML=h;
+    var sumline=function(){
+      var el=wrap.querySelector('#desgSum');if(!el)return;
+      if(isPat){
+        var sv=det.reduce(function(a,r){return a+(parseFloat(r.v)||0);},0);
+        var sd=det.reduce(function(a,r){return a+(parseFloat(r.d)||0);},0);
+        var dt=parseFloat((st.datos||{}).deuda_total); if(!isFinite(dt))dt=0;
+        var totalDeuda=Math.max(sd,dt);
+        var net=sv-totalDeuda;
+        st.datos.patrimonio=net;
+        var ni=document.getElementById('num'); if(ni) ni.value=Math.round(net);
+        var msg='Patrimonio neto: <b>'+euros(net)+' €</b> <span style="color:#94a3b8">(activos '+euros(sv)+' − deudas '+euros(totalDeuda)+')</span>';
+        if(dt>sd+Math.max(100,dt*0.05)){
+          msg+='<br><span style="color:#FDD731">Te quedan '+euros(dt-sd)+' € de deuda sin ligar a ningún activo. Los entendemos como préstamos personales o tarjetas (deuda no garantizada) y se restan igual de tu patrimonio.</span>';
+        } else if(dt>0 && sd>dt+Math.max(100,dt*0.10)){
+          msg+='<br><span style="color:#D8674F">Las deudas que repartes entre activos ('+euros(sd)+' €) superan la deuda total que diste ('+euros(dt)+' €). Revísalo — pulsa ← Atrás.</span>';
+        }
+        el.innerHTML=msg;
+      } else {
+        var sm=_desgSum(campo);
+        var ok=Math.abs(sm-total)<=Math.max(50,total*0.05);
+        el.innerHTML='Sumado: <b>'+euros(sm)+' €</b> de '+euros(total)+' €  '+(ok?'<span style="color:#2FB36B">✓ cuadra</span>':(sm<total?'<span style="color:#FDD731">faltan '+euros(total-sm)+' €</span>':'<span style="color:#D8674F">te pasas '+euros(sm-total)+' €</span>'))
+          +((!ok && sm<total)?'<br><button type="button" class="desg-otros" style="margin-top:8px;background:none;border:1px dashed #FDD731;color:#FDD731;border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer">Poner los '+euros(total-sm)+' € que faltan en «Otros»</button>':'');
+        var bo=el.querySelector('.desg-otros');
+        if(bo) bo.onclick=function(){
+          var falta=Math.round(total-_desgSum(campo)); if(falta<=0) return;
+          // Atajo para no abandonar: lo que no se sabe repartir va a «Otros» (y lo medimos para mejorar el test)
+          var vacia=det.findIndex(function(r){return !(parseFloat(r.v)>0);});
+          var io=det.findIndex(function(r){return r.c==='Otros';});
+          if(io>=0) det[io].v=(parseFloat(det[io].v)||0)+falta;
+          else if(vacia>=0){ det[vacia].c='Otros'; det[vacia].v=falta; }
+          else det.push({c:'Otros',v:falta});
+          try{window.adaptaEv&&adaptaEv('desg_otros',campo+'|'+Math.round(100*falta/Math.max(1,total))+'%')}catch(e){}
+          _buildDesglose(campo,total,wrap); try{_panelDinero();}catch(e){}
+        };
+      }
+    };
+    wrap.querySelectorAll('.desg-c').forEach(function(sel){sel.onchange=function(){det[+this.dataset.i].c=this.value;sumline();try{_panelDinero();}catch(e){}};});
+    wrap.querySelectorAll('.desg-v').forEach(function(np){np.oninput=function(){det[+this.dataset.i].v=this.value;sumline();try{_panelDinero();}catch(e){}};});
+    wrap.querySelectorAll('.desg-d').forEach(function(np){np.oninput=function(){det[+this.dataset.i].d=this.value;sumline();try{_panelDinero();}catch(e){}};});
+    wrap.querySelectorAll('.desg-x').forEach(function(b){b.onclick=function(){det.splice(+this.dataset.i,1);if(!det.length)det.push({c:cs[0]||'',v:''});_buildDesglose(campo,total,wrap);try{_panelDinero();}catch(e){}};});
+    var ab=wrap.querySelector('.desg-add'); if(ab)ab.onclick=function(){det.push({c:cs[0]||'',v:''});_buildDesglose(campo,total,wrap);};
+    sumline();
+  }catch(e){}
+}
+// Widget de edades de los hijos: un desplegable por hijo (0-30 + "indicar más tarde").
+// El nº de hijos viene de st.datos.n_hijos (pregunta anterior); si no, se infiere de 1.
+function _nHijos(){
+  var n=parseInt((st.datos||{}).n_hijos,10);
+  if(!isFinite(n)||n<1)n=1; if(n>10)n=10; return n;
+}
+function _buildEdadesHijos(wrap){
+  try{
+    if(!wrap)return;
+    var n=_nHijos();
+    var prev=(st.datos&&Array.isArray(st.datos.edades_hijos))?st.datos.edades_hijos:[];
+    var arr=[]; for(var i=0;i<n;i++){arr.push(prev[i]!==undefined?prev[i]:'');}
+    st.datos.edades_hijos=arr;
+    var opciones='<option value="">— Edad —</option>';
+    for(var e=0;e<=30;e++){opciones+='<option value="'+e+'">'+e+' año'+(e===1?'':'s')+'</option>';}
+    opciones+='<option value="__later__">Prefiero indicarlo más tarde</option>';
+    var h='<div class="desg-rows">';
+    for(var k=0;k<n;k++){
+      var cur=arr[k]; var selOpts=opciones.replace('value="'+(cur===''?'':cur)+'"','value="'+(cur===''?'':cur)+'" selected');
+      h+='<div class="desg-row"><span style="color:#94a3b8;font-size:13px;min-width:64px">Hijo/a '+(k+1)+'</span>'
+        +'<select data-i="'+k+'" class="eh-sel" style="flex:1">'+selOpts+'</select></div>';
+    }
+    h+='</div><div class="desg-sum" id="ehSum"></div>';
+    wrap.innerHTML=h;
+    var refl=function(){
+      var sumel=wrap.querySelector('#ehSum'); if(!sumel)return;
+      var conoc=arr.map(function(x){return (x!==''&&x!=='__later__')?parseInt(x,10):null;}).filter(function(x){return x!==null&&isFinite(x);});
+      if(conoc.length){
+        var menor=Math.min.apply(null,conoc);
+        sumel.innerHTML='El más pequeño tiene <b>'+menor+'</b> año'+(menor===1?'':'s')+'. Lo usamos para medir cuándo se libera ese gasto y cuándo podrías ayudar a su emancipación.';
+      } else { sumel.innerHTML='<span style="color:#94a3b8">Sin problema: lo afinamos con una estimación prudente.</span>'; }
+    };
+    wrap.querySelectorAll('.eh-sel').forEach(function(sel){sel.onchange=function(){arr[+this.dataset.i]=this.value;st.datos.edades_hijos=arr;refl();};});
+    refl();
+  }catch(e){}
+}
+function contEdadesHijos(q){
+  try{
+    var arr=(st.datos&&Array.isArray(st.datos.edades_hijos))?st.datos.edades_hijos:[];
+    // Guardamos las edades como números; "indicar más tarde" o vacío -> null (el motor lo encaja sin romper)
+    var out=arr.map(function(x){var v=parseInt(x,10);return isFinite(v)?v:null;});
+    st.datos.edades_hijos=out;
+    // Derivamos la edad del menor para el motor existente (compatibilidad con edad_hijo_menor)
+    var conoc=out.filter(function(x){return x!==null;});
+    if(conoc.length) st.datos.edad_hijo_menor=Math.min.apply(null,conoc);
+  }catch(e){}
+  nextFade(()=>avanzar(q));
+}
+function _panelDinero(){
+  try{
+    var d=st.datos||{}; var box=document.getElementById('panelDinero'); if(!box)return;
+    var n=function(k){var v=parseFloat(d[k]);return isFinite(v)&&v>0?v:0;};
+    var eur=function(x){return Math.round(x).toLocaleString('es-ES')+' \u20ac';};
+    var ing=n('ingreso_mensual'),pas=Math.min(n('renta_pasiva'),ing),act=Math.max(0,ing-pas);
+    var gas=n('gasto_mensual'),pgf=parseFloat(d.pct_gasto_fijo);
+    var fijo=(isFinite(pgf)&&pgf>0)?gas*Math.min(100,pgf)/100:Math.min(gas,n('coste_vivienda')+n('cuota_deuda'));
+    fijo=Math.min(fijo,gas); var vr=Math.max(0,gas-fijo);
+    var deu=n('deuda_total'),cuo=n('cuota_deuda');
+    var inv=n('inversiones_liquidas'),col=n('colchon_liquido'),liq=inv+col;
+    var pat=n('patrimonio'),neto=pat-deu,ili=Math.max(0,pat-liq);
+    var rows=[];
+    function bar(parts){var tot=parts.reduce(function(a,b){return a+b[0];},0)||1;return '<div class="pdr-bar">'+parts.map(function(pp){return pp[0]>0?'<i style="width:'+(100*pp[0]/tot)+'%;background:'+pp[1]+'"></i>':'';}).join('')+'</div>';}
+    function row(lab,val,parts){rows.push('<div class="pdr"><div class="pdr-t"><span>'+lab+'</span><b>'+val+'</b></div>'+bar(parts)+'</div>');}
+    if(ing>0) row('Ingresos',eur(ing),[[act,'#5B6472'],[pas,'#2FB36B']]);
+    if(gas>0) row('Gastos',eur(gas),[[fijo,'#D8674F'],[vr,'#FDD731']]);
+    if(deu>0) row('Deuda',eur(deu),[[cuo,'#D8674F'],[Math.max(0,ing-cuo),'#33343b']]);
+    if(liq>0||ili>0) row('Cartera',eur(liq),[[liq,'#2FB36B'],[ili,'#3A4150']]);
+    if(pat>0) row('Patrimonio neto',eur(neto),[[Math.max(0,liq),'#2FB36B'],[Math.max(0,ili),'#3A4150']]);
+    var obj=n('coste_vida_ideal')||gas, pen=n('pension_estimada');
+    var num=obj>0?Math.max(0,(obj-pen))*12*25:0;
+    var prev=num>0?'<div class="pdin-num">Tu n\u00famero de libertad: <b>'+eur(num)+'</b></div>':'';
+    if(rows.length){box.style.display='block';box.innerHTML='<div class="pdin-h"><span>Tu dinero</span> \u00b7 en vivo</div>'+rows.join('')+prev;}
+    else{box.style.display='none';}
+  }catch(e){}
+}
+function progresoPct(q){
+  const tot=Math.max(st.cola.length,1);
+  const frac=Math.min(1,(st.i+1)/tot);
+  // curva cóncava: el avance se siente rápido y da antes la sensación de "queda poco"
+  let pct=Math.min(98,Math.round(100*Math.pow(frac,0.68)));
+  pct=Math.max(pct, st._prog||0); st._prog=pct;                            // MONOTONO: nunca retrocede
+  return pct;
+}
+function progreso(q){ document.getElementById('bar').style.width=progresoPct(q)+'%'; }
+// ---- TENSIÓN en tiempo real ----
+function actualizarTension(){
+  if(!st.tens.length) return;
+  const m=Math.round(st.tens.reduce((a,b)=>a+b,0)/st.tens.length);
+  const tb=document.getElementById('tbar'), lb=document.getElementById('tensLbl');
+  tb.style.width=m+'%';
+  let col,txt;
+  if(m<30){col='#1f7a4d';txt='Estructura eficiente'}
+  else if(m<55){col='#9a7b1e';txt='Tensión moderada'}
+  else if(m<75){col='#c2710c';txt='Riesgo de sobrecarga'}
+  else {col='#b91c1c';txt='Tensión crítica'}
+  tb.style.background=col; lb.style.color=col.replace('#1f7a4d','#7ee3ad'); lb.textContent='Tensión estructural · '+m+'%'; if(m<30)lb.textContent='Estructura eficiente';
+}
+function toast(score,tag){
+  if(!tag) return;
+  const t=document.getElementById('toast');
+  const cls = score>=100?'s100':(score>=50?'s50':'s0');
+  const kk = score>=100?'⚠ Foco de tensión':(score>=50?'• Señal a vigilar':'✓ Esto juega a tu favor');
+  t.className='toast '+cls; t.innerHTML='<span class="kk">'+kk+'</span>'+tag;
+  try{ window._lastToastTs=Date.now(); }catch(e){}
+  requestAnimationFrame(()=>t.classList.add('show'));
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),3400);
+}
+function escaner(cap,cb){
+  const v=capaBand(cap);
+  const s=document.getElementById('scan');
+  document.getElementById('scanT').textContent='Analizando tus respuestas · '+(v?v.n:'capa')+'…';
+  const vd=document.getElementById('scanV'); vd.textContent=v?v.t:''; vd.style.color=v?v.c:'#fff';
+  s.classList.add('on');
+  setTimeout(()=>{ s.classList.remove('on'); cb(); }, 1450);
+}
+
+function elegir(q,idx){
+  if(q.campo) st.perfil[q.campo]=(q.opciones[idx].texto||q.opciones[idx]);
+  if(q.id) st.resp[q.id]=idx;
+  if(q.opciones[idx]&&q.opciones[idx].polo) st.resp[q.id]=q.opciones[idx].polo;
+  if(q.arq!==undefined && q.opciones[idx].arq) st.perfil['vida_ideal_arq']=q.opciones[idx].arq;
+  const op=q.opciones[idx];
+  if(op.score!=null){ st.tens.push(op.score); actualizarTension(); toast(op.score, op.tag_narrativo); }
+  nextFade(()=>avanzar(q));
+}
+function contMulti(q){
+  const sel=q._sel||new Set();
+  if(sel.size===0){alert('Elige al menos una opción');return}
+  const arr=[...sel].map(i=>(q.opciones[i].texto||q.opciones[i]));
+  if(q.campo) st.perfil[q.campo]=arr;
+  if(q.id) st.resp[q.id]=[...sel];
+  nextFade(()=>avanzar(q));
+}
+function contAbierta(q){ const t=(document.getElementById('abierta').value||'').trim(); if(q.id) st.abiertas[q.id]=t; nextFade(()=>avanzar(q)); }
+// Auditoría de coherencia de las cifras del cliente. Si only=campo, filtra a los cruces que lo tocan.
+// Devuelve la lista de incoherencias detectadas (vacía = todo cuadra).
+function auditCoherencia(only){
+  var D=st.datos||{}, out=[];
+  var pat=+D.patrimonio||0,inv=+D.inversiones_liquidas||0,col=+D.colchon_liquido||0;
+  var ing=+D.ingreso_mensual||0,gas=+D.gasto_mensual||0,aho=+D.ahorro_mensual||0;
+  var dt=+D.deuda_total||0,cuo=+D.cuota_deuda||0,viv=+D.coste_vivienda||0;
+  var rp=+D.renta_pasiva||0,est=+D.gasto_estatus||0,pen=+D.pension_estimada||0;
+  function push(campos,msg){ if(!only||campos.indexOf(only)>=0) out.push(msg); }
+  // 1) el líquido (invertido + parado) no puede superar tus ACTIVOS (valor bruto), que ya lo incluyen.
+  //    Antes se comparaba con el patrimonio NETO: a quien tiene hipoteca le saltaba "no cuadra" sin motivo
+  //    (casa 200.000 + coche 25.000, deudas 210.000, 25.000 ahorrados: neto 40.000 y saltaba el aviso).
+  var _det=Array.isArray(D.patrimonio_detalle)?D.patrimonio_detalle:[];
+  var _sv=_det.reduce(function(a,r){return a+(parseFloat((r||{}).v)||0);},0);
+  var act=_sv>0?_sv:(pat+dt);
+  if(act>0 && (inv+col)>act*1.02) push(['patrimonio','inversiones_liquidas','colchon_liquido'],
+    'Tu dinero líquido (invertido '+Math.round(inv)+' € + parado '+Math.round(col)+' €) supera el valor de todo lo que tienes ('+Math.round(act)+' €), que ya lo incluye. ¿Lo has contado dos veces?');
+  // 2) no puedes ahorrar más de lo que te sobra (ingreso − gasto)
+  if(ing>0 && gas>0 && aho>(ing-gas)+Math.max(50,ing*0.02)) push(['ahorro_mensual','ingreso_mensual','gasto_mensual'],
+    'Dices que ahorras '+Math.round(aho)+' €/mes, pero tu ingreso menos tu gasto deja '+Math.round(ing-gas)+' €');
+  // 3) déficit declarado y a la vez ahorras
+  if(ing>0 && gas>ing && aho>0) push(['ahorro_mensual','ingreso_mensual','gasto_mensual'],
+    'Gastas más de lo que ingresas y aun así dices que ahorras '+Math.round(aho)+' €');
+  // 4) renta pasiva mayor que tu ingreso total neto
+  if(ing>0 && rp>ing) push(['renta_pasiva','ingreso_mensual'],
+    'Tu renta pasiva ('+Math.round(rp)+' €) supera tu ingreso neto total ('+Math.round(ing)+' €)');
+  // 5) cuota mensual de deuda mayor que toda la deuda
+  if(dt>0 && cuo>dt) push(['cuota_deuda','deuda_total'],
+    'Tu cuota mensual de deuda ('+Math.round(cuo)+' €) es mayor que toda tu deuda ('+Math.round(dt)+' €)');
+  // 6) vivienda + cuotas de deuda mayores que el gasto mensual
+  if(gas>0 && (viv+cuo)>gas) push(['coste_vivienda','cuota_deuda','gasto_mensual'],
+    'Tu vivienda ('+Math.round(viv)+' €) + cuotas de deuda ('+Math.round(cuo)+' €) suman más que tu gasto mensual ('+Math.round(gas)+' €)');
+  // 7) gasto de imagen/estatus mayor que el gasto total
+  if(gas>0 && est>gas) push(['gasto_estatus','gasto_mensual'],
+    'Tu gasto de imagen/estatus ('+Math.round(est)+' €) supera tu gasto mensual total ('+Math.round(gas)+' €)');
+  // 8) lo que pagas de vivienda supera tu ingreso
+  if(ing>0 && viv>ing) push(['coste_vivienda','ingreso_mensual'],
+    'Lo que pagas de vivienda ('+Math.round(viv)+' €) supera tu ingreso mensual ('+Math.round(ing)+' €)');
+  // 9) pensión estimada muy por encima del ingreso actual
+  if(ing>0 && pen>ing*1.2) push(['pension_estimada','ingreso_mensual'],
+    'La pensión que estimas ('+Math.round(pen)+' €) supera tu ingreso actual ('+Math.round(ing)+' €), algo inusual');
+  return out;
+}
+function _podarCola(campo){ for(var k=st.cola.length-1;k>st.i;k--){ if(st.cola[k] && st.cola[k].campo===campo) st.cola.splice(k,1); } }
+function contNum(){
+  const q=st.cola[st.i]; const v=document.getElementById('num').value;
+  if(v===''){alert('Introduce un número');return}
+  if(q.campo) st.datos[q.campo]=parseFloat(v);
+  // Desglose OBLIGATORIO (los 3 tiers) en TODOS los campos con desglose: debe cuadrar antes de avanzar
+  var _OBLIG_CUADRA=['ingreso_mensual','gasto_mensual','deuda_total','inversiones_liquidas'];
+  var _LBL={ingreso_mensual:'tu ingreso',gasto_mensual:'tu gasto',deuda_total:'tu deuda',inversiones_liquidas:'tus inversiones'};
+  if(_OBLIG_CUADRA.indexOf(q.campo)>=0){
+    var _gt=parseFloat(v)||0, _gs=_desgSum(q.campo);
+    if(_gt>0 && Math.abs(_gs-_gt)>Math.max(50,_gt*0.05)){
+      // Sin alert (en el movil es una pared): aviso en linea, junto al atajo «Otros». Y lo medimos.
+      try{window.adaptaEv&&adaptaEv('desg_bloqueo',q.campo)}catch(e){}
+      var _ds=document.getElementById('desgSum');
+      if(_ds){ var _av=document.getElementById('desgAviso'); if(!_av){ _av=document.createElement('div'); _av.id='desgAviso';
+        _av.style.cssText='margin-top:8px;font-size:12.5px;line-height:1.45;color:#FDD731'; _ds.parentNode.insertBefore(_av,_ds); }
+        _av.innerHTML='Para que tu diagnóstico sea exacto, reparte '+(_LBL[q.campo]||'esta cifra')+' por partidas hasta que cuadre con '+Math.round(_gt).toLocaleString('es-ES')+' €. Si no sabes repartir una parte, usa el botón de «Otros».';
+        try{_ds.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){} }
+      else alert('Desglosa '+(_LBL[q.campo]||'esta cifra')+' por partidas hasta que cuadre con el total.');
+      return;
+    }
+  }
+  if(q.campo==='gasto_mensual'){
+    // Deriva el coste de vivienda de la categoría Vivienda del desglose (alimenta la carga del techo)
+    try{
+      var _gd=st.datos.gasto_mensual_detalle||[];
+      var _cv=_gd.reduce(function(a,r){return a+(/vivienda/i.test(r.c||'')?(parseFloat(r.v)||0):0);},0);
+      if(_cv>0) st.datos.coste_vivienda=_cv;
+    }catch(e){}
+  }
+  // Patrimonio (neto auto-derivado): no se "cuadra con total" porque el total se deriva. Exige al menos una partida con valor>0.
+  if(q.campo==='patrimonio'){
+    var _pd=st.datos.patrimonio_detalle||[];
+    var _hayAct=_pd.some(function(r){return (parseFloat(r.v)||0)>0;});
+    if(!_hayAct){
+      alert('Añade al menos un activo con su valor de mercado (vivienda, cartera, negocio…). Es obligatorio para calcular tu patrimonio neto.');
+      return;
+    }
+  }
+  // Poda de redundancia: si el desglose ya cubre una pregunta posterior, no se la repetimos
+  try{
+    if(q.campo==='ingreso_mensual'){
+      var _pasc=['Alquileres','Dividendos','Intereses / cupones','Plusvalías','Royalties / propiedad intelectual','Pensión'];
+      var _det=st.datos.ingreso_mensual_detalle||[];
+      if(_det.some(function(r){return _pasc.indexOf(r.c)>=0 && (parseFloat(r.v)||0)>0;})) _podarCola('renta_pasiva');
+    }
+    if(q.campo==='patrimonio'){
+      var _detp=st.datos.patrimonio_detalle||[];
+      if(_detp.some(function(r){return /vivienda/i.test(r.c||'') && (parseFloat(r.v)||0)>0;})) _podarCola('pct_vivienda');
+    }
+  }catch(e){}
+  // === Validación de coherencia: si una cifra no cuadra, avisa al cliente para que revise ===
+  if(q.campo){
+    if(['pct_gasto_fijo','pct_vivienda','rentabilidad_actual'].indexOf(q.campo)>=0 && st.datos[q.campo]>100){
+      st.datos[q.campo]=100;
+      toast(100,'⚠ Eso es un porcentaje (0–100). Lo he ajustado a 100% — si te confundiste, pulsa ← Atrás para corregirlo.');
+    }
+    // DOBLE CONTEO: el colchón y lo invertido deben cuadrar con lo que pusiste en el desglose de patrimonio.
+    // Cada euro, en una sola casilla. Aviso suave (no bloquea): solo si la diferencia es grande.
+    try{
+      if(q.campo==='colchon_liquido'||q.campo==='inversiones_liquidas'){
+        var _dp=st.datos.patrimonio_detalle||[];
+        var _sum=function(re){return _dp.reduce(function(a,r){return a+(re.test(r.c||'')?(parseFloat(r.v)||0):0);},0);};
+        var _ref=q.campo==='colchon_liquido'?_sum(/liquidez|dep[oó]sito/i):_sum(/cartera financiera|criptomonedas/i);
+        var _val=parseFloat(st.datos[q.campo])||0;
+        var _nom=q.campo==='colchon_liquido'?'«Liquidez / depósitos»':'«Cartera financiera» y «Criptomonedas»';
+        if(_ref>0 && Math.abs(_val-_ref)>Math.max(3000,0.25*_ref)){
+          toast(100,'⚠ En el desglose de tu patrimonio pusiste '+Math.round(_ref).toLocaleString('es-ES')+' € en '+_nom+', y aquí '+Math.round(_val).toLocaleString('es-ES')+' €. Deberían cuadrar: cada euro, en una sola casilla. Si te equivocaste, pulsa ← Atrás.');
+        }
+      }
+    }catch(e){}
+    var _g=st.datos['gasto_mensual']||0, _viv=st.datos['coste_vivienda']||0, _cuo=st.datos['cuota_deuda']||0;
+    if(_g>0 && (q.campo==='cuota_deuda'||q.campo==='coste_vivienda') && (_viv+_cuo)>_g){
+      toast(100,'⚠ Tu vivienda ('+Math.round(_viv)+' €) + cuotas de deuda ('+Math.round(_cuo)+' €) suman más que tu gasto mensual ('+Math.round(_g)+' €). Revisa si te equivocaste — pulsa ← Atrás.');
+    }
+    if(q.campo==='gasto_mensual' && st.datos['ingreso_mensual']>0 && _g>st.datos['ingreso_mensual']*2){
+      toast(100,'⚠ Tu gasto supera con mucho tu ingreso. ¿Es correcto? Si no, ← Atrás para revisarlo.');
+    }
+  }
+  // === Auditoría de coherencia: alerta SIEMPRE que una posición no cuadre, para corregir ===
+  if(q.campo){
+    var _iss=auditCoherencia(q.campo);
+    if(_iss.length){
+      var _m=_iss[0];
+      if(/inusual|pensi/i.test(_m)){ toast(100, _m+' — revísalo si quieres.'); }
+      else { alert('No podemos seguir el diagnóstico con cifras que no cuadran:\n\n'+_m+'.\n\nCorrige ese dato para continuar (pulsa Aceptar y luego ← Atrás).'); return; }
+    }
+  }
+  // === Confirmacion positiva: cuando ya tenemos el nucleo, le devolvemos lo entendido (una vez) ===
+  if(!st._confirmado){
+    var _Dc=st.datos||{};
+    if((+_Dc.ingreso_mensual>0)&&(+_Dc.gasto_mensual>0)&&(_Dc.patrimonio!=null)&&!auditCoherencia().length){
+      st._confirmado=1;
+      var _ts=Math.round(((+_Dc.ahorro_mensual||0)/(+_Dc.ingreso_mensual))*100);
+      var _aho=(+_Dc.ahorro_mensual>0)?(', ahorras '+Math.round(+_Dc.ahorro_mensual)+' € ('+_ts+'%)'):'';
+      toast(0,'✓ Confirmado: ingresas '+Math.round(+_Dc.ingreso_mensual)+' €/mes, gastas '+Math.round(+_Dc.gasto_mensual)+' €'+_aho+', patrimonio neto '+Math.round(+_Dc.patrimonio)+' €. Lo he entendido — si algo no cuadra, ← Atrás.');
+    }
+  }
+  // ancla real: margen de maniobra (ingreso - gasto)
+  if((q.campo==='gasto_mensual'||q.campo==='ingreso_mensual') && st.datos['ingreso_mensual'] && st.datos['gasto_mensual']){
+    const mg=Math.round((st.datos['ingreso_mensual']-st.datos['gasto_mensual'])/st.datos['ingreso_mensual']*100);
+    let niv,sc; if(mg>=30){niv='sólido';sc=0}else if(mg>=10){niv='ajustado';sc=50}else{niv='vulnerable';sc=100}
+    toast(sc,'Tu margen de maniobra es del '+mg+'% (nivel: '+niv+'). Lo cruzaré con tu psicología.');
+  }
+  // micro-aviso de brecha en caliente
+  if(q.campo==='coste_vida_ideal' && st.datos['ingreso_mensual']){
+    const b=st.datos['coste_vida_ideal']-st.datos['ingreso_mensual'];
+    if(b>200) toast(100,'🕒 Brecha detectada: tu vida ideal cuesta '+Math.round(b)+' €/mes más de lo que ingresas hoy.');
+    else toast(0,'✓ Tu vida ideal está al alcance de tu ingreso actual.');
+  }
+  // === AHORRO in-situ: ¿declaras MENOS ahorro del superávit real? (al completar ahorro o gasto) ===
+  if((q.campo==='ahorro_mensual'||q.campo==='gasto_mensual'||q.campo==='ingreso_mensual')){
+    var _ai=+st.datos['ingreso_mensual']||0, _ag=+st.datos['gasto_mensual']||0, _aa=+st.datos['ahorro_mensual'];
+    if(_ai>0 && _ag>0 && isFinite(_aa) && _aa>=0){
+      var _sup=_ai-_ag;                                  // superávit real
+      var _difer=_sup-_aa;                               // lo que sobra y no declaras como ahorro
+      if(_sup>0 && _difer>Math.max(50,_ai*0.15)){        // umbral: >15% del ingreso (y al menos 50 €)
+        toast(50,'Tu ingreso menos gasto deja '+Math.round(_sup)+' €/mes, pero declaras '+Math.round(_aa)+' € de ahorro — ¿dónde va esa diferencia de '+Math.round(_difer)+' €?');
+      }
+    }
+  }
+  nextFade(()=>avanzar(q));
+}
+function capaMean(cap){
+  const c=INST.capas.find(x=>x.code===cap); if(!c) return 0;
+  const crib=c.items.filter(it=>it.nivel==='nucleo'&&!it.atencion&&st.resp[it.id]!=null);
+  if(!crib.length) return 0;
+  return crib.reduce((a,it)=>{const s=_scoreItem(it);return a+(typeof s==='number'&&!isNaN(s)?s:0);},0)/crib.length;
+}
+function popupEstres(cb){
+  document.getElementById('modalP').innerHTML='He encontrado focos de tensión reales en tu perfil — de los que cuestan dinero y sueño. No te los enseño para asustarte, sino para que dejes de fingir que no están. Al terminar tendrás el <b>plan, paso a paso, para desactivar cada uno</b>. Seguimos.';
+  const m=document.getElementById('modal'); m.classList.add('on');
+  document.getElementById('modalBtn').onclick=()=>{ m.classList.remove('on'); cb(); };
+}
+// Recompensas por el camino: en el 25 %, 50 % y 75 %, una revelación con TUS datos y lo que viene.
+function _hitoDatos(){
+  var d=st.datos||{}, r=[], ing=+d.ingreso_mensual||0, aho=+d.ahorro_mensual, gas=+d.gasto_mensual||0, col=+d.colchon_liquido||0, ed=+d.edad||0;
+  var f=function(n){return Math.round(n).toLocaleString('es-ES');};
+  if(ing>0 && isFinite(aho) && aho>=0) r.push('Ya tenemos tu <b>tasa de ahorro: '+Math.round(100*aho/ing)+' %</b> de lo que ingresas.');
+  if(gas>0 && col>0) r.push('Tu colchón cubre <b>'+(col/gas).toFixed(1).replace('.',',')+' meses</b> de tus gastos.');
+  if(ed>=18 && ed<67) r.push('Si paras a los 67, te quedan <b>'+f((67-ed)*52)+' lunes</b> de trabajo. Tu informe calculará cuántos te puedes quitar.');
+  return r;
+}
+function hito(cb){
+  var tot=st.cola.length||1, pct=Math.round(100*st.i/tot), marca=null;
+  st._hitos=st._hitos||{};
+  [75,50,25].some(function(m){ if(pct>=m && !st._hitos[m]){ marca=m; return true; } return false; });
+  if(!marca || st.tier===1 && marca===75) return cb();
+  [25,50,75].forEach(function(m){ if(m<=marca) st._hitos[m]=1; });
+  var datos=_hitoDatos(), sig={25:'Lo siguiente son <b>tus números</b>: lo que más mueve tu resultado.',
+    50:'Ya tenemos tus cifras. Ahora, <b>cómo decides con el dinero</b>: ahí suele estar el punto ciego.',
+    75:'Último tramo. <b>Tu informe ya se está escribiendo</b> con todo lo que nos has contado.'}[marca];
+  var rev = datos.length ? datos[Math.min(datos.length-1, marca===25?0:(marca===50?Math.min(1,datos.length-1):datos.length-1))] : '';
+  document.getElementById('hitoPct').textContent=marca+' %';
+  document.getElementById('hitoT').textContent= marca===25?'Buen arranque':(marca===50?'Vas por la mitad':'Casi lo tienes');
+  document.getElementById('hitoP').innerHTML=(rev?rev+'<br><br>':'')+sig;
+  var m=document.getElementById('hito'), b=document.getElementById('hitoBar'); b.style.width='0%'; m.classList.add('on');
+  setTimeout(function(){ b.style.width=marca+'%'; },60);
+  try{ window.adaptaEv&&adaptaEv('test_hito',marca); }catch(e){}
+  document.getElementById('hitoBtn').onclick=function(){ m.classList.remove('on'); cb(); };
+}
+function avanzar(q){
+  if(!st.sid) asegurarSesion();
+  let scanCapa=null;
+  if(q._cap && q._cap[0]==='C'){
+    const sig=st.cola[st.i+1];
+    if(!sig || sig._cap!==q._cap){
+      abrirProfundizacion(q._cap);   // profundizacion por varianza -> al final de la capa en curso
+      abrirCruces();                 // PRIORIDAD: cruce (peligro agudo) -> inmediatamente despues de la actual
+      const sig2=st.cola[st.i+1];
+      if(!sig2 || sig2._cap!==q._cap) scanCapa=q._cap;
+    }
+  }
+  st.i++;
+  const next=()=>hito(()=>{ if(scanCapa) escaner(scanCapa, pintar); else pintar(); });
+  if(scanCapa && !st.avisoEstres && capaMean(scanCapa)>=51){ st.avisoEstres=true; return popupEstres(next); }
+  next();
+}
+function atras(){ if(st.i<=0)return; st.i--; while(st.i>0 && !aplica(st.cola[st.i])) st.i--; pintar(); }
+
+async function finalizar(){
+  // Guarda final: si alguna cifra no cuadra, avísalo antes de generar y deja volver a corregir
+  var _coh=auditCoherencia();
+  if(_coh.length && !st._cohConfirmado){
+    st._cohConfirmado=true;
+    var _msg='Antes de generar tu diagnóstico, repasa esto: algunas cifras no cuadran del todo.\n\n· '+_coh.join('\n· ')+'\n\nTu diagnóstico es tan preciso como tus datos.\n\n[ Aceptar ] vuelvo a tus números para corregir\n[ Cancelar ] continúo igualmente';
+    if(confirm(_msg)){
+      var _ni=st.cola.findIndex(function(x){return x._cap==='NUM';});
+      st.i=_ni>=0?_ni:0; show('s-q'); pintar(); return;
+    }
+  }
+  limpiarProgreso();
+  show('s-gen');
+  const _t0=Date.now();
+  cajaNegra('genMsg',[
+    'Cruzando tu psicología con tus números reales',
+    'Puntuando tus 12 capas psicofinancieras',
+    'Calibrando tu percentil contra nuestra muestra',
+    'Detectando tu brecha, tus palancas y tus contradicciones',
+    'Componiendo Tu Libro Financiero · estándar Adapta'
+  ]);
+  try{
+    st.datos._motor=st.motorLog;
+    try{const _o=sessionStorage.getItem('adaptaDe'); if(_o) st.datos._origen=_o; const _v=sessionStorage.getItem('adaptaVid'); if(_v) st.datos._vid=_v;}catch(e){}
+    const body={session_id:st.sid,email:st.email,nombre:st.nombre,respuestas:st.resp,datos:st.datos,abiertas:st.abiertas,perfil:st.perfil,v2:true};
+    if(PAREJA) body.pareja_de=PAREJA;
+    const r=await fetch(API+'/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    await new Promise(res=>setTimeout(res, Math.max(0, 2700-(Date.now()-_t0))));
+    st.reportUrl=d.report_url; CURSID=st.sid;
+    try{window.adaptaEv&&adaptaEv('test_fin',st.tier)}catch(e){}
+    show('s-done');
+    if(d.needs_partner){
+      // INICIADOR: primero paga, luego invita. El enlace para la pareja llega TRAS el pago.
+      st.esCoupleInic=true;
+      document.getElementById('doneHead').textContent='Tu parte está lista';
+      var _ds=document.getElementById('doneSub'); if(_ds){ _ds.style.display='block';
+        _ds.textContent='Un primer vistazo con tus números. Desbloquea vuestro Libro de Pareja y, justo después, recibes el enlace para invitar a tu pareja:'; }
+      // sin return -> continúa al adelanto + paywall (54 €)
+    } else if(d.es_pareja){
+      // SEGUNDO MIEMBRO: no paga. Agradecimiento.
+      document.getElementById('doneHead').textContent='¡Has completado tu parte!';
+      document.getElementById('doneSub').style.display='none';
+      document.getElementById('doneTxt').textContent = d.inic_pagado
+        ? 'Tu pareja ya desbloqueó vuestro Libro de Pareja. Recibiréis el documento conjunto con los dos perfiles por email. ¡Gracias!'
+        : 'Hemos guardado tu parte. En cuanto tu pareja desbloquee el libro, recibiréis el documento conjunto. ¡Gracias!';
+      return;
+    }
+    // Adelanto gratis con datos reales -> paywall
+    const t=d.teaser||{};
+    if(t.esclavitud!=null){
+      document.getElementById('tEscl').textContent=t.esclavitud+'%';
+      const ml=(t.meses_libertad!=null)?t.meses_libertad:0;
+      const inercia=Math.max(0,(12-ml));
+      document.getElementById('tEsclSub').textContent = ml>0
+        ? ('De cada 12 meses que trabajas, ~'+inercia.toFixed(1).replace('.0','')+' se queman solo en sostener tu vida actual.')
+        : 'Ahora mismo casi todo lo que trabajas se consume en sostener tu vida actual.';
+    }
+    if(t.meses_liquido!=null){
+      var _mq=t.meses_liquido, _cel=document.getElementById('tCero');
+      if(_cel){ var _txt=(_mq>=1)?('Sin ingresos, te quedas a 0 en '+Math.round(_mq)+(Math.round(_mq)===1?' mes':' meses')+'.'):'Sin ingresos, no llegas ni a un mes.'; _cel.textContent=_txt; _cel.style.display='block'; }
+    }
+    if(t.salud!=null){ document.getElementById('tSalud').textContent=t.salud; }
+    if(t.margen!=null){ document.getElementById('tMargen').textContent=t.margen+'%'; }
+    if(t.cifra_libertad){ var cl=t.cifra_libertad; var clt=(cl>=1e6)?((cl/1e6).toFixed(1).replace('.',',')+' M €'):((cl>=1e3)?(Math.round(cl/1e3)+' K €'):(fmt(cl)+' €')); document.getElementById('tCifra').textContent=clt; }
+    if(t.foco_tit){ document.getElementById('tFoco').textContent=t.foco_tit; if(t.iri!=null) document.getElementById('tIriTag').textContent='· Ratio de Vida '+t.iri+'/100'; document.getElementById('tFocoBox').style.display='block'; }
+    if(t.esclavitud!=null||t.margen!=null||t.cifra_libertad||t.foco_tit||t.meses_liquido!=null){ document.getElementById('teaserBox').style.display='block'; }
+    const tier=st.tier||2;
+    document.getElementById('payBtn').textContent='Comprar y pagar · '+(PRECIO_TIER[tier]||39)+' €';
+    var _pcn=document.getElementById('payCoupleNote'); if(_pcn) _pcn.style.display=st.esCoupleInic?'block':'none';
+    document.getElementById('payBox').style.display='block';
+  }catch(e){console.error(e);show('s-done');document.getElementById('doneSub').style.display='none';document.getElementById('doneTxt').textContent='Hubo un problema al procesar. Reintenta.';}
+}
+async function copiarPareja(){
+  var b=document.getElementById('parejaCopyBtn'), msg=document.getElementById('parejaCopyMsg');
+  var link=window.PAREJA_LINK||(document.getElementById('parejaCode')||{}).textContent||'';
+  var ok=false;
+  try{ await navigator.clipboard.writeText(link); ok=true; }
+  catch(e){
+    try{ var el=document.getElementById('parejaCode'); var r=document.createRange(); r.selectNodeContents(el); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); ok=!!(document.execCommand&&document.execCommand('copy')); }catch(_){}
+  }
+  if(ok){ if(b) b.textContent='✓ Enlace copiado'; if(msg) msg.textContent='¡Listo! Pégaselo a tu pareja (WhatsApp, etc.). Cuando complete su parte, vuestro libro se desbloquea aquí.'; }
+  else { if(msg) msg.textContent='Mantén pulsado el enlace de arriba para seleccionarlo y cópialo.'; }
+}
+async function compartirPareja(){
+  var link=window.PAREJA_LINK||(document.getElementById('parejaCode')||{}).textContent||'';
+  try{ if(navigator.share) await navigator.share({title:'Diagnóstico de pareja · Adapta',text:'Completa tu parte para desbloquear nuestro libro financiero:',url:link}); }catch(e){}
+}
+// Envía la invitación por email vía backend. DEGRADACIÓN: si el email no está configurado o
+// falla, NO rompe nada -> el enlace copiable de arriba sigue siendo el respaldo de siempre.
+async function enviarInvitacionEmail(){
+  var inp=document.getElementById('parejaEmailInput'), btn=document.getElementById('parejaEmailBtn'), msg=document.getElementById('parejaEmailMsg');
+  var dest=(inp&&inp.value||'').trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(dest)){ if(msg) msg.textContent='Escribe un email válido.'; return; }
+  var sid=CURSID||(st&&st.sid); if(!sid){ if(msg) msg.textContent='Sesión no encontrada; usa el enlace de arriba.'; return; }
+  var o=btn?btn.textContent:''; if(btn){ btn.disabled=true; btn.textContent='Enviando…'; }
+  try{
+    var r=await fetch(API+'/api/invitar-pareja',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({uuid_pareja:sid,email_destino:dest,nombre_iniciador:(st&&st.nombre)||''})});
+    var d=await r.json();
+    if(d&&d.ok){
+      if(msg){ msg.style.color='#7ee3ad'; msg.textContent='✓ Invitación enviada a '+dest+'. (Pídele que mire también en Spam.)'; }
+      if(btn) btn.textContent='✓ Enviada';
+      return;
+    }
+    // Degradación elegante: sin servicio de email -> el enlace copiable es el respaldo.
+    if(msg){ msg.style.color='var(--am)';
+      msg.textContent = (d&&d.motivo==='email_no_configurado')
+        ? 'El envío automático no está disponible aún: de momento copia el enlace de arriba y envíaselo tú.'
+        : 'No se pudo enviar el email. Copia el enlace de arriba y envíaselo tú.'; }
+  }catch(e){
+    if(msg){ msg.style.color='var(--am)'; msg.textContent='No se pudo enviar el email. Copia el enlace de arriba y envíaselo tú.'; }
+  }finally{
+    if(btn){ btn.disabled=false; if(btn.textContent==='Enviando…') btn.textContent=o; }
+  }
+}
+/* Aviso visible + resaltado. Antes un fallo aqui dejaba el boton inerte sin que
+   el usuario viera nada: parecia que "no hacia nada". */
+function _payMsg(txt,color){
+  const e=document.getElementById('doneTxt'); if(!e) return;
+  e.textContent=txt; e.style.color=color||'#F0A84B'; e.style.fontWeight='600'; e.style.fontSize='14px';
+  try{ e.scrollIntoView({block:'center',behavior:'smooth'}); }catch(_){}
+}
+function _payResalta(el){
+  if(!el) return;
+  const lab=el.closest('label')||el.parentElement;
+  if(lab){ lab.style.background='rgba(244,63,94,.10)'; lab.style.border='1px solid #f43f5e';
+           lab.style.borderRadius='10px'; lab.style.padding='10px'; }
+  try{ el.focus(); (lab||el).scrollIntoView({block:'center',behavior:'smooth'}); }catch(_){}
+}
+async function pagar(){
+  const _cb=document.getElementById('consentPago');
+  if(_cb && !_cb.checked){ _payMsg('Te falta marcar la casilla de entrega inmediata (te la he resaltado).'); _payResalta(_cb); return; }
+  const _ct=document.getElementById('consentTerminos');
+  if(_ct && !_ct.checked){ _payMsg('Te falta aceptar los Términos generales de contratación (te los he resaltado).'); _payResalta(_ct); return; }
+  const sid=CURSID||(st&&st.sid);
+  if(!sid){ _payMsg('No encontramos tu sesión. Vuelve a abrir el enlace del diagnóstico o escríbenos y lo resolvemos sin que repitas nada.','#f43f5e'); return; }
+  try{window.adaptaEv&&adaptaEv('pago_click',(st&&st.tier)||'')}catch(e){}
+  const b=document.getElementById('payBtn'); const o=b.textContent; b.disabled=true; b.textContent='Conectando con el pago…';
+  _payMsg('Conectando con la pasarela de pago…','#B9B9BD');
+  const _cod=(function(){try{return new URLSearchParams(location.search).get('codigo')||sessionStorage.getItem('adaptaCod')||'';}catch(e){return '';}})();
+  const _url=API+'/api/checkout/'+sid+'?consent=1'+(_cod?('&codigo='+encodeURIComponent(_cod)):'');
+  async function _intento(ms){
+    const c=new AbortController(); const t=setTimeout(()=>c.abort(), ms);
+    try{ return await fetch(_url,{method:'POST',signal:c.signal}); } finally{ clearTimeout(t); }
+  }
+  function _fin(msg,col){ b.disabled=false; b.textContent=o; _payMsg(msg,col||'#f43f5e'); }
+  try{
+    let r;
+    try{
+      r=await _intento(12000);
+    }catch(_e){
+      /* El servidor puede estar dormido (arranque en frio): reintento largo y honesto. */
+      b.textContent='Despertando el servidor…';
+      _payMsg('El servidor estaba en reposo. Esto puede tardar hasta un minuto la primera vez — no cierres la página.','#B9B9BD');
+      r=await _intento(70000);
+    }
+    if(r.status===409){ return _fin('Tu cuestionario no llegó a guardarse completo. Escríbenos y lo recuperamos: no tendrás que repetirlo.'); }
+    if(r.status===404){ return _fin('No encontramos tu sesión de diagnóstico. Escríbenos y te pasamos un enlace para retomarla.'); }
+    if(r.status===503){ return _fin('El cobro está temporalmente no disponible. Avísanos y lo dejamos resuelto enseguida.'); }
+    if(r.status===422){
+      /* Codigo promocional invalido o agotado: el servidor manda el motivo exacto.
+         Se lo decimos tal cual, en vez de un numero de error que no significa nada. */
+      let _m='El código promocional no es válido. Escríbenos y te damos uno nuevo.';
+      try{ const _d=await r.json(); if(_d && _d.detail) _m=_d.detail; }catch(_e){}
+      return _fin(_m);
+    }
+    if(!r.ok){
+      /* Si el servidor explica el motivo (p.ej. un codigo promocional), se muestra tal cual. */
+      try{ const _d=await r.json(); if(_d && _d.detail && /c[oó]digo/i.test(_d.detail)) return _fin(String(_d.detail).replace(/^No se pudo crear el pago:\s*422:\s*/,'')); }catch(_e){}
+      return _fin('El servidor respondió con un error ('+r.status+'). Vuelve a intentarlo; si sigue igual, escríbenos.');
+    }
+    const d=await r.json();
+    if(d.url){ location.href=d.url; return; }
+    if(d.ya_pagado){ descargarSid(sid); return; }
+    return _fin('La pasarela no devolvió un enlace de pago. Escríbenos y lo resolvemos a mano.');
+  }catch(e){
+    const _to=(e&&(e.name==='AbortError'));
+    _fin(_to ? 'El servidor ha tardado demasiado en responder. Espera unos segundos y pulsa otra vez: suele funcionar al segundo intento.'
+             : 'No se pudo iniciar el pago. Revisa tu conexión y vuelve a intentarlo; si sigue igual, escríbenos y lo resolvemos a mano.');
+  }
+}
+let _cyc=null;
+function cycleMsgs(elId,msgs,intervalMs){
+  const el=document.getElementById(elId); if(!el) return null;
+  let i=0; el.textContent=msgs[0]; el.style.opacity=1;
+  const h=setInterval(()=>{ i=(i+1)%msgs.length; el.style.opacity=0; setTimeout(()=>{el.textContent=msgs[i]; el.style.opacity=1;},200); }, intervalMs);
+  _cyc=()=>clearInterval(h); return _cyc;
+}
+function cajaNegra(elId,lines){
+  const el=document.getElementById(elId); if(!el)return; el.style.textAlign='left'; el.innerHTML=''; _cyc=()=>{};
+  let i=0;(function step(){ if(i>=lines.length)return; const row=document.createElement('div');
+    row.style.cssText='font-size:12.5px;line-height:1.75;color:var(--gr);opacity:0;transition:opacity .25s';
+    row.innerHTML='<span style="color:#7ee3ad;font-weight:700;letter-spacing:.5px">[OK]</span> '+lines[i];
+    el.appendChild(row); requestAnimationFrame(()=>row.style.opacity=1); i++; setTimeout(step,460); })();
+}
+async function descargarConAnalisis(sid){
+  show('s-build');
+  cycleMsgs('buildMsg',[
+    'Reuniendo tu perfil de las 12 capas.',
+    'Trazando tu mapa de tensión y tus palancas.',
+    'Calculando tu proyección y tu cifra de libertad.',
+    'Redactando tu hoja de ruta a 90 días.',
+    'Maquetando tu Constitución Financiera.',
+    'Dando los últimos retoques a tu libro.'
+  ],2600);
+  const t0=Date.now();
+  try{
+    // Reintento automatico: si Render esta reiniciando (502/503) o el informe aun se genera,
+    // lo reintenta solo varias veces antes de pedir accion manual. Asi un redeploy no bloquea.
+    let r=null, _ultErr=null;
+    for(let _k=0; _k<8; _k++){
+      try{
+        const _rr=await fetch(API+'/api/report/'+sid);
+        if(_rr.ok){ r=_rr; break; }
+        _ultErr=new Error('status '+_rr.status);
+        // 5xx o 409 (aun generando/arrancando): espera y reintenta
+      }catch(_e){ _ultErr=_e; }
+      await new Promise(res=>setTimeout(res, 6000));
+    }
+    if(!r) throw (_ultErr||new Error('sin respuesta'));
+    const blob=await r.blob();
+    await new Promise(res=>setTimeout(res, Math.max(0, 6500-(Date.now()-t0))));
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='Tu_Libro_Financiero_ITAP.pdf'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
+    show('s-done');
+    document.getElementById('doneHead').textContent='Tu libro está listo';
+    document.getElementById('doneSub').style.display='none';
+    const tb=document.getElementById('teaserBox'); if(tb) tb.style.display='none';
+    const pb=document.getElementById('payBox'); if(pb) pb.style.display='none';
+    const dl=document.getElementById('dl'); dl.style.display='inline-block'; dl.textContent='Volver a descargar';
+    try{ var _lw=document.getElementById('leerWeb'); if(!_lw){ _lw=document.createElement('a'); _lw.id='leerWeb'; _lw.className='btn'; _lw.style.cssText='display:inline-block;margin:10px auto 0;max-width:380px'; dl.parentNode.insertBefore(_lw, dl.nextSibling); } _lw.href='informe.html?id='+encodeURIComponent(sid); _lw.textContent='Leerlo aquí, en el móvil →'; }catch(_e){}
+    document.getElementById('doneTxt').textContent='Lo hemos guardado en tu dispositivo. Búscalo en tu carpeta de descargas.';
+    var _sp1=document.getElementById('spamTip'); if(_sp1)_sp1.style.display='block';
+  }catch(e){
+    show('s-done');
+    document.getElementById('doneHead').textContent='Tu libro está casi listo';
+    const dl=document.getElementById('dl'); dl.style.display='inline-block'; dl.textContent='Descargar mi libro';
+    document.getElementById('doneTxt').textContent='El análisis tardó un poco más de lo normal. Pulsa para descargarlo.';
+    var _sp2=document.getElementById('spamTip'); if(_sp2)_sp2.style.display='block';
+  }
+}
+async function trasPago(sid){
+  try{
+    const r=await fetch(API+'/api/pareja-estado/'+sid); const d=await r.json();
+    if(d.es_pareja && d.es_inic && !d.pareja_lista){ mostrarEsperaPareja(sid); return; }
+  }catch(e){}
+  descargarConAnalisis(sid);
+}
+function mostrarEsperaPareja(sid){
+  show('s-done'); CURSID=sid;
+  window.PAREJA_LINK=location.origin+location.pathname+'?pareja='+encodeURIComponent(sid);
+  document.getElementById('doneHead').textContent='✓ Pago confirmado';
+  var _s=document.getElementById('doneSub'); if(_s) _s.style.display='none';
+  var _tb=document.getElementById('teaserBox'); if(_tb) _tb.style.display='none';
+  var _pb2=document.getElementById('payBox'); if(_pb2) _pb2.style.display='none';
+  document.getElementById('doneTxt').textContent='Ahora invita a tu pareja. En cuanto complete su parte, descargáis aquí vuestro Libro de Pareja (y te llega por email).';
+  var _pc=document.getElementById('parejaCode'); if(_pc) _pc.textContent=window.PAREJA_LINK;
+  var _pcb=document.getElementById('parejaCodeBox'); if(_pcb) _pcb.style.display='block';
+  var _sh=document.getElementById('parejaShareBtn'); if(_sh && navigator.share) _sh.style.display='inline-block';
+  var _w=document.getElementById('parejaWait'); if(_w) _w.style.display='block';
+  var _dl=document.getElementById('dl'); if(_dl){ _dl.style.display='inline-block'; _dl.textContent='Ya ha completado · descargar'; }
+  let tries=0;
+  const iv=setInterval(async()=>{
+    tries++;
+    try{ const r=await fetch(API+'/api/pareja-estado/'+sid); const d=await r.json();
+      if(d.pareja_lista){ clearInterval(iv);
+        var w=document.getElementById('parejaWait'); if(w) w.textContent='Tu pareja ha completado. Preparando vuestro libro…';
+        descargarConAnalisis(sid); return; }
+    }catch(e){}
+    if(tries>=720){ clearInterval(iv); }
+  },5000);
+}
+function descargarSid(sid){ descargarConAnalisis(sid); }
+function descargar(){ const sid=CURSID||(st&&st.sid); if(sid) descargarConAnalisis(sid); }
+function show(id){ if(_cyc){_cyc();_cyc=null;} document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+// Retorno desde Stripe Checkout (?sid=..&paid=1|0)
+(function(){
+  const qs=new URLSearchParams(location.search);
+  const sid=qs.get('sid'), paid=qs.get('paid');
+  if(!sid) return;
+  CURSID=sid; show('s-done');
+  const sub=document.getElementById('doneSub'); if(sub) sub.style.display='none';
+  const tb=document.getElementById('teaserBox'); if(tb) tb.style.display='none';
+  try{window.adaptaEv&&adaptaEv(paid==='1'?'pago_ok':(paid==='0'?'pago_cancelado':'retorno_enlace'))}catch(e){}
+  if(paid==='1'){
+    document.getElementById('doneHead').textContent='Confirmando tu pago…';
+    document.getElementById('doneTxt').textContent='Un momento: validamos el pago y preparamos tu descarga.';
+    const cs=qs.get('cs');
+    (async()=>{
+      // 1) Verificar el pago directamente con Stripe (robusto, sin depender del webhook).
+      if(cs){ try{ const r=await fetch(API+'/api/verify/'+sid+'?cs='+encodeURIComponent(cs),{method:'POST'}); const d=await r.json(); if(d.pagado){ trasPago(sid); return; } }catch(e){} }
+      // 2) Fallback: sondear estado (por si el webhook ya lo marcó).
+      let tries=0;
+      const iv=setInterval(async()=>{
+        tries++;
+        try{ const r=await fetch(API+'/api/estado/'+sid); const d=await r.json();
+          if(d.pagado){ clearInterval(iv); trasPago(sid); return; }
+        }catch(e){}
+        if(tries>=15){ clearInterval(iv);
+          document.getElementById('doneHead').textContent='Pago recibido';
+          document.getElementById('doneTxt').textContent='Si la descarga no empieza sola, pulsa el botón.';
+          document.getElementById('dl').style.display='inline-block';
+        }
+      },2000);
+    })();
+  } else if(paid==='0'){
+    document.getElementById('doneHead').textContent='Tu diagnóstico te espera';
+    document.getElementById('doneTxt').textContent='El pago no se completó. Puedes desbloquearlo cuando quieras.';
+    document.getElementById('payBtn').textContent='Comprar y pagar';
+    document.getElementById('payBox').style.display='block';
+  }
+})();
+// Entrada: invitacion de pareja -> su pantalla; vuelta de Stripe -> su pantalla; progreso guardado ->
+// ofrecer reanudar (sin el muro); en cualquier otro caso -> directo a la primera pregunta.
+(function(){
+  try{
+    const qs=new URLSearchParams(location.search);
+    if(PAREJA || qs.get('sid')) return;
+    if(hayProgreso()){ const mu=document.getElementById('regMuro'); if(mu) mu.style.display='none'; show('s-reg'); return; }
+    arranqueDirecto();
+  }catch(e){}
+})();
+</script><footer style="text-align:center;padding:26px 18px;border-top:1px solid var(--bd);color:var(--gr);font-size:12px;line-height:1.95;max-width:640px;margin:26px auto 0">
+  <a href="https://www.adaptafamilyoffice.com/aviso-legal" target="_blank" rel="noopener" style="color:var(--gr);margin:0 6px;text-decoration:none">Aviso legal</a> ·
+  <a href="privacidad.html" target="_blank" rel="noopener" style="color:var(--gr);margin:0 6px;text-decoration:none">Privacidad</a> ·
+  <a href="https://www.adaptafamilyoffice.com/terminos" target="_blank" rel="noopener" style="color:var(--gr);margin:0 6px;text-decoration:none">T&eacute;rminos de contrataci&oacute;n</a>
+  <br><span style="color:#555">&copy; 2026 Adapta Family Office S.L. · CIF B09854092 · P&ordm; Castellana 40, 28046 Madrid</span>
+</footer>
+</body></html>

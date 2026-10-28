@@ -74,6 +74,12 @@ async function carga(){
   h+='</table></div>';
   const C=d.calculadora_anios_de_mas||{};
   h+='<h2>Lo que les sale en la calculadora (años de más trabajando)</h2><div class="kpis">'+Object.keys(C).map(x=>'<div class="k"><div class="l">'+x+'</div><div class="n">'+C[x]+'</div></div>').join('')+'</div>';
+  const AT=d.atascos_desglose||{}, AO=d.atajo_otros||{}, AB=d.abandono_por_pregunta||{};
+  const _nm={ingreso_mensual:'Ingresos',gasto_mensual:'Gastos',deuda_total:'Deudas',inversiones_liquidas:'Inversiones'};
+  h+='<h2>Claves para mejorar el test</h2><div class="tw"><table><tr><th>Desglose</th><th>Se atascan</th><th>Usan «Otros»</th></tr>'+
+     Object.keys(Object.assign({},AT,AO)).map(k=>'<tr><td>'+(_nm[k]||k)+'</td><td>'+(AT[k]||0)+'</td><td>'+(AO[k]||0)+'</td></tr>').join('')+'</table></div>';
+  h+='<h2>Dónde abandonan el test (última pregunta vista)</h2><div class="tw"><table><tr><th>Pregunta (avance)</th><th>Personas</th></tr>'+
+     Object.keys(AB).map(k=>'<tr><td>'+k+'</td><td>'+AB[k]+'</td></tr>').join('')+'</table></div>';
   const D=d.por_dia||{}, LD=d.linkedin_por_dia||{};
   h+='<h2>Visitas por día</h2><div class="tw"><table><tr><th>Día</th><th>Total</th><th>LinkedIn</th></tr>'+Object.keys(D).reverse().map(x=>'<tr><td>'+x+'</td><td>'+D[x]+'</td><td>'+(LD[x]||0)+'</td></tr>').join('')+'</table></div>';
   h+='<h2>Últimos recorridos (qué hizo cada visitante)</h2>';
