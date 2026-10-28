@@ -169,6 +169,7 @@ class StartPayload(BaseModel):
 class CompletePayload(BaseModel):
     session_id: str
     email: Optional[str] = None
+    nombre: Optional[str] = None
     respuestas: Dict[str, Any] = {}
     datos: Optional[Dict[str, Any]] = None
     pareja_de: Optional[str] = None
@@ -739,7 +740,7 @@ def visitas(key: str = "", dias: int = 30):
     with db() as c:
         _ensure_ev(c)
         filas = c.execute("SELECT ts,sid,ev,pag,de,ref,val,movil FROM eventos WHERE ts>=? ORDER BY ts", (desde,)).fetchall()
-        ses = c.execute("SELECT datos,respuestas,pagado,tier,creado FROM sesiones WHERE creado>=?", (desde,)).fetchall()
+        ses = c.execute("SELECT datos,respuestas,pagado,tier,creado,email,nombre FROM sesiones WHERE creado>=?", (desde,)).fetchall()
     for r in filas:
         v = vis.get(r["sid"])
         if v is None:
@@ -756,6 +757,18 @@ def visitas(key: str = "", dias: int = 30):
         if r["ev"] == "scroll":
             try: v["scroll"] = max(v["scroll"], int(r["val"] or 0))
             except Exception: pass
+    # Fuera el RUIDO: nuestras pruebas (?de=prueba...) y las cargas de 0 s que solo ven la portada
+    # (vistas previas, comprobaciones, robots). No son personas y tapaban la realidad.
+    def _ruido(v):
+        if str(v.get("de") or "").lower().startswith(("prueba", "test", "qa")): return True
+        otros = [e for e in v["ev"] if e[0] not in ("vista", "salida", "scroll")]
+        return (not otros) and v["seg"] <= 1 and v["scroll"] == 0 and len(v["pags"]) <= 1
+    descartados = sum(1 for v in vis.values() if _ruido(v))
+    vis = {k: v for k, v in vis.items() if not _ruido(v)}
+    def _ses_prueba(r):
+        em = (r["email"] or "").lower(); nm = (r["nombre"] or "").lower()
+        return em.endswith(".test") or em.startswith(("qa-", "prueba")) or "prueba" in nm or em == NOTIFY_EMAIL.lower()
+    ses = [r for r in ses if not _ses_prueba(r)]
     PASOS = [("visitas", lambda v: True),
              ("usa_calculadora", lambda v: any(e[0] == "calc_uso" for e in v["ev"])),
              ("lee_75pct", lambda v: v["scroll"] >= 75),
@@ -815,7 +828,7 @@ def visitas(key: str = "", dias: int = 30):
             prev = t
         rec.append({"inicio": v["inicio"], "origen": v["de"], "canal": _canal(v["de"]), "ref": v["ref"],
                     "movil": bool(v["movil"]), "seg": v["seg"], "scroll": v["scroll"], "recorrido": pasos[:40]})
-    return {"dias": dias, "visitantes": len(vis), "embudo": embudo, "cuestionarios_servidor": dict(srv),
+    return {"dias": dias, "visitantes": len(vis), "descartados_ruido": descartados, "embudo": embudo, "cuestionarios_servidor": dict(srv),
             "calculadora_anios_de_mas": dict(brecha), "por_dia": dict(sorted(por_dia.items())),
             "linkedin_por_dia": dict(sorted(li_dia.items())), "recorridos": rec}
 
@@ -882,12 +895,13 @@ def complete(payload: CompletePayload, background_tasks: BackgroundTasks):
     if not row:
         raise HTTPException(400, "Sesion no valida. Inicia el cuestionario aceptando la politica de privacidad.")
     email = payload.email or row["email"]
-    nombre = row["nombre"]
+    # El cuestionario ya no pide nombre y email al entrar (era un muro): llegan aqui, al terminar.
+    nombre = ((payload.nombre or "").strip()[:80] or None) or row["nombre"]
     tier = row["tier"]
     datos = datos_completos(payload.datos)
     with db() as c:
-        c.execute("UPDATE sesiones SET respuestas=?, datos=?, email=?, pareja_de=?, abiertas=?, perfil=?, es_v2=? WHERE id=?",
-                  (json.dumps(payload.respuestas), json.dumps(datos), email, payload.pareja_de,
+        c.execute("UPDATE sesiones SET respuestas=?, datos=?, email=?, nombre=?, pareja_de=?, abiertas=?, perfil=?, es_v2=? WHERE id=?",
+                  (json.dumps(payload.respuestas), json.dumps(datos), email, nombre, payload.pareja_de,
                    json.dumps(payload.abiertas or {}), json.dumps(payload.perfil or {}),
                    1 if payload.v2 else 0, payload.session_id))
     if tier == 3:

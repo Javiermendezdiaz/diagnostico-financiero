@@ -46,7 +46,7 @@ td small{color:var(--gr)}
 const API="https://diagnostico-financiero-app.onrender.com";
 const $=id=>document.getElementById(id);
 try{ $('key').value=localStorage.getItem('adaptaAdminKey')||''; }catch(e){}
-const COLS=[["visitas","Visitas"],["usa_calculadora","Usa calculadora"],["lee_75pct","Lee 75 %"],["ve_ejemplo","Ve ejemplo"],["clic_diagnostico","Clic diagnóstico"],["abre_cuestionario","Abre cuestionario"],["empieza_test","Empieza test"],["termina_test","Termina test"],["clic_pagar","Clic pagar"],["pago_ok","Paga"],["nota_gratis","Nota gratis"],["deja_email_nota","Email nota"],["whatsapp","WhatsApp"],["movil_pct","% móvil"],["tiempo_mediano_seg","Tiempo mediano"]];
+const COLS=[["visitas","Visitas"],["usa_calculadora","Usa calculadora"],["lee_75pct","Lee 75 %"],["ve_ejemplo","Ve ejemplo"],["clic_diagnostico","Clic diagnóstico"],["abre_cuestionario","Abre cuestionario"],["empieza_test","Responde 1.ª pregunta"],["termina_test","Termina test"],["clic_pagar","Clic pagar"],["pago_ok","Paga"],["nota_gratis","Nota gratis"],["deja_email_nota","Email nota"],["whatsapp","WhatsApp"],["movil_pct","% móvil"],["tiempo_mediano_seg","Tiempo mediano"]];
 function pct(a,b){return b?Math.round(100*a/b)+'%':'—'}
 async function carga(){
   $('err').textContent=''; $('out').innerHTML='Cargando… (si el servidor dormía, tarda unos segundos)';
@@ -56,7 +56,7 @@ async function carga(){
   catch(e){ $('out').innerHTML=''; $('err').textContent='No se pudo conectar. Reintenta en 30 s.'; return; }
   const E=d.embudo||{}, T=E.TOTAL||{}, L=E['canal:linkedin']||{};
   let h='<div class="kpis">'+
-    '<div class="k"><div class="l">Visitantes</div><div class="n">'+(d.visitantes||0)+'</div></div>'+
+    '<div class="k"><div class="l">Visitantes reales</div><div class="n">'+(d.visitantes||0)+'</div><div style="font-size:11px;color:var(--gr);margin-top:4px">'+(d.descartados_ruido||0)+' cargas de 0 s y pruebas descartadas</div></div>'+
     '<div class="k"><div class="l">Desde LinkedIn</div><div class="n am">'+(L.visitas||0)+'</div></div>'+
     '<div class="k"><div class="l">Usan la calculadora</div><div class="n">'+pct(T.usa_calculadora,T.visitas)+'</div></div>'+
     '<div class="k"><div class="l">Clic en diagnóstico</div><div class="n">'+pct(T.clic_diagnostico,T.visitas)+'</div></div>'+
