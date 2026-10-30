@@ -898,6 +898,35 @@ def lecturas_informe(key: str = "", dias: int = 90):
     return {"clientes": len(out), "lecturas": out}
 
 
+class AvancePayload(BaseModel):
+    datos: Dict[str, Any] = {}
+
+@app.post("/api/avance")
+def avance(p: AvancePayload):
+    """Primer cálculo a mitad del test (tras los números): su Número de Libertad, cuánto lleva y a qué
+    edad llega a su ritmo. MISMO motor que el informe (seccion_apertura.datos_expectativas). Sin datos
+    personales ni sesión: solo cifras. Nunca falla (ok:false si no se puede calcular)."""
+    try:
+        import seccion_apertura as _sa
+        d = datos_completos(p.datos or {})
+        exp = _sa.datos_expectativas(d)
+        if not exp:
+            return {"ok": False}
+        try: ed = float(d.get("edad") or 0)
+        except Exception: ed = 0
+        if exp.get("pension_cubre"):
+            return {"ok": True, "pension_cubre": True}
+        N = exp.get("numero_libertad")
+        if not N:
+            return {"ok": False}
+        esc = exp.get("escenarios") or []
+        a = esc[0].get("anios") if esc else exp.get("anios_reales")
+        return {"ok": True, "numero": round(float(N)), "pct": exp.get("pct_cubierto"),
+                "anios": a, "edad_llega": (int(round(ed + a)) if (a is not None and ed > 0) else None),
+                "lunes": (int(a * 52) if a is not None else None)}
+    except Exception:
+        return {"ok": False}
+
 @app.post("/api/complete")
 def complete(payload: CompletePayload, background_tasks: BackgroundTasks):
     with db() as c:
