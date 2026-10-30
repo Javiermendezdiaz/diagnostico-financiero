@@ -979,13 +979,13 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
     $('o-nd').textContent= N>0 ? ('Te faltan '+corto(falta)) : 'Tu pensión ya cubre esa vida.';
     $('o-pct').textContent=pct+'%'; $('o-ring').style.strokeDashoffset=(163.4*(1-pct/100)).toFixed(1);
     var a=anios(N,ca,ah), llega = a===null ? null : ed+a, ver=$('o-ver'), dif=null;
-    if(N<=0){ $('o-ed').textContent='Ya'; $('o-ed').className='n ve'; $('o-edd').textContent='Con tu pensión llega'; ver.innerHTML='Con la pensión que esperas cubres esa vida desde los 67. La pregunta es <b>qué pasa hasta entonces</b>.'; }
+    if(N<=0){ $('o-ed').textContent='Ya'; $('o-ed').className='n ve'; $('o-edd').textContent='Con tu pensión llega'; ver.innerHTML='Con la pensión que esperas cubres esa vida desde los 67. Ahora la pregunta es otra: <b>¿qué pasa hasta entonces, y si esa pensión llega como la imaginas?</b> Tu diagnóstico lo comprueba con tus cifras reales.'; }
     else if(llega===null || llega>FIN){ $('o-ed').textContent='No llegas'; $('o-ed').className='n ro'; $('o-edd').textContent='antes de los 95, a este ritmo';
       ver.innerHTML='Quieres parar a los <b>'+ep+'</b>. A tu ritmo actual <span class="ro">no reúnes ese capital en toda tu vida</span>. No es una condena: es que <b>falta un plan</b>.'; dif=FIN-ep; }
     else { $('o-ed').textContent=llega+' años'; dif=llega-ep;
       $('o-ed').className='n '+(dif>0?'ro':'ve'); $('o-edd').textContent= a===0?'Ya lo tienes':('dentro de '+a+' años');
       ver.innerHTML = dif>0 ? 'Quieres parar a los <b>'+ep+'</b>. A tu ritmo llegas a los <b>'+llega+'</b>: <span class="ro">'+dif+' año'+(dif===1?'':'s')+' más trabajando por dinero</span> de lo que te gustaría: <b>'+miles(dif*52)+' lunes</b> de más.'
-                            : 'Vas por delante: llegas a los <b>'+llega+'</b>, antes de los '+ep+'. Ahora toca <span class="ve">protegerlo</span> y saber qué puede torcerlo.'; }
+                            : 'Vas por delante: llegas a los <b>'+llega+'</b>, antes de los '+ep+'. Ahora la pregunta es otra: <b>¿a qué nivel de vida, con qué riesgo y qué podría torcerlo?</b> Un mercado malo, un imprevisto o una mala decisión pueden quitarte años. Tu diagnóstico lo comprueba con tus cifras reales.'; }
     // tu vida, año a año
     var hasta=(N<=0)?ed:((llega===null||llega>FIN)?FIN:Math.max(ed,llega)), g=$('o-yrs'), n=FIN-ed;
     if(g.children.length!==n){ g.innerHTML=''; for(var i=0;i<n;i++){ var s=document.createElement('i'); g.appendChild(s);} }
@@ -1006,7 +1006,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
       } else wait.style.display='none';
     } else { lev.style.display='none'; wait.style.display='none'; }
     var pa=$('p-anios'); if(pa){ pa.textContent = (dif===null||dif<=0) ? '0' : (llega===null||llega>FIN ? '+'+dif : String(dif)); }
-    var bt=$('bar-t'); if(bt && dif!==null && dif>0) bt.innerHTML='<b>'+(llega===null||llega>FIN?'No llegas antes de los 95':'Llegas a los '+llega+', no a los '+ep)+'</b><br>Descubre cómo adelantarlo · empieza gratis';
+    var bt=$('bar-t'); if(bt && (N<=0 || (dif!==null && dif<=0))) bt.innerHTML='<b>Vas bien. ¿Seguro?</b><br>Comprueba qué podría torcerlo · empieza gratis';
+    if(bt && dif!==null && dif>0) bt.innerHTML='<b>'+(llega===null||llega>FIN?'No llegas antes de los 95':'Llegas a los '+llega+', no a los '+ep)+'</b><br>Descubre cómo adelantarlo · empieza gratis';
     window.adaptaCalc={ed:ed,ep:ep,go:go,pe:pe,ca:ca,ah:ah,N:N,llega:llega,dif:dif,usado:usado};
     clearTimeout(tRes); tRes=setTimeout(function(){ if(usado && window.adaptaEv) adaptaEv('calc_resultado', (dif===null?'na':dif)+'|'+ed+'|'+pct+'%'); },1500);
   }

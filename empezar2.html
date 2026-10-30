@@ -612,18 +612,55 @@ const REFLEX=["La respuesta cómoda y la verdadera casi nunca son la misma. Marc
 
 function construirCola(){
   st.cola=[]; st.abierta=new Set(); st.insertados=new Set(); st.inyectados=0; st.motorLog=[]; st._prog=0; st._lastIdx=null;
-  // Empieza por la emocion (tu vida ideal), no por el formulario. El sexo va al final y es opcional.
+  /* ORDEN PENSADO PARA QUE LLEGUEN AL FINAL (antes abandonaban al 36 %, tras ~35 preguntas «Sobre ti» sin recibir nada):
+     1) la emocion (tu vida ideal)  2) lo minimo sobre ti que condiciona tus numeros (edad, pareja, trabajo, deuda)
+     3) TUS NUMEROS  4) TU PRIMER RESULTADO (numero de libertad y edad a la que llegas)  5) el resto. */
+  var EARLY=['SD-2','SD-3','SD-6','SEED-DEUDA'];
+  var CORE=['ingreso_mensual','ahorro_mensual','renta_pasiva','gasto_mensual','cuota_deuda','deuda_total','patrimonio','colchon_liquido','pension_estimada','inversiones_liquidas'];
+  // Preguntas que solo usa el informe de PAREJA: en el individual no se preguntan (menos test, mismo informe)
+  var SOLO_PAREJA=['SD-13','SD-27','SD-28','SD-30','SD-31','SD-32'];
+  var t1fuera=function(q){ return st.tier===1 && (/^NUM-F/.test(q.id||'') || q.campo==='horas_semana' || q.campo==='pension_estimada'); };
   INST.vision_brecha.forEach(q=>st.cola.push({...q,_b:'Tu vida ideal',_cap:'VIS'}));
-  INST.sociodemografico.filter(q=>q.campo!=='sexo' && ['SD-14','SD-15'].indexOf(q.id)<0).forEach(q=>st.cola.push({...q,_b:'Sobre ti',_cap:'SD'}));
-  INST.numericas_financieras.forEach(q=>{
-    if(st.tier===1 && (/^NUM-F/.test(q.id||'') || q.campo==='horas_semana' || q.campo==='pension_estimada')) return; // T1 (vistazo rápido): sin desglose de fuentes ni números de profundidad
-    st.cola.push({...q,tipo:'numerica',_b:'Tus números',_cap:'NUM'});
-  });
+  INST.sociodemografico.filter(q=>EARLY.indexOf(q.id)>=0).forEach(q=>st.cola.push({...q,_b:'Sobre ti',_cap:'SD'}));
+  INST.numericas_financieras.filter(q=>CORE.indexOf(q.campo)>=0 && !t1fuera(q)).forEach(q=>st.cola.push({...q,tipo:'numerica',_b:'Tus números',_cap:'NUM'}));
+  st.cola.push({id:'AVANCE',tipo:'reveal',_b:'Tu primer resultado',_cap:'REV'});
+  INST.sociodemografico.filter(q=>q.campo!=='sexo' && ['SD-14','SD-15'].indexOf(q.id)<0 && EARLY.indexOf(q.id)<0 && (st.tier===3 || SOLO_PAREJA.indexOf(q.id)<0)).forEach(q=>st.cola.push({...q,_b:'Sobre ti',_cap:'SD'}));
+  INST.numericas_financieras.filter(q=>CORE.indexOf(q.campo)<0 && !t1fuera(q)).forEach(q=>st.cola.push({...q,tipo:'numerica',_b:'Tus números',_cap:'NUM'}));
   INST.capas.forEach(c=>c.items.filter(it=>it.nivel==='nucleo').forEach(it=>st.cola.push({...it,_b:c.nombre,_cap:c.code})));
   (INST.arquetipo||[]).forEach(q=>st.cola.push({...q,tipo:'opcion',_b:'Tu arquetipo del dinero',_cap:'ARQ'}));
   if(INST.prioridades) st.cola.push({...INST.prioridades,_b:'Lo que más te importa',_cap:'PRIO'});
   (INST._abiertas||[]).forEach(q=>st.cola.push({...q,tipo:'abierta',_b:'En tus palabras',_cap:'OPEN',ayuda:'Sin filtro y sin prisa. Esto es lo que se analiza para escribir tu retrato.'}));
   INST.sociodemografico.filter(q=>q.campo==='sexo').forEach(q=>st.cola.push({...q,_b:'Sobre ti',_cap:'SD'}));
+}
+/* TU PRIMER RESULTADO a mitad del test: el mismo motor que el informe, con lo que lleva respondido. */
+async function mostrarAvance(q){
+  var sigue=function(){ try{document.getElementById('hito').classList.remove('on');}catch(e){} st.i++; pintar(); };
+  // En pareja no: el libro conjunto trabaja con el numero del HOGAR, no con el de uno solo (evita dos cifras distintas)
+  if(PAREJA || st.tier===3 || st._avanceVisto){ st.i++; return pintar(); }
+  st._avanceVisto=true;
+  if(!st.sid) asegurarSesion();
+  var r=null;
+  try{ r=await (await fetch(API+'/api/avance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({datos:st.datos})})).json(); }catch(e){ r=null; }
+  if(!r || !r.ok){ st.i++; return pintar(); }
+  var f=function(n){return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,'.');};
+  var t, p, pct=(r.pct!=null)?Math.max(0,Math.min(100,Math.round(r.pct))):null;
+  if(r.pension_cubre){
+    t='Tu pensión cubriría tu vida';
+    p='Con la pensión que estimas, a partir de los 67 cubres el gasto que nos has dado. <b>Ahora toca saber qué pasa hasta entonces y qué podría torcerlo.</b> Es lo que mide el resto del test.';
+  } else {
+    t='Tu Número de Libertad: '+f(r.numero)+' €';
+    p='Es el capital que, invertido, sostiene tu vida sin depender de tu sueldo (ya descuenta tu pensión). '+(pct!=null?'Hoy tienes el <b>'+pct+' %</b>. ':'')
+      +(r.anios===0 ? '<b>Ya tienes ese capital.</b> Ahora la pregunta es qué podría torcerlo y cómo protegerlo.' : (r.edad_llega? 'A tu ritmo actual llegarías a los <b>'+r.edad_llega+' años</b>'+(r.lunes?': <b>'+f(r.lunes)+' lunes</b> de trabajo por delante.':'.') : '<b>A tu ritmo actual no llegarías.</b>'))
+      +'<br><br>Lo que queda del test es lo que te dice <b>cómo adelantarlo</b>: tus 12 dimensiones, tus puntos ciegos y tus decisiones. <span style="color:#94a3b8">(Primer cálculo: tu informe lo afina con el resto de respuestas.)</span>';
+  }
+  try{window.adaptaEv&&adaptaEv('avance_visto',(r.edad_llega||'na')+'|'+(pct==null?'na':pct))}catch(e){}
+  var m=document.getElementById('hito'), b=document.getElementById('hitoBar');
+  document.getElementById('hitoPct').textContent=(pct!=null?pct+' %':'✓');
+  document.getElementById('hitoT').textContent=t;
+  document.getElementById('hitoP').innerHTML=p;
+  b.style.width='0%'; m.classList.add('on'); setTimeout(function(){ b.style.width=(pct!=null?pct:100)+'%'; },60);
+  var bt=document.getElementById('hitoBtn'); var txt0=bt.textContent; bt.textContent='Quiero saber cómo adelantarlo →';
+  bt.onclick=function(){ bt.textContent=txt0; sigue(); };
 }
 function emostrar(ms){
   if(!ms)return true; const v=st.perfil[ms.campo];
@@ -872,6 +909,7 @@ function pintar(){
   while(st.i<st.cola.length && !aplica(st.cola[st.i])) st.i++;
   if(st.i>=st.cola.length){ return (!st.email && !PAREJA) ? pedirEmail() : finalizar(); }
   const q=st.cola[st.i];
+  if(q && q.tipo==='reveal'){ return mostrarAvance(q); }
   try{ const iq=document.getElementById('introQ'); if(iq) iq.style.display=(st.i===0 && !st.sid)?'block':'none'; }catch(e){}
   repProg(q);
   saveProgreso();
@@ -1379,7 +1417,7 @@ function avanzar(q){
   if(scanCapa && !st.avisoEstres && capaMean(scanCapa)>=51){ st.avisoEstres=true; return popupEstres(next); }
   next();
 }
-function atras(){ if(st.i<=0)return; st.i--; while(st.i>0 && !aplica(st.cola[st.i])) st.i--; pintar(); }
+function atras(){ if(st.i<=0)return; st.i--; while(st.i>0 && (!aplica(st.cola[st.i]) || st.cola[st.i].tipo==='reveal')) st.i--; pintar(); }
 
 async function finalizar(){
   // Guarda final: si alguna cifra no cuadra, avísalo antes de generar y deja volver a corregir
